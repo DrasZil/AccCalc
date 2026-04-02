@@ -44,16 +44,16 @@ const navGroups = [
             label: "Notes Interest", path: "/accounting/notes-interest"
         },
         {
-            label: "Straight-line Depreciation",
-            path: "/accounting/straight-line-depreciation",
+            label: "Straight-line Depreciation", path: "/accounting/straight-line-depreciation",
         },
         {
-            label: "Declining Balance Depreciation",
-            path: "/accounting/declining-balance-depreciation",
+            label: "Declining Balance Depreciation", path: "/accounting/declining-balance-depreciation",
         },
         {
-            label: "Cash Discount",
-            path: "/accounting/cash-discount"
+            label: "Cash Discount", path: "/accounting/cash-discount"
+        },
+        { 
+            label: "FIFO Inventory", path: "/accounting/fifo-inventory"
         },
         ],
     },

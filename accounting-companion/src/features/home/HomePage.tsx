@@ -8,6 +8,12 @@ const tools = [
         category: "Core",
     },
     {
+        title: "Smart Solver",
+        description: "Enter known values and get a suggested calculator.",
+        path: "/smart/solver",
+        category: "Smart Tools",
+    },
+    {
         title: "Simple Interest Calculator",
         description: "Compute interest, total amount, and understand the full solution.",
         path: "/finance/simple-interest",
@@ -74,12 +80,6 @@ const tools = [
         category: "Accounting",
     },
     {
-        title: "Smart Solver",
-        description: "Enter known values and get a suggested calculator.",
-        path: "/smart/solver",
-        category: "Smart Tools",
-    },
-    {
         title: "Accounting Equation",
         description: "Enter any 2 values and solve for Assets, Liabilities, or Equity using the fundamental accounting equation.",
         path: "/accounting/accounting-equation",
@@ -96,7 +96,13 @@ const tools = [
         description: "Solve payment amounts for terms like 2/10, n/30.",
         path: "/accounting/cash-discount",
         category: "Accounting",
-    }
+    },
+    {
+        title: "FIFO Inventory",
+        description: "Compute cost of goods sold and ending inventory using the FIFO method.",
+        path: "/accounting/fifo-inventory",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {
