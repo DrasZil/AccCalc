@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import InstallPrompt from "../../components/InstallPrompt";
 
 const navGroups = [
     {
@@ -215,6 +216,8 @@ const navGroups = [
             </section>
             </div>
         </div>
+
+        <InstallPrompt/>
         </main>
     );
 }
