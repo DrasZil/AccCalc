@@ -103,6 +103,12 @@ const tools = [
         path: "/accounting/fifo-inventory",
         category: "Accounting",
     },
+    {
+        title: "Weighted Average Inventory",
+        description: "Compute weighted average unit cost, cost of goods sold, and ending inventory.",
+        path: "/accounting/weighted-average-inventory",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {

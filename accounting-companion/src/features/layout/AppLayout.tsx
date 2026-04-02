@@ -55,6 +55,9 @@ const navGroups = [
         { 
             label: "FIFO Inventory", path: "/accounting/fifo-inventory"
         },
+        { 
+            label: "Weighted Average Inventory", path: "/accounting/weighted-average-inventory" 
+        },
         ],
     },
 ];
