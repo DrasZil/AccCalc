@@ -1,6 +1,6 @@
 {
-    "name": "AccCal",
-    "short_name": "AccCal",
+    "name": "AccCalc",
+    "short_name": "AccCalc",
     "description": "Accounting calculator and learning companion for students and professionals.",
     "start_url": "/",
     "display": "standalone",
