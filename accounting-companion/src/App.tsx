@@ -1,0 +1,41 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AppLayout from "./features/layout/AppLayout";
+import HomePage from "./features/home/HomePage";
+import BasicCalculatorPage from "./features/basic/BasicCalculatorPage";
+import SimpleInterestPage from "./features/finance/SimpleInterestPage";
+import ProfitLossPage from "./features/business/ProfitLossPage";
+import BreakEvenPage from "./features/business/BreakEvenPage";
+import ContributionMarginPage from "./features/business/ContributionMarginPage";
+import MarkupMarginPage from "./features/business/MarkupMarginPage";
+import CompoundInterestPage from "./features/finance/CompoundInterestPage";
+import FutureValuePage from "./features/finance/FutureValuePage";
+import PresentValuePage from "./features/finance/PresentValuePage";
+import StraightLineDepreciationPage from "./features/accounting/StraightLineDepreciationPage";
+import DecliningBalanceDepreciationPage from "./features/accounting/DoubleDecliningBalancePage";
+import LoanAmortizationPage from "./features/finance/LoanAmortizationPage";
+import SmartSolverPage from "./features/smart/SmartSolverPage";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="basic" element={<BasicCalculatorPage />} />
+          <Route path="finance/simple-interest" element={<SimpleInterestPage />} />
+          <Route path="business/profit-loss" element={<ProfitLossPage />} />
+          <Route path="business/break-even" element={<BreakEvenPage />} />
+          <Route path="business/contribution-margin" element={<ContributionMarginPage />} />
+          <Route path="business/markup-margin" element={<MarkupMarginPage />} />
+          <Route path="finance/compound-interest" element={<CompoundInterestPage />} />
+          <Route path="finance/future-value" element={<FutureValuePage />} />
+          <Route path="finance/present-value" element={<PresentValuePage />} />
+          <Route path="finance/loan-amortization" element={<LoanAmortizationPage />} />
+          <Route path="accounting/straight-line-depreciation" element={<StraightLineDepreciationPage />} />
+          <Route path="accounting/declining-balance-depreciation" element={<DecliningBalanceDepreciationPage />} />
+          <Route path="smart/solver" element={<SmartSolverPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
