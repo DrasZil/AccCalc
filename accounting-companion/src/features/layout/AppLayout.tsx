@@ -63,6 +63,11 @@ const navGroups = [
     },
 ];
 
+const bottomNavItems = [
+    { label: "About", path: "/about" },
+    { label: "Feedback", path: "/feedback" },
+];
+
     export default function AppLayout() {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -174,6 +179,29 @@ const navGroups = [
                     );
                 })}
                 </nav>
+
+                <div className="border-t border-white/10 p-4">
+                    <div className="space-y-2">
+                        {bottomNavItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+
+                        return (
+                            <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                                isActive
+                                ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
+                                : "bg-white/5 text-white hover:bg-white/10"
+                            }`}
+                            >
+                            {item.label}
+                            </Link>
+                        );
+                        })}
+                    </div>
+                    </div>
 
                 <div className="border-t border-white/10 p-4 text-xs leading-5 text-gray-500">
                 Built for students and professionals who need fast, clear,

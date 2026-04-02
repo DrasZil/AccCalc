@@ -19,6 +19,8 @@ import NoteInterestPage from "./features/accounting/NoteInterestPage";
 import CashDiscountPage from "./features/accounting/CashDiscountPage";
 import FIFOInventoryPage from "./features/accounting/FIFOInventoryPage";
 import WeightedAverageInventoryPage from "./features/accounting/WeightedAverageInventoryPage";
+import AboutPage from "./features/meta/AboutPage";
+import FeedbackPage from "./features/meta/FeedBackPage";
 
 export default function App() {
   return (
@@ -42,8 +44,11 @@ export default function App() {
           <Route path="accounting/notes-interest" element={<NoteInterestPage/>}/>
           <Route path="accounting/cash-discount" element={<CashDiscountPage/>}/>
           <Route path="accounting/fifo-inventory" element={<FIFOInventoryPage/>}/>
-          <Route path="smart/solver" element={<SmartSolverPage />} />
           <Route path="accounting/weighted-average-inventory" element={<WeightedAverageInventoryPage />}/>
+          <Route path="smart/solver" element={<SmartSolverPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+        
         </Route>
       </Routes>
     </BrowserRouter>
