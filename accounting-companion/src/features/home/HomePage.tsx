@@ -85,6 +85,12 @@ const tools = [
         path: "/accounting/accounting-equation",
         category: "Accounting",
     },
+    {
+        title: "Notes Interest",
+        description: "Compute interest and maturity value for notes receivable or notes payable.",
+        path: "/accounting/notes-interest",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {

@@ -38,16 +38,19 @@ const navGroups = [
         title: "Accounting",
         items: [
         {
+            label: "Accounting Equation",
+            path: "/accounting/accounting-equation",
+        },
+        {
+            label: "Notes Interest", path: "/accounting/notes-interest"
+        },
+        {
             label: "Straight-line Depreciation",
             path: "/accounting/straight-line-depreciation",
         },
         {
             label: "Declining Balance Depreciation",
             path: "/accounting/declining-balance-depreciation",
-        },
-        {
-            label: "Accounting Equation",
-            path: "/accounting/accounting-equation",
         },
         ],
     },
