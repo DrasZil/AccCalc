@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
@@ -51,6 +50,10 @@ const navGroups = [
         {
             label: "Declining Balance Depreciation",
             path: "/accounting/declining-balance-depreciation",
+        },
+        {
+            label: "Cash Discount",
+            path: "/accounting/cash-discount"
         },
         ],
     },

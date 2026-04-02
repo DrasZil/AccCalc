@@ -91,6 +91,12 @@ const tools = [
         path: "/accounting/notes-interest",
         category: "Accounting",
     },
+    {
+        title: "Cash Discount / Credit Terms",
+        description: "Solve payment amounts for terms like 2/10, n/30.",
+        path: "/accounting/cash-discount",
+        category: "Accounting",
+    }
 ];
 
 export default function HomePage() {
