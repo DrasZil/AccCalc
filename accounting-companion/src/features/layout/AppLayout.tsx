@@ -45,6 +45,10 @@ const navGroups = [
             label: "Declining Balance Depreciation",
             path: "/accounting/declining-balance-depreciation",
         },
+        {
+            label: "Accounting Equation",
+            path: "/accounting/accounting-equation",
+        },
         ],
     },
 ];

@@ -14,6 +14,7 @@ import StraightLineDepreciationPage from "./features/accounting/StraightLineDepr
 import DecliningBalanceDepreciationPage from "./features/accounting/DoubleDecliningBalancePage";
 import LoanAmortizationPage from "./features/finance/LoanAmortizationPage";
 import SmartSolverPage from "./features/smart/SmartSolverPage";
+import AccountingEquationPage from "./features/accounting/AccountEquationPage";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="finance/loan-amortization" element={<LoanAmortizationPage />} />
           <Route path="accounting/straight-line-depreciation" element={<StraightLineDepreciationPage />} />
           <Route path="accounting/declining-balance-depreciation" element={<DecliningBalanceDepreciationPage />} />
+          <Route path="accounting/accounting-equation" element={<AccountingEquationPage />} />
           <Route path="smart/solver" element={<SmartSolverPage />} />
         </Route>
       </Routes>

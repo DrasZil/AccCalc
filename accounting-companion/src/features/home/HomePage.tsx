@@ -79,6 +79,12 @@ const tools = [
         path: "/smart/solver",
         category: "Smart Tools",
     },
+    {
+        title: "Accounting Equation",
+        description: "Enter any 2 values and solve for Assets, Liabilities, or Equity using the fundamental accounting equation.",
+        path: "/accounting/accounting-equation",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {
