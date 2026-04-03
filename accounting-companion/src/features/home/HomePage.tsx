@@ -135,73 +135,71 @@ const tools = [
 export default function HomePage() {
     return (
         <div className="space-y-8">
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8">
-            <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-green-300">
-                Smart Accounting Toolkit
-            </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
-                Make studying and solving calculations easier.
-            </h1>
-            <p className="mt-4 text-base leading-7 text-gray-300 md:text-lg">
-                AccCalc is designed to help students and professionals solve core
-                financial and business calculations with clarity, speed, and
-                confidence.
-            </p>
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-sm text-gray-400">Purpose</p>
-                <p className="mt-2 text-lg font-semibold">Study + practical use</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-sm text-gray-400">Focus</p>
-                <p className="mt-2 text-lg font-semibold">Readable, accurate, guided</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-sm text-gray-400">Users</p>
-                <p className="mt-2 text-lg font-semibold">Students and professionals</p>
-            </div>
-            </div>
-        </section>
-
-        <section className="space-y-4">
-            <div className="flex items-end justify-between gap-4">
-            <div>
-                <h2 className="text-2xl font-bold tracking-tight">Available tools</h2>
-                <p className="mt-1 text-sm text-gray-400">
-                Choose a calculator based on what you need to solve.
-                </p>
-            </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {tools.map((tool) => (
-                <Link
-                key={tool.path}
-                to={tool.path}
-                className="group rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:bg-white/10"
-                >
-                <div className="flex items-center justify-between gap-3">
-                    <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
-                    {tool.category}
-                    </span>
-                    <span className="text-sm text-gray-500 transition group-hover:text-gray-300">
-                    Open →
-                    </span>
+            <section className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8">
+                <div className="max-w-3xl">
+                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-green-300">
+                        Smart Accounting Toolkit
+                    </p>
+                    <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
+                        Make studying and solving calculations easier.
+                    </h1>
+                    <p className="mt-4 text-base leading-7 text-gray-300 md:text-lg">
+                        AccCalc is designed to help students and professionals solve core
+                        financial and business calculations with clarity, speed, and
+                        confidence.
+                    </p>
                 </div>
 
-                <h3 className="mt-4 text-xl font-semibold leading-snug">
-                    {tool.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-gray-300">
-                    {tool.description}
-                </p>
-                </Link>
-            ))}
-            </div>
-        </section>
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <p className="text-sm text-gray-400">Purpose</p>
+                        <p className="mt-2 text-lg font-semibold">Study + practical use</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <p className="text-sm text-gray-400">Focus</p>
+                        <p className="mt-2 text-lg font-semibold">Readable, accurate, guided</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <p className="text-sm text-gray-400">Users</p>
+                        <p className="mt-2 text-lg font-semibold">Students and professionals</p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Quick access</h2>
+                    <p className="mt-1 text-sm text-gray-400">
+                        Start with the most useful tools, then browse everything from the sidebar.
+                    </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {tools.map((tool) => (
+                        <Link
+                            key={tool.path}
+                            to={tool.path}
+                            className="group rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:bg-white/10"
+                        >
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                    {tool.category}
+                                </span>
+                                <span className="text-sm text-gray-500 transition group-hover:text-gray-300">
+                                    Open →
+                                </span>
+                            </div>
+
+                            <h3 className="mt-4 text-xl font-semibold leading-snug">
+                                {tool.title}
+                            </h3>
+                            <p className="mt-3 text-sm leading-6 text-gray-300">
+                                {tool.description}
+                            </p>
+                        </Link>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 }
