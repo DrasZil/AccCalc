@@ -1,0 +1,1142 @@
+import type {
+    CalculatorConfig,
+    ConfidenceLabel,
+    ExtractedFacts,
+    FieldKey,
+    FieldMeta,
+    FieldsState,
+    RankedCalculator,
+    SmartSolverAnalysis,
+    } from "./smartSolver.types";
+    import { ALL_FIELD_KEYS } from "./smartSolver.types";
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   FIELDS                                   */
+    /* -------------------------------------------------------------------------- */
+
+    export const FIELD_KEYS: FieldKey[] = [...ALL_FIELD_KEYS];
+
+    export const FIELD_META: Record<FieldKey, FieldMeta> = {
+    principal: {
+        label: "Principal",
+        placeholder: "10000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: true,
+        aliases: ["principal", "capital", "amount borrowed", "borrowed", "investment", "invested"],
+    },
+    rate: {
+        label: "Rate (%)",
+        placeholder: "5",
+        kind: "percent",
+        group: "finance",
+        visibleInManualInputs: true,
+        aliases: ["rate", "interest rate", "rate of interest"],
+    },
+    time: {
+        label: "Time (years)",
+        placeholder: "2",
+        kind: "time",
+        group: "finance",
+        visibleInManualInputs: true,
+        aliases: ["time", "term", "period"],
+    },
+    cost: {
+        label: "Cost",
+        placeholder: "5000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: true,
+        aliases: ["cost", "expense", "expenses", "buying price", "purchase price"],
+    },
+    revenue: {
+        label: "Revenue",
+        placeholder: "8000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: true,
+        aliases: ["revenue", "sales", "income", "selling amount"],
+    },
+
+    timesCompounded: {
+        label: "Times Compounded / Year",
+        placeholder: "12",
+        kind: "number",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["times compounded", "compounding frequency", "compounds per year"],
+    },
+    presentValue: {
+        label: "Present Value",
+        placeholder: "10000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["present value", "present worth", "worth today", "current worth"],
+    },
+    futureValue: {
+        label: "Future Value",
+        placeholder: "15000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["future value", "future worth", "maturity value", "amount after", "value after"],
+    },
+    loanAmount: {
+        label: "Loan Amount",
+        placeholder: "50000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["loan amount", "amount financed", "borrowed money"],
+    },
+    annualRate: {
+        label: "Annual Rate (%)",
+        placeholder: "10",
+        kind: "percent",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["annual rate", "yearly rate"],
+    },
+    years: {
+        label: "Years",
+        placeholder: "5",
+        kind: "time",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: ["years", "loan term"],
+    },
+
+    fixedCosts: {
+        label: "Fixed Costs",
+        placeholder: "30000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["fixed cost", "fixed costs"],
+    },
+    sellingPricePerUnit: {
+        label: "Selling Price / Unit",
+        placeholder: "120",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["selling price per unit", "price per unit", "selling price each"],
+    },
+    variableCostPerUnit: {
+        label: "Variable Cost / Unit",
+        placeholder: "70",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable cost per unit", "variable cost each", "cost per unit"],
+    },
+    sales: {
+        label: "Sales",
+        placeholder: "15000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["sales", "net sales"],
+    },
+    variableCosts: {
+        label: "Variable Costs",
+        placeholder: "9000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable costs", "variable cost"],
+    },
+    sellingPrice: {
+        label: "Selling Price",
+        placeholder: "9000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["selling price", "sale price", "sold for"],
+    },
+
+    assets: {
+        label: "Assets",
+        placeholder: "100000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["assets"],
+    },
+    liabilities: {
+        label: "Liabilities",
+        placeholder: "40000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["liabilities"],
+    },
+    equity: {
+        label: "Equity",
+        placeholder: "60000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["equity", "owner's equity", "owners equity"],
+    },
+
+    invoice: {
+        label: "Invoice Amount",
+        placeholder: "10000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["invoice", "invoice amount"],
+    },
+    discountRate: {
+        label: "Discount Rate (%)",
+        placeholder: "2",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["discount rate", "cash discount"],
+    },
+    discountDays: {
+        label: "Discount Days",
+        placeholder: "10",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["discount days", "discount period"],
+    },
+    totalDays: {
+        label: "Total Days",
+        placeholder: "30",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["total days", "net days"],
+    },
+    daysPaid: {
+        label: "Days Paid",
+        placeholder: "8",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["days paid", "paid after", "payment after", "paid on day"],
+    },
+
+    salvageValue: {
+        label: "Salvage Value",
+        placeholder: "5000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["salvage value", "residual value"],
+    },
+    usefulLife: {
+        label: "Useful Life",
+        placeholder: "5",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["useful life"],
+    },
+    year: {
+        label: "Year",
+        placeholder: "2",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["year"],
+    },
+
+    beginningUnits: {
+        label: "Beginning Units",
+        placeholder: "100",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["beginning units", "beginning inventory units"],
+    },
+    beginningCost: {
+        label: "Beginning Cost",
+        placeholder: "50",
+        kind: "money",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["beginning cost", "beginning inventory cost"],
+    },
+    purchase1Units: {
+        label: "Purchase 1 Units",
+        placeholder: "80",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["purchase 1 units", "first purchase units"],
+    },
+    purchase1Cost: {
+        label: "Purchase 1 Cost",
+        placeholder: "55",
+        kind: "money",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["purchase 1 cost", "first purchase cost"],
+    },
+    purchase2Units: {
+        label: "Purchase 2 Units",
+        placeholder: "120",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["purchase 2 units", "second purchase units"],
+    },
+    purchase2Cost: {
+        label: "Purchase 2 Cost",
+        placeholder: "60",
+        kind: "money",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["purchase 2 cost", "second purchase cost"],
+    },
+    unitsSold: {
+        label: "Units Sold",
+        placeholder: "150",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["units sold", "sold units"],
+    },
+    };
+
+    export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
+    acc[key] = "";
+    return acc;
+    }, {} as FieldsState);
+
+    export function createEmptyFields(): FieldsState {
+    return { ...INITIAL_FIELDS };
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                CALCULATORS                                 */
+    /* -------------------------------------------------------------------------- */
+
+    export const CALCULATORS: CalculatorConfig[] = [
+    {
+        id: "simple-interest",
+        name: "Simple Interest Calculator",
+        route: "/finance/simple-interest",
+        description:
+        "Best when the user provides principal, rate, and time for straightforward interest problems.",
+        required: ["principal", "rate", "time"],
+        keywords: [
+        /simple interest/i,
+        /\binterest\b/i,
+        /principal/i,
+        /\brate\b/i,
+        /borrow(?:ed|ing)?/i,
+        /\bloan\b/i,
+        /invest(?:ed|ment)?/i,
+        /maturity value/i,
+        ],
+    },
+    {
+        id: "compound-interest",
+        name: "Compound Interest Calculator",
+        route: "/finance/compound-interest",
+        description:
+        "Best when the user provides principal, rate, time, and compounding frequency.",
+        required: ["principal", "rate", "timesCompounded", "time"],
+        keywords: [
+        /compound interest/i,
+        /compounded/i,
+        /compounding/i,
+        /interest compounded/i,
+        /quarterly/i,
+        /monthly compounding/i,
+        /annually/i,
+        /semi[- ]annually/i,
+        ],
+    },
+    {
+        id: "future-value",
+        name: "Future Value Calculator",
+        route: "/finance/future-value",
+        description:
+        "Best when the user wants to know how much a present amount will grow in the future.",
+        required: ["presentValue", "rate", "time"],
+        keywords: [
+        /future value/i,
+        /\bfv\b/i,
+        /future worth/i,
+        /grow/i,
+        /growth/i,
+        /amount after/i,
+        /value after/i,
+        ],
+    },
+    {
+        id: "present-value",
+        name: "Present Value Calculator",
+        route: "/finance/present-value",
+        description:
+        "Best when the user wants the present worth of a future amount using discounting.",
+        required: ["futureValue", "rate", "time"],
+        keywords: [
+        /present value/i,
+        /\bpv\b/i,
+        /present worth/i,
+        /discount(?:ed|ing)?/i,
+        /worth today/i,
+        /current worth/i,
+        /future amount/i,
+        ],
+    },
+    {
+        id: "loan-amortization",
+        name: "Loan / Amortization Calculator",
+        route: "/finance/loan-amortization",
+        description:
+        "Best when the user wants monthly payment, total paid, or total interest on a loan.",
+        required: ["loanAmount", "annualRate", "years"],
+        keywords: [
+        /\bloan\b/i,
+        /amortization/i,
+        /monthly payment/i,
+        /installment/i,
+        /borrowed money/i,
+        /total interest/i,
+        /total paid/i,
+        /payment per month/i,
+        ],
+    },
+    {
+        id: "profit-loss",
+        name: "Profit / Loss Calculator",
+        route: "/business/profit-loss",
+        description:
+        "Best when the user is comparing cost against revenue to determine profit or loss.",
+        required: ["cost", "revenue"],
+        keywords: [
+        /\bprofit\b/i,
+        /\bloss\b/i,
+        /revenue/i,
+        /sales?/i,
+        /selling price/i,
+        /\bcost\b/i,
+        /expense/i,
+        /gain/i,
+        ],
+    },
+    {
+        id: "break-even",
+        name: "Break-even Calculator",
+        route: "/business/break-even",
+        description:
+        "Best when the user wants break-even units or break-even sales using fixed cost and per-unit inputs.",
+        required: ["fixedCosts", "sellingPricePerUnit", "variableCostPerUnit"],
+        keywords: [
+        /break[- ]?even/i,
+        /break[- ]?even point/i,
+        /\bbep\b/i,
+        /fixed costs?/i,
+        /selling price per unit/i,
+        /variable cost per unit/i,
+        /units to break even/i,
+        ],
+    },
+    {
+        id: "contribution-margin",
+        name: "Contribution Margin Calculator",
+        route: "/business/contribution-margin",
+        description:
+        "Best when the user wants contribution margin or contribution margin ratio.",
+        required: ["sales", "variableCosts"],
+        keywords: [
+        /contribution margin/i,
+        /contribution margin ratio/i,
+        /cm ratio/i,
+        /variable costs?/i,
+        /\bsales\b/i,
+        /margin ratio/i,
+        ],
+    },
+    {
+        id: "markup-margin",
+        name: "Markup & Margin Calculator",
+        route: "/business/markup-margin",
+        description:
+        "Best when the user provides cost and selling price and wants markup, margin, or profit percentage.",
+        required: ["cost", "sellingPrice"],
+        keywords: [
+        /\bmarkup\b/i,
+        /\bmargin\b/i,
+        /gross margin/i,
+        /selling price/i,
+        /\bcost\b/i,
+        /profit percentage/i,
+        /markup percentage/i,
+        /margin percentage/i,
+        ],
+    },
+    {
+        id: "accounting-equation",
+        name: "Accounting Equation Solver",
+        route: "/accounting/accounting-equation",
+        description:
+        "Best when the user is solving for assets, liabilities, or equity.",
+        required: ["assets", "liabilities", "equity"],
+        keywords: [
+        /accounting equation/i,
+        /\bassets\b/i,
+        /\bliabilities\b/i,
+        /\bequity\b/i,
+        /owner'?s equity/i,
+        /assets\s*=\s*liabilities\s*\+\s*equity/i,
+        /\ba\s*=\s*l\s*\+\s*e\b/i,
+        ],
+    },
+    {
+        id: "notes-interest",
+        name: "Notes Interest Solver",
+        route: "/accounting/notes-interest",
+        description:
+        "Best when the user wants interest or maturity value for notes receivable or notes payable.",
+        required: ["principal", "rate", "time"],
+        keywords: [
+        /notes interest/i,
+        /note receivable/i,
+        /notes receivable/i,
+        /note payable/i,
+        /notes payable/i,
+        /maturity value/i,
+        /ordinary interest/i,
+        /exact interest/i,
+        /promissory note/i,
+        ],
+    },
+    {
+        id: "cash-discount",
+        name: "Cash Discount / Credit Terms",
+        route: "/accounting/cash-discount",
+        description:
+        "Best when the user is solving discount and payment amounts for terms like 2/10, n/30.",
+        required: ["invoice", "discountRate", "discountDays", "totalDays", "daysPaid"],
+        keywords: [
+        /cash discount/i,
+        /credit terms/i,
+        /2\/10,\s*n\/30/i,
+        /1\/10,\s*n\/30/i,
+        /discount period/i,
+        /invoice amount/i,
+        /terms/i,
+        /net amount/i,
+        /discount allowed/i,
+        ],
+    },
+    {
+        id: "straight-line-depreciation",
+        name: "Straight-Line Depreciation",
+        route: "/accounting/straight-line-depreciation",
+        description:
+        "Best when the user wants annual depreciation using cost, salvage value, and useful life.",
+        required: ["cost", "salvageValue", "usefulLife"],
+        keywords: [
+        /straight[- ]line depreciation/i,
+        /\bdepreciation\b/i,
+        /salvage value/i,
+        /useful life/i,
+        /annual depreciation/i,
+        /depreciation expense/i,
+        ],
+    },
+    {
+        id: "declining-balance-depreciation",
+        name: "Declining Balance Depreciation",
+        route: "/accounting/declining-balance-depreciation",
+        description:
+        "Best when the user wants depreciation expense or book value using declining balance inputs.",
+        required: ["cost", "usefulLife", "year"],
+        keywords: [
+        /declining balance/i,
+        /double declining/i,
+        /double declining balance/i,
+        /accelerated depreciation/i,
+        /book value/i,
+        /depreciation expense/i,
+        ],
+    },
+    {
+        id: "fifo-inventory",
+        name: "FIFO Inventory Calculator",
+        route: "/accounting/fifo-inventory",
+        description:
+        "Best when the user wants cost of goods sold and ending inventory using FIFO.",
+        required: [
+        "beginningUnits",
+        "beginningCost",
+        "purchase1Units",
+        "purchase1Cost",
+        "purchase2Units",
+        "purchase2Cost",
+        "unitsSold",
+        ],
+        keywords: [
+        /\bfifo\b/i,
+        /first in first out/i,
+        /\binventory\b/i,
+        /ending inventory/i,
+        /cost of goods sold/i,
+        /\bcogs\b/i,
+        /inventory layers/i,
+        /earliest costs/i,
+        ],
+    },
+    {
+        id: "weighted-average-inventory",
+        name: "Weighted Average Inventory Calculator",
+        route: "/accounting/weighted-average-inventory",
+        description:
+        "Best when the user wants weighted average unit cost, cost of goods sold, and ending inventory.",
+        required: [
+        "beginningUnits",
+        "beginningCost",
+        "purchase1Units",
+        "purchase1Cost",
+        "purchase2Units",
+        "purchase2Cost",
+        "unitsSold",
+        ],
+        keywords: [
+        /weighted average/i,
+        /weighted average inventory/i,
+        /average cost/i,
+        /average inventory cost/i,
+        /\binventory\b/i,
+        /ending inventory/i,
+        /cost of goods sold/i,
+        /\bcogs\b/i,
+        ],
+    },
+    ];
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  HELPERS                                   */
+    /* -------------------------------------------------------------------------- */
+
+    function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    export function normalizeText(text: string = ""): string {
+    return String(text)
+        .toLowerCase()
+        .replace(/[,_]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    export function toNumber(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined) return null;
+
+    let cleaned = String(value).trim();
+    cleaned = cleaned.replace(/,/g, "");
+    cleaned = cleaned.replace(/[₱$%\s]/g, "");
+
+    if (!cleaned) return null;
+
+    const match = cleaned.match(/-?\d+(?:\.\d+)?/);
+    return match ? Number(match[0]) : null;
+    }
+
+    export function numberToInput(value: number | null | undefined): string {
+    return value === null || value === undefined || Number.isNaN(value)
+        ? ""
+        : String(value);
+    }
+
+    export function extractFirstNumber(text: string, patterns: RegExp[]): number | null {
+    for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match && match[1] !== undefined) {
+        const value = toNumber(match[1]);
+        if (value !== null) return value;
+        }
+    }
+
+    return null;
+    }
+
+    function extractNumberByAliases(
+    text: string,
+    aliases: readonly string[],
+    options?: {
+        percent?: boolean;
+        allowCurrency?: boolean;
+    }
+    ): number | null {
+    if (!aliases.length) return null;
+
+    const joined = aliases.map(escapeRegExp).join("|");
+    const currencyPrefix = options?.allowCurrency === false ? "" : "[₱$]?";
+    const percentSuffix = options?.percent ? "\\s*%?" : "";
+
+    return extractFirstNumber(text, [
+        new RegExp(
+        `(?:${joined})\\s*(?:is|=|:|of|for|at)?\\s*${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
+        "i"
+        ),
+        new RegExp(
+        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}\\s*(?:${joined})`,
+        "i"
+        ),
+    ]);
+    }
+
+    export function extractTime(text: string): {
+    raw: number | null;
+    years: number | null;
+    note: string;
+    } {
+    const match = text.match(/(\d+(?:\.\d+)?)\s*(years?|yrs?|months?|mos?|days?)/i);
+
+    if (!match) {
+        return { raw: null, years: null, note: "" };
+    }
+
+    const value = Number(match[1]);
+    const unit = match[2].toLowerCase();
+
+    if (unit.startsWith("year") || unit.startsWith("yr")) {
+        return { raw: value, years: value, note: "" };
+    }
+
+    if (unit.startsWith("month") || unit.startsWith("mo")) {
+        const years = Number((value / 12).toFixed(4));
+        return {
+        raw: value,
+        years,
+        note: `${value} month(s) detected and normalized to ${years} year(s).`,
+        };
+    }
+
+    if (unit.startsWith("day")) {
+        const years = Number((value / 365).toFixed(4));
+        return {
+        raw: value,
+        years,
+        note: `${value} day(s) detected and normalized to ${years} year(s).`,
+        };
+    }
+
+    return { raw: null, years: null, note: "" };
+    }
+
+    function extractCompounding(text: string): { value: number | null; note: string } {
+    if (/monthly/i.test(text)) {
+        return { value: 12, note: "Monthly compounding detected and normalized to 12 times per year." };
+    }
+
+    if (/quarterly/i.test(text)) {
+        return { value: 4, note: "Quarterly compounding detected and normalized to 4 times per year." };
+    }
+
+    if (/semi[- ]?annually/i.test(text)) {
+        return { value: 2, note: "Semi-annual compounding detected and normalized to 2 times per year." };
+    }
+
+    if (/annually|annual|yearly/i.test(text)) {
+        return { value: 1, note: "Annual compounding detected and normalized to 1 time per year." };
+    }
+
+    const explicit = extractFirstNumber(text, [
+        /(?:times compounded|compounding frequency|compounds per year)\s*(?:is|=|:|of|for)?\s*(-?\d+(?:\.\d+)?)/i,
+        /(-?\d+(?:\.\d+)?)\s*(?:times per year|compounds per year)/i,
+    ]);
+
+    return {
+        value: explicit,
+        note: explicit !== null ? "Explicit compounding frequency detected." : "",
+    };
+    }
+
+    function extractCreditTerms(text: string): Partial<Record<FieldKey, string>> {
+    const result: Partial<Record<FieldKey, string>> = {};
+    const match = text.match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+)\s*,\s*n\s*\/\s*(\d+)/i);
+
+    if (!match) return result;
+
+    result.discountRate = numberToInput(Number(match[1]));
+    result.discountDays = numberToInput(Number(match[2]));
+    result.totalDays = numberToInput(Number(match[3]));
+
+    return result;
+    }
+
+    function setFact(
+    target: Partial<Record<FieldKey, string>>,
+    key: FieldKey,
+    value: string | number | null | undefined
+    ) {
+    if (value === null || value === undefined || value === "") return;
+    if (target[key]) return;
+    target[key] = typeof value === "number" ? numberToInput(value) : String(value);
+    }
+
+    function applyMirrors(facts: Partial<Record<FieldKey, string>>) {
+    if (facts.principal) {
+        if (!facts.loanAmount) facts.loanAmount = facts.principal;
+        if (!facts.presentValue) facts.presentValue = facts.principal;
+    }
+
+    if (facts.loanAmount && !facts.principal) {
+        facts.principal = facts.loanAmount;
+    }
+
+    if (facts.presentValue && !facts.principal) {
+        facts.principal = facts.presentValue;
+    }
+
+    if (facts.rate && !facts.annualRate) {
+        facts.annualRate = facts.rate;
+    }
+
+    if (facts.annualRate && !facts.rate) {
+        facts.rate = facts.annualRate;
+    }
+
+    if (facts.time && !facts.years) {
+        facts.years = facts.time;
+    }
+
+    if (facts.years && !facts.time) {
+        facts.time = facts.years;
+    }
+
+    if (facts.revenue && !facts.sales) {
+        facts.sales = facts.revenue;
+    }
+
+    if (facts.sales && !facts.revenue) {
+        facts.revenue = facts.sales;
+    }
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                EXTRACTION                                  */
+    /* -------------------------------------------------------------------------- */
+
+    export function extractFacts(query: string): ExtractedFacts {
+    const text = normalizeText(query);
+
+    if (!text) {
+        return {
+        ...INITIAL_FIELDS,
+        notes: [],
+        };
+    }
+
+    const notes: string[] = [];
+    const facts: Partial<Record<FieldKey, string>> = {};
+
+    const principal = extractFirstNumber(text, [
+        /(?:principal|capital|loan amount|amount borrowed|investment|invested|borrowed)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+        /\bon\s*[₱$]?(-?\d+(?:\.\d+)?)(?=.*(?:interest|rate|years?|months?|days?))/i,
+    ]);
+
+    const rate = extractFirstNumber(text, [
+        /(?:interest rate|rate of interest|rate|annual rate|yearly rate)\s*(?:is|=|:|of|at)?\s*(-?\d+(?:\.\d+)?)\s*%/i,
+        /\bat\s*(-?\d+(?:\.\d+)?)\s*%/i,
+        /(-?\d+(?:\.\d+)?)\s*%/i,
+    ]);
+
+    const { years, note } = extractTime(text);
+    if (note) notes.push(note);
+
+    const compounding = extractCompounding(text);
+    if (compounding.note) notes.push(compounding.note);
+
+    const cost = extractFirstNumber(text, [
+        /(?:cost|expense|expenses|buying price|purchase price)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:bought|purchased)\s*(?:for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+    ]);
+
+    const revenue = extractFirstNumber(text, [
+        /(?:revenue|sales|income|selling price|selling amount)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:sold|sell)\s*(?:for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+    ]);
+
+    const presentValue = extractNumberByAliases(text, FIELD_META.presentValue.aliases ?? []);
+    const futureValue = extractNumberByAliases(text, FIELD_META.futureValue.aliases ?? []);
+    const loanAmount = extractNumberByAliases(text, FIELD_META.loanAmount.aliases ?? []);
+    const annualRate = extractNumberByAliases(text, FIELD_META.annualRate.aliases ?? [], {
+        percent: true,
+    });
+
+    const fixedCosts = extractNumberByAliases(text, FIELD_META.fixedCosts.aliases ?? []);
+    const sellingPricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.sellingPricePerUnit.aliases ?? []
+    );
+    const variableCostPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.variableCostPerUnit.aliases ?? []
+    );
+    const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
+    const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
+    const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
+
+    const assets = extractNumberByAliases(text, FIELD_META.assets.aliases ?? []);
+    const liabilities = extractNumberByAliases(text, FIELD_META.liabilities.aliases ?? []);
+    const equity = extractNumberByAliases(text, FIELD_META.equity.aliases ?? []);
+
+    const invoice = extractNumberByAliases(text, FIELD_META.invoice.aliases ?? []);
+    const discountRate = extractNumberByAliases(text, FIELD_META.discountRate.aliases ?? [], {
+        percent: true,
+    });
+    const daysPaid = extractNumberByAliases(text, FIELD_META.daysPaid.aliases ?? [], {
+        allowCurrency: false,
+    });
+
+    const usefulLife = extractNumberByAliases(text, FIELD_META.usefulLife.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const salvageValue = extractNumberByAliases(text, FIELD_META.salvageValue.aliases ?? []);
+    const year = extractNumberByAliases(text, FIELD_META.year.aliases ?? [], {
+        allowCurrency: false,
+    });
+
+    const beginningUnits = extractNumberByAliases(text, FIELD_META.beginningUnits.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const beginningCost = extractNumberByAliases(text, FIELD_META.beginningCost.aliases ?? []);
+    const purchase1Units = extractNumberByAliases(text, FIELD_META.purchase1Units.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const purchase1Cost = extractNumberByAliases(text, FIELD_META.purchase1Cost.aliases ?? []);
+    const purchase2Units = extractNumberByAliases(text, FIELD_META.purchase2Units.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const purchase2Cost = extractNumberByAliases(text, FIELD_META.purchase2Cost.aliases ?? []);
+    const unitsSold = extractNumberByAliases(text, FIELD_META.unitsSold.aliases ?? [], {
+        allowCurrency: false,
+    });
+
+    const creditTerms = extractCreditTerms(text);
+
+    setFact(facts, "principal", principal);
+    setFact(facts, "rate", rate);
+    setFact(facts, "time", years);
+    setFact(facts, "cost", cost);
+    setFact(facts, "revenue", revenue);
+
+    setFact(facts, "timesCompounded", compounding.value);
+    setFact(facts, "presentValue", presentValue);
+    setFact(facts, "futureValue", futureValue);
+    setFact(facts, "loanAmount", loanAmount);
+    setFact(facts, "annualRate", annualRate);
+    setFact(facts, "years", years);
+
+    setFact(facts, "fixedCosts", fixedCosts);
+    setFact(facts, "sellingPricePerUnit", sellingPricePerUnit);
+    setFact(facts, "variableCostPerUnit", variableCostPerUnit);
+    setFact(facts, "sales", sales);
+    setFact(facts, "variableCosts", variableCosts);
+    setFact(facts, "sellingPrice", sellingPrice);
+
+    setFact(facts, "assets", assets);
+    setFact(facts, "liabilities", liabilities);
+    setFact(facts, "equity", equity);
+
+    setFact(facts, "invoice", invoice);
+    setFact(facts, "discountRate", discountRate);
+    setFact(facts, "daysPaid", daysPaid);
+
+    setFact(facts, "salvageValue", salvageValue);
+    setFact(facts, "usefulLife", usefulLife);
+    setFact(facts, "year", year);
+
+    setFact(facts, "beginningUnits", beginningUnits);
+    setFact(facts, "beginningCost", beginningCost);
+    setFact(facts, "purchase1Units", purchase1Units);
+    setFact(facts, "purchase1Cost", purchase1Cost);
+    setFact(facts, "purchase2Units", purchase2Units);
+    setFact(facts, "purchase2Cost", purchase2Cost);
+    setFact(facts, "unitsSold", unitsSold);
+
+    Object.entries(creditTerms).forEach(([key, value]) => {
+        setFact(facts, key as FieldKey, value);
+    });
+
+    applyMirrors(facts);
+
+    return {
+        ...INITIAL_FIELDS,
+        ...facts,
+        notes,
+    };
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                MERGE / TEXT                                */
+    /* -------------------------------------------------------------------------- */
+
+    export function mergeInputs(
+    manual: FieldsState,
+    extracted: ExtractedFacts
+    ): FieldsState {
+    return FIELD_KEYS.reduce<FieldsState>((acc, key) => {
+        acc[key] = manual[key] !== "" ? manual[key] : extracted[key] || "";
+        return acc;
+    }, { ...INITIAL_FIELDS });
+    }
+
+    export function humanizeField(field: FieldKey): string {
+    return FIELD_META[field]?.label ?? field;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  SCORING                                   */
+    /* -------------------------------------------------------------------------- */
+
+    export function buildReason(
+    calculator: CalculatorConfig,
+    merged: FieldsState,
+    query: string
+    ): string {
+    const matchedFields = calculator.required.filter((field) => merged[field] !== "");
+    const matchedKeywords = calculator.keywords.filter((keyword) =>
+        keyword.test(query)
+    ).length;
+
+    if (matchedFields.length === calculator.required.length && matchedKeywords > 0) {
+        return `Matched all required values (${matchedFields
+        .map(humanizeField)
+        .join(", ")}) and recognized related keywords from your natural-language input.`;
+    }
+
+    if (matchedFields.length === calculator.required.length) {
+        return `Matched all required values: ${matchedFields.map(humanizeField).join(", ")}.`;
+    }
+
+    if (matchedFields.length > 0) {
+        return `Partially matched ${matchedFields
+        .map(humanizeField)
+        .join(", ")} but still needs ${calculator.required
+        .filter((field) => merged[field] === "")
+        .map(humanizeField)
+        .join(", ")}.`;
+    }
+
+    return calculator.description;
+    }
+
+    export function scoreCalculator(
+    calculator: CalculatorConfig,
+    merged: FieldsState,
+    query: string,
+    extracted: ExtractedFacts
+    ): number {
+    let score = 0;
+
+    const presentRequired = calculator.required.filter((field) => merged[field] !== "");
+    const missingRequired = calculator.required.filter((field) => merged[field] === "");
+    const extractedRequired = calculator.required.filter(
+        (field) => extracted[field] !== ""
+    );
+
+    score += presentRequired.length * 24;
+    score += extractedRequired.length * 5;
+
+    if (missingRequired.length === 0) score += 20;
+
+    calculator.keywords.forEach((keyword) => {
+        if (keyword.test(query)) score += 7;
+    });
+
+    if (presentRequired.length === 0 && missingRequired.length > 0) {
+        score -= 5;
+    }
+
+    return Math.max(0, Math.min(100, score));
+    }
+
+    export function confidenceLabel(score: number): ConfidenceLabel {
+    if (score >= 80) return "High";
+    if (score >= 55) return "Good";
+    if (score >= 35) return "Possible";
+    return "Low";
+    }
+
+    export function buildFollowUp(
+    best: RankedCalculator | null,
+    secondBest: RankedCalculator | null
+    ): string {
+    if (!best || best.score < 35) {
+        return 'Try typing your full problem naturally, like: "Find simple interest for 10000 at 5% for 2 years" or "I bought for 5000 and sold for 8000."';
+    }
+
+    if (
+        secondBest &&
+        Math.abs(best.score - secondBest.score) <= 8 &&
+        secondBest.score >= 35
+    ) {
+        return `This looks slightly ambiguous between ${best.name} and ${secondBest.name}. Add one more clue or value so Smart Solver can route with more confidence.`;
+    }
+
+    if (best.missing.length > 0) {
+        return `To route confidently to ${best.name}, add ${best.missing
+        .map(humanizeField)
+        .join(" and ")}.`;
+    }
+
+    return `${best.name} is ready. You can apply detected values and open the calculator.`;
+    }
+
+    export function makePrefill(
+    calculator: { required: readonly FieldKey[] },
+    merged: FieldsState
+    ): Partial<FieldsState> {
+    return calculator.required.reduce<Partial<FieldsState>>((acc, field) => {
+        acc[field] = merged[field] ?? "";
+        return acc;
+    }, {});
+    }
+
+    export function analyzeSmartInput(
+    fields: FieldsState,
+    smartInput: string
+    ): SmartSolverAnalysis {
+    const extracted = extractFacts(smartInput);
+    const merged = mergeInputs(fields, extracted);
+    const normalizedQuery = normalizeText(smartInput);
+
+    const ranked: RankedCalculator[] = CALCULATORS.map((calculator) => {
+        const score = scoreCalculator(calculator, merged, normalizedQuery, extracted);
+        const missing = calculator.required.filter((field) => merged[field] === "");
+
+        return {
+        ...calculator,
+        score,
+        confidence: confidenceLabel(score),
+        missing,
+        reason: buildReason(calculator, merged, normalizedQuery),
+        };
+    }).sort((a, b) => b.score - a.score);
+
+    const best = ranked[0] ?? null;
+    const secondBest = ranked[1] ?? null;
+
+    const extractedEntries: Array<[FieldKey, string]> = FIELD_KEYS.flatMap((key) =>
+        extracted[key] !== "" ? [[key, extracted[key]]] : []
+    );
+
+    return {
+        extracted,
+        merged,
+        ranked,
+        best,
+        secondBest,
+        followUp: buildFollowUp(best, secondBest),
+        hasStrongMatch: Boolean(best && best.score >= 55),
+        isReadyToRoute: Boolean(best && best.score >= 55 && best.missing.length === 0),
+        extractedEntries,
+    };
+}

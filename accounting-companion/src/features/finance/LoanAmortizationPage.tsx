@@ -6,11 +6,18 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function LoanAmortizationPage() {
     const [loanAmount, setLoanAmount] = useState("");
     const [annualRate, setAnnualRate] = useState("");
     const [years, setYears] = useState("");
+
+    useSmartSolverConnector({
+        loanAmount: setLoanAmount,
+        annualRate: setAnnualRate,
+        years: setYears,
+    });
 
     const result = useMemo(() => {
         if (!loanAmount || !annualRate || !years) return null;

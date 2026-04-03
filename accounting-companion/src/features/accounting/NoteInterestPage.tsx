@@ -7,12 +7,20 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function NoteInterestPage() {
     const [principal, setPrincipal] = useState("");
     const [rate, setRate] = useState("");
     const [time, setTime] = useState("");
     const [timeUnit, setTimeUnit] = useState("years");
+
+    useSmartSolverConnector ({
+        principal: setPrincipal,
+        rate: setRate,
+        time: setTime,
+        timeUnit: setTimeUnit
+    })
 
     const result = useMemo(() => {
         if (!principal || !rate || !time) return null;

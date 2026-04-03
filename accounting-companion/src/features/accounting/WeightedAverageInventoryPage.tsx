@@ -7,6 +7,7 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from '../smart/smartSolver.connector';
 
 export default function WeightedAverageInventoryPage() {
     const [beginningUnits, setBeginningUnits] = useState("");
@@ -19,6 +20,16 @@ export default function WeightedAverageInventoryPage() {
     const [purchase2Cost, setPurchase2Cost] = useState("");
 
     const [unitsSold, setUnitsSold] = useState("");
+
+    useSmartSolverConnector({
+        beginningUnits: setBeginningUnits,
+        beginningCost: setBeginningCost,
+        purchase1Units: setPurchase1Units,
+        purchase1Cost: setPurchase1Cost,
+        purchase2Units: setPurchase2Units,
+        purchase2Cost: setPurchase2Cost,
+        unitsSold: setUnitsSold,
+    });
 
     const result = useMemo(() => {
         const values = [

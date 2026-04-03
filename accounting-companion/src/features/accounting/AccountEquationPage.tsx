@@ -7,11 +7,18 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function AccountingEquationPage() {
     const [assets, setAssets] = useState("");
     const [liabilities, setLiabilities] = useState("");
     const [equity, setEquity] = useState("");
+
+    useSmartSolverConnector({
+        assets: setAssets,
+        liabilities: setLiabilities,
+        equity: setEquity
+    });
 
     const result = useMemo(() => {
         const filledValues = [assets, liabilities, equity].filter(

@@ -6,11 +6,18 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function DoubleDecliningBalancePage() {
     const [cost, setCost] = useState("");
     const [usefulLife, setUsefulLife] = useState("");
     const [year, setYear] = useState("");
+
+    useSmartSolverConnector({
+        cost: setCost,
+        usefulLife: setUsefulLife,
+        year: setYear,
+    });
 
     const result = useMemo(() => {
         if (!cost || !usefulLife || !year) return null;

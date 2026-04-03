@@ -6,11 +6,18 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function StraightLineDepreciationPage() { 
     const [cost, setCost] = useState("");
     const [salvageValue, setSalvageValue] = useState("");
     const [usefulLife, setUsefulLife] = useState("");
+
+    useSmartSolverConnector({
+        cost: setCost,
+        salvageValue: setSalvageValue,
+        usefulLife: setUsefulLife,
+    });
 
     const result = useMemo(() => {
         if (!cost || !salvageValue || !usefulLife) return null; 

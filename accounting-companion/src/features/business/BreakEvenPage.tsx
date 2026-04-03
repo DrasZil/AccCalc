@@ -7,11 +7,18 @@ import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function BreakEvenPage() {
     const [fixedCosts, setFixedCosts] = useState("");
     const [sellingPricePerUnit, setSellingPricePerUnit] = useState("");
     const [variableCostPerUnit, setVariableCostPerUnit] = useState("");
+
+    useSmartSolverConnector({
+        fixedCosts: setFixedCosts,
+        sellingPricePerUnit: setSellingPricePerUnit,
+        variableCostPerUnit: setVariableCostPerUnit
+    });
 
     const result = useMemo(() => {
         if (!fixedCosts || !sellingPricePerUnit || !variableCostPerUnit) {

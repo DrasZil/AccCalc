@@ -6,10 +6,16 @@ import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
 import FormulaCard from "../../components/FormulaCard";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function MarkupMarginPage() {
     const [cost, setCost] = useState("");
     const [sellingPrice, setSellingPrice] = useState("");
+
+    useSmartSolverConnector({
+        cost: setCost,
+        sellingPrice: setSellingPrice
+    })
 
     const result = useMemo(() => {
         if (!cost || !sellingPrice) return null;

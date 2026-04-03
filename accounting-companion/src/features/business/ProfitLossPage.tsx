@@ -6,10 +6,16 @@ import ResultCard from "../../components/resultCard";
 import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function ProfitLossPage() {
     const [cost, setCost] = useState("");
     const [revenue, setRevenue] = useState("");
+
+    useSmartSolverConnector({
+        cost: setCost,
+        revenue: setRevenue
+    });
 
     const result = useMemo(() => {
         if (!cost || !revenue) return null;

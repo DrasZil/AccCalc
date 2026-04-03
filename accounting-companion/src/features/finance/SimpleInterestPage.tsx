@@ -6,11 +6,18 @@ import ResultCard from "../../components/resultCard";
 import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function SimpleInterestPage() {
     const [principal, setPrincipal] = useState("");
     const [rate, setRate] = useState("");
     const [time, setTime] = useState("");
+
+    useSmartSolverConnector({
+        principal: setPrincipal,
+        rate: setRate,
+        time: setTime
+    });
 
     const result = useMemo(() => {
         if (!principal || !rate || !time) return null;

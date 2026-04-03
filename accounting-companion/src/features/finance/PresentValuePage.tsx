@@ -6,11 +6,18 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function PresentValuePage() {
     const [futureValue, setFutureValue] = useState("");
     const [rate, setRate] = useState("");
     const [time, setTime] = useState("");
+
+    useSmartSolverConnector({
+        futureValue: setFutureValue,
+        rate: setRate,
+        time: setTime
+    })
 
     const result = useMemo(() => {
         if (!futureValue || !rate || !time) return null;

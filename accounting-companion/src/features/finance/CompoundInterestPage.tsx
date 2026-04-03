@@ -6,12 +6,20 @@ import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
 import FormulaCard from "../../components/FormulaCard";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function CompoundInterestPage() {
     const [principal, setPrincipal] = useState("");
     const [rate, setRate] = useState("");
     const [timesCompounded, setTimesCompounded] = useState("");
     const [time, setTime] = useState("");
+
+    useSmartSolverConnector({
+        principal: setPrincipal,
+        rate: setRate,
+        timesCompounded: setTimesCompounded,
+        time: setTime,
+    });
 
     const result = useMemo(() => {
         if (!principal || !rate || !timesCompounded || !time) return null;

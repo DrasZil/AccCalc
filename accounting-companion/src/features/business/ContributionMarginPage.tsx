@@ -6,10 +6,16 @@ import ResultCard from "../../components/resultCard";
 import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function ContributionMarginPage() {
     const [sales, setSales] = useState("");
     const [variableCosts, setVariableCosts] = useState("");
+
+    useSmartSolverConnector({
+        sales: setSales,
+        variableCosts: setVariableCosts
+    })
 
     const result = useMemo(() => {
         if (!sales || !variableCosts) {

@@ -7,6 +7,7 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function CashDiscountPage() {
     const [invoice, setInvoice] = useState("");
@@ -14,6 +15,14 @@ export default function CashDiscountPage() {
     const [discountDays, setDiscountDays] = useState("");
     const [totalDays, setTotalDays] = useState("");
     const [daysPaid, setDaysPaid] = useState("");
+
+    useSmartSolverConnector({
+        invoice: setInvoice,
+        discountRate: setDiscountRate,
+        discountDays: setDiscountDays,
+        totalDays: setTotalDays,
+        daysPaid: setDaysPaid,
+    });
 
     const result = useMemo(() => {
         if (!invoice || !discountRate || !discountDays || !totalDays || !daysPaid)
