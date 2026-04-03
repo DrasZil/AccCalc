@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import InstallPrompt from "../../components/InstallPrompt";
+import path from "path";
 
 const navGroups = [
     {
@@ -64,6 +65,9 @@ const navGroups = [
         },
         {
             label: "Bank Reconciliation", path: "/accounting/bank-reconciliation"
+        },
+        {
+            label: "Allowance for Doubtful Accounts", path: "/accounting/allowance-doubtful-accounts"
         }
         ],
     },

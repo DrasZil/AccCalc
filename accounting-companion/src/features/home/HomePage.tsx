@@ -123,6 +123,13 @@ const tools = [
         path: "/accounting/bank-reconciliation",
         category: "Accounting",
     },
+    {
+        title: "Allowance for Doubtful Accounts",
+        description:
+            "Estimate uncollectible accounts and net realizable value using accounts receivable and an estimated uncollectible rate.",
+        path: "/accounting/allowance-doubtful-accounts",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {

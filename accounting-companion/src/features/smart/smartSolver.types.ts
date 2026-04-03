@@ -45,6 +45,8 @@ export const ALL_FIELD_KEYS = [
     "nsfChecks",
     "bankError",
     "bookError",
+    "accountsReceivable",
+    "estimatedUncollectibleRate",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

@@ -504,6 +504,34 @@ import type {
         "error in book record",
         ],
     },
+    accountsReceivable: {
+        label: "Accounts Receivable",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "accounts receivable",
+            "receivables",
+            "trade receivables",
+            "ar",
+        ],
+    },
+
+    estimatedUncollectibleRate: {
+        label: "Estimated Uncollectible Rate (%)",
+        placeholder: "5",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "estimated uncollectible rate",
+            "uncollectible rate",
+            "bad debt rate",
+            "doubtful accounts rate",
+            "estimated bad debt percentage",
+        ],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -869,6 +897,22 @@ import type {
         /balance per books/i,
         ],
     },
+    {
+        id: "allowance-doubtful-accounts",
+        name: "Allowance for Doubtful Accounts",
+        route: "/accounting/allowance-doubtful-accounts",
+        description:
+            "Estimate uncollectible accounts and net realizable value using accounts receivable and an estimated uncollectible rate.",
+        required: ["accountsReceivable", "estimatedUncollectibleRate"],
+        keywords: [
+            /allowance for doubtful accounts/i,
+            /doubtful accounts/i,
+            /bad debts?/i,
+            /uncollectible accounts?/i,
+            /accounts receivable/i,
+            /net realizable value/i,
+        ],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
@@ -1144,6 +1188,16 @@ import type {
         text,
         FIELD_META.variableCostPerUnit.aliases ?? []
     );
+    const accountsReceivable = extractNumberByAliases(
+        text,
+        FIELD_META.accountsReceivable.aliases ?? []
+    );
+
+    const estimatedUncollectibleRate = extractNumberByAliases(
+        text,
+        FIELD_META.estimatedUncollectibleRate.aliases ?? [],
+        { percent: true }
+    );
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
@@ -1257,6 +1311,9 @@ import type {
     setFact(facts, "nsfChecks", nsfChecks);
     setFact(facts, "bankError", bankError);
     setFact(facts, "bookError", bookError);
+
+    setFact(facts, "accountsReceivable", accountsReceivable);
+    setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);
