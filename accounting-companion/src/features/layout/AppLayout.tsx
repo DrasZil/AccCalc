@@ -59,6 +59,9 @@ const navGroups = [
         { 
             label: "Weighted Average Inventory", path: "/accounting/weighted-average-inventory" 
         },
+        {
+            label: "Gross Profit Method", path: "/accounting/gross-profit-method"
+        },
         ],
     },
 ];

@@ -21,6 +21,7 @@ import FIFOInventoryPage from "./features/accounting/FIFOInventoryPage";
 import WeightedAverageInventoryPage from "./features/accounting/WeightedAverageInventoryPage";
 import AboutPage from "./features/meta/AboutPage";
 import FeedbackPage from "./features/meta/FeedBackPage";
+import GrossProfitMethodPage from "./features/accounting/GrossProfitMethodPage";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="accounting/cash-discount" element={<CashDiscountPage/>}/>
           <Route path="accounting/fifo-inventory" element={<FIFOInventoryPage/>}/>
           <Route path="accounting/weighted-average-inventory" element={<WeightedAverageInventoryPage />}/>
+          <Route path="accounting/gross-profit-method" element={<GrossProfitMethodPage/>} />
           <Route path="smart/solver" element={<SmartSolverPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />

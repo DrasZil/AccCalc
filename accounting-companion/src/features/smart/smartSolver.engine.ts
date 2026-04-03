@@ -303,6 +303,26 @@ import type {
         visibleInManualInputs: false,
         aliases: ["units sold", "sold units"],
     },
+    netSales: {
+        label: "Net Sales",
+        placeholder: "e.g. 150000",
+        kind: "money",
+        group: "accounting",
+    },
+    grossProfitRate: {
+        label: "Gross Profit Rate (%)",
+        placeholder: "e.g. 25",
+        kind: "percent",
+        group: "accounting",
+        aliases: ["gross profit percentage", "gp rate", "gross margin rate"],
+    },
+    costOfGoodsAvailable: {
+        label: "Cost of Goods Available for Sale",
+        placeholder: "e.g. 110000",
+        kind: "money",
+        group: "inventory",
+        aliases: ["goods available", "cost available for sale"],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -613,6 +633,21 @@ import type {
         /ending inventory/i,
         /cost of goods sold/i,
         /\bcogs\b/i,
+        ],
+    },
+    {
+        id: "gross-profit-method",
+        name: "Gross Profit Method",
+        route: "/accounting/gross-profit-method",
+        description: "Estimate gross profit, COGS, and ending inventory.",
+        required: ["netSales", "grossProfitRate", "costOfGoodsAvailable"],
+        keywords: [
+            /gross profit/i,
+            /gross profit method/i,
+            /ending inventory/i,
+            /estimated inventory/i,
+            /cogs/i,
+            /merchandising/i,
         ],
     },
     ];

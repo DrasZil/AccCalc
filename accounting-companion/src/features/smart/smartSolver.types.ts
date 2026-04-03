@@ -34,6 +34,9 @@ export const ALL_FIELD_KEYS = [
     "purchase2Units",
     "purchase2Cost",
     "unitsSold",
+    "netSales",
+    "grossProfitRate",
+    "costOfGoodsAvailable",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

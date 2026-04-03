@@ -109,6 +109,13 @@ const tools = [
         path: "/accounting/weighted-average-inventory",
         category: "Accounting",
     },
+    {
+        title: "Gross Profit Method",
+        description:
+            "Estimate gross profit, cost of goods sold, and ending inventory using net sales, gross profit rate, and cost of goods available for sale.",
+        path: "/accounting/gross-profit-method",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {
