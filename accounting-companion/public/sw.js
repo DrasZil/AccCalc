@@ -1,4 +1,4 @@
-const CACHE_NAME = "acccalc-v1.1";
+const CACHE_NAME = "acccalc-v2";
 const URLS_TO_CACHE = [
     "/",
     "/manifest.webmanifest"
