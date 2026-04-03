@@ -11,7 +11,7 @@ import type {
     import { ALL_FIELD_KEYS } from "./smartSolver.types";
 
     /* -------------------------------------------------------------------------- */
-    /*                                   FIELDS                                   */
+    /* FIELDS */
     /* -------------------------------------------------------------------------- */
 
     export const FIELD_KEYS: FieldKey[] = [...ALL_FIELD_KEYS];
@@ -23,8 +23,16 @@ import type {
         kind: "money",
         group: "finance",
         visibleInManualInputs: true,
-        aliases: ["principal", "capital", "amount borrowed", "borrowed", "investment", "invested"],
+        aliases: [
+        "principal",
+        "capital",
+        "amount borrowed",
+        "borrowed",
+        "investment",
+        "invested",
+        ],
     },
+
     rate: {
         label: "Rate (%)",
         placeholder: "5",
@@ -33,6 +41,7 @@ import type {
         visibleInManualInputs: true,
         aliases: ["rate", "interest rate", "rate of interest"],
     },
+
     time: {
         label: "Time (years)",
         placeholder: "2",
@@ -41,6 +50,7 @@ import type {
         visibleInManualInputs: true,
         aliases: ["time", "term", "period"],
     },
+
     cost: {
         label: "Cost",
         placeholder: "5000",
@@ -49,6 +59,7 @@ import type {
         visibleInManualInputs: true,
         aliases: ["cost", "expense", "expenses", "buying price", "purchase price"],
     },
+
     revenue: {
         label: "Revenue",
         placeholder: "8000",
@@ -64,8 +75,13 @@ import type {
         kind: "number",
         group: "finance",
         visibleInManualInputs: false,
-        aliases: ["times compounded", "compounding frequency", "compounds per year"],
+        aliases: [
+        "times compounded",
+        "compounding frequency",
+        "compounds per year",
+        ],
     },
+
     presentValue: {
         label: "Present Value",
         placeholder: "10000",
@@ -74,14 +90,22 @@ import type {
         visibleInManualInputs: false,
         aliases: ["present value", "present worth", "worth today", "current worth"],
     },
+
     futureValue: {
         label: "Future Value",
         placeholder: "15000",
         kind: "money",
         group: "finance",
         visibleInManualInputs: false,
-        aliases: ["future value", "future worth", "maturity value", "amount after", "value after"],
+        aliases: [
+        "future value",
+        "future worth",
+        "maturity value",
+        "amount after",
+        "value after",
+        ],
     },
+
     loanAmount: {
         label: "Loan Amount",
         placeholder: "50000",
@@ -90,6 +114,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["loan amount", "amount financed", "borrowed money"],
     },
+
     annualRate: {
         label: "Annual Rate (%)",
         placeholder: "10",
@@ -98,6 +123,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["annual rate", "yearly rate"],
     },
+
     years: {
         label: "Years",
         placeholder: "5",
@@ -115,6 +141,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["fixed cost", "fixed costs"],
     },
+
     sellingPricePerUnit: {
         label: "Selling Price / Unit",
         placeholder: "120",
@@ -123,6 +150,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["selling price per unit", "price per unit", "selling price each"],
     },
+
     variableCostPerUnit: {
         label: "Variable Cost / Unit",
         placeholder: "70",
@@ -131,6 +159,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["variable cost per unit", "variable cost each", "cost per unit"],
     },
+
     sales: {
         label: "Sales",
         placeholder: "15000",
@@ -139,6 +168,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["sales", "net sales"],
     },
+
     variableCosts: {
         label: "Variable Costs",
         placeholder: "9000",
@@ -147,6 +177,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["variable costs", "variable cost"],
     },
+
     sellingPrice: {
         label: "Selling Price",
         placeholder: "9000",
@@ -162,16 +193,18 @@ import type {
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["assets"],
+        aliases: ["assets", "total assets"],
     },
+
     liabilities: {
         label: "Liabilities",
         placeholder: "40000",
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["liabilities"],
+        aliases: ["liabilities", "total liabilities"],
     },
+
     equity: {
         label: "Equity",
         placeholder: "60000",
@@ -189,6 +222,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["invoice", "invoice amount"],
     },
+
     discountRate: {
         label: "Discount Rate (%)",
         placeholder: "2",
@@ -197,6 +231,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["discount rate", "cash discount"],
     },
+
     discountDays: {
         label: "Discount Days",
         placeholder: "10",
@@ -205,6 +240,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["discount days", "discount period"],
     },
+
     totalDays: {
         label: "Total Days",
         placeholder: "30",
@@ -213,6 +249,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["total days", "net days"],
     },
+
     daysPaid: {
         label: "Days Paid",
         placeholder: "8",
@@ -230,6 +267,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["salvage value", "residual value"],
     },
+
     usefulLife: {
         label: "Useful Life",
         placeholder: "5",
@@ -238,6 +276,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["useful life"],
     },
+
     year: {
         label: "Year",
         placeholder: "2",
@@ -255,6 +294,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["beginning units", "beginning inventory units"],
     },
+
     beginningCost: {
         label: "Beginning Cost",
         placeholder: "50",
@@ -263,6 +303,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["beginning cost", "beginning inventory cost"],
     },
+
     purchase1Units: {
         label: "Purchase 1 Units",
         placeholder: "80",
@@ -271,6 +312,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["purchase 1 units", "first purchase units"],
     },
+
     purchase1Cost: {
         label: "Purchase 1 Cost",
         placeholder: "55",
@@ -279,6 +321,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["purchase 1 cost", "first purchase cost"],
     },
+
     purchase2Units: {
         label: "Purchase 2 Units",
         placeholder: "120",
@@ -287,6 +330,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["purchase 2 units", "second purchase units"],
     },
+
     purchase2Cost: {
         label: "Purchase 2 Cost",
         placeholder: "60",
@@ -295,6 +339,7 @@ import type {
         visibleInManualInputs: false,
         aliases: ["purchase 2 cost", "second purchase cost"],
     },
+
     unitsSold: {
         label: "Units Sold",
         placeholder: "150",
@@ -303,25 +348,161 @@ import type {
         visibleInManualInputs: false,
         aliases: ["units sold", "sold units"],
     },
+
     netSales: {
         label: "Net Sales",
-        placeholder: "e.g. 150000",
+        placeholder: "150000",
         kind: "money",
         group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "net sales",
+        "sales",
+        "total sales",
+        "sales revenue",
+        "net revenue",
+        ],
     },
+
     grossProfitRate: {
         label: "Gross Profit Rate (%)",
-        placeholder: "e.g. 25",
+        placeholder: "25",
         kind: "percent",
         group: "accounting",
-        aliases: ["gross profit percentage", "gp rate", "gross margin rate"],
+        visibleInManualInputs: false,
+        aliases: [
+        "gross profit rate",
+        "gross profit percentage",
+        "gp rate",
+        "gross margin rate",
+        "gross margin percentage",
+        ],
     },
+
     costOfGoodsAvailable: {
         label: "Cost of Goods Available for Sale",
-        placeholder: "e.g. 110000",
+        placeholder: "110000",
         kind: "money",
         group: "inventory",
-        aliases: ["goods available", "cost available for sale"],
+        visibleInManualInputs: false,
+        aliases: [
+        "cost of goods available",
+        "cost of goods available for sale",
+        "goods available",
+        "goods available for sale",
+        "cost available for sale",
+        ],
+    },
+
+    bankBalance: {
+        label: "Bank Statement Balance",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "bank balance",
+        "bank statement balance",
+        "balance per bank",
+        "bank statement",
+        ],
+    },
+
+    bookBalance: {
+        label: "Book / Cash Balance",
+        placeholder: "48500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "book balance",
+        "cash balance",
+        "balance per books",
+        "book cash balance",
+        ],
+    },
+
+    depositsInTransit: {
+        label: "Deposits in Transit",
+        placeholder: "3500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "deposits in transit",
+        "deposit in transit",
+        "outstanding deposits",
+        ],
+    },
+
+    outstandingChecks: {
+        label: "Outstanding Checks",
+        placeholder: "2000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "outstanding checks",
+        "outstanding check",
+        "checks outstanding",
+        ],
+    },
+
+    serviceCharges: {
+        label: "Service Charges",
+        placeholder: "300",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "service charges",
+        "bank service charges",
+        "bank charges",
+        "service charge",
+        ],
+    },
+
+    nsfChecks: {
+        label: "NSF Checks",
+        placeholder: "700",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "nsf",
+        "nsf checks",
+        "nsf check",
+        "non sufficient funds",
+        "dishonored checks",
+        "dishonored check",
+        ],
+    },
+
+    bankError: {
+        label: "Bank Error Adjustment",
+        placeholder: "200",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "bank error",
+        "bank error adjustment",
+        "error in bank statement",
+        ],
+    },
+
+    bookError: {
+        label: "Book Error Adjustment",
+        placeholder: "150",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "book error",
+        "book error adjustment",
+        "error in books",
+        "error in book record",
+        ],
     },
     };
 
@@ -335,7 +516,7 @@ import type {
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                                CALCULATORS                                 */
+    /* CALCULATORS */
     /* -------------------------------------------------------------------------- */
 
     export const CALCULATORS: CalculatorConfig[] = [
@@ -357,6 +538,7 @@ import type {
         /maturity value/i,
         ],
     },
+
     {
         id: "compound-interest",
         name: "Compound Interest Calculator",
@@ -375,6 +557,7 @@ import type {
         /semi[- ]annually/i,
         ],
     },
+
     {
         id: "future-value",
         name: "Future Value Calculator",
@@ -392,6 +575,7 @@ import type {
         /value after/i,
         ],
     },
+
     {
         id: "present-value",
         name: "Present Value Calculator",
@@ -409,6 +593,7 @@ import type {
         /future amount/i,
         ],
     },
+
     {
         id: "loan-amortization",
         name: "Loan / Amortization Calculator",
@@ -427,6 +612,7 @@ import type {
         /payment per month/i,
         ],
     },
+
     {
         id: "profit-loss",
         name: "Profit / Loss Calculator",
@@ -445,6 +631,7 @@ import type {
         /gain/i,
         ],
     },
+
     {
         id: "break-even",
         name: "Break-even Calculator",
@@ -462,6 +649,7 @@ import type {
         /units to break even/i,
         ],
     },
+
     {
         id: "contribution-margin",
         name: "Contribution Margin Calculator",
@@ -478,6 +666,7 @@ import type {
         /margin ratio/i,
         ],
     },
+
     {
         id: "markup-margin",
         name: "Markup & Margin Calculator",
@@ -496,6 +685,7 @@ import type {
         /margin percentage/i,
         ],
     },
+
     {
         id: "accounting-equation",
         name: "Accounting Equation Solver",
@@ -513,6 +703,7 @@ import type {
         /\ba\s*=\s*l\s*\+\s*e\b/i,
         ],
     },
+
     {
         id: "notes-interest",
         name: "Notes Interest Solver",
@@ -532,6 +723,7 @@ import type {
         /promissory note/i,
         ],
     },
+
     {
         id: "cash-discount",
         name: "Cash Discount / Credit Terms",
@@ -551,6 +743,7 @@ import type {
         /discount allowed/i,
         ],
     },
+
     {
         id: "straight-line-depreciation",
         name: "Straight-Line Depreciation",
@@ -567,6 +760,7 @@ import type {
         /depreciation expense/i,
         ],
     },
+
     {
         id: "declining-balance-depreciation",
         name: "Declining Balance Depreciation",
@@ -583,6 +777,7 @@ import type {
         /depreciation expense/i,
         ],
     },
+
     {
         id: "fifo-inventory",
         name: "FIFO Inventory Calculator",
@@ -609,6 +804,7 @@ import type {
         /earliest costs/i,
         ],
     },
+
     {
         id: "weighted-average-inventory",
         name: "Weighted Average Inventory Calculator",
@@ -635,6 +831,7 @@ import type {
         /\bcogs\b/i,
         ],
     },
+
     {
         id: "gross-profit-method",
         name: "Gross Profit Method",
@@ -642,18 +839,40 @@ import type {
         description: "Estimate gross profit, COGS, and ending inventory.",
         required: ["netSales", "grossProfitRate", "costOfGoodsAvailable"],
         keywords: [
-            /gross profit/i,
-            /gross profit method/i,
-            /ending inventory/i,
-            /estimated inventory/i,
-            /cogs/i,
-            /merchandising/i,
+        /gross profit/i,
+        /gross profit method/i,
+        /gross margin/i,
+        /ending inventory/i,
+        /estimated inventory/i,
+        /\bcogs\b/i,
+        /merchandising/i,
+        ],
+    },
+
+    {
+        id: "bank-reconciliation",
+        name: "Bank Reconciliation",
+        route: "/accounting/bank-reconciliation",
+        description:
+        "Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and errors.",
+        required: ["bankBalance", "bookBalance"],
+        keywords: [
+        /bank reconciliation/i,
+        /reconcile bank/i,
+        /reconcile books/i,
+        /deposits in transit/i,
+        /outstanding checks?/i,
+        /service charges?/i,
+        /\bnsf\b/i,
+        /dishonored checks?/i,
+        /balance per bank/i,
+        /balance per books/i,
         ],
     },
     ];
 
     /* -------------------------------------------------------------------------- */
-    /*                                  HELPERS                                   */
+    /* HELPERS */
     /* -------------------------------------------------------------------------- */
 
     function escapeRegExp(value: string): string {
@@ -695,7 +914,6 @@ import type {
         if (value !== null) return value;
         }
     }
-
     return null;
     }
 
@@ -766,19 +984,31 @@ import type {
 
     function extractCompounding(text: string): { value: number | null; note: string } {
     if (/monthly/i.test(text)) {
-        return { value: 12, note: "Monthly compounding detected and normalized to 12 times per year." };
+        return {
+        value: 12,
+        note: "Monthly compounding detected and normalized to 12 times per year.",
+        };
     }
 
     if (/quarterly/i.test(text)) {
-        return { value: 4, note: "Quarterly compounding detected and normalized to 4 times per year." };
+        return {
+        value: 4,
+        note: "Quarterly compounding detected and normalized to 4 times per year.",
+        };
     }
 
     if (/semi[- ]?annually/i.test(text)) {
-        return { value: 2, note: "Semi-annual compounding detected and normalized to 2 times per year." };
+        return {
+        value: 2,
+        note: "Semi-annual compounding detected and normalized to 2 times per year.",
+        };
     }
 
     if (/annually|annual|yearly/i.test(text)) {
-        return { value: 1, note: "Annual compounding detected and normalized to 1 time per year." };
+        return {
+        value: 1,
+        note: "Annual compounding detected and normalized to 1 time per year.",
+        };
     }
 
     const explicit = extractFirstNumber(text, [
@@ -812,6 +1042,7 @@ import type {
     ) {
     if (value === null || value === undefined || value === "") return;
     if (target[key]) return;
+
     target[key] = typeof value === "number" ? numberToInput(value) : String(value);
     }
 
@@ -855,7 +1086,7 @@ import type {
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                                EXTRACTION                                  */
+    /* EXTRACTION */
     /* -------------------------------------------------------------------------- */
 
     export function extractFacts(query: string): ExtractedFacts {
@@ -904,7 +1135,6 @@ import type {
     const annualRate = extractNumberByAliases(text, FIELD_META.annualRate.aliases ?? [], {
         percent: true,
     });
-
     const fixedCosts = extractNumberByAliases(text, FIELD_META.fixedCosts.aliases ?? []);
     const sellingPricePerUnit = extractNumberByAliases(
         text,
@@ -917,11 +1147,9 @@ import type {
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
-
     const assets = extractNumberByAliases(text, FIELD_META.assets.aliases ?? []);
     const liabilities = extractNumberByAliases(text, FIELD_META.liabilities.aliases ?? []);
     const equity = extractNumberByAliases(text, FIELD_META.equity.aliases ?? []);
-
     const invoice = extractNumberByAliases(text, FIELD_META.invoice.aliases ?? []);
     const discountRate = extractNumberByAliases(text, FIELD_META.discountRate.aliases ?? [], {
         percent: true,
@@ -929,7 +1157,6 @@ import type {
     const daysPaid = extractNumberByAliases(text, FIELD_META.daysPaid.aliases ?? [], {
         allowCurrency: false,
     });
-
     const usefulLife = extractNumberByAliases(text, FIELD_META.usefulLife.aliases ?? [], {
         allowCurrency: false,
     });
@@ -937,7 +1164,6 @@ import type {
     const year = extractNumberByAliases(text, FIELD_META.year.aliases ?? [], {
         allowCurrency: false,
     });
-
     const beginningUnits = extractNumberByAliases(text, FIELD_META.beginningUnits.aliases ?? [], {
         allowCurrency: false,
     });
@@ -954,6 +1180,35 @@ import type {
         allowCurrency: false,
     });
 
+    const netSales = extractNumberByAliases(text, FIELD_META.netSales.aliases ?? []);
+    const grossProfitRate = extractNumberByAliases(
+        text,
+        FIELD_META.grossProfitRate.aliases ?? [],
+        { percent: true }
+    );
+    const costOfGoodsAvailable = extractNumberByAliases(
+        text,
+        FIELD_META.costOfGoodsAvailable.aliases ?? []
+    );
+
+    const bankBalance = extractNumberByAliases(text, FIELD_META.bankBalance.aliases ?? []);
+    const bookBalance = extractNumberByAliases(text, FIELD_META.bookBalance.aliases ?? []);
+    const depositsInTransit = extractNumberByAliases(
+        text,
+        FIELD_META.depositsInTransit.aliases ?? []
+    );
+    const outstandingChecks = extractNumberByAliases(
+        text,
+        FIELD_META.outstandingChecks.aliases ?? []
+    );
+    const serviceCharges = extractNumberByAliases(
+        text,
+        FIELD_META.serviceCharges.aliases ?? []
+    );
+    const nsfChecks = extractNumberByAliases(text, FIELD_META.nsfChecks.aliases ?? []);
+    const bankError = extractNumberByAliases(text, FIELD_META.bankError.aliases ?? []);
+    const bookError = extractNumberByAliases(text, FIELD_META.bookError.aliases ?? []);
+
     const creditTerms = extractCreditTerms(text);
 
     setFact(facts, "principal", principal);
@@ -961,33 +1216,27 @@ import type {
     setFact(facts, "time", years);
     setFact(facts, "cost", cost);
     setFact(facts, "revenue", revenue);
-
     setFact(facts, "timesCompounded", compounding.value);
     setFact(facts, "presentValue", presentValue);
     setFact(facts, "futureValue", futureValue);
     setFact(facts, "loanAmount", loanAmount);
     setFact(facts, "annualRate", annualRate);
     setFact(facts, "years", years);
-
     setFact(facts, "fixedCosts", fixedCosts);
     setFact(facts, "sellingPricePerUnit", sellingPricePerUnit);
     setFact(facts, "variableCostPerUnit", variableCostPerUnit);
     setFact(facts, "sales", sales);
     setFact(facts, "variableCosts", variableCosts);
     setFact(facts, "sellingPrice", sellingPrice);
-
     setFact(facts, "assets", assets);
     setFact(facts, "liabilities", liabilities);
     setFact(facts, "equity", equity);
-
     setFact(facts, "invoice", invoice);
     setFact(facts, "discountRate", discountRate);
     setFact(facts, "daysPaid", daysPaid);
-
     setFact(facts, "salvageValue", salvageValue);
     setFact(facts, "usefulLife", usefulLife);
     setFact(facts, "year", year);
-
     setFact(facts, "beginningUnits", beginningUnits);
     setFact(facts, "beginningCost", beginningCost);
     setFact(facts, "purchase1Units", purchase1Units);
@@ -995,6 +1244,19 @@ import type {
     setFact(facts, "purchase2Units", purchase2Units);
     setFact(facts, "purchase2Cost", purchase2Cost);
     setFact(facts, "unitsSold", unitsSold);
+
+    setFact(facts, "netSales", netSales);
+    setFact(facts, "grossProfitRate", grossProfitRate);
+    setFact(facts, "costOfGoodsAvailable", costOfGoodsAvailable);
+
+    setFact(facts, "bankBalance", bankBalance);
+    setFact(facts, "bookBalance", bookBalance);
+    setFact(facts, "depositsInTransit", depositsInTransit);
+    setFact(facts, "outstandingChecks", outstandingChecks);
+    setFact(facts, "serviceCharges", serviceCharges);
+    setFact(facts, "nsfChecks", nsfChecks);
+    setFact(facts, "bankError", bankError);
+    setFact(facts, "bookError", bookError);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);
@@ -1010,13 +1272,10 @@ import type {
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                                MERGE / TEXT                                */
+    /* MERGE / TEXT */
     /* -------------------------------------------------------------------------- */
 
-    export function mergeInputs(
-    manual: FieldsState,
-    extracted: ExtractedFacts
-    ): FieldsState {
+    export function mergeInputs(manual: FieldsState, extracted: ExtractedFacts): FieldsState {
     return FIELD_KEYS.reduce<FieldsState>((acc, key) => {
         acc[key] = manual[key] !== "" ? manual[key] : extracted[key] || "";
         return acc;
@@ -1028,7 +1287,7 @@ import type {
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                                  SCORING                                   */
+    /* SCORING */
     /* -------------------------------------------------------------------------- */
 
     export function buildReason(
@@ -1037,9 +1296,7 @@ import type {
     query: string
     ): string {
     const matchedFields = calculator.required.filter((field) => merged[field] !== "");
-    const matchedKeywords = calculator.keywords.filter((keyword) =>
-        keyword.test(query)
-    ).length;
+    const matchedKeywords = calculator.keywords.filter((keyword) => keyword.test(query)).length;
 
     if (matchedFields.length === calculator.required.length && matchedKeywords > 0) {
         return `Matched all required values (${matchedFields
@@ -1073,9 +1330,7 @@ import type {
 
     const presentRequired = calculator.required.filter((field) => merged[field] !== "");
     const missingRequired = calculator.required.filter((field) => merged[field] === "");
-    const extractedRequired = calculator.required.filter(
-        (field) => extracted[field] !== ""
-    );
+    const extractedRequired = calculator.required.filter((field) => extracted[field] !== "");
 
     score += presentRequired.length * 24;
     score += extractedRequired.length * 5;

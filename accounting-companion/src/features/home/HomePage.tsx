@@ -116,6 +116,13 @@ const tools = [
         path: "/accounting/gross-profit-method",
         category: "Accounting",
     },
+    {
+        title: "Bank Reconciliation",
+        description:
+            "Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and errors.",
+        path: "/accounting/bank-reconciliation",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {

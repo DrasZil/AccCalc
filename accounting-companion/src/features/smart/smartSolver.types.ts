@@ -37,6 +37,14 @@ export const ALL_FIELD_KEYS = [
     "netSales",
     "grossProfitRate",
     "costOfGoodsAvailable",
+    "bankBalance",
+    "bookBalance",
+    "depositsInTransit",
+    "outstandingChecks",
+    "serviceCharges",
+    "nsfChecks",
+    "bankError",
+    "bookError",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

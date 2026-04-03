@@ -62,6 +62,9 @@ const navGroups = [
         {
             label: "Gross Profit Method", path: "/accounting/gross-profit-method"
         },
+        {
+            label: "Bank Reconciliation", path: "/accounting/bank-reconciliation"
+        }
         ],
     },
 ];
