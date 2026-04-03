@@ -89,7 +89,7 @@ function SidebarContent({
     closeMobileSidebar,
 }: SidebarContentProps) {
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col bg-[#0a0a0a]/95">
             <div className="border-b border-white/10 p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -108,14 +108,14 @@ function SidebarContent({
                     <button
                         type="button"
                         onClick={closeMobileSidebar}
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm md:hidden"
+                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm md:hidden"
                     >
                         Close
                     </button>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3">
+            <div className="flex-1 overflow-y-auto p-3 scrollbar-premium">
                 <nav className="space-y-4">
                     {navGroups.map((group) => {
                         const groupKey = group.title as keyof OpenGroupsState;
@@ -126,7 +126,7 @@ function SidebarContent({
                                 <button
                                     type="button"
                                     onClick={() => toggleGroup(groupKey)}
-                                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-white/10"
+                                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-white/[0.07]"
                                 >
                                     <span>{group.title}</span>
                                     <span
@@ -152,8 +152,8 @@ function SidebarContent({
                                                     className={[
                                                         "block rounded-2xl px-4 py-3 text-sm font-medium transition",
                                                         isActive
-                                                            ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
-                                                            : "bg-white/5 text-white hover:bg-white/10",
+                                                            ? "bg-green-500/15 text-green-300 ring-1 ring-green-400/20"
+                                                            : "bg-white/[0.03] text-white hover:bg-white/[0.06]",
                                                     ].join(" ")}
                                                 >
                                                     {item.label}
@@ -179,8 +179,8 @@ function SidebarContent({
                                 className={[
                                     "block rounded-2xl px-4 py-3 text-sm font-medium transition",
                                     isActive
-                                        ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
-                                        : "bg-white/5 text-white hover:bg-white/10",
+                                        ? "bg-green-500/15 text-green-300 ring-1 ring-green-400/20"
+                                        : "bg-white/[0.03] text-white hover:bg-white/[0.06]",
                                 ].join(" ")}
                             >
                                 {item.label}
@@ -191,7 +191,7 @@ function SidebarContent({
             </div>
 
             <div className="border-t border-white/10 p-4">
-                <p className="text-xs leading-6 text-gray-400">
+                <p className="text-xs leading-6 text-gray-500">
                     Built for students and professionals who need fast,
                     clear, reliable calculations.
                 </p>
@@ -268,10 +268,10 @@ export default function AppLayout() {
     }
 
     return (
-        <div className="min-h-screen bg-[#07111f] text-white">
-            <div className="flex min-h-screen">
+        <div className="min-h-screen bg-[#050505] text-white">
+            <div className="flex min-h-screen items-start">
                 {desktopSidebarVisible ? (
-                    <aside className="hidden w-80 shrink-0 border-r border-white/10 bg-[#0b1627]/95 backdrop-blur-xl md:block">
+                    <aside className="sticky top-0 hidden h-screen w-80 shrink-0 border-r border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl md:block">
                         <SidebarContent
                             locationPathname={location.pathname}
                             openGroups={openGroups}
@@ -283,7 +283,7 @@ export default function AppLayout() {
 
                 <aside
                     className={[
-                        "fixed inset-y-0 left-0 z-40 w-80 border-r border-white/10 bg-[#0b1627]/95 backdrop-blur-xl transition-transform duration-300 md:hidden",
+                        "fixed inset-y-0 left-0 z-40 w-80 border-r border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl transition-transform duration-300 md:hidden",
                         mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
                     ].join(" ")}
                 >
@@ -300,12 +300,12 @@ export default function AppLayout() {
                         type="button"
                         onClick={() => setMobileSidebarOpen(false)}
                         aria-label="Close sidebar overlay"
-                        className="fixed inset-0 z-30 bg-black/50 md:hidden"
+                        className="fixed inset-0 z-30 bg-black/60 md:hidden"
                     />
                 ) : null}
 
                 <div className="min-w-0 flex-1">
-                    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#07111f]/80 backdrop-blur">
+                    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050505]/85 backdrop-blur">
                         <div className="flex items-center justify-between gap-3 px-4 py-4 md:px-6">
                             <div>
                                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-green-300">
@@ -320,7 +320,7 @@ export default function AppLayout() {
                                 <button
                                     type="button"
                                     onClick={toggleDesktopSidebar}
-                                    className="hidden rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium transition hover:bg-white/10 md:inline-flex"
+                                    className="hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium transition hover:bg-white/[0.08] md:inline-flex"
                                 >
                                     {desktopSidebarVisible ? "Hide sidebar" : "Show sidebar"}
                                 </button>
@@ -328,7 +328,7 @@ export default function AppLayout() {
                                 <button
                                     type="button"
                                     onClick={() => setMobileSidebarOpen(true)}
-                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium md:hidden"
+                                    className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium md:hidden"
                                 >
                                     Menu
                                 </button>

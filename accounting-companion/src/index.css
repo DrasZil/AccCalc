@@ -1,2 +1,33 @@
 @import "tailwindcss";
 
+/* Premium dark scrollbar */
+    .scrollbar-premium {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-track {
+    background: transparent;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-corner {
+    background: transparent;
+}
