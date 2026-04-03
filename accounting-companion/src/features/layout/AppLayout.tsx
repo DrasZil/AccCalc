@@ -2,7 +2,26 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import InstallPrompt from "../../components/InstallPrompt";
 
-const navGroups = [
+type NavItem = {
+    label: string;
+    path: string;
+};
+
+type NavGroup = {
+    title: string;
+    items: NavItem[];
+};
+
+type OpenGroupsState = {
+    General: boolean;
+    "Core Tools": boolean;
+    "Smart Tools": boolean;
+    Finance: boolean;
+    Business: boolean;
+    Accounting: boolean;
+};
+
+const navGroups: NavGroup[] = [
     {
         title: "General",
         items: [{ label: "Home", path: "/" }],
@@ -51,26 +70,142 @@ const navGroups = [
     },
 ];
 
-const bottomNavItems = [
+const bottomNavItems: NavItem[] = [
     { label: "About", path: "/about" },
     { label: "Feedback", path: "/feedback" },
 ];
 
-function getInitials(label: string) {
-    return label
-        .split(" ")
-        .map((part) => part[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
+type SidebarContentProps = {
+    locationPathname: string;
+    openGroups: OpenGroupsState;
+    toggleGroup: (groupTitle: keyof OpenGroupsState) => void;
+    closeMobileSidebar: () => void;
+};
+
+function SidebarContent({
+    locationPathname,
+    openGroups,
+    toggleGroup,
+    closeMobileSidebar,
+}: SidebarContentProps) {
+    return (
+        <div className="flex h-full flex-col">
+            <div className="border-b border-white/10 p-4">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <Link to="/" onClick={closeMobileSidebar} className="block">
+                            <h1 className="truncate text-xl font-bold tracking-tight text-green-300">
+                                AccCalc
+                            </h1>
+                        </Link>
+
+                        <p className="mt-2 text-sm leading-6 text-gray-400">
+                            Smart calculator for study, checking, and practical
+                            accounting use.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={closeMobileSidebar}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm md:hidden"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3">
+                <nav className="space-y-4">
+                    {navGroups.map((group) => {
+                        const groupKey = group.title as keyof OpenGroupsState;
+                        const groupIsOpen = openGroups[groupKey];
+
+                        return (
+                            <div key={group.title}>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleGroup(groupKey)}
+                                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-white/10"
+                                >
+                                    <span>{group.title}</span>
+                                    <span
+                                        className={`transition-transform ${
+                                            groupIsOpen ? "rotate-0" : "-rotate-90"
+                                        }`}
+                                    >
+                                        ▼
+                                    </span>
+                                </button>
+
+                                {groupIsOpen ? (
+                                    <div className="mt-2 space-y-2">
+                                        {group.items.map((item) => {
+                                            const isActive =
+                                                locationPathname === item.path;
+
+                                            return (
+                                                <Link
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    onClick={closeMobileSidebar}
+                                                    className={[
+                                                        "block rounded-2xl px-4 py-3 text-sm font-medium transition",
+                                                        isActive
+                                                            ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
+                                                            : "bg-white/5 text-white hover:bg-white/10",
+                                                    ].join(" ")}
+                                                >
+                                                    {item.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ) : null}
+                            </div>
+                        );
+                    })}
+                </nav>
+
+                <div className="mt-6 space-y-2 border-t border-white/10 pt-4">
+                    {bottomNavItems.map((item) => {
+                        const isActive = locationPathname === item.path;
+
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={closeMobileSidebar}
+                                className={[
+                                    "block rounded-2xl px-4 py-3 text-sm font-medium transition",
+                                    isActive
+                                        ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
+                                        : "bg-white/5 text-white hover:bg-white/10",
+                                ].join(" ")}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="border-t border-white/10 p-4">
+                <p className="text-xs leading-6 text-gray-400">
+                    Built for students and professionals who need fast,
+                    clear, reliable calculations.
+                </p>
+            </div>
+        </div>
+    );
 }
 
 export default function AppLayout() {
     const location = useLocation();
 
-    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-    const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(true);
-    const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
+    const [desktopSidebarVisible, setDesktopSidebarVisible] = useState<boolean>(true);
+    const [openGroups, setOpenGroups] = useState<OpenGroupsState>({
         General: true,
         "Core Tools": true,
         "Smart Tools": true,
@@ -80,186 +215,84 @@ export default function AppLayout() {
     });
 
     useEffect(() => {
-        const nextOpenGroups: Record<string, boolean> = { ...openGroups };
+        if (typeof window === "undefined") return;
+
+        const saved = window.localStorage.getItem("accalc-desktop-sidebar-visible");
+        if (saved !== null) {
+            const parsedValue: boolean = saved === "true";
+            setDesktopSidebarVisible(parsedValue);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        window.localStorage.setItem(
+            "accalc-desktop-sidebar-visible",
+            String(desktopSidebarVisible)
+        );
+    }, [desktopSidebarVisible]);
+
+    useEffect(() => {
+        const nextOpenGroups: OpenGroupsState = {
+            ...openGroups,
+        };
 
         navGroups.forEach((group) => {
+            const groupKey = group.title as keyof OpenGroupsState;
+
             const hasActiveItem = group.items.some(
                 (item) => item.path === location.pathname
             );
 
             if (hasActiveItem) {
-                nextOpenGroups[group.title] = true;
+                nextOpenGroups[groupKey] = true;
             }
         });
 
         setOpenGroups(nextOpenGroups);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location.pathname]);
 
-    function toggleGroup(groupTitle: string) {
-        setOpenGroups((prev) => ({
-            ...prev,
-            [groupTitle]: !prev[groupTitle],
-        }));
+    function toggleGroup(groupTitle: keyof OpenGroupsState) {
+        const nextOpenGroups: OpenGroupsState = {
+            ...openGroups,
+            [groupTitle]: !openGroups[groupTitle],
+        };
+
+        setOpenGroups(nextOpenGroups);
     }
 
-    const sidebarBaseClass = desktopSidebarExpanded ? "md:w-80" : "md:w-24";
+    function toggleDesktopSidebar() {
+        const nextValue: boolean = !desktopSidebarVisible;
+        setDesktopSidebarVisible(nextValue);
+    }
 
     return (
         <div className="min-h-screen bg-[#07111f] text-white">
             <div className="flex min-h-screen">
+                {desktopSidebarVisible ? (
+                    <aside className="hidden w-80 shrink-0 border-r border-white/10 bg-[#0b1627]/95 backdrop-blur-xl md:block">
+                        <SidebarContent
+                            locationPathname={location.pathname}
+                            openGroups={openGroups}
+                            toggleGroup={toggleGroup}
+                            closeMobileSidebar={() => setMobileSidebarOpen(false)}
+                        />
+                    </aside>
+                ) : null}
+
                 <aside
                     className={[
-                        "fixed inset-y-0 left-0 z-40 w-80 border-r border-white/10 bg-[#0b1627]/95 backdrop-blur-xl transition-transform duration-300 md:static md:translate-x-0",
-                        sidebarBaseClass,
+                        "fixed inset-y-0 left-0 z-40 w-80 border-r border-white/10 bg-[#0b1627]/95 backdrop-blur-xl transition-transform duration-300 md:hidden",
                         mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
                     ].join(" ")}
                 >
-                    <div className="flex h-full flex-col">
-                        <div className="border-b border-white/10 p-4">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <Link
-                                        to="/"
-                                        onClick={() => setMobileSidebarOpen(false)}
-                                        className="block"
-                                    >
-                                        <h1 className="truncate text-xl font-bold tracking-tight text-green-300">
-                                            {desktopSidebarExpanded ? "AccCalc" : "AC"}
-                                        </h1>
-                                    </Link>
-
-                                    {desktopSidebarExpanded ? (
-                                        <p className="mt-2 text-sm leading-6 text-gray-400">
-                                            Smart calculator for study, checking, and practical
-                                            accounting use.
-                                        </p>
-                                    ) : null}
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setDesktopSidebarExpanded((prev) => !prev)
-                                        }
-                                        className="hidden rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 transition hover:bg-white/10 md:inline-flex"
-                                    >
-                                        {desktopSidebarExpanded ? "Collapse" : "Expand"}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setMobileSidebarOpen(false)}
-                                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm md:hidden"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-3">
-                            <nav className="space-y-4">
-                                {navGroups.map((group) => {
-                                    const groupIsOpen = openGroups[group.title];
-
-                                    return (
-                                        <div key={group.title}>
-                                            {desktopSidebarExpanded ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleGroup(group.title)}
-                                                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-white/10"
-                                                >
-                                                    <span>{group.title}</span>
-                                                    <span
-                                                        className={`transition-transform ${
-                                                            groupIsOpen ? "rotate-0" : "-rotate-90"
-                                                        }`}
-                                                    >
-                                                        ▼
-                                                    </span>
-                                                </button>
-                                            ) : (
-                                                <div className="px-1 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-                                                    {group.title.slice(0, 3)}
-                                                </div>
-                                            )}
-
-                                            {(groupIsOpen || !desktopSidebarExpanded) && (
-                                                <div className="mt-2 space-y-2">
-                                                    {group.items.map((item) => {
-                                                        const isActive =
-                                                            location.pathname === item.path;
-
-                                                        return (
-                                                            <Link
-                                                                key={item.path}
-                                                                to={item.path}
-                                                                onClick={() => setMobileSidebarOpen(false)}
-                                                                title={item.label}
-                                                                className={[
-                                                                    "block rounded-2xl text-sm font-medium transition",
-                                                                    desktopSidebarExpanded
-                                                                        ? "px-4 py-3"
-                                                                        : "px-2 py-3 text-center",
-                                                                    isActive
-                                                                        ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
-                                                                        : "bg-white/5 text-white hover:bg-white/10",
-                                                                ].join(" ")}
-                                                            >
-                                                                {desktopSidebarExpanded
-                                                                    ? item.label
-                                                                    : getInitials(item.label)}
-                                                            </Link>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </nav>
-
-                            <div className="mt-6 border-t border-white/10 pt-4 space-y-2">
-                                {bottomNavItems.map((item) => {
-                                    const isActive = location.pathname === item.path;
-
-                                    return (
-                                        <Link
-                                            key={item.path}
-                                            to={item.path}
-                                            onClick={() => setMobileSidebarOpen(false)}
-                                            title={item.label}
-                                            className={[
-                                                "block rounded-2xl text-sm font-medium transition",
-                                                desktopSidebarExpanded
-                                                    ? "px-4 py-3"
-                                                    : "px-2 py-3 text-center",
-                                                isActive
-                                                    ? "bg-green-500/20 text-green-300 ring-1 ring-green-400/20"
-                                                    : "bg-white/5 text-white hover:bg-white/10",
-                                            ].join(" ")}
-                                        >
-                                            {desktopSidebarExpanded
-                                                ? item.label
-                                                : getInitials(item.label)}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {desktopSidebarExpanded ? (
-                            <div className="border-t border-white/10 p-4">
-                                <p className="text-xs leading-6 text-gray-400">
-                                    Built for students and professionals who need fast,
-                                    clear, reliable calculations.
-                                </p>
-                            </div>
-                        ) : null}
-                    </div>
+                    <SidebarContent
+                        locationPathname={location.pathname}
+                        openGroups={openGroups}
+                        toggleGroup={toggleGroup}
+                        closeMobileSidebar={() => setMobileSidebarOpen(false)}
+                    />
                 </aside>
 
                 {mobileSidebarOpen ? (
@@ -273,7 +306,7 @@ export default function AppLayout() {
 
                 <div className="min-w-0 flex-1">
                     <header className="sticky top-0 z-20 border-b border-white/10 bg-[#07111f]/80 backdrop-blur">
-                        <div className="flex items-center justify-between px-4 py-4 md:px-6">
+                        <div className="flex items-center justify-between gap-3 px-4 py-4 md:px-6">
                             <div>
                                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-green-300">
                                     Accounting companion
@@ -283,13 +316,23 @@ export default function AppLayout() {
                                 </h2>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={() => setMobileSidebarOpen(true)}
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium md:hidden"
-                            >
-                                Menu
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={toggleDesktopSidebar}
+                                    className="hidden rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium transition hover:bg-white/10 md:inline-flex"
+                                >
+                                    {desktopSidebarVisible ? "Hide sidebar" : "Show sidebar"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileSidebarOpen(true)}
+                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium md:hidden"
+                                >
+                                    Menu
+                                </button>
+                            </div>
                         </div>
                     </header>
 
