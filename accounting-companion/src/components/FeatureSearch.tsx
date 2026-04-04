@@ -124,23 +124,26 @@ export default function FeatureSearch({
         }
     }
 
-    const inputShellClass =
+    const shellClass =
         variant === "hero"
-            ? "rounded-[1.6rem] border border-white/10 bg-black/30 px-4 py-3.5 shadow-[0_18px_60px_rgba(0,0,0,0.24)]"
-            : "rounded-[1.2rem] border border-white/10 bg-white/[0.05] px-3 py-2.5";
+            ? "app-search-shell rounded-[1.6rem] px-4 py-3.5"
+            : "app-search-shell rounded-[1.25rem] px-3 py-2.5";
 
     const panelClass =
         variant === "hero"
-            ? "mt-3 rounded-[1.6rem] border border-white/10 bg-[#060606]/96 shadow-[0_24px_80px_rgba(0,0,0,0.32)]"
-            : "mt-2 rounded-[1.3rem] border border-white/10 bg-[#060606]/96 shadow-[0_24px_80px_rgba(0,0,0,0.32)]";
+            ? "app-search-panel mt-3 rounded-[1.6rem]"
+            : "app-search-panel mt-2 rounded-[1.3rem]";
 
     return (
-        <div ref={rootRef} className={`relative ${className}`}>
-            <div
-                className={`${inputShellClass} transition hover:border-white/15 focus-within:border-green-400/30 focus-within:ring-2 focus-within:ring-green-400/15`}
-            >
+        <div
+            ref={rootRef}
+            className={`relative ${open ? "z-40" : "z-10"} ${className}`}
+        >
+            <div className={`${shellClass} hover:border-[color:var(--app-border-strong)]`}>
                 <div className="flex items-center gap-3">
-                    <SearchIcon className="h-5 w-5 shrink-0 text-gray-400" />
+                    <div className="app-subtle-surface inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
+                        <SearchIcon className="h-5 w-5 text-[color:var(--app-text-muted)]" />
+                    </div>
                     <input
                         ref={inputRef}
                         type="text"
@@ -152,7 +155,7 @@ export default function FeatureSearch({
                         onFocus={() => setOpen(true)}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500 md:text-[0.95rem]"
+                        className="w-full bg-transparent text-sm text-[color:var(--app-text)] outline-none placeholder:text-[color:var(--app-text-muted)] md:text-[0.95rem]"
                         aria-label="Search features"
                         aria-expanded={open}
                         aria-controls={resultsId}
@@ -171,7 +174,7 @@ export default function FeatureSearch({
                                 setOpen(true);
                                 inputRef.current?.focus();
                             }}
-                            className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.16em] text-gray-300 transition hover:bg-white/[0.08]"
+                            className="app-button-ghost rounded-full px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.16em]"
                         >
                             Clear
                         </button>
@@ -181,11 +184,11 @@ export default function FeatureSearch({
 
             {open ? (
                 <div id={resultsId} className={`${panelClass} overflow-hidden`} role="listbox">
-                    <div className="border-b border-white/10 px-4 py-3">
-                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-green-300">
-                            {deferredQuery.trim() ? "Autocomplete" : "Browse Suggestions"}
+                    <div className="border-b app-divider px-4 py-3.5">
+                        <p className="app-kicker text-[0.68rem]">
+                            {deferredQuery.trim() ? "Autocomplete" : "Browse suggestions"}
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                        <p className="app-helper mt-1 text-xs leading-5">
                             {deferredQuery.trim()
                                 ? "Matches title, aliases, abbreviations, tags, categories, and close misspellings."
                                 : "Start typing or open a suggested tool directly."}
@@ -207,29 +210,39 @@ export default function FeatureSearch({
                                         onMouseEnter={() => setActiveIndex(index)}
                                         onClick={() => handleNavigate(result)}
                                         className={[
-                                            "flex w-full items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3 text-left transition last:border-b-0",
-                                            isActive ? "bg-green-500/12" : "bg-transparent hover:bg-white/[0.04]",
+                                            "flex w-full items-start justify-between gap-3 border-b app-divider px-4 py-3.5 text-left transition last:border-b-0",
+                                            isActive
+                                                ? "bg-[var(--app-accent-soft)]"
+                                                : "hover:bg-[var(--app-accent-soft)]",
                                         ].join(" ")}
+                                        style={
+                                            isActive
+                                                ? {
+                                                      boxShadow:
+                                                          "inset 0 0 0 1px var(--app-border-strong)",
+                                                  }
+                                                : undefined
+                                        }
                                     >
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <p className="text-sm font-semibold text-white">
+                                                <p className="text-[0.96rem] font-semibold tracking-[-0.02em] text-[color:var(--app-text)]">
                                                     {result.label}
                                                 </p>
-                                                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[0.62rem] uppercase tracking-[0.16em] text-gray-300">
+                                                <span className="app-chip rounded-full px-2 py-0.5 text-[0.62rem]">
                                                     {result.category}
                                                 </span>
                                             </div>
-                                            <p className="mt-1 text-sm leading-6 text-gray-400">
+                                            <p className="app-body-md mt-1 text-sm">
                                                 {result.description}
                                             </p>
                                             {result.tags.length > 0 ? (
-                                                <p className="mt-2 text-[0.68rem] uppercase tracking-[0.16em] text-gray-500">
+                                                <p className="app-helper mt-2 text-[0.68rem] uppercase tracking-[0.14em]">
                                                     {result.tags.join(", ")}
                                                 </p>
                                             ) : null}
                                         </div>
-                                        <span className="shrink-0 rounded-full border border-green-400/15 bg-green-500/10 px-2.5 py-1 text-[0.62rem] uppercase tracking-[0.16em] text-green-300">
+                                        <span className="app-chip-accent shrink-0 rounded-full px-2.5 py-1 text-[0.62rem]">
                                             {resultBadge(result)}
                                         </span>
                                     </button>
@@ -237,7 +250,7 @@ export default function FeatureSearch({
                             })}
                         </div>
                     ) : (
-                        <div className="px-4 py-5 text-sm leading-6 text-gray-400">
+                        <div className="px-4 py-5 text-sm leading-6 text-[color:var(--app-text-secondary)]">
                             No matching tool yet. Try a broader term like `ratio`, `inventory`,
                             `annuity`, `npv`, `debit`, or `trial balance`.
                         </div>

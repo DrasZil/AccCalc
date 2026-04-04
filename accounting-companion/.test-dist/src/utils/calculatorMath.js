@@ -240,3 +240,97 @@ export function computeSinkingFundDeposit(futureValueTarget, periodicRatePercent
         requiredDeposit,
     };
 }
+export function computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows) {
+    const rateDecimal = discountRatePercent / 100;
+    const discountedCashFlows = cashFlows.map((cashFlow, index) => {
+        const period = index + 1;
+        const discountFactor = 1 / Math.pow(1 + rateDecimal, period);
+        const presentValue = cashFlow * discountFactor;
+        return {
+            period,
+            cashFlow,
+            discountFactor,
+            presentValue,
+        };
+    });
+    const totalPresentValue = discountedCashFlows.reduce((sum, entry) => sum + entry.presentValue, 0);
+    return {
+        rateDecimal,
+        discountedCashFlows,
+        totalPresentValue,
+        netPresentValue: totalPresentValue - initialInvestment,
+    };
+}
+export function computeProfitabilityIndex(initialInvestment, discountRatePercent, cashFlows) {
+    const npv = computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows);
+    return {
+        ...npv,
+        profitabilityIndex: npv.totalPresentValue / initialInvestment,
+    };
+}
+export function computePaybackPeriod(initialInvestment, cashFlows) {
+    let unrecoveredBalance = initialInvestment;
+    let cumulativeCashFlow = 0;
+    let paybackPeriod = null;
+    let fractionOfPeriod = null;
+    const schedule = cashFlows.map((cashFlow, index) => {
+        const period = index + 1;
+        const beginningUnrecovered = unrecoveredBalance;
+        cumulativeCashFlow += cashFlow;
+        unrecoveredBalance -= cashFlow;
+        if (paybackPeriod === null &&
+            beginningUnrecovered > 0 &&
+            unrecoveredBalance <= 0 &&
+            cashFlow !== 0) {
+            fractionOfPeriod = beginningUnrecovered / cashFlow;
+            paybackPeriod = index + fractionOfPeriod;
+        }
+        return {
+            period,
+            cashFlow,
+            cumulativeCashFlow,
+            unrecoveredBalance,
+        };
+    });
+    return {
+        schedule,
+        recovered: paybackPeriod !== null,
+        paybackPeriod,
+        fractionOfPeriod,
+        unrecoveredBalance,
+        cumulativeCashFlow,
+    };
+}
+export function computeWeightedMean(values, weights) {
+    const weightedSum = values.reduce((sum, value, index) => sum + value * weights[index], 0);
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    return {
+        weightedSum,
+        totalWeight,
+        weightedMean: weightedSum / totalWeight,
+    };
+}
+export function computeStandardDeviation(values, sample = false) {
+    const count = values.length;
+    const mean = values.reduce((sum, value) => sum + value, 0) / count;
+    const sumOfSquaredDeviations = values.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0);
+    const divisor = sample ? count - 1 : count;
+    const variance = sumOfSquaredDeviations / divisor;
+    return {
+        count,
+        mean,
+        sumOfSquaredDeviations,
+        variance,
+        standardDeviation: Math.sqrt(variance),
+    };
+}
+export function computeTrialBalance(totalDebits, totalCredits) {
+    const difference = totalDebits - totalCredits;
+    const isBalanced = Math.abs(difference) < 0.005;
+    return {
+        difference,
+        isBalanced,
+        shortSide: isBalanced ? "balanced" : difference > 0 ? "credits" : "debits",
+        amountToCorrect: Math.abs(difference),
+    };
+}

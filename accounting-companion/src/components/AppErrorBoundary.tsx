@@ -33,22 +33,22 @@ export default class AppErrorBoundary extends Component<
     render() {
         if (this.state.hasError) {
             return (
-                <div className="min-h-screen bg-[#050505] px-4 py-10 text-white">
-                    <div className="mx-auto max-w-2xl rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-green-300">
+                <div className="min-h-screen px-4 py-10 text-[color:var(--app-text)]">
+                    <div className="app-panel-elevated mx-auto max-w-2xl rounded-[var(--app-radius-xl)] p-6">
+                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--app-accent)]">
                             AccCalc
                         </p>
                         <h1 className="mt-3 text-3xl font-bold tracking-tight">
                             The app hit a rendering error.
                         </h1>
-                        <p className="mt-4 text-sm leading-7 text-gray-300 md:text-base">
+                        <p className="mt-4 text-sm leading-7 text-[color:var(--app-text-secondary)] md:text-base">
                             {this.state.message}
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
                             <button
                                 type="button"
                                 onClick={() => window.location.reload()}
-                                className="rounded-xl bg-green-500/90 px-4 py-2 text-sm font-medium text-black"
+                                className="app-button-primary rounded-xl px-4 py-2 text-sm font-medium"
                             >
                                 Reload app
                             </button>
@@ -60,7 +60,7 @@ export default class AppErrorBoundary extends Component<
                                         message: "",
                                     })
                                 }
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white"
+                                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
                             >
                                 Try again
                             </button>
@@ -70,7 +70,7 @@ export default class AppErrorBoundary extends Component<
                                     window.location.hash = "#/";
                                     window.location.reload();
                                 }}
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white"
+                                className="app-button-ghost rounded-xl px-4 py-2 text-sm font-medium"
                             >
                                 Go home
                             </button>

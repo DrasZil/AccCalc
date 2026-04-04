@@ -4,6 +4,7 @@ import { clearStoredActivity } from "../../utils/appActivity";
 import {
     DEFAULT_APP_SETTINGS,
     type AppSettings,
+    type ThemePreference,
     updateAppSettings,
     useAppSettings,
 } from "../../utils/appSettings";
@@ -21,26 +22,56 @@ type ToggleRowProps = {
     onChange: (value: boolean) => void;
 };
 
+type ThemeOption = {
+    value: ThemePreference;
+    title: string;
+    description: string;
+};
+
+const THEME_OPTIONS: ThemeOption[] = [
+    {
+        value: "system",
+        title: "System",
+        description: "Follow the device preference automatically.",
+    },
+    {
+        value: "dark",
+        title: "Dark",
+        description: "Comfortable, premium, and low-glare for long sessions.",
+    },
+    {
+        value: "light",
+        title: "Light",
+        description: "Bright, polished, and clean for classroom or office use.",
+    },
+];
+
 function ToggleRow({ title, description, value, onChange }: ToggleRowProps) {
     return (
-        <div className="flex flex-col gap-4 rounded-[1.5rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.05] md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl">
-                <h3 className="text-base font-semibold text-white">{title}</h3>
-                <p className="mt-1 text-sm leading-6 text-gray-400">{description}</p>
-            </div>
+        <div className="app-subtle-surface rounded-[var(--app-radius-lg)] p-4 md:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="max-w-2xl">
+                    <h3 className="app-card-title text-base">
+                        {title}
+                    </h3>
+                    <p className="app-body-md mt-1 text-sm">
+                        {description}
+                    </p>
+                </div>
 
-            <button
-                type="button"
-                onClick={() => onChange(!value)}
-                className={[
-                    "inline-flex min-w-20 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition duration-300",
-                    value
-                        ? "bg-green-500/90 text-black"
-                        : "border border-white/10 bg-white/5 text-gray-200",
-                ].join(" ")}
-            >
-                {value ? "On" : "Off"}
-            </button>
+                <button
+                    type="button"
+                    onClick={() => onChange(!value)}
+                    className={[
+                        "rounded-full px-4 py-2 text-sm font-semibold transition",
+                        value
+                            ? "app-button-primary"
+                            : "app-button-secondary",
+                    ].join(" ")}
+                >
+                    {value ? "On" : "Off"}
+                </button>
+            </div>
         </div>
     );
 }
@@ -60,12 +91,83 @@ function LinkTile({
         <Link
             to={to}
             onClick={onNavigate}
-            className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.08]"
+            className="app-panel app-card-hover rounded-[var(--app-radius-lg)] p-5"
         >
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-gray-400">{description}</p>
-            <p className="mt-4 text-sm font-medium text-green-300">Open</p>
+            <h3 className="app-section-title text-lg">{title}</h3>
+            <p className="app-body-md mt-2 text-sm">
+                {description}
+            </p>
+            <p className="mt-4 text-sm font-medium text-[color:var(--app-accent-secondary)]">Open</p>
         </Link>
+    );
+}
+
+function ThemeCard({
+    option,
+    active,
+    onSelect,
+}: {
+    option: ThemeOption;
+    active: boolean;
+    onSelect: (value: ThemePreference) => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={() => onSelect(option.value)}
+            className={[
+                "rounded-[var(--app-radius-lg)] border p-4 text-left transition",
+                active
+                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
+            ].join(" ")}
+        >
+            <p className="app-card-title text-sm">{option.title}</p>
+            <p className="app-body-md mt-2 text-sm">
+                {option.description}
+            </p>
+        </button>
+    );
+}
+
+function SelectRow({
+    title,
+    description,
+    value,
+    onChange,
+    options,
+}: {
+    title: string;
+    description: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: Array<{ value: string; label: string }>;
+}) {
+    return (
+        <div className="app-subtle-surface rounded-[var(--app-radius-lg)] p-4 md:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="max-w-2xl">
+                    <h3 className="app-card-title text-base">
+                        {title}
+                    </h3>
+                    <p className="app-body-md mt-1 text-sm">
+                        {description}
+                    </p>
+                </div>
+
+                <select
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                    className="app-select min-w-[11rem] rounded-xl px-4 py-2 text-sm outline-none"
+                >
+                    {options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        </div>
     );
 }
 
@@ -80,39 +182,65 @@ export default function SettingsContent({
     }
 
     return (
-        <div className="space-y-6">
+        <div className="app-page-stack">
             <SectionCard>
-                <h2 className="text-lg font-semibold text-white">Navigation</h2>
+                <p className="app-section-kicker">
+                    Appearance
+                </p>
+                <h2 className="app-section-title mt-3 text-xl">
+                    Theme and visual comfort
+                </h2>
+                <p className="app-body-md mt-2 text-sm">
+                    Choose how the app should look across desktop, tablet, and mobile.
+                </p>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    {THEME_OPTIONS.map((option) => (
+                        <ThemeCard
+                            key={option.value}
+                            option={option}
+                            active={settings.themePreference === option.value}
+                            onSelect={(value) => setSetting("themePreference", value)}
+                        />
+                    ))}
+                </div>
+
+                <div className="mt-5 space-y-4">
+                    <ToggleRow
+                        title="Enable premium motion"
+                        description="Keep transitions, drawer animations, hover lifts, and subtle visual polish active."
+                        value={settings.enableMotionEffects}
+                        onChange={(value) => setSetting("enableMotionEffects", value)}
+                    />
+                    <ToggleRow
+                        title="Play opening animation"
+                        description="Show the short startup sequence when the app opens, including installed launches."
+                        value={settings.showOpeningAnimation}
+                        onChange={(value) => setSetting("showOpeningAnimation", value)}
+                    />
+                </div>
+            </SectionCard>
+
+            <SectionCard>
+                <h2 className="app-section-title text-lg">Navigation</h2>
                 <div className="mt-4 space-y-4">
                     <ToggleRow
                         title="Auto-expand the active navigation group"
-                        description="When on, the sidebar opens the group containing the current page. When off, all groups stay collapsed until you open them manually."
+                        description="Open the group containing the current page automatically while browsing."
                         value={settings.autoExpandActiveNavGroup}
                         onChange={(value) => setSetting("autoExpandActiveNavGroup", value)}
                     />
                     <ToggleRow
                         title="Remember desktop sidebar visibility"
-                        description="Keeps your last desktop sidebar state between visits. Turn this off to always show the desktop sidebar on load."
+                        description="Keep your last desktop sidebar state between visits."
                         value={settings.rememberDesktopSidebarVisibility}
                         onChange={(value) =>
                             setSetting("rememberDesktopSidebarVisibility", value)
                         }
                     />
                     <ToggleRow
-                        title="Enable premium motion"
-                        description="Keeps the interface transitions, drawer animations, and hover lifts active. Turn this off for the most static experience."
-                        value={settings.enableMotionEffects}
-                        onChange={(value) => setSetting("enableMotionEffects", value)}
-                    />
-                    <ToggleRow
-                        title="Play opening animation"
-                        description="Shows the short startup sequence when the app opens, including installed PWA launches."
-                        value={settings.showOpeningAnimation}
-                        onChange={(value) => setSetting("showOpeningAnimation", value)}
-                    />
-                    <ToggleRow
                         title="Show new feature indicators"
-                        description="Displays a small new badge beside recently added tools until you open them once."
+                        description="Display a new badge beside recently added tools until you open them once."
                         value={settings.showNewFeatureIndicators}
                         onChange={(value) => setSetting("showNewFeatureIndicators", value)}
                     />
@@ -120,65 +248,48 @@ export default function SettingsContent({
             </SectionCard>
 
             <SectionCard>
-                <h2 className="text-lg font-semibold text-white">Smart Solver</h2>
+                <h2 className="app-section-title text-lg">Smart Solver</h2>
                 <div className="mt-4 space-y-4">
                     <ToggleRow
                         title="Show prompt examples"
-                        description="Displays sample accounting prompts to help users phrase problems naturally."
+                        description="Display sample accounting prompts to help users phrase problems naturally."
                         value={settings.smartSolverShowPromptExamples}
                         onChange={(value) => setSetting("smartSolverShowPromptExamples", value)}
                     />
 
-                    <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div className="max-w-2xl">
-                                <h3 className="text-base font-semibold text-white">
-                                    Suggested calculator count
-                                </h3>
-                                <p className="mt-1 text-sm leading-6 text-gray-400">
-                                    Controls how many top Smart Solver matches are shown in the suggestion list.
-                                </p>
-                            </div>
-
-                            <select
-                                value={String(settings.smartSolverMaxSuggestions)}
-                                onChange={(event) =>
-                                    setSetting(
-                                        "smartSolverMaxSuggestions",
-                                        Number(event.target.value)
-                                    )
-                                }
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white outline-none"
-                            >
-                                {[2, 3, 4, 5, 6].map((value) => (
-                                    <option key={value} value={value} className="bg-neutral-950">
-                                        {value}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                    <SelectRow
+                        title="Suggested calculator count"
+                        description="Control how many top Smart Solver matches are shown in the suggestion list."
+                        value={String(settings.smartSolverMaxSuggestions)}
+                        onChange={(value) =>
+                            setSetting("smartSolverMaxSuggestions", Number(value))
+                        }
+                        options={[2, 3, 4, 5, 6].map((value) => ({
+                            value: String(value),
+                            label: String(value),
+                        }))}
+                    />
                 </div>
             </SectionCard>
 
             <SectionCard>
-                <h2 className="text-lg font-semibold text-white">Home Experience</h2>
+                <h2 className="text-lg font-semibold text-[color:var(--app-text)]">Home experience</h2>
                 <div className="mt-4 space-y-4">
                     <ToggleRow
                         title="Show install and share prompt on the home page"
-                        description="Displays the install or share prompt when the app is opened on the home page."
+                        description="Display the install or share panel on the home page when appropriate."
                         value={settings.showInstallPrompt}
                         onChange={(value) => setSetting("showInstallPrompt", value)}
                     />
                     <ToggleRow
                         title="Save history offline on this device"
-                        description="Keeps recent activity, recommendations, Smart Solver saves, and calculator history even after the app is closed."
+                        description="Keep recent activity, recommendations, Smart Solver saves, and calculator history on this device."
                         value={settings.saveOfflineHistory}
                         onChange={(value) => setSetting("saveOfflineHistory", value)}
                     />
                     <ToggleRow
                         title="Show feedback reminders"
-                        description="Allows the app to occasionally remind active users to send feedback. You can still dismiss each reminder when it appears."
+                        description="Allow the app to occasionally remind active users to send feedback."
                         value={settings.showFeedbackReminders}
                         onChange={(value) => setSetting("showFeedbackReminders", value)}
                     />
@@ -186,52 +297,36 @@ export default function SettingsContent({
             </SectionCard>
 
             <SectionCard>
-                <h2 className="text-lg font-semibold text-white">Currency</h2>
-                <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="max-w-2xl">
-                            <h3 className="text-base font-semibold text-white">
-                                Display currency
-                            </h3>
-                            <p className="mt-1 text-sm leading-6 text-gray-400">
-                                Used across result cards, formulas, and interpretations. Smart Solver can also update this automatically when it detects a currency in your prompt.
-                            </p>
-                        </div>
-
-                        <select
-                            value={settings.preferredCurrency}
-                            onChange={(event) =>
-                                setSetting("preferredCurrency", event.target.value)
-                            }
-                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white outline-none"
-                        >
-                            {SUPPORTED_CURRENCIES.map((currency) => (
-                                <option
-                                    key={currency.code}
-                                    value={currency.code}
-                                    className="bg-neutral-950"
-                                >
-                                    {currency.code} • {currency.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                <h2 className="text-lg font-semibold text-[color:var(--app-text)]">Currency</h2>
+                <div className="mt-4 space-y-4">
+                    <SelectRow
+                        title="Display currency"
+                        description="Use one shared display currency across results, formulas, and interpretations."
+                        value={settings.preferredCurrency}
+                        onChange={(value) => setSetting("preferredCurrency", value)}
+                        options={SUPPORTED_CURRENCIES.map((currency) => ({
+                            value: currency.code,
+                            label: `${currency.code} - ${currency.label}`,
+                        }))}
+                    />
                 </div>
             </SectionCard>
 
             <SectionCard>
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Information</h2>
-                        <p className="mt-1 text-sm leading-6 text-gray-400">
-                            About the project, feedback form, and a quick reset if you want to restore defaults.
+                        <h2 className="text-lg font-semibold text-[color:var(--app-text)]">
+                            Information and reset
+                        </h2>
+                        <p className="mt-1 text-sm leading-6 text-[color:var(--app-text-secondary)]">
+                            Open supporting pages or restore settings when you want a clean slate.
                         </p>
                     </div>
 
                     <button
                         type="button"
                         onClick={() => updateAppSettings(DEFAULT_APP_SETTINGS)}
-                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                        className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
                     >
                         Reset settings
                     </button>
@@ -258,19 +353,22 @@ export default function SettingsContent({
                     />
                 </div>
 
-                <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                <div className="app-subtle-surface mt-4 rounded-[var(--app-radius-lg)] p-4 md:p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="max-w-2xl">
-                            <h3 className="text-base font-semibold text-white">Offline history</h3>
-                            <p className="mt-1 text-sm leading-6 text-gray-400">
-                                Clears saved route history, recommendations, recent prompts, and offline activity stored on this device.
+                            <h3 className="text-base font-semibold text-[color:var(--app-text)]">
+                                Offline history
+                            </h3>
+                            <p className="mt-1 text-sm leading-6 text-[color:var(--app-text-secondary)]">
+                                Clear saved route history, recommendations, recent prompts, and
+                                offline activity stored on this device.
                             </p>
                         </div>
 
                         <button
                             type="button"
                             onClick={clearStoredActivity}
-                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                            className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
                         >
                             Clear history
                         </button>

@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeCashDiscount, computeCompoundInterest, computeCurrentRatio, computeCashRatio, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeLoanAmortization, computeMarkupMargin, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnershipProfitSharing, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeQuickRatio, computeSimpleInterest, computeSinkingFundDeposit, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTurnoverWithDayBasis, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeCashDiscount, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeLoanAmortization, computeMarkupMargin, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnershipProfitSharing, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
+import { searchAccountReferences } from "../src/utils/accountingReference.js";
+import { searchAppRoutes } from "../src/utils/appSearch.js";
+import { parseNumberList } from "../src/utils/listParsers.js";
 function assertClose(actual, expected, precision = 1e-6) {
     assert.ok(Math.abs(actual - expected) <= precision, `Expected ${actual} to be within ${precision} of ${expected}`);
 }
@@ -168,5 +171,65 @@ runTest("gross profit rate and trade discount compute classroom values", () => {
     assertClose(grossProfitRate.grossProfitRate, 40);
     assertClose(tradeDiscount.discountAmount, 2000);
     assertClose(tradeDiscount.netPrice, 8000);
+});
+runTest("capital budgeting helpers compute consistent discounted values", () => {
+    const npv = computeNetPresentValue(100000, 12, [30000, 35000, 40000, 45000]);
+    const profitabilityIndex = computeProfitabilityIndex(100000, 12, [
+        30000,
+        35000,
+        40000,
+        45000,
+    ]);
+    assertClose(npv.totalPresentValue, 111757.0234, 1e-3);
+    assertClose(npv.netPresentValue, 11757.0234, 1e-3);
+    assertClose(profitabilityIndex.profitabilityIndex, 1.1175702344, 1e-6);
+    assertClose(profitabilityIndex.netPresentValue, npv.netPresentValue, 1e-9);
+});
+runTest("payback period handles partial final period", () => {
+    const result = computePaybackPeriod(100000, [30000, 25000, 28000, 35000]);
+    assert.equal(result.recovered, true);
+    assertClose(result.paybackPeriod ?? 0, 3.4857142857, 1e-6);
+    assertClose(result.fractionOfPeriod ?? 0, 0.4857142857, 1e-6);
+});
+runTest("weighted mean and standard deviation cover quantitative basics", () => {
+    const weightedMean = computeWeightedMean([85, 90, 78, 92], [0.2, 0.3, 0.2, 0.3]);
+    const populationSd = computeStandardDeviation([12, 15, 18, 19, 22], false);
+    const sampleSd = computeStandardDeviation([12, 15, 18, 19, 22], true);
+    assertClose(weightedMean.weightedSum, 87.2);
+    assertClose(weightedMean.totalWeight, 1);
+    assertClose(weightedMean.weightedMean, 87.2);
+    assertClose(populationSd.mean, 17.2);
+    assertClose(populationSd.standardDeviation, 3.4292856399, 1e-6);
+    assertClose(sampleSd.standardDeviation, 3.8340579025, 1e-6);
+});
+runTest("trial balance tolerance keeps tiny rounding differences balanced", () => {
+    const balanced = computeTrialBalance(100.003, 100);
+    const unbalanced = computeTrialBalance(250000, 249500);
+    assert.equal(balanced.isBalanced, true);
+    assert.equal(balanced.shortSide, "balanced");
+    assert.equal(unbalanced.isBalanced, false);
+    assert.equal(unbalanced.shortSide, "credits");
+    assertClose(unbalanced.amountToCorrect, 500);
+});
+runTest("number list parser accepts mixed separators and rejects bad entries", () => {
+    const parsed = parseNumberList("10, 20\n30;40");
+    const invalid = parseNumberList("10, nope, 30");
+    assert.deepEqual(parsed.values, [10, 20, 30, 40]);
+    assert.equal(parsed.error, null);
+    assert.equal(invalid.error !== null, true);
+});
+runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () => {
+    const npvResults = searchAppRoutes("npv");
+    const typoResults = searchAppRoutes("trial balnce");
+    const aliasResults = searchAppRoutes("benefit cost ratio");
+    assert.equal(npvResults[0]?.path, "/finance/npv");
+    assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
+    assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
+});
+runTest("account reference search finds aliases and abbreviations", () => {
+    const adaResults = searchAccountReferences("ada");
+    const payableResults = searchAccountReferences("payable");
+    assert.equal(adaResults[0]?.name, "Allowance for Doubtful Accounts");
+    assert.equal(payableResults.some((entry) => entry.name === "Accounts Payable"), true);
 });
 process.stdout.write("All calculator math tests passed.\n");

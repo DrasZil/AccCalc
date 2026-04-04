@@ -655,15 +655,15 @@ export default function BasicCalculatorPage() {
             inputSection={
                 <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
                     <SectionCard className="overflow-hidden">
-                        <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(2,8,6,0.94),rgba(3,4,4,0.98))] p-4 md:p-5">
-                            <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4 md:p-5">
-                                <p className="min-h-6 text-right text-xs uppercase tracking-[0.18em] text-gray-500">
+                        <div className="rounded-[1.7rem] border app-divider bg-[linear-gradient(180deg,var(--app-elevated),var(--app-surface))] p-4 md:p-5">
+                            <div className="app-subtle-surface rounded-[1.5rem] p-4 md:p-5">
+                                <p className="app-label min-h-6 text-right">
                                     {statusMessage}
                                 </p>
-                                <p className="mt-2 min-h-10 break-all text-right text-sm text-gray-400">
+                                <p className="app-body-md app-numeric mt-2 min-h-10 break-all text-right text-sm">
                                     {expressionDisplay || "0"}
                                 </p>
-                                <p className="mt-3 min-h-16 break-all text-right text-4xl font-bold tracking-tight text-white md:text-5xl">
+                                <p className="app-value-display min-h-16 break-all text-right md:text-[3.35rem]">
                                     {currentInput}
                                 </p>
                             </div>
@@ -696,7 +696,7 @@ export default function BasicCalculatorPage() {
                         </ResultGrid>
 
                         <SectionCard>
-                            <h2 className="text-base font-semibold text-white">Recent Calculations</h2>
+                            <h2 className="app-section-title text-base">Recent Calculations</h2>
 
                             {history.length > 0 ? (
                                 <div className="mt-4 space-y-3">
@@ -710,36 +710,36 @@ export default function BasicCalculatorPage() {
                                                 setJustEvaluated(true);
                                                 setStatusMessage("Loaded from history");
                                             }}
-                                            className="block w-full rounded-[1.35rem] border border-white/10 bg-black/20 px-4 py-3 text-left transition hover:bg-white/[0.06]"
+                                            className="app-list-link block w-full rounded-[1.35rem] px-4 py-3 text-left transition"
                                         >
-                                            <p className="text-xs uppercase tracking-[0.16em] text-gray-500">
+                                            <p className="app-section-kicker text-xs">
                                                 {entry.expression}
                                             </p>
-                                            <p className="mt-2 text-lg font-semibold text-white">
+                                            <p className="app-value-display mt-2 text-[1.45rem]">
                                                 {entry.result}
                                             </p>
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="mt-4 text-sm leading-6 text-gray-400">
+                                <p className="app-body-md mt-4 text-sm">
                                     Your recent calculations will appear here once you start using the calculator.
                                 </p>
                             )}
                         </SectionCard>
 
                         <SectionCard>
-                            <h2 className="text-base font-semibold text-white">Keyboard Support</h2>
+                            <h2 className="app-section-title text-base">Keyboard Support</h2>
                             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                <div className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
-                                    <p className="text-sm font-medium text-gray-300">Input</p>
-                                    <p className="mt-2 text-sm leading-6 text-gray-400">
+                                <div className="app-subtle-surface rounded-[1.35rem] p-4">
+                                    <p className="app-card-title text-sm">Input</p>
+                                    <p className="app-body-md mt-2 text-sm">
                                         Use `0-9`, `.`, `+`, `-`, `*`, `/`, `(`, and `)`.
                                     </p>
                                 </div>
-                                <div className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
-                                    <p className="text-sm font-medium text-gray-300">Control</p>
-                                    <p className="mt-2 text-sm leading-6 text-gray-400">
+                                <div className="app-subtle-surface rounded-[1.35rem] p-4">
+                                    <p className="app-card-title text-sm">Control</p>
+                                    <p className="app-body-md mt-2 text-sm">
                                         Use `Enter` for equals, `Backspace` to delete, `Delete` for CE, and `Esc` for AC.
                                     </p>
                                 </div>

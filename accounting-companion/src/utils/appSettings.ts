@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react";
 
+export type ThemePreference = "system" | "dark" | "light";
+
 export type AppSettings = {
     autoExpandActiveNavGroup: boolean;
     showInstallPrompt: boolean;
@@ -12,6 +14,7 @@ export type AppSettings = {
     showOpeningAnimation: boolean;
     showNewFeatureIndicators: boolean;
     saveOfflineHistory: boolean;
+    themePreference: ThemePreference;
 };
 
 const STORAGE_KEY = "accalc-app-settings";
@@ -31,22 +34,32 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
     showOpeningAnimation: true,
     showNewFeatureIndicators: true,
     saveOfflineHistory: true,
+    themePreference: "system",
 };
 
 cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
 
+function sanitizeThemePreference(value: unknown): ThemePreference {
+    return value === "dark" || value === "light" || value === "system"
+        ? value
+        : DEFAULT_APP_SETTINGS.themePreference;
+}
+
 function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSettings {
     return {
-        autoExpandActiveNavGroup: value?.autoExpandActiveNavGroup ?? DEFAULT_APP_SETTINGS.autoExpandActiveNavGroup,
+        autoExpandActiveNavGroup:
+            value?.autoExpandActiveNavGroup ?? DEFAULT_APP_SETTINGS.autoExpandActiveNavGroup,
         showInstallPrompt: value?.showInstallPrompt ?? DEFAULT_APP_SETTINGS.showInstallPrompt,
         smartSolverShowPromptExamples:
-            value?.smartSolverShowPromptExamples ?? DEFAULT_APP_SETTINGS.smartSolverShowPromptExamples,
+            value?.smartSolverShowPromptExamples ??
+            DEFAULT_APP_SETTINGS.smartSolverShowPromptExamples,
         smartSolverMaxSuggestions:
             typeof value?.smartSolverMaxSuggestions === "number"
                 ? Math.min(6, Math.max(2, Math.round(value.smartSolverMaxSuggestions)))
                 : DEFAULT_APP_SETTINGS.smartSolverMaxSuggestions,
         rememberDesktopSidebarVisibility:
-            value?.rememberDesktopSidebarVisibility ?? DEFAULT_APP_SETTINGS.rememberDesktopSidebarVisibility,
+            value?.rememberDesktopSidebarVisibility ??
+            DEFAULT_APP_SETTINGS.rememberDesktopSidebarVisibility,
         enableMotionEffects:
             value?.enableMotionEffects ?? DEFAULT_APP_SETTINGS.enableMotionEffects,
         preferredCurrency:
@@ -61,6 +74,7 @@ function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSe
             value?.showNewFeatureIndicators ?? DEFAULT_APP_SETTINGS.showNewFeatureIndicators,
         saveOfflineHistory:
             value?.saveOfflineHistory ?? DEFAULT_APP_SETTINGS.saveOfflineHistory,
+        themePreference: sanitizeThemePreference(value?.themePreference),
     };
 }
 

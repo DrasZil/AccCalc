@@ -62,17 +62,17 @@ export default function HomePage() {
     );
 
     return (
-        <div className="space-y-8 md:space-y-10">
-            <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(88,196,135,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.22)] md:p-10">
-                <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-end">
+        <div className="app-page-stack">
+            <section className="app-panel-elevated app-hero-panel rounded-[var(--app-radius-xl)] p-6 md:p-8 xl:p-10">
+                <div className="grid gap-8 xl:grid-cols-[1.16fr_0.84fr] xl:items-end">
                     <div className="max-w-3xl">
-                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-green-300">
+                        <p className="app-kicker">
                             Accounting-first calculator platform
                         </p>
-                        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl xl:text-6xl">
+                        <h1 className="mt-4 text-[clamp(2.3rem,1.45rem+3vw,4.85rem)] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                             Reliable tools for accounting, finance, managerial work, business math, and statistics.
                         </h1>
-                        <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300 md:text-lg">
+                        <p className="app-body-lg mt-5 max-w-2xl text-base md:text-lg">
                             AccCalc is built for assignments, quizzes, reviews, and practical class use.
                             The app prioritizes formula accuracy, cleaner interpretation, and direct
                             routes into the exact tool you need.
@@ -81,13 +81,13 @@ export default function HomePage() {
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Link
                                 to="/smart/solver"
-                                className="rounded-xl bg-green-500 px-5 py-3 text-sm font-semibold text-black transition duration-300 hover:bg-green-400"
+                                className="app-button-primary rounded-xl px-5 py-3 text-sm font-semibold"
                             >
                                 Open Smart Solver
                             </Link>
                             <Link
                                 to="/history"
-                                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-white/10"
+                                className="app-button-secondary rounded-xl px-5 py-3 text-sm font-semibold"
                             >
                                 Open history
                             </Link>
@@ -100,22 +100,22 @@ export default function HomePage() {
                         />
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Browsable tools</p>
-                            <p className="mt-2 text-lg font-semibold">{totalBrowsableTools}</p>
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+                        <div className="app-metric-tile rounded-[1.55rem] p-4 md:p-5">
+                            <p className="app-metric-label">Browsable tools</p>
+                            <p className="app-metric-value mt-3">{totalBrowsableTools}</p>
                         </div>
-                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Active categories</p>
-                            <p className="mt-2 text-lg font-semibold">{browseGroups.length}</p>
+                        <div className="app-metric-tile rounded-[1.55rem] p-4 md:p-5">
+                            <p className="app-metric-label">Active categories</p>
+                            <p className="app-metric-value mt-3">{browseGroups.length}</p>
                         </div>
-                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Saved prompts</p>
-                            <p className="mt-2 text-lg font-semibold">{savedPromptCount}</p>
+                        <div className="app-metric-tile rounded-[1.55rem] p-4 md:p-5">
+                            <p className="app-metric-label">Saved prompts</p>
+                            <p className="app-metric-value mt-3">{savedPromptCount}</p>
                         </div>
-                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Used tools</p>
-                            <p className="mt-2 text-lg font-semibold">{activeToolCount}</p>
+                        <div className="app-metric-tile rounded-[1.55rem] p-4 md:p-5">
+                            <p className="app-metric-label">Used tools</p>
+                            <p className="app-metric-value mt-3">{activeToolCount}</p>
                         </div>
                     </div>
                 </div>
@@ -123,16 +123,16 @@ export default function HomePage() {
 
             <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
                 {unseenFeatures.length > 0 ? (
-                    <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                    <div className="app-link-card rounded-[var(--app-radius-xl)] p-6">
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                                <p className="app-kicker text-xs">
                                     What is new
                                 </p>
-                                <h2 className="mt-3 text-2xl font-semibold text-white">
+                                <h2 className="mt-3 text-2xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                     {unseenFeatures.length} update{unseenFeatures.length > 1 ? "s" : ""} ready to explore.
                                 </h2>
-                                <p className="mt-2 text-sm leading-6 text-gray-400">
+                                <p className="app-body-md mt-2 text-sm">
                                     New items disappear from this section after you open them.
                                 </p>
                             </div>
@@ -140,7 +140,7 @@ export default function HomePage() {
                             <button
                                 type="button"
                                 onClick={() => setShowWhatsNew((current) => !current)}
-                                className="inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition duration-300 hover:bg-white/10"
+                                className="app-button-ghost inline-flex rounded-xl px-4 py-2 text-sm font-medium"
                             >
                                 {showWhatsNew ? "Hide updates" : "Show updates"}
                             </button>
@@ -152,20 +152,20 @@ export default function HomePage() {
                                     <Link
                                         key={feature.path}
                                         to={feature.path}
-                                        className="rounded-2xl border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-green-400/20 hover:bg-white/10"
+                                        className="app-list-link rounded-2xl p-4 transition duration-300"
                                     >
                                         <div className="flex items-center justify-between gap-3">
-                                            <p className="text-sm font-medium text-white">
+                                            <p className="text-[0.98rem] font-semibold tracking-[-0.02em] text-[color:var(--app-text)]">
                                                 {feature.label}
                                             </p>
-                                            <span className="rounded-full border border-green-400/15 bg-green-500/10 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-green-300">
+                                            <span className="app-badge-new rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]">
                                                 New
                                             </span>
                                         </div>
-                                        <p className="mt-2 text-xs uppercase tracking-[0.18em] text-gray-500">
+                                        <p className="app-section-kicker mt-2 text-xs">
                                             {feature.category}
                                         </p>
-                                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                                        <p className="app-body-md mt-3 text-sm">
                                             {feature.description}
                                         </p>
                                     </Link>
@@ -175,32 +175,32 @@ export default function HomePage() {
                     </div>
                 ) : null}
 
-                <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                <div className="app-panel rounded-[var(--app-radius-xl)] p-6">
+                    <p className="app-kicker text-xs">
                         Best use cases
                     </p>
                     <div className="mt-4 space-y-3">
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Assignments and activities</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                        <div className="app-subtle-surface rounded-2xl p-4">
+                            <p className="app-card-title text-sm">Assignments and activities</p>
+                            <p className="app-body-md mt-2 text-sm">
                                 Move from formulas to interpreted answers faster when checking class problems and workbook items.
                             </p>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Quizzes and reviews</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                        <div className="app-subtle-surface rounded-2xl p-4">
+                            <p className="app-card-title text-sm">Quizzes and reviews</p>
+                            <p className="app-body-md mt-2 text-sm">
                                 Use the trainer and classification helpers to reinforce normal balances, account types, and ratio logic.
                             </p>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Offline-friendly study flow</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                        <div className="app-subtle-surface rounded-2xl p-4">
+                            <p className="app-card-title text-sm">Offline-friendly study flow</p>
+                            <p className="app-body-md mt-2 text-sm">
                                 Recent prompts, saved activity, and installed-app behavior stay available on the device.
                             </p>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Saved offline</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                        <div className="app-subtle-surface rounded-2xl p-4">
+                            <p className="app-card-title text-sm">Saved offline</p>
+                            <p className="app-body-md mt-2 text-sm">
                                 {settings.saveOfflineHistory
                                     ? "History saving is enabled for this device."
                                     : "History saving is currently disabled in settings."}
@@ -213,14 +213,14 @@ export default function HomePage() {
             <section className="space-y-4">
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Recommended for you</h2>
-                        <p className="mt-1 text-sm text-gray-400">
+                        <h2 className="app-section-title text-2xl">Recommended for you</h2>
+                        <p className="app-body-md mt-1 text-sm">
                             Driven by recent activity and the tools you revisit most often.
                         </p>
                     </div>
                     <Link
                         to="/settings"
-                        className="text-sm font-medium text-green-300 transition duration-300 hover:text-green-200"
+                        className="app-link-accent text-sm font-medium transition duration-300"
                     >
                         Open settings
                     </Link>
@@ -231,27 +231,27 @@ export default function HomePage() {
                         <Link
                             key={tool.path}
                             to={tool.path}
-                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
+                            className="app-link-card app-card-hover group rounded-[var(--app-radius-xl)] p-6 transition duration-300"
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                <span className="app-chip rounded-full px-3 py-1 text-xs">
                                     {tool.category}
                                 </span>
                                 {NEW_FEATURE_PATHS.has(tool.path) ? (
-                                    <span className="rounded-full border border-green-400/15 bg-green-500/10 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-green-300">
+                                    <span className="app-badge-new rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]">
                                         New
                                     </span>
                                 ) : (
-                                    <span className="text-sm text-gray-500 transition duration-300 group-hover:text-gray-300">
+                                    <span className="app-helper text-sm transition duration-300 group-hover:text-[color:var(--app-text-secondary)]">
                                         Open
                                     </span>
                                 )}
                             </div>
 
-                            <h3 className="mt-4 text-xl font-semibold leading-snug text-white">
+                            <h3 className="mt-4 text-xl font-semibold leading-snug tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                 {tool.label}
                             </h3>
-                            <p className="mt-3 text-sm leading-6 text-gray-300">
+                            <p className="app-body-md mt-3 text-sm">
                                 {tool.description}
                             </p>
                         </Link>
@@ -261,8 +261,8 @@ export default function HomePage() {
 
             <section className="space-y-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Spotlight tools</h2>
-                    <p className="mt-1 text-sm text-gray-400">
+                    <h2 className="app-section-title text-2xl">Spotlight tools</h2>
+                    <p className="app-body-md mt-1 text-sm">
                         Fast routes into guided solving, clean interpretation, and class-ready outputs.
                     </p>
                 </div>
@@ -272,21 +272,21 @@ export default function HomePage() {
                         <Link
                             key={tool.path}
                             to={tool.path}
-                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
+                            className="app-link-card app-card-hover group rounded-[var(--app-radius-xl)] p-6 transition duration-300"
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                <span className="app-chip rounded-full px-3 py-1 text-xs">
                                     {tool.category}
                                 </span>
-                                <span className="text-sm text-gray-500 transition duration-300 group-hover:text-gray-300">
+                                <span className="app-helper text-sm transition duration-300 group-hover:text-[color:var(--app-text-secondary)]">
                                     Open
                                 </span>
                             </div>
 
-                            <h3 className="mt-4 text-xl font-semibold leading-snug text-white">
+                            <h3 className="mt-4 text-xl font-semibold leading-snug tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                 {tool.label}
                             </h3>
-                            <p className="mt-3 text-sm leading-6 text-gray-300">
+                            <p className="app-body-md mt-3 text-sm">
                                 {tool.description}
                             </p>
                         </Link>
@@ -296,8 +296,8 @@ export default function HomePage() {
 
             <section className="space-y-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Browse by category</h2>
-                    <p className="mt-1 text-sm text-gray-400">
+                    <h2 className="app-section-title text-2xl">Browse by category</h2>
+                    <p className="app-body-md mt-1 text-sm">
                         Organized from the shared app catalog so navigation and search stay consistent as the platform grows.
                     </p>
                 </div>
@@ -306,18 +306,18 @@ export default function HomePage() {
                     {browseGroups.map((group) => (
                         <div
                             key={group.title}
-                            className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
+                            className="app-panel rounded-[var(--app-radius-xl)] p-6"
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                                <p className="app-kicker text-xs">
                                     {group.title}
                                 </p>
-                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                <span className="app-chip rounded-full px-3 py-1 text-xs">
                                     {group.items.length}
                                 </span>
                             </div>
 
-                            <h3 className="mt-3 text-2xl font-semibold text-white">
+                            <h3 className="mt-3 text-2xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                 {group.hint}
                             </h3>
 
@@ -326,10 +326,12 @@ export default function HomePage() {
                                     <Link
                                         key={item.path}
                                         to={item.path}
-                                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition duration-300 hover:border-white/15 hover:bg-white/[0.08]"
+                                        className="app-list-link flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition duration-300"
                                     >
-                                        <span>{item.label}</span>
-                                        <span className="text-xs uppercase tracking-[0.18em] text-gray-500">
+                                        <span className="truncate pr-3 text-[0.94rem] font-medium tracking-[-0.015em] text-[color:var(--app-text)]">
+                                            {item.label}
+                                        </span>
+                                        <span className="app-helper text-xs uppercase tracking-[0.14em]">
                                             {NEW_FEATURE_PATHS.has(item.path) ? "New" : "Open"}
                                         </span>
                                     </Link>

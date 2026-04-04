@@ -2,26 +2,26 @@ type PageHeaderProps = {
     title: string;
     description: string;
     badge?: string;
-    };
+};
 
-    export default function PageHeader({
+export default function PageHeader({
     title,
     description,
     badge,
-    }: PageHeaderProps) {
+}: PageHeaderProps) {
     return (
-        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(82,197,135,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.24)] transition duration-300 md:p-8">
-        {badge && (
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-green-300">
-            {badge}
+        <div className="app-panel-elevated rounded-[var(--app-radius-xl)] p-6 md:p-8 lg:p-10">
+            {badge ? (
+                <p className="app-chip-accent mb-3 inline-flex items-center rounded-full px-3 py-1">
+                    {badge}
+                </p>
+            ) : null}
+            <h1 className="max-w-4xl text-[clamp(2rem,1.45rem+2vw,3.7rem)] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                {title}
+            </h1>
+            <p className="app-body-lg mt-4 max-w-3xl text-sm md:text-base">
+                {description}
             </p>
-        )}
-        <h1 className="max-w-4xl text-3xl font-bold tracking-tight text-white md:text-5xl">
-            {title}
-        </h1>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-300 md:text-base">
-            {description}
-        </p>
         </div>
     );
 }

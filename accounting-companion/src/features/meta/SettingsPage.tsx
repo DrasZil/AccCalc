@@ -3,7 +3,7 @@ import SettingsContent from "./SettingsContent";
 
 export default function SettingsPage() {
     return (
-        <div className="space-y-6">
+        <div className="app-page-stack">
             <PageHeader
                 badge="Settings"
                 title="App Preferences"

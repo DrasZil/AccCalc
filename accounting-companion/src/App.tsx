@@ -140,22 +140,28 @@ const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
 
 function RouteFallback() {
     return (
-        <div className="space-y-4">
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(82,197,135,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.24)] md:p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-green-300">
+        <div className="app-page-stack">
+            <div className="app-panel-elevated app-hero-panel overflow-hidden rounded-[var(--app-radius-xl)] p-6 md:p-8">
+                <p className="app-kicker text-xs">
                     Loading
                 </p>
-                <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
+                <h1 className="mt-3 text-3xl font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-4xl">
                     Preparing the next tool
                 </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 md:text-base">
+                <p className="app-body-lg mt-4 max-w-2xl text-sm md:text-base">
                     AccCalc is loading this page separately to keep the initial app faster on deployed and installed use.
                 </p>
             </div>
 
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5">
-                <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                    <div className="loading-shimmer h-full w-1/3 rounded-full bg-[linear-gradient(90deg,rgba(74,222,128,0.2),rgba(134,239,172,0.95),rgba(74,222,128,0.2))]" />
+            <div className="app-subtle-surface rounded-[1.5rem] p-5">
+                <div className="h-2 overflow-hidden rounded-full bg-[color:var(--app-border-subtle)]">
+                    <div
+                        className="loading-shimmer h-full w-1/3 rounded-full"
+                        style={{
+                            background:
+                                "linear-gradient(90deg, transparent, var(--app-accent), var(--app-accent-secondary), transparent)",
+                        }}
+                    />
                 </div>
             </div>
         </div>

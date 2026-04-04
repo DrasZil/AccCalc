@@ -27,18 +27,27 @@ export default function FormulaCard({
 }: FormulaCardProps) {
     return (
         <SectionCard>
-            <p className="text-sm font-medium uppercase tracking-[0.16em] text-gray-400">Formula Used</p>
-            <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 px-5 py-4">
-                <p className="text-center text-lg font-bold text-white md:text-xl">{formula}</p>
+            <p className="app-section-kicker">
+                Formula used
+            </p>
+            <div className="app-subtle-surface mt-4 rounded-[var(--app-radius-md)] px-5 py-4">
+                <p className="app-formula-display text-center">
+                    {formula}
+                </p>
             </div>
 
-            <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
-                Step-by-Step Solving
+            <p className="app-section-kicker mt-6">
+                Step-by-step solving
             </p>
-            <ul className="mt-3 space-y-3 text-sm leading-6 text-white">
-                {steps.map((step, i) => (
-                    <li key={i} className="rounded-2xl border border-white/[0.08] bg-black/[0.15] px-4 py-3">
-                        <span className="mr-2 text-gray-500">{i + 1}.</span>
+            <ul className="mt-3 space-y-3 text-sm leading-6 text-[color:var(--app-text)]">
+                {steps.map((step, index) => (
+                    <li
+                        key={index}
+                        className="app-subtle-surface rounded-2xl px-4 py-3"
+                    >
+                        <span className="mr-2 app-helper">
+                            {index + 1}.
+                        </span>
                         {step}
                     </li>
                 ))}
@@ -46,17 +55,21 @@ export default function FormulaCard({
 
             {glossary.length > 0 ? (
                 <>
-                    <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
-                        Variable Meaning
+                    <p className="app-section-kicker mt-6">
+                        Variable meaning
                     </p>
                     <div className="mt-3 space-y-3">
                         {glossary.map((item) => (
                             <div
                                 key={item.term}
-                                className="rounded-2xl border border-white/[0.08] bg-black/[0.15] px-4 py-3"
+                                className="app-subtle-surface rounded-2xl px-4 py-3"
                             >
-                                <p className="text-sm font-semibold text-white">{item.term}</p>
-                                <p className="mt-1 text-sm leading-6 text-gray-300">{item.meaning}</p>
+                                <p className="app-card-title text-sm">
+                                    {item.term}
+                                </p>
+                                <p className="app-body-md mt-1 text-sm">
+                                    {item.meaning}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -65,10 +78,10 @@ export default function FormulaCard({
 
             {interpretation ? (
                 <>
-                    <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
-                        Interpretation / What The Answer Means
+                    <p className="app-section-kicker mt-6">
+                        Interpretation
                     </p>
-                    <div className="mt-3 rounded-2xl border border-green-400/[0.12] bg-green-500/[0.08] px-4 py-4 text-sm leading-6 text-gray-200">
+                    <div className="app-tone-accent mt-3 rounded-2xl px-4 py-4 text-sm leading-6">
                         {interpretation}
                     </div>
                 </>
@@ -76,14 +89,14 @@ export default function FormulaCard({
 
             {assumptions.length > 0 ? (
                 <>
-                    <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
-                        Notes / Assumptions
+                    <p className="app-section-kicker mt-6">
+                        Notes and assumptions
                     </p>
                     <div className="mt-3 space-y-3">
                         {assumptions.map((assumption, index) => (
                             <div
                                 key={`assumption-${index}`}
-                                className="rounded-2xl border border-sky-400/[0.12] bg-sky-500/[0.08] px-4 py-3 text-sm leading-6 text-slate-200"
+                                className="app-tone-info rounded-2xl px-4 py-3 text-sm leading-6"
                             >
                                 {assumption}
                             </div>
@@ -94,14 +107,14 @@ export default function FormulaCard({
 
             {notes.length > 0 ? (
                 <>
-                    <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
+                    <p className="app-section-kicker mt-6">
                         Notes
                     </p>
                     <div className="mt-3 space-y-3">
                         {notes.map((note, index) => (
                             <div
                                 key={`note-${index}`}
-                                className="rounded-2xl border border-white/[0.08] bg-white/[0.05] px-4 py-3 text-sm leading-6 text-slate-200"
+                                className="app-subtle-surface rounded-2xl px-4 py-3 text-sm leading-6 text-[color:var(--app-text)]"
                             >
                                 {note}
                             </div>
@@ -112,14 +125,14 @@ export default function FormulaCard({
 
             {warnings.length > 0 ? (
                 <>
-                    <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-gray-400">
+                    <p className="app-section-kicker mt-6">
                         Warnings
                     </p>
                     <div className="mt-3 space-y-3">
                         {warnings.map((warning, index) => (
                             <div
                                 key={`warning-${index}`}
-                                className="rounded-2xl border border-amber-400/[0.16] bg-amber-500/[0.1] px-4 py-3 text-sm leading-6 text-amber-100"
+                                className="app-tone-warning rounded-2xl px-4 py-3 text-sm leading-6"
                             >
                                 {warning}
                             </div>
