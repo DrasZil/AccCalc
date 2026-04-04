@@ -72,6 +72,9 @@ const navGroups: NavGroup[] = [
             { label: "Current Ratio & Working Capital", path: "/accounting/current-ratio" },
             { label: "Quick Ratio", path: "/accounting/quick-ratio" },
             { label: "Accounts Receivable Turnover", path: "/accounting/receivables-turnover" },
+            { label: "Inventory Turnover", path: "/accounting/inventory-turnover" },
+            { label: "Debt to Equity Ratio", path: "/accounting/debt-to-equity" },
+            { label: "Return on Assets", path: "/accounting/return-on-assets" },
         ],
     },
 ];
@@ -95,26 +98,26 @@ function SidebarContent({
     closeMobileSidebar,
 }: SidebarContentProps) {
     return (
-        <div className="flex h-full flex-col bg-[#0a0a0a]/95">
-            <div className="border-b border-white/10 p-4">
+        <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(12,18,15,0.96),rgba(7,10,8,0.98))]">
+            <div className="border-b border-white/10 px-4 py-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                         <Link to="/" onClick={closeMobileSidebar} className="block">
-                            <h1 className="truncate text-xl font-bold tracking-tight text-green-300">
+                            <h1 className="truncate text-2xl font-bold tracking-tight text-green-300">
                                 AccCalc
                             </h1>
                         </Link>
 
-                        <p className="mt-2 text-sm leading-6 text-gray-400">
-                            Smart calculator for study, checking, and practical
-                            accounting use.
+                        <p className="mt-2 max-w-xs text-sm leading-6 text-gray-400">
+                            Structured tools for accounting study, classroom drills, and
+                            practical calculation work.
                         </p>
                     </div>
 
                     <button
                         type="button"
                         onClick={closeMobileSidebar}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm md:hidden"
+                        className="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm md:hidden"
                     >
                         Close
                     </button>
@@ -147,8 +150,7 @@ function SidebarContent({
                                 {groupIsOpen ? (
                                     <div className="mt-2 space-y-2">
                                         {group.items.map((item) => {
-                                            const isActive =
-                                                locationPathname === item.path;
+                                            const isActive = locationPathname === item.path;
 
                                             return (
                                                 <Link
@@ -156,7 +158,7 @@ function SidebarContent({
                                                     to={item.path}
                                                     onClick={closeMobileSidebar}
                                                     className={[
-                                                        "block rounded-2xl px-4 py-3 text-sm font-medium transition",
+                                                        "block rounded-2xl px-4 py-3 text-sm font-medium leading-5 transition",
                                                         isActive
                                                             ? "bg-green-500/15 text-green-300 ring-1 ring-green-400/20"
                                                             : "bg-white/[0.03] text-white hover:bg-white/[0.06]",
@@ -198,8 +200,8 @@ function SidebarContent({
 
             <div className="border-t border-white/10 p-4">
                 <p className="text-xs leading-6 text-gray-500">
-                    Built for students and professionals who need fast,
-                    clear, reliable calculations.
+                    Built for students, reviewees, and working professionals who need
+                    clear and reliable calculations.
                 </p>
             </div>
         </div>
@@ -225,8 +227,7 @@ export default function AppLayout() {
 
         const saved = window.localStorage.getItem("accalc-desktop-sidebar-visible");
         if (saved !== null) {
-            const parsedValue: boolean = saved === "true";
-            setDesktopSidebarVisible(parsedValue);
+            setDesktopSidebarVisible(saved === "true");
         }
     }, []);
 
@@ -240,44 +241,34 @@ export default function AppLayout() {
     }, [desktopSidebarVisible]);
 
     useEffect(() => {
-        const nextOpenGroups: OpenGroupsState = {
-            ...openGroups,
-        };
+        setOpenGroups((current) => {
+            const nextOpenGroups: OpenGroupsState = { ...current };
 
-        navGroups.forEach((group) => {
-            const groupKey = group.title as keyof OpenGroupsState;
+            navGroups.forEach((group) => {
+                const groupKey = group.title as keyof OpenGroupsState;
+                const hasActiveItem = group.items.some((item) => item.path === location.pathname);
 
-            const hasActiveItem = group.items.some(
-                (item) => item.path === location.pathname
-            );
+                if (hasActiveItem) {
+                    nextOpenGroups[groupKey] = true;
+                }
+            });
 
-            if (hasActiveItem) {
-                nextOpenGroups[groupKey] = true;
-            }
+            return nextOpenGroups;
         });
-
-        setOpenGroups(nextOpenGroups);
     }, [location.pathname]);
 
     function toggleGroup(groupTitle: keyof OpenGroupsState) {
-        const nextOpenGroups: OpenGroupsState = {
-            ...openGroups,
-            [groupTitle]: !openGroups[groupTitle],
-        };
-
-        setOpenGroups(nextOpenGroups);
-    }
-
-    function toggleDesktopSidebar() {
-        const nextValue: boolean = !desktopSidebarVisible;
-        setDesktopSidebarVisible(nextValue);
+        setOpenGroups((current) => ({
+            ...current,
+            [groupTitle]: !current[groupTitle],
+        }));
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white">
+        <div className="min-h-screen bg-transparent text-white">
             <div className="flex min-h-screen items-start">
                 {desktopSidebarVisible ? (
-                    <aside className="sticky top-0 hidden h-screen w-80 shrink-0 border-r border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl md:block">
+                    <aside className="sticky top-0 hidden h-screen w-80 shrink-0 border-r border-white/10 bg-[#0a0a0a]/85 backdrop-blur-xl md:block">
                         <SidebarContent
                             locationPathname={location.pathname}
                             openGroups={openGroups}
@@ -289,7 +280,7 @@ export default function AppLayout() {
 
                 <aside
                     className={[
-                        "fixed inset-y-0 left-0 z-40 w-80 border-r border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl transition-transform duration-300 md:hidden",
+                        "fixed inset-y-0 left-0 z-40 w-[88vw] max-w-80 border-r border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl transition-transform duration-300 md:hidden",
                         mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
                     ].join(" ")}
                 >
@@ -311,22 +302,22 @@ export default function AppLayout() {
                 ) : null}
 
                 <div className="min-w-0 flex-1">
-                    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050505]/85 backdrop-blur">
+                    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050505]/72 backdrop-blur-xl">
                         <div className="flex items-center justify-between gap-3 px-4 py-4 md:px-6">
-                            <div>
-                                <p className="text-sm font-medium uppercase tracking-[0.18em] text-green-300">
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300 md:text-sm">
                                     Accounting companion
                                 </p>
-                                <h2 className="mt-1 text-xl font-bold tracking-tight md:text-2xl">
-                                    Learn faster. Calculate better.
+                                <h2 className="mt-1 text-lg font-bold tracking-tight text-white md:text-2xl">
+                                    Learn faster. Calculate with confidence.
                                 </h2>
                             </div>
 
                             <div className="flex items-center gap-2">
                                 <button
                                     type="button"
-                                    onClick={toggleDesktopSidebar}
-                                    className="hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium transition hover:bg-white/[0.08] md:inline-flex"
+                                    onClick={() => setDesktopSidebarVisible((current) => !current)}
+                                    className="hidden rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-medium transition hover:bg-white/[0.08] md:inline-flex"
                                 >
                                     {desktopSidebarVisible ? "Hide sidebar" : "Show sidebar"}
                                 </button>
@@ -334,7 +325,7 @@ export default function AppLayout() {
                                 <button
                                     type="button"
                                     onClick={() => setMobileSidebarOpen(true)}
-                                    className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium md:hidden"
+                                    className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-medium md:hidden"
                                 >
                                     Menu
                                 </button>
@@ -342,12 +333,16 @@ export default function AppLayout() {
                         </div>
                     </header>
 
-                    <main className="px-4 py-6 md:px-6">
-                        <Outlet />
+                    <main className="px-4 py-6 md:px-6 md:py-8">
+                        <div className="mx-auto w-full max-w-7xl">
+                            <Outlet />
+                        </div>
                     </main>
 
                     <div className="px-4 pb-6 md:px-6">
-                        <InstallPrompt />
+                        <div className="mx-auto w-full max-w-7xl">
+                            <InstallPrompt />
+                        </div>
                     </div>
                 </div>
             </div>

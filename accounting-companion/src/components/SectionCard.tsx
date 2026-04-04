@@ -10,7 +10,7 @@ type SectionCardProps = {
     className = "",
     }: SectionCardProps) {
     return (
-        <div className={`rounded-2xl border border-white/10 bg-white/5 p-5 ${className}`}>
+        <div className={`rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.22)] backdrop-blur-md md:p-6 ${className}`}>
         {children}
         </div>
     );

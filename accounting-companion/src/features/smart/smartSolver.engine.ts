@@ -66,7 +66,7 @@ import type {
         kind: "money",
         group: "business",
         visibleInManualInputs: true,
-        aliases: ["revenue", "sales", "income", "selling amount"],
+        aliases: ["revenue", "sales", "income", "selling amount", "money earned", "amount sold for"],
     },
 
     timesCompounded: {
@@ -193,7 +193,7 @@ import type {
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["assets", "total assets"],
+        aliases: ["assets", "total assets", "resources owned", "what the business owns"],
     },
 
     liabilities: {
@@ -202,7 +202,7 @@ import type {
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["liabilities", "total liabilities"],
+        aliases: ["liabilities", "total liabilities", "obligations", "what the business owes"],
     },
 
     equity: {
@@ -211,7 +211,7 @@ import type {
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["equity", "owner's equity", "owners equity"],
+        aliases: ["equity", "owner's equity", "owners equity", "owner claim", "residual interest"],
     },
 
     invoice: {
@@ -274,7 +274,7 @@ import type {
         kind: "number",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["useful life"],
+        aliases: ["useful life", "life of asset", "service life"],
     },
 
     year: {
@@ -386,11 +386,12 @@ import type {
         group: "inventory",
         visibleInManualInputs: false,
         aliases: [
-        "cost of goods available",
-        "cost of goods available for sale",
-        "goods available",
-        "goods available for sale",
-        "cost available for sale",
+            "cost of goods available",
+            "cost of goods available for sale",
+            "goods available",
+            "goods available for sale",
+            "cost available for sale",
+            "total available goods cost",
         ],
     },
 
@@ -515,6 +516,8 @@ import type {
             "receivables",
             "trade receivables",
             "ar",
+            "money customers owe us",
+            "amount due from customers",
         ],
     },
 
@@ -530,6 +533,7 @@ import type {
             "bad debt rate",
             "doubtful accounts rate",
             "estimated bad debt percentage",
+            "portion expected to be uncollectible",
         ],
     },
 
@@ -720,6 +724,61 @@ import type {
             "average accounts receivable",
             "average receivables",
             "average ar",
+        ],
+    },
+
+    costOfGoodsSold: {
+        label: "Cost of Goods Sold",
+        placeholder: "300000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "cost of goods sold",
+            "cogs",
+            "cost of sales",
+            "cost of items sold",
+        ],
+    },
+
+    averageInventory: {
+        label: "Average Inventory",
+        placeholder: "60000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "average inventory",
+            "average merchandise inventory",
+            "average stock on hand",
+        ],
+    },
+
+    netIncome: {
+        label: "Net Income",
+        placeholder: "85000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "net income",
+            "profit after tax",
+            "earnings",
+            "bottom line",
+            "net earnings",
+        ],
+    },
+
+    averageTotalAssets: {
+        label: "Average Total Assets",
+        placeholder: "500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "average total assets",
+            "average assets",
+            "average asset base",
         ],
     },
     };
@@ -1223,6 +1282,54 @@ import type {
             /average accounts receivable/i,
         ],
     },
+    {
+        id: "inventory-turnover",
+        name: "Inventory Turnover",
+        route: "/accounting/inventory-turnover",
+        description:
+            "Compute inventory turnover and days in inventory for merchandising analysis.",
+        required: ["costOfGoodsSold", "averageInventory"],
+        aliases: ["stock turnover", "days in inventory", "inventory movement"],
+        keywords: [
+            /inventory turnover/i,
+            /stock turnover/i,
+            /days in inventory/i,
+            /\bcogs\b/i,
+            /average inventory/i,
+        ],
+    },
+    {
+        id: "debt-to-equity",
+        name: "Debt to Equity Ratio",
+        route: "/accounting/debt-to-equity",
+        description:
+            "Measure leverage using total liabilities and total equity.",
+        required: ["liabilities", "equity"],
+        aliases: ["de ratio", "leverage ratio", "debt equity"],
+        keywords: [
+            /debt to equity/i,
+            /debt[- ]equity/i,
+            /leverage ratio/i,
+            /total liabilities/i,
+            /total equity/i,
+        ],
+    },
+    {
+        id: "return-on-assets",
+        name: "Return on Assets",
+        route: "/accounting/return-on-assets",
+        description:
+            "Compute return on assets using net income and average total assets.",
+        required: ["netIncome", "averageTotalAssets"],
+        aliases: ["roa", "profitability ratio", "asset return"],
+        keywords: [
+            /return on assets/i,
+            /\broa\b/i,
+            /profitability/i,
+            /net income/i,
+            /average total assets/i,
+        ],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
@@ -1233,12 +1340,16 @@ import type {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
-    export function normalizeText(text: string = ""): string {
-    return String(text)
+export function normalizeText(text: string = ""): string {
+    const normalized = String(text)
         .toLowerCase()
         .replace(/[,_]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
+
+    return VOCABULARY_NORMALIZATIONS.reduce((value, [pattern, replacement]) => {
+        return value.replace(pattern, replacement);
+    }, normalized);
     }
 
     export function toNumber(value: string | number | null | undefined): number | null {
@@ -1306,6 +1417,47 @@ import type {
         return text.includes(normalizedPhrase) ? count + 1 : count;
     }, 0);
     }
+
+    const VOCABULARY_NORMALIZATIONS: Array<[RegExp, string]> = [
+    [/\bwhat the business owns\b/g, "assets"],
+    [/\bwhat we own\b/g, "assets"],
+    [/\bthings we own\b/g, "assets"],
+    [/\bwhat the business owes\b/g, "liabilities"],
+    [/\bwhat we owe\b/g, "liabilities"],
+    [/\bthings we owe\b/g, "liabilities"],
+    [/\bowner(?:'s)? claim\b/g, "equity"],
+    [/\bowner(?:'s)? stake\b/g, "equity"],
+    [/\bmoney customers owe us\b/g, "accounts receivable"],
+    [/\bamount customers owe\b/g, "accounts receivable"],
+    [/\bcredit customers still owe\b/g, "accounts receivable"],
+    [/\bunpaid customer balances\b/g, "accounts receivable"],
+    [/\bmoney in the bank\b/g, "cash"],
+    [/\bcash in bank\b/g, "cash"],
+    [/\bshort term investments\b/g, "marketable securities"],
+    [/\bitems easy to convert to cash\b/g, "marketable securities"],
+    [/\bsales on account\b/g, "net credit sales"],
+    [/\bcredit revenue\b/g, "net credit sales"],
+    [/\baverage customer balances\b/g, "average accounts receivable"],
+    [/\bstock on hand\b/g, "inventory"],
+    [/\baverage stock on hand\b/g, "average inventory"],
+    [/\bcost of items sold\b/g, "cost of goods sold"],
+    [/\bprofit after tax\b/g, "net income"],
+    [/\bearned after all costs\b/g, "net income"],
+    [/\basset base\b/g, "total assets"],
+    [/\bamount due after vat\b/g, "vat payable"],
+    [/\btax on sales\b/g, "output vat"],
+    [/\btax on purchases\b/g, "input vat"],
+    [/\bwork being processed\b/g, "work in process"],
+    [/\bfactory overhead\b/g, "manufacturing overhead"],
+    [/\bproduction overhead\b/g, "manufacturing overhead"],
+    [/\bprofit sharing\b/g, "partnership profit sharing"],
+    [/\bshare the income\b/g, "partnership profit sharing"],
+    [/\bshare the loss\b/g, "partnership profit sharing"],
+    [/\bliquidity check\b/g, "current ratio"],
+    [/\bimmediate liquidity\b/g, "quick ratio"],
+    [/\bcollect receivables\b/g, "accounts receivable turnover"],
+    [/\bhow fast inventory moves\b/g, "inventory turnover"],
+    ];
 
     export function extractTime(text: string): {
     raw: number | null;
@@ -1473,6 +1625,14 @@ import type {
     if (facts.netReceivables && !facts.accountsReceivable) {
         facts.accountsReceivable = facts.netReceivables;
     }
+
+    if (facts.assets && !facts.averageTotalAssets) {
+        facts.averageTotalAssets = facts.assets;
+    }
+
+    if (facts.averageTotalAssets && !facts.assets) {
+        facts.assets = facts.averageTotalAssets;
+    }
     }
 
     /* -------------------------------------------------------------------------- */
@@ -1594,6 +1754,13 @@ import type {
     const averageAccountsReceivable = extractNumberByAliases(
         text,
         FIELD_META.averageAccountsReceivable.aliases ?? []
+    );
+    const costOfGoodsSold = extractNumberByAliases(text, FIELD_META.costOfGoodsSold.aliases ?? []);
+    const averageInventory = extractNumberByAliases(text, FIELD_META.averageInventory.aliases ?? []);
+    const netIncome = extractNumberByAliases(text, FIELD_META.netIncome.aliases ?? []);
+    const averageTotalAssets = extractNumberByAliases(
+        text,
+        FIELD_META.averageTotalAssets.aliases ?? []
     );
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
@@ -1730,6 +1897,10 @@ import type {
     setFact(facts, "netReceivables", netReceivables);
     setFact(facts, "netCreditSales", netCreditSales);
     setFact(facts, "averageAccountsReceivable", averageAccountsReceivable);
+    setFact(facts, "costOfGoodsSold", costOfGoodsSold);
+    setFact(facts, "averageInventory", averageInventory);
+    setFact(facts, "netIncome", netIncome);
+    setFact(facts, "averageTotalAssets", averageTotalAssets);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);

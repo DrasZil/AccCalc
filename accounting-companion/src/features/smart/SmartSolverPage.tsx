@@ -21,6 +21,13 @@ import {
     makePrefill,
 } from "./smartSolver.engine";
 
+const SMART_PROMPT_EXAMPLES = [
+    "Customers still owe us 75,000 and we expect 4% to be uncollectible.",
+    "Find the quick ratio if cash is 50,000, marketable securities 25,000, receivables 40,000, and current liabilities 100,000.",
+    "Compute VAT payable if vatable sales are 150,000 and vatable purchases are 80,000.",
+    "Split partnership profit of 120,000 in the ratio 3:2:1.",
+];
+
 function dedupeFieldKeys(keys: FieldKey[]): FieldKey[] {
     return keys.filter((key, index) => keys.indexOf(key) === index);
 }
@@ -140,6 +147,10 @@ export default function SmartSolverPage() {
         });
     };
 
+    const promptAudienceHint = selectedCalculator
+        ? `Understood as ${selectedCalculator.name}. The solver accepts casual wording, classroom terminology, and professional accounting jargon.`
+        : "Type the problem the way you naturally would. The solver will try to translate plain language into accounting fields.";
+
     return (
         <CalculatorPageLayout
             badge="Smart Tools"
@@ -147,64 +158,86 @@ export default function SmartSolverPage() {
             description="Describe the problem naturally. Smart Solver expands accounting vocabulary, detects values, adapts the input form to the most likely calculator, and lets you route directly once the needed fields are complete."
             inputSection={
                 <div className="space-y-4">
-                    <SectionCard>
-                        <label className="mb-2 block text-sm font-semibold text-gray-200">
-                            Natural Language Prompt
-                        </label>
+                    <SectionCard className="overflow-hidden">
+                        <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+                            <div>
+                                <label className="mb-2 block text-sm font-semibold uppercase tracking-[0.16em] text-gray-200">
+                                    Natural Language Prompt
+                                </label>
 
-                        <textarea
-                            value={smartInput}
-                            onChange={(e) => setSmartInput(e.target.value)}
-                            rows={6}
-                            placeholder='Example: "Compute the quick ratio if cash is 50000, marketable securities 25000, receivables 40000, and current liabilities 100000."'
-                            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-500 focus:border-green-400/40 focus:ring-2 focus:ring-green-400/20"
-                        />
+                                <textarea
+                                    value={smartInput}
+                                    onChange={(e) => setSmartInput(e.target.value)}
+                                    rows={6}
+                                    placeholder='Example: "Our customers still owe us 75,000 and 4% may not be collected."'
+                                    className="w-full rounded-[1.5rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-white outline-none transition placeholder:text-gray-500 focus:border-green-400/40 focus:bg-black/35 focus:ring-2 focus:ring-green-400/20"
+                                />
 
-                        <p className="mt-3 text-xs leading-6 text-gray-400">
-                            Try full prompts such as partnership ratios, VAT payable, COGM, receivables turnover, current ratio, quick ratio, depreciation, inventory, or bank reconciliation.
-                        </p>
+                                <p className="mt-3 text-sm leading-6 text-gray-400">
+                                    {promptAudienceHint}
+                                </p>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onClick={handleApplyDetected}
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-                            >
-                                Apply Detected Values
-                            </button>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyDetected}
+                                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                                    >
+                                        Apply Detected Values
+                                    </button>
 
-                            <button
-                                type="button"
-                                onClick={handleUseSuggestedCalculator}
-                                disabled={!selectedCalculatorRouteReady}
-                                className="rounded-xl bg-green-500/90 px-4 py-2 text-sm font-medium text-black transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Open Selected Calculator
-                            </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleUseSuggestedCalculator}
+                                        disabled={!selectedCalculatorRouteReady}
+                                        className="rounded-xl bg-green-500/90 px-4 py-2 text-sm font-medium text-black transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Open Selected Calculator
+                                    </button>
 
-                            <button
-                                type="button"
-                                onClick={handleClearAll}
-                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-                            >
-                                Clear All
-                            </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleClearAll}
+                                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                                    >
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gray-300">
+                                    Prompt ideas
+                                </p>
+                                <div className="mt-4 space-y-2">
+                                    {SMART_PROMPT_EXAMPLES.map((example) => (
+                                        <button
+                                            key={example}
+                                            type="button"
+                                            onClick={() => setSmartInput(example)}
+                                            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm leading-6 text-gray-200 transition hover:bg-white/10"
+                                        >
+                                            {example}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </SectionCard>
 
                     <SectionCard>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h3 className="text-sm font-semibold text-white">
+                                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
                                     Dynamic Inputs
                                 </h3>
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Fields below change with the selected calculator and detected accounting context.
+                                <p className="mt-1 text-sm text-gray-400">
+                                    Fields change with the selected calculator and the accounting context inferred from your prompt.
                                 </p>
                             </div>
 
                             {selectedCalculator ? (
-                                <span className="rounded-full border border-green-400/20 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-300">
+                                <span className="rounded-full border border-green-400/20 bg-green-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.12em] text-green-300">
                                     {selectedCalculator.name}
                                 </span>
                             ) : null}
@@ -260,9 +293,9 @@ export default function SmartSolverPage() {
                         <ResultCard title="Interpreter Feedback" value={analysis.followUp} />
                     </ResultGrid>
 
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
                         <SectionCard>
-                            <h3 className="text-sm font-semibold text-white">Why this match</h3>
+                            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">Why this match</h3>
 
                             <p className="mt-2 text-sm leading-6 text-gray-300">
                                 {selectedCalculator
@@ -289,7 +322,7 @@ export default function SmartSolverPage() {
                         </SectionCard>
 
                         <SectionCard>
-                            <h3 className="text-sm font-semibold text-white">Detected values</h3>
+                            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">Detected values</h3>
 
                             {analysis.extractedEntries.length > 0 ? (
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -311,9 +344,9 @@ export default function SmartSolverPage() {
                     </div>
 
                     <SectionCard>
-                        <h3 className="text-sm font-semibold text-white">Suggested calculators</h3>
-                        <p className="mt-1 text-xs text-gray-400">
-                            Switch the active calculator if your problem fits a different accounting topic.
+                        <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">Suggested calculators</h3>
+                        <p className="mt-1 text-sm text-gray-400">
+                            Switch the active calculator if the same prompt could fit another accounting topic.
                         </p>
 
                         <div className="mt-4 grid gap-3 md:grid-cols-2">

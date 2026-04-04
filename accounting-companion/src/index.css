@@ -1,5 +1,47 @@
 @import "tailwindcss";
 
+:root {
+    color-scheme: dark;
+}
+
+html {
+    background:
+        radial-gradient(circle at top, rgba(61, 145, 102, 0.2), transparent 34%),
+        linear-gradient(180deg, #07110c 0%, #050505 34%, #040404 100%);
+}
+
+body {
+    min-height: 100vh;
+    background: transparent;
+    color: #f5f7f5;
+    font-family: "Segoe UI", "Trebuchet MS", "Helvetica Neue", sans-serif;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+::selection {
+    background: rgba(110, 231, 183, 0.28);
+    color: #f8fffb;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+textarea,
+input,
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* Premium dark scrollbar */
     .scrollbar-premium {
     scrollbar-width: thin;

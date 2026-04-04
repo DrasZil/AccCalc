@@ -65,6 +65,10 @@ export const ALL_FIELD_KEYS = [
     "netReceivables",
     "netCreditSales",
     "averageAccountsReceivable",
+    "costOfGoodsSold",
+    "averageInventory",
+    "netIncome",
+    "averageTotalAssets",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

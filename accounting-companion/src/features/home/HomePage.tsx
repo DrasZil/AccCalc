@@ -9,7 +9,7 @@ const tools = [
     },
     {
         title: "Smart Solver",
-        description: "Enter known values and get a suggested calculator.",
+        description: "Describe a problem naturally and get adaptive inputs plus the right calculator.",
         path: "/smart/solver",
         category: "Smart Tools",
     },
@@ -81,7 +81,7 @@ const tools = [
     },
     {
         title: "Accounting Equation",
-        description: "Enter any 2 values and solve for Assets, Liabilities, or Equity using the fundamental accounting equation.",
+        description: "Enter any 2 values and solve for assets, liabilities, or equity.",
         path: "/accounting/accounting-equation",
         category: "Accounting",
     },
@@ -111,100 +111,110 @@ const tools = [
     },
     {
         title: "Gross Profit Method",
-        description:
-            "Estimate gross profit, cost of goods sold, and ending inventory using net sales, gross profit rate, and cost of goods available for sale.",
+        description: "Estimate gross profit, cost of goods sold, and ending inventory.",
         path: "/accounting/gross-profit-method",
         category: "Accounting",
     },
     {
         title: "Bank Reconciliation",
-        description:
-            "Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and errors.",
+        description: "Reconcile bank and book balances using common reconciling items.",
         path: "/accounting/bank-reconciliation",
         category: "Accounting",
     },
     {
         title: "Allowance for Doubtful Accounts",
-        description:
-            "Estimate uncollectible accounts and net realizable value using accounts receivable and an estimated uncollectible rate.",
+        description: "Estimate uncollectible accounts and net realizable value.",
         path: "/accounting/allowance-doubtful-accounts",
         category: "Accounting",
     },
     {
         title: "Partnership Profit Sharing",
-        description:
-            "Allocate partnership profit or loss among partners using agreed profit-and-loss ratios.",
+        description: "Allocate partnership profit or loss using agreed ratios.",
         path: "/accounting/partnership-profit-sharing",
         category: "Accounting",
     },
     {
         title: "Philippine VAT",
-        description:
-            "Compute output VAT, input VAT, and VAT payable using the standard Philippine 12% VAT rate.",
+        description: "Compute output VAT, input VAT, and VAT payable using the 12% rate.",
         path: "/accounting/philippine-vat",
         category: "Accounting",
     },
     {
         title: "Cost of Goods Manufactured",
-        description:
-            "Compute total manufacturing costs and cost of goods manufactured for cost accounting problems.",
+        description: "Compute total manufacturing costs and cost of goods manufactured.",
         path: "/accounting/cost-of-goods-manufactured",
         category: "Accounting",
     },
     {
         title: "Current Ratio & Working Capital",
-        description:
-            "Measure liquidity using current assets and current liabilities.",
+        description: "Measure liquidity using current assets and current liabilities.",
         path: "/accounting/current-ratio",
         category: "Accounting",
     },
     {
         title: "Quick Ratio",
-        description:
-            "Measure immediate liquidity using quick assets and current liabilities.",
+        description: "Measure immediate liquidity using quick assets and current liabilities.",
         path: "/accounting/quick-ratio",
         category: "Accounting",
     },
     {
         title: "Accounts Receivable Turnover",
-        description:
-            "Compute turnover and average collection period for receivables analysis.",
+        description: "Compute turnover and average collection period for receivables analysis.",
         path: "/accounting/receivables-turnover",
+        category: "Accounting",
+    },
+    {
+        title: "Inventory Turnover",
+        description: "Compute inventory turnover and days in inventory for analysis problems.",
+        path: "/accounting/inventory-turnover",
+        category: "Accounting",
+    },
+    {
+        title: "Debt to Equity Ratio",
+        description: "Measure leverage using total liabilities and total equity.",
+        path: "/accounting/debt-to-equity",
+        category: "Accounting",
+    },
+    {
+        title: "Return on Assets",
+        description: "Compute return on assets using net income and average total assets.",
+        path: "/accounting/return-on-assets",
         category: "Accounting",
     },
 ];
 
 export default function HomePage() {
     return (
-        <div className="space-y-8">
-            <section className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8">
-                <div className="max-w-3xl">
-                    <p className="text-sm font-medium uppercase tracking-[0.2em] text-green-300">
-                        Smart Accounting Toolkit
-                    </p>
-                    <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
-                        Make studying and solving calculations easier.
-                    </h1>
-                    <p className="mt-4 text-base leading-7 text-gray-300 md:text-lg">
-                        AccCalc is designed to help students and professionals solve core
-                        financial, business, and accounting calculations with clarity,
-                        speed, and confidence, including topics commonly encountered by
-                        Philippine accounting students.
-                    </p>
-                </div>
+        <div className="space-y-8 md:space-y-10">
+            <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(88,196,135,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.22)] md:p-10">
+                <div className="grid gap-8 xl:grid-cols-[1.3fr_0.7fr] xl:items-end">
+                    <div className="max-w-3xl">
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-green-300">
+                            Smart Accounting Toolkit
+                        </p>
+                        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl xl:text-6xl">
+                            Premium accounting tools for study, drills, and real problem solving.
+                        </h1>
+                        <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300 md:text-lg">
+                            AccCalc helps students, reviewees, and professionals solve
+                            finance, business, and accounting calculations with a cleaner
+                            workflow and curriculum-aligned coverage.
+                        </p>
+                    </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <p className="text-sm text-gray-400">Purpose</p>
-                        <p className="mt-2 text-lg font-semibold">Study + practical use</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <p className="text-sm text-gray-400">Focus</p>
-                        <p className="mt-2 text-lg font-semibold">Readable, accurate, guided</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <p className="text-sm text-gray-400">Users</p>
-                        <p className="mt-2 text-lg font-semibold">Students and professionals</p>
+                    <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm text-gray-400">Purpose</p>
+                            <p className="mt-2 text-lg font-semibold">Study + practical use</p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm text-gray-400">Focus</p>
+                            <p className="mt-2 text-lg font-semibold">Readable, accurate, guided</p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm text-gray-400">Audience</p>
+                            <p className="mt-2 text-lg font-semibold">Students to professionals</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -213,7 +223,8 @@ export default function HomePage() {
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Quick access</h2>
                     <p className="mt-1 text-sm text-gray-400">
-                        Start with the most useful tools, then browse everything from the sidebar.
+                        Open a calculator directly or start from Smart Solver when you only
+                        know the problem in plain language.
                     </p>
                 </div>
 
@@ -222,7 +233,7 @@ export default function HomePage() {
                         <Link
                             key={tool.path}
                             to={tool.path}
-                            className="group rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:bg-white/10"
+                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
                         >
                             <div className="flex items-center justify-between gap-3">
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
@@ -233,7 +244,7 @@ export default function HomePage() {
                                 </span>
                             </div>
 
-                            <h3 className="mt-4 text-xl font-semibold leading-snug">
+                            <h3 className="mt-4 text-xl font-semibold leading-snug text-white">
                                 {tool.title}
                             </h3>
                             <p className="mt-3 text-sm leading-6 text-gray-300">

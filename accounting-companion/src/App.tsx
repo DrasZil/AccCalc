@@ -30,6 +30,9 @@ import CostOfGoodsManufacturedPage from "./features/accounting/CostOfGoodsManufa
 import CurrentRatioPage from "./features/accounting/CurrentRatioPage";
 import QuickRatioPage from "./features/accounting/QuickRatioPage";
 import ReceivablesTurnoverPage from "./features/accounting/ReceivablesTurnoverPage";
+import InventoryTurnoverPage from "./features/accounting/InventoryTurnoverPage";
+import DebtToEquityPage from "./features/accounting/DebtToEquityPage";
+import ReturnOnAssetsPage from "./features/accounting/ReturnOnAssetsPage";
 
 
 export default function App() {
@@ -64,6 +67,9 @@ export default function App() {
           <Route path="/accounting/current-ratio" element={<CurrentRatioPage />} />
           <Route path="/accounting/quick-ratio" element={<QuickRatioPage />} />
           <Route path="/accounting/receivables-turnover" element={<ReceivablesTurnoverPage />} />
+          <Route path="/accounting/inventory-turnover" element={<InventoryTurnoverPage />} />
+          <Route path="/accounting/debt-to-equity" element={<DebtToEquityPage />} />
+          <Route path="/accounting/return-on-assets" element={<ReturnOnAssetsPage />} />
           <Route path="smart/solver" element={<SmartSolverPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
