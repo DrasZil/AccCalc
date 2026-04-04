@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
-import InputCard from "../../components/INputCard";
-import ResultCard from "../../components/resultCard";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
-import formatPHP from "../../utils/formatPHP";
-import InputGrid from "../../components/InputGrid";
-import ResultGrid from "../../components/ResultGrid";
 import FormulaCard from "../../components/FormulaCard";
+import InputCard from "../../components/INputCard";
+import InputGrid from "../../components/InputGrid";
+import ResultCard from "../../components/resultCard";
+import ResultGrid from "../../components/ResultGrid";
+import SectionCard from "../../components/SectionCard";
+import { computeMarkupMargin } from "../../utils/calculatorMath";
+import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function MarkupMarginPage() {
@@ -14,57 +16,60 @@ export default function MarkupMarginPage() {
 
     useSmartSolverConnector({
         cost: setCost,
-        sellingPrice: setSellingPrice
-    })
+        sellingPrice: setSellingPrice,
+    });
 
     const result = useMemo(() => {
-        if (!cost || !sellingPrice) return null;
+        if (cost.trim() === "" || sellingPrice.trim() === "") return null;
 
         const costNumber = Number(cost);
         const sellingPriceNumber = Number(sellingPrice);
 
-        if (Number.isNaN(costNumber) || Number.isNaN(sellingPriceNumber)) {
-        return null;
+        if ([costNumber, sellingPriceNumber].some((value) => Number.isNaN(value))) {
+            return { error: "Both inputs must be valid numbers." };
         }
 
         if (costNumber <= 0 || sellingPriceNumber <= 0) {
-            return null;
+            return { error: "Cost and selling price must both be greater than zero." };
         }
 
-        const profit = sellingPriceNumber - costNumber;
-        const markup = (profit / costNumber) * 100;
-        const margin = (profit / sellingPriceNumber) * 100;
+        const { profit, markup, margin } = computeMarkupMargin({
+            cost: costNumber,
+            sellingPrice: sellingPriceNumber,
+        });
 
         return {
             profit,
             markup,
             margin,
-            formula: "Markup % = (Selling Price - Cost) / Cost × 100\nMargin % = (Selling Price - Cost) / Selling Price × 100",
+            formula: "Markup % = (Selling Price - Cost) / Cost x 100\nMargin % = (Selling Price - Cost) / Selling Price x 100",
             steps: [
-                `Cost = ${costNumber}`,
-                `Selling Price = ${sellingPriceNumber}`,
-                `Profit = ${sellingPriceNumber} - ${costNumber} = ${profit}`,
-                `Markup % = (${profit} / ${costNumber}) × 100 = ${markup}%`,
-                `Margin % = (${profit} / ${sellingPriceNumber}) × 100 = ${margin}%`,
+                `Cost = ${formatPHP(costNumber)}`,
+                `Selling Price = ${formatPHP(sellingPriceNumber)}`,
+                `Profit = ${formatPHP(sellingPriceNumber)} - ${formatPHP(costNumber)} = ${formatPHP(profit)}`,
+                `Markup % = (${formatPHP(profit)} / ${formatPHP(costNumber)}) x 100 = ${markup.toFixed(2)}%`,
+                `Margin % = (${formatPHP(profit)} / ${formatPHP(sellingPriceNumber)}) x 100 = ${margin.toFixed(2)}%`,
             ],
+            glossary: [
+                { term: "Markup", meaning: "How much profit is added relative to cost." },
+                { term: "Margin", meaning: "How much of the selling price represents profit." },
+            ],
+            interpretation:
+                profit >= 0
+                    ? `The item earns ${formatPHP(profit)} in profit, equal to a markup of ${markup.toFixed(2)}% and a margin of ${margin.toFixed(2)}%.`
+                    : `The item is selling below cost by ${formatPHP(Math.abs(profit))}, producing a negative markup and margin.`,
         };
     }, [cost, sellingPrice]);
 
     return (
-        <CalculatorPageLayout 
+        <CalculatorPageLayout
             badge="Business"
             title="Markup & Margin Calculator"
-            description="Compute profit, markup percentage, and margin percentage using cost and selling price"
+            description="Compute profit, markup percentage, and margin percentage using cost and selling price."
             inputSection={
                 <InputGrid columns={3}>
-                    <InputCard 
-                        label="cost"
-                        value={cost}
-                        onChange={setCost}
-                        placeholder="500"
-                    />
-
-                    <InputCard 
+                    <InputCard label="Cost" value={cost} onChange={setCost} placeholder="500" />
+                    <InputCard
                         label="Selling Price"
                         value={sellingPrice}
                         onChange={setSellingPrice}
@@ -72,31 +77,30 @@ export default function MarkupMarginPage() {
                     />
                 </InputGrid>
             }
-
             resultSection={
-                result ? (
+                result && "error" in result ? (
+                    <SectionCard className="border-yellow-400/20 bg-yellow-500/10">
+                        <p className="text-sm font-medium text-yellow-300">Input notice</p>
+                        <p className="mt-2 text-sm leading-6 text-yellow-200">{result.error}</p>
+                    </SectionCard>
+                ) : result ? (
                     <ResultGrid columns={2}>
-                        <ResultCard 
-                            title="Profit"
-                            value={formatPHP(result.profit)}
-                        />
-                        <ResultCard 
-                            title="Markup %"
-                            value={`${result.markup.toFixed(2)}%`}
-                        />
-                        <ResultCard 
-                            title="Margin %"
-                            value={`${result.margin.toFixed(2)}%`}
-                        />
+                        <ResultCard title="Profit" value={formatPHP(result.profit)} />
+                        <ResultCard title="Markup %" value={`${result.markup.toFixed(2)}%`} />
+                        <ResultCard title="Margin %" value={`${result.margin.toFixed(2)}%`} />
                     </ResultGrid>
                 ) : null
             }
-            
             explanationSection={
-                result ? (
-                    <FormulaCard formula={result.formula} steps={result.steps}/>
+                result && !("error" in result) ? (
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />
     );
-        }
+}

@@ -21,7 +21,11 @@ export default function PartnershipAdmissionGoodwillPage() {
     });
 
     const result = useMemo(() => {
-        if (!totalOldCapital || !partnerInvestment || !ownershipPercentage) return null;
+        if (
+            totalOldCapital.trim() === "" ||
+            partnerInvestment.trim() === "" ||
+            ownershipPercentage.trim() === ""
+        ) return null;
 
         const parsedTotalOldCapital = Number(totalOldCapital);
         const parsedPartnerInvestment = Number(partnerInvestment);
@@ -29,6 +33,10 @@ export default function PartnershipAdmissionGoodwillPage() {
 
         if ([parsedTotalOldCapital, parsedPartnerInvestment, parsedOwnershipPercentage].some((value) => Number.isNaN(value))) {
             return { error: "All inputs must be valid numbers." };
+        }
+
+        if (parsedTotalOldCapital < 0 || parsedPartnerInvestment < 0) {
+            return { error: "Old capital and partner investment cannot be negative." };
         }
 
         if (parsedOwnershipPercentage <= 0 || parsedOwnershipPercentage >= 100) {

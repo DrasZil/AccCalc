@@ -34,6 +34,10 @@ export default function InventoryTurnoverPage() {
             return { error: "Cost of goods sold and average inventory cannot be negative." };
         }
 
+        if (parsedCostOfGoodsSold === 0) {
+            return { error: "Cost of goods sold must be greater than zero for turnover analysis." };
+        }
+
         if (parsedAverageInventory === 0) {
             return { error: "Average inventory cannot be zero for inventory turnover analysis." };
         }

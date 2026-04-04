@@ -19,7 +19,7 @@ export default function MarginOfSafetyPage() {
     });
 
     const result = useMemo(() => {
-        if (!actualSales || !breakEvenSalesAmount) return null;
+        if (actualSales.trim() === "" || breakEvenSalesAmount.trim() === "") return null;
 
         const actual = Number(actualSales);
         const breakEven = Number(breakEvenSalesAmount);
@@ -52,7 +52,10 @@ export default function MarginOfSafetyPage() {
                 { term: "Break-even Sales", meaning: "The sales level where total revenue equals total cost." },
                 { term: "Margin of Safety", meaning: "The excess of actual sales over break-even sales." },
             ],
-            interpretation: `Sales can decline by ${formatPHP(marginOfSafetyAmount)}, or ${marginOfSafetyRatio.toFixed(2)}%, before the business reaches break-even.`,
+            interpretation:
+                marginOfSafetyAmount >= 0
+                    ? `Sales can decline by ${formatPHP(marginOfSafetyAmount)}, or ${marginOfSafetyRatio.toFixed(2)}%, before the business reaches break-even.`
+                    : `The business is currently below break-even by ${formatPHP(Math.abs(marginOfSafetyAmount))}, which is ${Math.abs(marginOfSafetyRatio).toFixed(2)}% of actual sales.`,
         };
     }, [actualSales, breakEvenSalesAmount]);
 

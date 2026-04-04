@@ -34,6 +34,10 @@ export default function ReceivablesTurnoverPage() {
             return { error: "Net credit sales and average receivables cannot be negative." };
         }
 
+        if (sales === 0) {
+            return { error: "Net credit sales must be greater than zero for turnover analysis." };
+        }
+
         if (receivables === 0) {
             return { error: "Average accounts receivable cannot be zero for turnover analysis." };
         }

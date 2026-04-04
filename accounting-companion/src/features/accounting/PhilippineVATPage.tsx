@@ -66,6 +66,15 @@ export default function PhilippineVATPage() {
                 `Input VAT = ${formatPHP(purchases)} x 12% = ${formatPHP(inputVat)}`,
                 `Net VAT = ${formatPHP(outputVat)} - ${formatPHP(inputVat)} = ${formatPHP(vatPayable)}`,
             ],
+            glossary: [
+                { term: "Output VAT", meaning: "VAT collected on vatable sales or services rendered." },
+                { term: "Input VAT", meaning: "VAT paid on vatable purchases that may be credited against output VAT, subject to tax rules." },
+                { term: "VAT Payable", meaning: "The excess of output VAT over allowable input VAT for the period." },
+            ],
+            interpretation:
+                vatPayable >= 0
+                    ? `Based on the entered vatable transactions, the entity has ${formatPHP(vatPayable)} of VAT payable before considering any other allowable tax adjustments.`
+                    : `Input VAT exceeds output VAT by ${formatPHP(Math.abs(vatPayable))}, so the entity has excess input VAT to carry forward or treat according to applicable tax rules.`,
         };
     }, [vatablePurchases, vatableSales]);
 
@@ -109,7 +118,12 @@ export default function PhilippineVATPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

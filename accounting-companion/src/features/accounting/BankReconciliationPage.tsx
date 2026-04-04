@@ -76,6 +76,17 @@ export default function BankReconciliationPage() {
             };
         }
 
+        if (
+            parsedDepositsInTransit < 0 ||
+            parsedOutstandingChecks < 0 ||
+            parsedServiceCharges < 0 ||
+            parsedNsfChecks < 0
+        ) {
+            return {
+                error: "Deposits in transit, outstanding checks, service charges, and NSF checks cannot be negative.",
+            };
+        }
+
         const adjustedBank =
             parsedBankBalance +
             parsedDepositsInTransit -
@@ -118,6 +129,15 @@ export default function BankReconciliationPage() {
                     ? `Both adjusted balances match at ${formatPHP(adjustedBank)}.`
                     : `Adjusted balances do not match yet. Difference = ${formatPHP(difference)}.`,
             ],
+            glossary: [
+                { term: "Deposits in Transit", meaning: "Deposits already recorded in the books but not yet reflected on the bank statement." },
+                { term: "Outstanding Checks", meaning: "Checks already issued and recorded by the business but not yet cleared by the bank." },
+                { term: "Service Charges", meaning: "Bank fees that reduce the book balance once recognized." },
+                { term: "NSF Checks", meaning: "Customer checks returned by the bank because of insufficient funds." },
+            ],
+            interpretation: isBalanced
+                ? `After considering timing differences and errors, both records reconcile to ${formatPHP(adjustedBank)}.`
+                : `The reconciliation is still off by ${formatPHP(Math.abs(difference))}. Review whether any reconciling item or adjustment is missing or signed incorrectly.`,
         };
     }, [
         bankBalance,
@@ -214,7 +234,12 @@ export default function BankReconciliationPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

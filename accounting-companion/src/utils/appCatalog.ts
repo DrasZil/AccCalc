@@ -125,6 +125,7 @@ export const APP_NAV_GROUPS: AppNavGroup[] = [
             { label: "FIFO Inventory", path: "/accounting/fifo-inventory" },
             { label: "Weighted Average Inventory", path: "/accounting/weighted-average-inventory" },
             { label: "Gross Profit Method", path: "/accounting/gross-profit-method" },
+            { label: "Gross Profit Rate", path: "/accounting/gross-profit-rate" },
             { label: "Bank Reconciliation", path: "/accounting/bank-reconciliation" },
             { label: "Allowance for Doubtful Accounts", path: "/accounting/allowance-doubtful-accounts" },
             { label: "Partnership Profit Sharing", path: "/accounting/partnership-profit-sharing" },
@@ -132,12 +133,14 @@ export const APP_NAV_GROUPS: AppNavGroup[] = [
             { label: "Partnership Admission Bonus", path: "/accounting/partnership-admission-bonus" },
             { label: "Partnership Admission Goodwill", path: "/accounting/partnership-admission-goodwill" },
             { label: "Philippine VAT", path: "/accounting/philippine-vat" },
+            { label: "Trade Discount", path: "/accounting/trade-discount" },
             { label: "Cost of Goods Manufactured", path: "/accounting/cost-of-goods-manufactured" },
             { label: "Prime & Conversion Cost", path: "/accounting/prime-conversion-cost" },
             { label: "Materials Price Variance", path: "/accounting/materials-price-variance" },
             { label: "Labor Rate Variance", path: "/accounting/labor-rate-variance" },
             { label: "Current Ratio & Working Capital", path: "/accounting/current-ratio" },
             { label: "Quick Ratio", path: "/accounting/quick-ratio" },
+            { label: "Cash Ratio", path: "/accounting/cash-ratio" },
             { label: "Accounts Receivable Turnover", path: "/accounting/receivables-turnover" },
             { label: "Inventory Turnover", path: "/accounting/inventory-turnover" },
             { label: "Accounts Payable Turnover", path: "/accounting/accounts-payable-turnover" },
@@ -167,6 +170,9 @@ export const NEW_FEATURE_PATHS = new Set<string>([
     "/accounting/accounts-payable-turnover",
     "/accounting/times-interest-earned",
     "/accounting/book-value-per-share",
+    "/accounting/gross-profit-rate",
+    "/accounting/trade-discount",
+    "/accounting/cash-ratio",
 ]);
 
 export const APP_ROUTE_META: RouteMeta[] = APP_NAV_GROUPS.flatMap((group) =>

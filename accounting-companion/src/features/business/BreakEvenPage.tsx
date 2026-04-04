@@ -4,6 +4,7 @@ import FormulaCard from "../../components/FormulaCard";
 import InputCard from "../../components/INputCard";
 import ResultCard from "../../components/resultCard";
 import SectionCard from "../../components/SectionCard";
+import { computeBreakEven } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import InputGrid from "../../components/InputGrid";
 import ResultGrid from "../../components/ResultGrid";
@@ -21,7 +22,11 @@ export default function BreakEvenPage() {
     });
 
     const result = useMemo(() => {
-        if (!fixedCosts || !sellingPricePerUnit || !variableCostPerUnit) {
+        if (
+            fixedCosts.trim() === "" ||
+            sellingPricePerUnit.trim() === "" ||
+            variableCostPerUnit.trim() === ""
+        ) {
             return null;
         }
 
@@ -30,7 +35,15 @@ export default function BreakEvenPage() {
         const variable = Number(variableCostPerUnit);
 
         if (Number.isNaN(fixed) || Number.isNaN(selling) || Number.isNaN(variable)) {
-            return null;
+            return {
+                error: "All inputs must be valid numbers.",
+            };
+        }
+
+        if (fixed < 0 || selling <= 0 || variable < 0) {
+            return {
+                error: "Fixed costs cannot be negative, selling price must be greater than zero, and variable cost cannot be negative.",
+            };
         }
 
         const contributionMarginPerUnit = selling - variable;
@@ -42,22 +55,29 @@ export default function BreakEvenPage() {
             };
         }
 
-        const breakEvenUnits = fixed / contributionMarginPerUnit;
-        const breakEvenSales = breakEvenUnits * selling;
+        const { breakEvenUnits, practicalUnits, breakEvenSales, practicalSales } =
+            computeBreakEven({
+                fixedCosts: fixed,
+                sellingPricePerUnit: selling,
+                variableCostPerUnit: variable,
+            });
 
         return {
             contributionMarginPerUnit,
             breakEvenUnits,
+            practicalUnits,
             breakEvenSales,
+            practicalSales,
             formula:
                 "Break-even Units = Fixed Costs / (Selling Price per Unit - Variable Cost per Unit)",
             steps: [
-                `Fixed Costs = ${fixed}`,
-                `Selling Price per Unit = ${selling}`,
-                `Variable Cost per Unit = ${variable}`,
-                `Contribution Margin per Unit = ${selling} - ${variable} = ${contributionMarginPerUnit}`,
-                `Break-even Units = ${fixed} / ${contributionMarginPerUnit} = ${breakEvenUnits}`,
-                `Break-even Sales = ${breakEvenUnits} × ${selling} = ${breakEvenSales}`,
+                `Fixed Costs = ${formatPHP(fixed)}`,
+                `Selling Price per Unit = ${formatPHP(selling)}`,
+                `Variable Cost per Unit = ${formatPHP(variable)}`,
+                `Contribution Margin per Unit = ${formatPHP(selling)} - ${formatPHP(variable)} = ${formatPHP(contributionMarginPerUnit)}`,
+                `Break-even Units = ${formatPHP(fixed)} / ${formatPHP(contributionMarginPerUnit)} = ${breakEvenUnits.toFixed(4)} units`,
+                `Break-even Sales = ${breakEvenUnits.toFixed(4)} x ${formatPHP(selling)} = ${formatPHP(breakEvenSales)}`,
+                `Practical whole-unit target = ${practicalUnits.toLocaleString()} units, which is about ${formatPHP(practicalSales)} in sales.`,
             ],
             glossary: [
                 { term: "Fixed Costs", meaning: "Costs that remain constant in total within the relevant range." },
@@ -65,7 +85,7 @@ export default function BreakEvenPage() {
                 { term: "Contribution Margin per Unit", meaning: "The amount from each unit that helps cover fixed costs and profit." },
                 { term: "Break-even Point", meaning: "The level where total revenue exactly equals total cost." },
             ],
-            interpretation: `The business must sell about ${breakEvenUnits.toFixed(2)} units, or ${formatPHP(breakEvenSales)} in sales, to avoid profit or loss.`,
+            interpretation: `The mathematical break-even point is ${breakEvenUnits.toFixed(2)} units or ${formatPHP(breakEvenSales)} in sales. In practice, the business should target at least ${practicalUnits.toLocaleString()} whole units, or about ${formatPHP(practicalSales)}, to fully cover costs.`,
         };
     }, [fixedCosts, sellingPricePerUnit, variableCostPerUnit]);
 
@@ -111,6 +131,10 @@ export default function BreakEvenPage() {
                         <ResultCard
                             title="Break-even Units"
                             value={result.breakEvenUnits.toFixed(2)}
+                        />
+                        <ResultCard
+                            title="Practical Whole Units"
+                            value={result.practicalUnits.toLocaleString()}
                         />
                         <ResultCard
                             title="Break-even Sales"

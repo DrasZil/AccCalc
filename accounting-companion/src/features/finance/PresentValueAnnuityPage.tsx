@@ -6,6 +6,9 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import {
+    computePresentValueOfOrdinaryAnnuity,
+} from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -21,7 +24,7 @@ export default function PresentValueAnnuityPage() {
     });
 
     const result = useMemo(() => {
-        if (!periodicPayment || !rate || !periods) return null;
+        if (periodicPayment.trim() === "" || rate.trim() === "" || periods.trim() === "") return null;
 
         const payment = Number(periodicPayment);
         const periodicRate = Number(rate);
@@ -35,20 +38,22 @@ export default function PresentValueAnnuityPage() {
             return { error: "Payment and rate cannot be negative, and periods must be greater than zero." };
         }
 
-        const rateDecimal = periodicRate / 100;
-        const presentValue =
-            rateDecimal === 0
-                ? payment * totalPeriods
-                : payment * ((1 - (1 + rateDecimal) ** -totalPeriods) / rateDecimal);
+        const { rateDecimal, presentValue } = computePresentValueOfOrdinaryAnnuity(
+            payment,
+            periodicRate,
+            totalPeriods
+        );
 
         return {
             presentValue,
-            formula: "PV of Ordinary Annuity = Payment × [(1 - (1 + r)^-n) / r]",
+            formula: "PV of Ordinary Annuity = Payment x [(1 - (1 + r)^-n) / r]",
             steps: [
-                `Payment = ${payment}`,
+                `Payment = ${formatPHP(payment)}`,
                 `Periodic Rate = ${periodicRate}% = ${rateDecimal}`,
                 `Periods = ${totalPeriods}`,
-                `Present Value = ${payment} × [(1 - (1 + ${rateDecimal})^-${totalPeriods}) / ${rateDecimal || 1}] = ${presentValue}`,
+                rateDecimal === 0
+                    ? `Because the periodic rate is 0%, present value = ${formatPHP(payment)} x ${totalPeriods} = ${formatPHP(presentValue)}`
+                    : `Present Value = ${formatPHP(payment)} x [(1 - (1 + ${rateDecimal})^-${totalPeriods}) / ${rateDecimal}] = ${formatPHP(presentValue)}`,
             ],
             glossary: [
                 { term: "Present Value", meaning: "The amount today that is equivalent to future annuity payments." },

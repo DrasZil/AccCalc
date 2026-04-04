@@ -19,13 +19,21 @@ export default function AccountsPayableTurnoverPage() {
     });
 
     const result = useMemo(() => {
-        if (!netCreditPurchases || !averageAccountsPayable) return null;
+        if (netCreditPurchases.trim() === "" || averageAccountsPayable.trim() === "") return null;
 
         const parsedNetCreditPurchases = Number(netCreditPurchases);
         const parsedAverageAccountsPayable = Number(averageAccountsPayable);
 
         if ([parsedNetCreditPurchases, parsedAverageAccountsPayable].some((value) => Number.isNaN(value))) {
             return { error: "All inputs must be valid numbers." };
+        }
+
+        if (parsedNetCreditPurchases < 0 || parsedAverageAccountsPayable < 0) {
+            return { error: "Net credit purchases and average accounts payable cannot be negative." };
+        }
+
+        if (parsedNetCreditPurchases === 0) {
+            return { error: "Net credit purchases must be greater than zero for turnover analysis." };
         }
 
         if (parsedAverageAccountsPayable === 0) {

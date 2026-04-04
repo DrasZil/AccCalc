@@ -19,7 +19,10 @@ export default function TimesInterestEarnedPage() {
     });
 
     const result = useMemo(() => {
-        if (!incomeBeforeInterestAndTaxes || !interestExpense) return null;
+        if (
+            incomeBeforeInterestAndTaxes.trim() === "" ||
+            interestExpense.trim() === ""
+        ) return null;
 
         const parsedIncomeBeforeInterestAndTaxes = Number(incomeBeforeInterestAndTaxes);
         const parsedInterestExpense = Number(interestExpense);
@@ -28,8 +31,8 @@ export default function TimesInterestEarnedPage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (parsedInterestExpense === 0) {
-            return { error: "Interest expense cannot be zero." };
+        if (parsedInterestExpense <= 0) {
+            return { error: "Interest expense must be greater than zero." };
         }
 
         const timesInterestEarned = parsedIncomeBeforeInterestAndTaxes / parsedInterestExpense;
@@ -45,7 +48,10 @@ export default function TimesInterestEarnedPage() {
                 { term: "Interest Expense", meaning: "The financing cost incurred for borrowed funds during the period." },
                 { term: "Times Interest Earned", meaning: "An interest coverage ratio that indicates how many times operating earnings can cover interest expense." },
             ],
-            interpretation: `Operating earnings cover interest expense about ${timesInterestEarned.toFixed(2)} times for the period.`,
+            interpretation:
+                timesInterestEarned >= 1
+                    ? `Operating earnings cover interest expense about ${timesInterestEarned.toFixed(2)} times for the period.`
+                    : `Operating earnings cover only ${timesInterestEarned.toFixed(2)} times the interest expense, which indicates weak interest coverage.`,
         };
     }, [incomeBeforeInterestAndTaxes, interestExpense]);
 

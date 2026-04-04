@@ -280,8 +280,7 @@ export default function AppLayout() {
     const feedbackShownRef = useRef(false);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
-    const settingsPanelOpen =
-        settingsPanelRoute === location.pathname || location.pathname.startsWith("/settings");
+    const settingsPanelOpen = settingsPanelRoute === location.pathname;
     const effectiveDesktopSidebarVisible = settings.rememberDesktopSidebarVisibility
         ? desktopSidebarVisible
         : true;

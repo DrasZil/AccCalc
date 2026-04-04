@@ -23,7 +23,12 @@ export default function UnitsOfProductionDepreciationPage() {
     });
 
     const result = useMemo(() => {
-        if (!cost || !salvageValue || !totalEstimatedUnits || !unitsProduced) return null;
+        if (
+            cost.trim() === "" ||
+            salvageValue.trim() === "" ||
+            totalEstimatedUnits.trim() === "" ||
+            unitsProduced.trim() === ""
+        ) return null;
 
         const parsedCost = Number(cost);
         const parsedSalvageValue = Number(salvageValue);
@@ -34,8 +39,16 @@ export default function UnitsOfProductionDepreciationPage() {
             return { error: "All inputs must be valid numbers." };
         }
 
+        if (parsedCost < 0 || parsedSalvageValue < 0) {
+            return { error: "Cost and salvage value cannot be negative." };
+        }
+
         if (parsedTotalEstimatedUnits <= 0 || parsedUnitsProduced < 0 || parsedCost < parsedSalvageValue) {
-            return { error: "Total units must be greater than zero, units produced cannot be negative, and cost must not be lower than salvage value." };
+            return { error: "Total estimated units must be greater than zero, units produced cannot be negative, and cost must not be lower than salvage value." };
+        }
+
+        if (parsedUnitsProduced > parsedTotalEstimatedUnits) {
+            return { error: "Units produced for the period cannot exceed the total estimated units used by this simple depreciation model." };
         }
 
         const depreciableCost = parsedCost - parsedSalvageValue;

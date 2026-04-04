@@ -19,7 +19,7 @@ export default function ReturnOnEquityPage() {
     });
 
     const result = useMemo(() => {
-        if (!netIncome || !averageEquity) return null;
+        if (netIncome.trim() === "" || averageEquity.trim() === "") return null;
 
         const parsedNetIncome = Number(netIncome);
         const parsedAverageEquity = Number(averageEquity);
@@ -28,8 +28,8 @@ export default function ReturnOnEquityPage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (parsedAverageEquity === 0) {
-            return { error: "Average equity cannot be zero." };
+        if (parsedAverageEquity <= 0) {
+            return { error: "Average equity must be greater than zero." };
         }
 
         const returnOnEquity = (parsedNetIncome / parsedAverageEquity) * 100;
@@ -47,7 +47,10 @@ export default function ReturnOnEquityPage() {
                 { term: "Average Equity", meaning: "The average owners' equity invested during the period." },
                 { term: "Return on Equity", meaning: "A profitability ratio showing how much income was earned relative to owners' investment." },
             ],
-            interpretation: `The business earned ${returnOnEquity.toFixed(2)}% on the owners' average equity for the period.`,
+            interpretation:
+                returnOnEquity >= 0
+                    ? `The business earned ${returnOnEquity.toFixed(2)}% on the owners' average equity for the period.`
+                    : `The negative return on equity of ${returnOnEquity.toFixed(2)}% indicates a loss relative to the owners' average equity for the period.`,
         };
     }, [averageEquity, netIncome]);
 

@@ -19,7 +19,7 @@ export default function NetProfitMarginPage() {
     });
 
     const result = useMemo(() => {
-        if (!netIncome || !netSales) return null;
+        if (netIncome.trim() === "" || netSales.trim() === "") return null;
 
         const parsedNetIncome = Number(netIncome);
         const parsedNetSales = Number(netSales);
@@ -28,8 +28,8 @@ export default function NetProfitMarginPage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (parsedNetSales === 0) {
-            return { error: "Net sales cannot be zero." };
+        if (parsedNetSales <= 0) {
+            return { error: "Net sales must be greater than zero." };
         }
 
         const margin = (parsedNetIncome / parsedNetSales) * 100;

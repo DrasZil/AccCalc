@@ -21,7 +21,7 @@ export default function OperatingLeveragePage() {
     });
 
     const result = useMemo(() => {
-        if (!sales || !variableCosts || !fixedCosts) return null;
+        if (sales.trim() === "" || variableCosts.trim() === "" || fixedCosts.trim() === "") return null;
 
         const parsedSales = Number(sales);
         const parsedVariableCosts = Number(variableCosts);
@@ -31,11 +31,15 @@ export default function OperatingLeveragePage() {
             return { error: "All inputs must be valid numbers." };
         }
 
+        if (parsedSales <= 0 || parsedVariableCosts < 0 || parsedFixedCosts < 0) {
+            return { error: "Sales must be greater than zero, while variable and fixed costs cannot be negative." };
+        }
+
         const contributionMargin = parsedSales - parsedVariableCosts;
         const operatingIncome = contributionMargin - parsedFixedCosts;
 
-        if (parsedSales <= 0) {
-            return { error: "Sales must be greater than zero." };
+        if (contributionMargin <= 0) {
+            return { error: "Sales must be greater than variable costs to produce a meaningful contribution margin." };
         }
 
         if (operatingIncome <= 0) {

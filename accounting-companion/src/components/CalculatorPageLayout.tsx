@@ -20,6 +20,39 @@ export default function CalculatorPageLayout({
   explanationSection,
   prioritizeResultSection = false,
 }: CalculatorPageLayoutProps) {
+  const inputBlock = (
+    <section className="space-y-3">
+      <div className="px-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+          Inputs
+        </p>
+      </div>
+      {inputSection}
+    </section>
+  );
+
+  const resultBlock = resultSection ? (
+    <section className="space-y-3">
+      <div className="px-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+          Final Answer
+        </p>
+      </div>
+      {resultSection}
+    </section>
+  ) : null;
+
+  const explanationBlock = explanationSection ? (
+    <section className="space-y-3">
+      <div className="px-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+          Understanding The Answer
+        </p>
+      </div>
+      {explanationSection}
+    </section>
+  ) : null;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -28,11 +61,9 @@ export default function CalculatorPageLayout({
         description={description}
       />
 
-      {prioritizeResultSection ? resultSection : inputSection}
-
-      {prioritizeResultSection ? inputSection : resultSection}
-
-      {explanationSection}
+      {prioritizeResultSection ? resultBlock : inputBlock}
+      {prioritizeResultSection ? inputBlock : resultBlock}
+      {explanationBlock}
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function AssetTurnoverPage() {
     });
 
     const result = useMemo(() => {
-        if (!netSales || !averageTotalAssets) return null;
+        if (netSales.trim() === "" || averageTotalAssets.trim() === "") return null;
 
         const parsedNetSales = Number(netSales);
         const parsedAverageTotalAssets = Number(averageTotalAssets);
@@ -28,8 +28,8 @@ export default function AssetTurnoverPage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (parsedAverageTotalAssets === 0) {
-            return { error: "Average total assets cannot be zero." };
+        if (parsedNetSales < 0 || parsedAverageTotalAssets <= 0) {
+            return { error: "Net sales cannot be negative, and average total assets must be greater than zero." };
         }
 
         const turnover = parsedNetSales / parsedAverageTotalAssets;

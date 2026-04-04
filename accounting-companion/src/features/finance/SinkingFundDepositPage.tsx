@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computeSinkingFundDeposit } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -21,7 +22,7 @@ export default function SinkingFundDepositPage() {
     });
 
     const result = useMemo(() => {
-        if (!futureValue || !rate || !periods) return null;
+        if (futureValue.trim() === "" || rate.trim() === "" || periods.trim() === "") return null;
 
         const targetAmount = Number(futureValue);
         const periodicRatePercent = Number(rate);
@@ -35,20 +36,22 @@ export default function SinkingFundDepositPage() {
             return { error: "Target amount and periods must be greater than zero, and rate cannot be negative." };
         }
 
-        const periodicRate = periodicRatePercent / 100;
-        const requiredDeposit =
-            periodicRate === 0
-                ? targetAmount / totalPeriods
-                : targetAmount / (((1 + periodicRate) ** totalPeriods - 1) / periodicRate);
+        const { rateDecimal, requiredDeposit } = computeSinkingFundDeposit(
+            targetAmount,
+            periodicRatePercent,
+            totalPeriods
+        );
 
         return {
             requiredDeposit,
             formula: "Periodic Deposit = Future Value / [((1 + r)^n - 1) / r]",
             steps: [
-                `Future value target = ${targetAmount}`,
-                `Rate per period = ${periodicRatePercent}% = ${periodicRate}`,
+                `Future value target = ${formatPHP(targetAmount)}`,
+                `Rate per period = ${periodicRatePercent}% = ${rateDecimal}`,
                 `Number of periods = ${totalPeriods}`,
-                `Periodic deposit = ${targetAmount} / [((1 + ${periodicRate})^${totalPeriods} - 1) / ${periodicRate || 1}] = ${requiredDeposit}`,
+                rateDecimal === 0
+                    ? `Because the periodic rate is 0%, required deposit = ${formatPHP(targetAmount)} / ${totalPeriods} = ${formatPHP(requiredDeposit)}`
+                    : `Periodic deposit = ${formatPHP(targetAmount)} / [((1 + ${rateDecimal})^${totalPeriods} - 1) / ${rateDecimal}] = ${formatPHP(requiredDeposit)}`,
             ],
             glossary: [
                 { term: "Sinking Fund", meaning: "A fund built through periodic deposits in order to reach a future amount." },

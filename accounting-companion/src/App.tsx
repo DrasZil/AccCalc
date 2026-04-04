@@ -12,6 +12,7 @@ const AssetTurnoverPage = lazy(() => import("./features/accounting/AssetTurnover
 const BankReconciliationPage = lazy(
     () => import("./features/accounting/BankReconciliationPage")
 );
+const CashRatioPage = lazy(() => import("./features/accounting/CashRatioPage"));
 const BookValuePerSharePage = lazy(
     () => import("./features/accounting/BookValuePerSharePage")
 );
@@ -28,6 +29,7 @@ const DecliningBalanceDepreciationPage = lazy(
 const EarningsPerSharePage = lazy(() => import("./features/accounting/EarningsPerSharePage"));
 const FIFOInventoryPage = lazy(() => import("./features/accounting/FIFOInventoryPage"));
 const GrossProfitMethodPage = lazy(() => import("./features/accounting/GrossProfitMethodPage"));
+const GrossProfitRatePage = lazy(() => import("./features/accounting/GrossProfitRatePage"));
 const HorizontalAnalysisPage = lazy(
     () => import("./features/accounting/HorizontalAnalysisPage")
 );
@@ -69,6 +71,7 @@ const StraightLineDepreciationPage = lazy(
 const TimesInterestEarnedPage = lazy(
     () => import("./features/accounting/TimesInterestEarnedPage")
 );
+const TradeDiscountPage = lazy(() => import("./features/accounting/TradeDiscountPage"));
 const UnitsOfProductionDepreciationPage = lazy(
     () => import("./features/accounting/UnitsOfProductionDepreciationPage")
 );
@@ -184,6 +187,7 @@ export default function App() {
                         <Route path="accounting/fifo-inventory" element={<RouteShell><FIFOInventoryPage /></RouteShell>} />
                         <Route path="accounting/weighted-average-inventory" element={<RouteShell><WeightedAverageInventoryPage /></RouteShell>} />
                         <Route path="accounting/gross-profit-method" element={<RouteShell><GrossProfitMethodPage /></RouteShell>} />
+                        <Route path="accounting/gross-profit-rate" element={<RouteShell><GrossProfitRatePage /></RouteShell>} />
                         <Route path="accounting/bank-reconciliation" element={<RouteShell><BankReconciliationPage /></RouteShell>} />
                         <Route path="accounting/allowance-doubtful-accounts" element={<RouteShell><AllowanceForDoubtfulAccountsPage /></RouteShell>} />
                         <Route path="accounting/partnership-profit-sharing" element={<RouteShell><PartnershipProfitSharingPage /></RouteShell>} />
@@ -197,6 +201,7 @@ export default function App() {
                         <Route path="accounting/labor-rate-variance" element={<RouteShell><LaborRateVariancePage /></RouteShell>} />
                         <Route path="accounting/current-ratio" element={<RouteShell><CurrentRatioPage /></RouteShell>} />
                         <Route path="accounting/quick-ratio" element={<RouteShell><QuickRatioPage /></RouteShell>} />
+                        <Route path="accounting/cash-ratio" element={<RouteShell><CashRatioPage /></RouteShell>} />
                         <Route path="accounting/receivables-turnover" element={<RouteShell><ReceivablesTurnoverPage /></RouteShell>} />
                         <Route path="accounting/inventory-turnover" element={<RouteShell><InventoryTurnoverPage /></RouteShell>} />
                         <Route path="accounting/accounts-payable-turnover" element={<RouteShell><AccountsPayableTurnoverPage /></RouteShell>} />
@@ -210,6 +215,7 @@ export default function App() {
                         <Route path="accounting/vertical-analysis" element={<RouteShell><VerticalAnalysisPage /></RouteShell>} />
                         <Route path="accounting/asset-turnover" element={<RouteShell><AssetTurnoverPage /></RouteShell>} />
                         <Route path="accounting/return-on-equity" element={<RouteShell><ReturnOnEquityPage /></RouteShell>} />
+                        <Route path="accounting/trade-discount" element={<RouteShell><TradeDiscountPage /></RouteShell>} />
 
                         <Route path="settings" element={<RouteShell><SettingsPage /></RouteShell>} />
                         <Route path="settings/about" element={<RouteShell><AboutPage /></RouteShell>} />

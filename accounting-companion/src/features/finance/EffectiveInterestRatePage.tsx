@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computeEffectiveAnnualRate } from "../../utils/calculatorMath";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function EffectiveInterestRatePage() {
@@ -18,7 +19,7 @@ export default function EffectiveInterestRatePage() {
     });
 
     const result = useMemo(() => {
-        if (!annualRate || !timesCompounded) return null;
+        if (annualRate.trim() === "" || timesCompounded.trim() === "") return null;
 
         const nominalRate = Number(annualRate);
         const compoundsPerYear = Number(timesCompounded);
@@ -27,20 +28,22 @@ export default function EffectiveInterestRatePage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (nominalRate < 0 || compoundsPerYear <= 0) {
-            return { error: "Rate cannot be negative, and times compounded must be greater than zero." };
+        if (nominalRate < 0 || compoundsPerYear <= 0 || !Number.isInteger(compoundsPerYear)) {
+            return { error: "Rate cannot be negative, and times compounded must be a whole number greater than zero." };
         }
 
-        const rateDecimal = nominalRate / 100;
-        const effectiveRate = ((1 + rateDecimal / compoundsPerYear) ** compoundsPerYear - 1) * 100;
+        const { nominalRateDecimal, effectiveRate } = computeEffectiveAnnualRate(
+            nominalRate,
+            compoundsPerYear
+        );
 
         return {
             effectiveRate,
             formula: "Effective Annual Rate = (1 + Nominal Rate / m)^m - 1",
             steps: [
-                `Nominal rate = ${nominalRate}% = ${rateDecimal}`,
+                `Nominal rate = ${nominalRate}% = ${nominalRateDecimal}`,
                 `Compounding frequency = ${compoundsPerYear}`,
-                `Effective annual rate = (1 + ${rateDecimal} / ${compoundsPerYear})^${compoundsPerYear} - 1 = ${(effectiveRate / 100).toFixed(6)}`,
+                `Effective annual rate = (1 + ${nominalRateDecimal} / ${compoundsPerYear})^${compoundsPerYear} - 1 = ${(effectiveRate / 100).toFixed(6)}`,
                 `Effective annual rate = ${effectiveRate.toFixed(4)}%`,
             ],
             glossary: [

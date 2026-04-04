@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computeCurrentRatio } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -38,8 +39,10 @@ export default function CurrentRatioPage() {
             return { error: "Current liabilities cannot be zero when solving for current ratio." };
         }
 
-        const currentRatio = assets / liabilities;
-        const workingCapital = assets - liabilities;
+        const { currentRatio, workingCapital } = computeCurrentRatio({
+            currentAssets: assets,
+            currentLiabilities: liabilities,
+        });
 
         return {
             currentRatio,

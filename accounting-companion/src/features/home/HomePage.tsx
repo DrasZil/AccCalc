@@ -1,6 +1,7 @@
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getRecommendedRoutes, useAppActivity } from "../../utils/appActivity";
-import { NEW_FEATURE_PATHS } from "../../utils/appCatalog";
+import { APP_ROUTE_META, NEW_FEATURE_PATHS } from "../../utils/appCatalog";
 import { useAppSettings } from "../../utils/appSettings";
 
 const spotlightTools = [
@@ -55,6 +56,9 @@ const categoryDecks = [
         title: "Accounting",
         description: "Core accounting procedures, partnerships, cost accounting, and statement analysis.",
         links: [
+            { label: "Gross Profit Rate", path: "/accounting/gross-profit-rate" },
+            { label: "Cash Ratio", path: "/accounting/cash-ratio" },
+            { label: "Trade Discount", path: "/accounting/trade-discount" },
             { label: "Partnership Salary & Interest", path: "/accounting/partnership-salary-interest" },
             { label: "Prime & Conversion Cost", path: "/accounting/prime-conversion-cost" },
             { label: "Materials Price Variance", path: "/accounting/materials-price-variance" },
@@ -68,9 +72,19 @@ const categoryDecks = [
 export default function HomePage() {
     const activity = useAppActivity();
     const settings = useAppSettings();
+    const [showWhatsNew, setShowWhatsNew] = useState(true);
     const recommended = getRecommendedRoutes(activity, "/");
     const savedPromptCount = activity.savedRecords.length;
     const activeToolCount = Object.keys(activity.toolUsage).length;
+    const unseenFeatures = useMemo(
+        () =>
+            APP_ROUTE_META.filter(
+                (route) =>
+                    NEW_FEATURE_PATHS.has(route.path) &&
+                    !activity.seenNewPaths.includes(route.path)
+            ),
+        [activity.seenNewPaths]
+    );
 
     return (
         <div className="space-y-8 md:space-y-10">
@@ -123,34 +137,58 @@ export default function HomePage() {
             </section>
 
             <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
-                        What is new
-                    </p>
-                    <h2 className="mt-3 text-2xl font-semibold text-white">
-                        Stronger accounting depth, smarter routing, and persistent offline use.
-                    </h2>
-                    <div className="mt-5 grid gap-3 md:grid-cols-3">
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Accounting depth</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
-                                Partnership, cost accounting, manufacturing, statement analysis, and ratio tools.
-                            </p>
+                {unseenFeatures.length > 0 ? (
+                    <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                                    What is new
+                                </p>
+                                <h2 className="mt-3 text-2xl font-semibold text-white">
+                                    {unseenFeatures.length} new update{unseenFeatures.length > 1 ? "s" : ""} waiting for you.
+                                </h2>
+                                <p className="mt-2 text-sm leading-6 text-gray-400">
+                                    New items disappear from this section after you open them.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowWhatsNew((current) => !current)}
+                                className="inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition duration-300 hover:bg-white/10"
+                            >
+                                {showWhatsNew ? "Hide updates" : "Show updates"}
+                            </button>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Smarter guidance</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
-                                Smart Solver now recognizes broader vocabulary, currency cues, and more real-world phrasing.
-                            </p>
-                        </div>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Offline continuity</p>
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
-                                History, prompts, recommendations, and app preferences stay on this device.
-                            </p>
-                        </div>
+
+                        {showWhatsNew ? (
+                            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                {unseenFeatures.map((feature) => (
+                                    <Link
+                                        key={feature.path}
+                                        to={feature.path}
+                                        className="rounded-2xl border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-green-400/20 hover:bg-white/10"
+                                    >
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="text-sm font-medium text-white">
+                                                {feature.label}
+                                            </p>
+                                            <span className="rounded-full border border-green-400/15 bg-green-500/10 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-green-300">
+                                                New
+                                            </span>
+                                        </div>
+                                        <p className="mt-2 text-xs uppercase tracking-[0.18em] text-gray-500">
+                                            {feature.category}
+                                        </p>
+                                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                                            {feature.description}
+                                        </p>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : null}
                     </div>
-                </div>
+                ) : null}
 
                 <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">

@@ -223,7 +223,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["invoice", "invoice amount"],
+        aliases: ["invoice", "invoice amount", "list price", "catalog price", "quoted price"],
     },
 
     discountRate: {
@@ -232,7 +232,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "percent",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["discount rate", "cash discount"],
+        aliases: ["discount rate", "cash discount", "trade discount", "trade discount rate"],
     },
 
     discountDays: {
@@ -1608,6 +1608,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /merchandising/i,
         ],
     },
+    {
+        id: "gross-profit-rate",
+        name: "Gross Profit Rate",
+        route: "/accounting/gross-profit-rate",
+        description: "Compute gross profit and gross profit rate using net sales and cost of goods sold.",
+        required: ["netSales", "costOfGoodsSold"],
+        aliases: ["gross margin ratio", "gross profit percentage", "gross margin percentage"],
+        keywords: [
+        /gross profit rate/i,
+        /gross margin ratio/i,
+        /gross profit percentage/i,
+        /gross margin percentage/i,
+        /gross profit over sales/i,
+        /\bcogs\b/i,
+        ],
+    },
 
     {
         id: "bank-reconciliation",
@@ -1723,6 +1739,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "trade-discount",
+        name: "Trade Discount",
+        route: "/accounting/trade-discount",
+        description:
+            "Compute trade discount amount and net price from list price and trade discount rate.",
+        required: ["invoice", "discountRate"],
+        aliases: ["net price after discount", "list price discount", "catalog price discount"],
+        keywords: [
+            /trade discount/i,
+            /list price/i,
+            /catalog price/i,
+            /net price/i,
+            /discount from list price/i,
+        ],
+    },
+    {
         id: "cost-of-goods-manufactured",
         name: "Cost of Goods Manufactured",
         route: "/accounting/cost-of-goods-manufactured",
@@ -1778,6 +1810,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /marketable securities/i,
             /receivables/i,
             /current liabilities/i,
+        ],
+    },
+    {
+        id: "cash-ratio",
+        name: "Cash Ratio",
+        route: "/accounting/cash-ratio",
+        description:
+            "Measure the strictest liquidity coverage using cash, marketable securities, and current liabilities.",
+        required: ["cash", "marketableSecurities", "currentLiabilities"],
+        aliases: ["immediate cash coverage", "cash to current liabilities", "cash liquidity ratio"],
+        keywords: [
+            /cash ratio/i,
+            /cash to current liabilities/i,
+            /strict liquidity/i,
+            /cash coverage/i,
+            /cash and marketable securities/i,
+            /marketable securities/i,
         ],
     },
     {

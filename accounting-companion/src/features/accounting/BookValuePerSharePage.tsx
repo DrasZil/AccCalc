@@ -19,7 +19,7 @@ export default function BookValuePerSharePage() {
     });
 
     const result = useMemo(() => {
-        if (!commonEquity || !outstandingCommonShares) return null;
+        if (commonEquity.trim() === "" || outstandingCommonShares.trim() === "") return null;
 
         const parsedCommonEquity = Number(commonEquity);
         const parsedOutstandingCommonShares = Number(outstandingCommonShares);
@@ -28,8 +28,8 @@ export default function BookValuePerSharePage() {
             return { error: "All inputs must be valid numbers." };
         }
 
-        if (parsedOutstandingCommonShares === 0) {
-            return { error: "Outstanding common shares cannot be zero." };
+        if (parsedOutstandingCommonShares <= 0) {
+            return { error: "Outstanding common shares must be greater than zero." };
         }
 
         const bookValuePerShare = parsedCommonEquity / parsedOutstandingCommonShares;

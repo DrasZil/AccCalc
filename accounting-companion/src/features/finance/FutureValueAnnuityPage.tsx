@@ -6,6 +6,9 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import {
+    computeFutureValueOfOrdinaryAnnuity,
+} from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -21,7 +24,7 @@ export default function FutureValueAnnuityPage() {
     });
 
     const result = useMemo(() => {
-        if (!periodicPayment || !rate || !periods) return null;
+        if (periodicPayment.trim() === "" || rate.trim() === "" || periods.trim() === "") return null;
 
         const payment = Number(periodicPayment);
         const periodicRate = Number(rate);
@@ -35,20 +38,22 @@ export default function FutureValueAnnuityPage() {
             return { error: "Payment and rate cannot be negative, and periods must be greater than zero." };
         }
 
-        const rateDecimal = periodicRate / 100;
-        const futureValue =
-            rateDecimal === 0
-                ? payment * totalPeriods
-                : payment * (((1 + rateDecimal) ** totalPeriods - 1) / rateDecimal);
+        const { rateDecimal, futureValue } = computeFutureValueOfOrdinaryAnnuity(
+            payment,
+            periodicRate,
+            totalPeriods
+        );
 
         return {
             futureValue,
-            formula: "FV of Ordinary Annuity = Payment × [((1 + r)^n - 1) / r]",
+            formula: "FV of Ordinary Annuity = Payment x [((1 + r)^n - 1) / r]",
             steps: [
-                `Payment = ${payment}`,
+                `Payment = ${formatPHP(payment)}`,
                 `Periodic Rate = ${periodicRate}% = ${rateDecimal}`,
                 `Periods = ${totalPeriods}`,
-                `Future Value = ${payment} × [((1 + ${rateDecimal})^${totalPeriods} - 1) / ${rateDecimal || 1}] = ${futureValue}`,
+                rateDecimal === 0
+                    ? `Because the periodic rate is 0%, future value = ${formatPHP(payment)} x ${totalPeriods} = ${formatPHP(futureValue)}`
+                    : `Future Value = ${formatPHP(payment)} x [((1 + ${rateDecimal})^${totalPeriods} - 1) / ${rateDecimal}] = ${formatPHP(futureValue)}`,
             ],
             glossary: [
                 { term: "Periodic Payment", meaning: "The equal amount deposited or paid each period." },

@@ -80,6 +80,15 @@ export default function PartnershipProfitSharingPage() {
                 `Partner B share = ${formatPHP(totalAmount)} x ${ratioB}/${totalRatio} = ${formatPHP(shareB)}`,
                 `Partner C share = ${formatPHP(totalAmount)} x ${ratioC}/${totalRatio} = ${formatPHP(shareC)}`,
             ],
+            glossary: [
+                { term: "Profit-and-Loss Ratio", meaning: "The agreed basis used to divide partnership income or loss among partners." },
+                { term: "Net Income", meaning: "The partnership's excess of revenues over expenses for the period." },
+                { term: "Net Loss", meaning: "The partnership's excess of expenses over revenues for the period." },
+            ],
+            interpretation:
+                totalAmount >= 0
+                    ? `Using the agreed ratio, the partnership income of ${formatPHP(totalAmount)} is allocated proportionately to each partner.`
+                    : `Using the agreed ratio, the partnership loss of ${formatPHP(Math.abs(totalAmount))} is absorbed proportionately by each partner.`,
         };
     }, [partnershipAmount, partnerARatio, partnerBRatio, partnerCRatio]);
 
@@ -135,7 +144,12 @@ export default function PartnershipProfitSharingPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />
