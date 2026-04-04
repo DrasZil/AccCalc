@@ -66,6 +66,9 @@ const navGroups: NavGroup[] = [
             { label: "Gross Profit Method", path: "/accounting/gross-profit-method" },
             { label: "Bank Reconciliation", path: "/accounting/bank-reconciliation" },
             { label: "Allowance for Doubtful Accounts", path: "/accounting/allowance-doubtful-accounts" },
+            { label: "Partnership Profit Sharing", path: "/accounting/partnership-profit-sharing" },
+            { label: "Philippine VAT", path: "/accounting/philippine-vat" },
+            { label: "Cost of Goods Manufactured", path: "/accounting/cost-of-goods-manufactured" },
         ],
     },
 ];

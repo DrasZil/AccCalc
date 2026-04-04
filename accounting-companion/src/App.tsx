@@ -24,6 +24,9 @@ import FeedbackPage from "./features/meta/FeedBackPage";
 import GrossProfitMethodPage from "./features/accounting/GrossProfitMethodPage";
 import BankReconciliationPage from "./features/accounting/BankReconciliationPage";
 import AllowanceForDoubtfulAccountsPage from "./features/accounting/AllowanceForDoubtfulAccountsPage";
+import PartnershipProfitSharingPage from "./features/accounting/PartnershipProfitSharingPage";
+import PhilippineVATPage from "./features/accounting/PhilippineVATPage";
+import CostOfGoodsManufacturedPage from "./features/accounting/CostOfGoodsManufacturedPage";
 
 
 export default function App() {
@@ -52,6 +55,9 @@ export default function App() {
           <Route path="accounting/gross-profit-method" element={<GrossProfitMethodPage/>} />
           <Route path="accounting/bank-reconciliation" element={<BankReconciliationPage />}/>
           <Route path="/accounting/allowance-doubtful-accounts" element={<AllowanceForDoubtfulAccountsPage />}/>
+          <Route path="/accounting/partnership-profit-sharing" element={<PartnershipProfitSharingPage />} />
+          <Route path="/accounting/philippine-vat" element={<PhilippineVATPage />} />
+          <Route path="/accounting/cost-of-goods-manufactured" element={<CostOfGoodsManufacturedPage />} />
           <Route path="smart/solver" element={<SmartSolverPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />

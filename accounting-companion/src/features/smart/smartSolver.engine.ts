@@ -532,6 +532,121 @@ import type {
             "estimated bad debt percentage",
         ],
     },
+
+    partnershipAmount: {
+        label: "Partnership Profit or Loss",
+        placeholder: "120000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "partnership profit",
+            "partnership loss",
+            "partnership income",
+            "net income",
+            "net loss",
+            "profit to be shared",
+            "loss to be shared",
+        ],
+    },
+
+    partnerARatio: {
+        label: "Partner A Ratio",
+        placeholder: "3",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["partner a ratio", "a ratio", "a share ratio"],
+    },
+
+    partnerBRatio: {
+        label: "Partner B Ratio",
+        placeholder: "2",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["partner b ratio", "b ratio", "b share ratio"],
+    },
+
+    partnerCRatio: {
+        label: "Partner C Ratio",
+        placeholder: "1",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["partner c ratio", "c ratio", "c share ratio"],
+    },
+
+    vatableSales: {
+        label: "VATable Sales",
+        placeholder: "150000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["vatable sales", "sales subject to vat", "output vat base"],
+    },
+
+    vatablePurchases: {
+        label: "VATable Purchases",
+        placeholder: "80000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["vatable purchases", "purchases subject to vat", "input vat base"],
+    },
+
+    directMaterialsUsed: {
+        label: "Direct Materials Used",
+        placeholder: "120000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["direct materials used", "direct materials"],
+    },
+
+    directLabor: {
+        label: "Direct Labor",
+        placeholder: "90000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["direct labor", "direct labour"],
+    },
+
+    manufacturingOverhead: {
+        label: "Manufacturing Overhead",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["manufacturing overhead", "factory overhead", "factory burden"],
+    },
+
+    beginningWorkInProcess: {
+        label: "Beginning Work in Process",
+        placeholder: "15000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "beginning work in process",
+            "beginning wip",
+            "beginning work in process inventory",
+        ],
+    },
+
+    endingWorkInProcess: {
+        label: "Ending Work in Process",
+        placeholder: "10000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "ending work in process",
+            "ending wip",
+            "ending work in process inventory",
+        ],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -913,6 +1028,68 @@ import type {
             /net realizable value/i,
         ],
     },
+    {
+        id: "partnership-profit-sharing",
+        name: "Partnership Profit Sharing",
+        route: "/accounting/partnership-profit-sharing",
+        description:
+            "Allocate partnership profit or loss among partners using agreed ratios.",
+        required: ["partnershipAmount", "partnerARatio", "partnerBRatio"],
+        optional: ["partnerCRatio"],
+        keywords: [
+            /partnership profit/i,
+            /partnership loss/i,
+            /profit and loss ratio/i,
+            /profit sharing/i,
+            /divide partnership income/i,
+            /share net income/i,
+            /share net loss/i,
+            /partner a/i,
+            /partner b/i,
+        ],
+    },
+    {
+        id: "philippine-vat",
+        name: "Philippine VAT",
+        route: "/accounting/philippine-vat",
+        description:
+            "Compute output VAT, input VAT, and VAT payable using VATable sales and purchases.",
+        required: ["vatableSales", "vatablePurchases"],
+        keywords: [
+            /vat/i,
+            /value added tax/i,
+            /output vat/i,
+            /input vat/i,
+            /vat payable/i,
+            /vatable sales/i,
+            /vatable purchases/i,
+            /\b12%\b/i,
+        ],
+    },
+    {
+        id: "cost-of-goods-manufactured",
+        name: "Cost of Goods Manufactured",
+        route: "/accounting/cost-of-goods-manufactured",
+        description:
+            "Compute total manufacturing costs and cost of goods manufactured.",
+        required: [
+            "directMaterialsUsed",
+            "directLabor",
+            "manufacturingOverhead",
+            "beginningWorkInProcess",
+            "endingWorkInProcess",
+        ],
+        keywords: [
+            /cost of goods manufactured/i,
+            /\bcogm\b/i,
+            /total manufacturing costs/i,
+            /direct materials/i,
+            /direct labor/i,
+            /manufacturing overhead/i,
+            /work in process/i,
+            /\bwip\b/i,
+        ],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
@@ -1198,6 +1375,41 @@ import type {
         FIELD_META.estimatedUncollectibleRate.aliases ?? [],
         { percent: true }
     );
+    const partnershipAmount = extractNumberByAliases(
+        text,
+        FIELD_META.partnershipAmount.aliases ?? []
+    );
+    const partnerARatio = extractNumberByAliases(text, FIELD_META.partnerARatio.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const partnerBRatio = extractNumberByAliases(text, FIELD_META.partnerBRatio.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const partnerCRatio = extractNumberByAliases(text, FIELD_META.partnerCRatio.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const vatableSales = extractNumberByAliases(text, FIELD_META.vatableSales.aliases ?? []);
+    const vatablePurchases = extractNumberByAliases(
+        text,
+        FIELD_META.vatablePurchases.aliases ?? []
+    );
+    const directMaterialsUsed = extractNumberByAliases(
+        text,
+        FIELD_META.directMaterialsUsed.aliases ?? []
+    );
+    const directLabor = extractNumberByAliases(text, FIELD_META.directLabor.aliases ?? []);
+    const manufacturingOverhead = extractNumberByAliases(
+        text,
+        FIELD_META.manufacturingOverhead.aliases ?? []
+    );
+    const beginningWorkInProcess = extractNumberByAliases(
+        text,
+        FIELD_META.beginningWorkInProcess.aliases ?? []
+    );
+    const endingWorkInProcess = extractNumberByAliases(
+        text,
+        FIELD_META.endingWorkInProcess.aliases ?? []
+    );
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
@@ -1314,6 +1526,17 @@ import type {
 
     setFact(facts, "accountsReceivable", accountsReceivable);
     setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);
+    setFact(facts, "partnershipAmount", partnershipAmount);
+    setFact(facts, "partnerARatio", partnerARatio);
+    setFact(facts, "partnerBRatio", partnerBRatio);
+    setFact(facts, "partnerCRatio", partnerCRatio);
+    setFact(facts, "vatableSales", vatableSales);
+    setFact(facts, "vatablePurchases", vatablePurchases);
+    setFact(facts, "directMaterialsUsed", directMaterialsUsed);
+    setFact(facts, "directLabor", directLabor);
+    setFact(facts, "manufacturingOverhead", manufacturingOverhead);
+    setFact(facts, "beginningWorkInProcess", beginningWorkInProcess);
+    setFact(facts, "endingWorkInProcess", endingWorkInProcess);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);

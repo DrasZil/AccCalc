@@ -47,6 +47,17 @@ export const ALL_FIELD_KEYS = [
     "bookError",
     "accountsReceivable",
     "estimatedUncollectibleRate",
+    "partnershipAmount",
+    "partnerARatio",
+    "partnerBRatio",
+    "partnerCRatio",
+    "vatableSales",
+    "vatablePurchases",
+    "directMaterialsUsed",
+    "directLabor",
+    "manufacturingOverhead",
+    "beginningWorkInProcess",
+    "endingWorkInProcess",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

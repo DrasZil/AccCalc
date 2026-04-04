@@ -130,6 +130,27 @@ const tools = [
         path: "/accounting/allowance-doubtful-accounts",
         category: "Accounting",
     },
+    {
+        title: "Partnership Profit Sharing",
+        description:
+            "Allocate partnership profit or loss among partners using agreed profit-and-loss ratios.",
+        path: "/accounting/partnership-profit-sharing",
+        category: "Accounting",
+    },
+    {
+        title: "Philippine VAT",
+        description:
+            "Compute output VAT, input VAT, and VAT payable using the standard Philippine 12% VAT rate.",
+        path: "/accounting/philippine-vat",
+        category: "Accounting",
+    },
+    {
+        title: "Cost of Goods Manufactured",
+        description:
+            "Compute total manufacturing costs and cost of goods manufactured for cost accounting problems.",
+        path: "/accounting/cost-of-goods-manufactured",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {
@@ -145,8 +166,9 @@ export default function HomePage() {
                     </h1>
                     <p className="mt-4 text-base leading-7 text-gray-300 md:text-lg">
                         AccCalc is designed to help students and professionals solve core
-                        financial and business calculations with clarity, speed, and
-                        confidence.
+                        financial, business, and accounting calculations with clarity,
+                        speed, and confidence, including topics commonly encountered by
+                        Philippine accounting students.
                     </p>
                 </div>
 
