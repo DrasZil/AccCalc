@@ -22,37 +22,33 @@ export default function GrossProfitMethodPage() {
 
     const result = useMemo(() => {
         if (
-        netSales.trim() === "" ||
-        grossProfitRate.trim() === "" ||
-        costOfGoodsAvailable.trim() === ""
+            netSales.trim() === "" ||
+            grossProfitRate.trim() === "" ||
+            costOfGoodsAvailable.trim() === ""
         ) {
-        return null;
+            return null;
         }
 
         const sales = Number(netSales);
         const rate = Number(grossProfitRate);
         const goodsAvailable = Number(costOfGoodsAvailable);
 
-        if (
-        Number.isNaN(sales) ||
-        Number.isNaN(rate) ||
-        Number.isNaN(goodsAvailable)
-        ) {
-        return {
-            error: "All inputs must be valid numbers.",
-        };
+        if (Number.isNaN(sales) || Number.isNaN(rate) || Number.isNaN(goodsAvailable)) {
+            return {
+                error: "All inputs must be valid numbers.",
+            };
         }
 
         if (sales < 0 || rate < 0 || goodsAvailable < 0) {
-        return {
-            error: "Values cannot be negative.",
-        };
+            return {
+                error: "Values cannot be negative.",
+            };
         }
 
         if (rate > 100) {
-        return {
-            error: "Gross profit rate cannot be greater than 100%.",
-        };
+            return {
+                error: "Gross profit rate cannot be greater than 100%.",
+            };
         }
 
         const grossProfitRateDecimal = rate / 100;
@@ -61,108 +57,108 @@ export default function GrossProfitMethodPage() {
         const estimatedEndingInventory = goodsAvailable - estimatedCOGS;
 
         if (estimatedEndingInventory < 0) {
-        return {
-            error:
-            "Estimated ending inventory is negative. Check your inputs because cost of goods sold cannot exceed cost of goods available.",
-        };
+            return {
+                error:
+                    "Estimated ending inventory is negative. Check your inputs because cost of goods sold cannot exceed cost of goods available.",
+            };
         }
 
         return {
-        sales,
-        rate,
-        goodsAvailable,
-        grossProfitRateDecimal,
-        estimatedGrossProfit,
-        estimatedCOGS,
-        estimatedEndingInventory,
-        formula: (
-            <>
-            Gross Profit = Net Sales × Gross Profit Rate
-            <br />
-            Cost of Goods Sold = Net Sales − Gross Profit
-            <br />
-            Ending Inventory = Cost of Goods Available for Sale − Cost of Goods
-            Sold
-            </>
-        ),
-        steps: [
-            `Gross Profit Rate = ${rate.toFixed(2)}% = ${grossProfitRateDecimal.toFixed(
-            4
-            )}`,
-            `Estimated Gross Profit = ${formatPHP(sales)} × ${grossProfitRateDecimal.toFixed(
-            4
-            )} = ${formatPHP(estimatedGrossProfit)}`,
-            `Estimated Cost of Goods Sold = ${formatPHP(
-            sales
-            )} − ${formatPHP(estimatedGrossProfit)} = ${formatPHP(estimatedCOGS)}`,
-            `Estimated Ending Inventory = ${formatPHP(
-            goodsAvailable
-            )} − ${formatPHP(estimatedCOGS)} = ${formatPHP(
-            estimatedEndingInventory
-            )}`,
-        ],
+            sales,
+            rate,
+            goodsAvailable,
+            grossProfitRateDecimal,
+            estimatedGrossProfit,
+            estimatedCOGS,
+            estimatedEndingInventory,
+            formula: (
+                <>
+                    Gross Profit = Net Sales x Gross Profit Rate
+                    <br />
+                    Cost of Goods Sold = Net Sales - Gross Profit
+                    <br />
+                    Ending Inventory = Cost of Goods Available for Sale - Cost of Goods Sold
+                </>
+            ),
+            steps: [
+                `Gross Profit Rate = ${rate.toFixed(2)}% = ${grossProfitRateDecimal.toFixed(4)}`,
+                `Estimated Gross Profit = ${formatPHP(sales)} x ${grossProfitRateDecimal.toFixed(
+                    4
+                )} = ${formatPHP(estimatedGrossProfit)}`,
+                `Estimated Cost of Goods Sold = ${formatPHP(sales)} - ${formatPHP(
+                    estimatedGrossProfit
+                )} = ${formatPHP(estimatedCOGS)}`,
+                `Estimated Ending Inventory = ${formatPHP(goodsAvailable)} - ${formatPHP(
+                    estimatedCOGS
+                )} = ${formatPHP(estimatedEndingInventory)}`,
+            ],
+            interpretation: `Using a gross profit rate of ${rate.toFixed(2)}%, estimated gross profit is ${formatPHP(estimatedGrossProfit)} on net sales of ${formatPHP(sales)}. That implies estimated cost of goods sold of ${formatPHP(estimatedCOGS)}, leaving estimated ending inventory of ${formatPHP(estimatedEndingInventory)} from goods available for sale of ${formatPHP(goodsAvailable)}.`,
         };
     }, [netSales, grossProfitRate, costOfGoodsAvailable]);
 
     return (
         <CalculatorPageLayout
-        badge="Accounting • Merchandising"
-        title="Gross Profit Method"
-        description="Estimate gross profit, cost of goods sold, and ending inventory using net sales, gross profit rate, and cost of goods available for sale."
-        inputSection={
-            <SectionCard>
-            <InputGrid columns={3}>
-                <InputCard
-                label="Net Sales"
-                value={netSales}
-                onChange={setNetSales}
-                placeholder="e.g. 1500"
-                />
-                <InputCard
-                label="Gross Profit Rate (%)"
-                value={grossProfitRate}
-                onChange={setGrossProfitRate}
-                placeholder="e.g. 25"
-                />
-                <InputCard
-                label="Cost of Goods Available for Sale"
-                value={costOfGoodsAvailable}
-                onChange={setCostOfGoodsAvailable}
-                placeholder="e.g. 1100"
-                />
-            </InputGrid>
-            </SectionCard>
-        }
-        resultSection={
-            result && "error" in result ? (
-            <SectionCard>
-                <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
-                <p className="font-semibold">Input notice</p>
-                <p className="mt-1">{result.error}</p>
-                </div>
-            </SectionCard>
-            ) : result ? (
-            <ResultGrid columns={3}>
-                <ResultCard
-                title="Estimated Gross Profit"
-                value={formatPHP(result.estimatedGrossProfit)}
-                />
-                <ResultCard
-                title="Estimated Cost of Goods Sold"
-                value={formatPHP(result.estimatedCOGS)}
-                />
-                <ResultCard
-                title="Estimated Ending Inventory"
-                value={formatPHP(result.estimatedEndingInventory)}
-                />
-            </ResultGrid>
-            ) : null
-        }
-        explanationSection={
-            result && !("error" in result) ? (
-            <FormulaCard formula={result.formula} steps={result.steps} />
-            ) : null
-        }
+            badge="Accounting • Merchandising"
+            title="Gross Profit Method"
+            description="Estimate gross profit, cost of goods sold, and ending inventory using net sales, gross profit rate, and cost of goods available for sale."
+            inputSection={
+                <SectionCard>
+                    <InputGrid columns={3}>
+                        <InputCard
+                            label="Net Sales"
+                            value={netSales}
+                            onChange={setNetSales}
+                            placeholder="e.g. 1500"
+                        />
+                        <InputCard
+                            label="Gross Profit Rate (%)"
+                            value={grossProfitRate}
+                            onChange={setGrossProfitRate}
+                            placeholder="e.g. 25"
+                        />
+                        <InputCard
+                            label="Cost of Goods Available for Sale"
+                            value={costOfGoodsAvailable}
+                            onChange={setCostOfGoodsAvailable}
+                            placeholder="e.g. 1100"
+                        />
+                    </InputGrid>
+                </SectionCard>
+            }
+            resultSection={
+                result && "error" in result ? (
+                    <SectionCard>
+                        <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
+                            <p className="font-semibold">Input notice</p>
+                            <p className="mt-1">{result.error}</p>
+                        </div>
+                    </SectionCard>
+                ) : result ? (
+                    <ResultGrid columns={3}>
+                        <ResultCard
+                            title="Estimated Gross Profit"
+                            value={formatPHP(result.estimatedGrossProfit)}
+                        />
+                        <ResultCard
+                            title="Estimated Cost of Goods Sold"
+                            value={formatPHP(result.estimatedCOGS)}
+                        />
+                        <ResultCard
+                            title="Estimated Ending Inventory"
+                            value={formatPHP(result.estimatedEndingInventory)}
+                        />
+                    </ResultGrid>
+                ) : null
+            }
+            explanationSection={
+                result && !("error" in result) ? (
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        interpretation={result.interpretation}
+                    />
+                ) : null
+            }
         />
     );
 }

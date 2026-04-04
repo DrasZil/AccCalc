@@ -212,7 +212,6 @@ strong {
 
 code,
 pre,
-.app-formula-display,
 .app-mono {
     font-family: var(--app-font-mono);
 }
@@ -421,11 +420,28 @@ a:active {
 }
 
 .app-formula-display {
-    font-size: clamp(1rem, 0.98rem + 0.35vw, 1.15rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.55;
+    font-family: var(--app-font-display);
+    font-size: clamp(1.08rem, 1rem + 0.48vw, 1.28rem);
+    font-weight: 620;
+    letter-spacing: 0.01em;
+    line-height: 1.9;
+    word-spacing: 0.08em;
     color: var(--app-text);
+    text-align: center;
+    text-wrap: balance;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.app-formula-panel {
+    display: flex;
+    justify-content: center;
+    padding-block: 1.2rem;
+}
+
+.app-formula-panel .app-formula-display {
+    max-width: 42rem;
+    margin-inline: auto;
 }
 
 .app-link-accent {

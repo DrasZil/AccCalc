@@ -17,143 +17,149 @@ export default function AccountingEquationPage() {
     useSmartSolverConnector({
         assets: setAssets,
         liabilities: setLiabilities,
-        equity: setEquity
+        equity: setEquity,
     });
 
     const result = useMemo(() => {
         const filledValues = [assets, liabilities, equity].filter(
-        (value) => value.trim() !== ""
+            (value) => value.trim() !== ""
         ).length;
 
         if (filledValues === 0) return null;
 
         if (filledValues < 2) {
-        return {
-            error: "Enter any 2 values so the app can solve the missing amount.",
-        };
+            return {
+                error: "Enter any 2 values so the app can solve the missing amount.",
+            };
         }
 
         if (filledValues > 2) {
-        return {
-            error: "Please enter only 2 values. Leave 1 blank so it can be solved.",
-        };
+            return {
+                error: "Please enter only 2 values. Leave 1 blank so it can be solved.",
+            };
         }
 
         const assetsNumber = assets.trim() === "" ? null : Number(assets);
-        const liabilitiesNumber =
-        liabilities.trim() === "" ? null : Number(liabilities);
+        const liabilitiesNumber = liabilities.trim() === "" ? null : Number(liabilities);
         const equityNumber = equity.trim() === "" ? null : Number(equity);
 
         if (
-        (assetsNumber !== null && Number.isNaN(assetsNumber)) ||
-        (liabilitiesNumber !== null && Number.isNaN(liabilitiesNumber)) ||
-        (equityNumber !== null && Number.isNaN(equityNumber))
+            (assetsNumber !== null && Number.isNaN(assetsNumber)) ||
+            (liabilitiesNumber !== null && Number.isNaN(liabilitiesNumber)) ||
+            (equityNumber !== null && Number.isNaN(equityNumber))
         ) {
-        return {
-            error: "All entered values must be valid numbers.",
-        };
+            return {
+                error: "All entered values must be valid numbers.",
+            };
         }
 
         if (assetsNumber === null) {
-        const solvedAssets = (liabilitiesNumber ?? 0) + (equityNumber ?? 0);
+            const solvedAssets = (liabilitiesNumber ?? 0) + (equityNumber ?? 0);
 
-        return {
-            solvedField: "Assets",
-            solvedValue: solvedAssets,
-            formula: <>Assets = Liabilities + Equity</>,
-            steps: [
-            <>Liabilities = {liabilitiesNumber}</>,
-            <>Equity = {equityNumber}</>,
-            <>
-                Assets = {liabilitiesNumber} + {equityNumber} = {solvedAssets}
-            </>,
-            ],
-        };
+            return {
+                solvedField: "Assets",
+                solvedValue: solvedAssets,
+                formula: <>Assets = Liabilities + Equity</>,
+                steps: [
+                    <>Liabilities = {liabilitiesNumber}</>,
+                    <>Equity = {equityNumber}</>,
+                    <>
+                        Assets = {liabilitiesNumber} + {equityNumber} = {solvedAssets}
+                    </>,
+                ],
+                interpretation: `Total assets should equal the combined claims of creditors and owners. With liabilities of ${formatPHP(liabilitiesNumber ?? 0)} and equity of ${formatPHP(equityNumber ?? 0)}, assets must be ${formatPHP(solvedAssets)} for the accounting equation to remain balanced.`,
+            };
         }
 
         if (liabilitiesNumber === null) {
-        const solvedLiabilities = assetsNumber - (equityNumber ?? 0);
+            const solvedLiabilities = assetsNumber - (equityNumber ?? 0);
 
-        return {
-            solvedField: "Liabilities",
-            solvedValue: solvedLiabilities,
-            formula: <>Liabilities = Assets - Equity</>,
-            steps: [
-            <>Assets = {assetsNumber}</>,
-            <>Equity = {equityNumber}</>,
-            <>
-                Liabilities = {assetsNumber} - {equityNumber} = {solvedLiabilities}
-            </>,
-            ],
-        };
+            return {
+                solvedField: "Liabilities",
+                solvedValue: solvedLiabilities,
+                formula: <>Liabilities = Assets - Equity</>,
+                steps: [
+                    <>Assets = {assetsNumber}</>,
+                    <>Equity = {equityNumber}</>,
+                    <>
+                        Liabilities = {assetsNumber} - {equityNumber} = {solvedLiabilities}
+                    </>,
+                ],
+                interpretation: `Liabilities are the outside claims remaining after owners' equity is removed from total assets. With assets of ${formatPHP(assetsNumber)} and equity of ${formatPHP(equityNumber ?? 0)}, liabilities should be ${formatPHP(solvedLiabilities)}.`,
+            };
         }
 
         const solvedEquity = assetsNumber - (liabilitiesNumber ?? 0);
 
         return {
-        solvedField: "Equity",
-        solvedValue: solvedEquity,
-        formula: <>Equity = Assets - Liabilities</>,
-        steps: [
-            <>Assets = {assetsNumber}</>,
-            <>Liabilities = {liabilitiesNumber}</>,
-            <>
-            Equity = {assetsNumber} - {liabilitiesNumber} = {solvedEquity}
-            </>,
-        ],
+            solvedField: "Equity",
+            solvedValue: solvedEquity,
+            formula: <>Equity = Assets - Liabilities</>,
+            steps: [
+                <>Assets = {assetsNumber}</>,
+                <>Liabilities = {liabilitiesNumber}</>,
+                <>
+                    Equity = {assetsNumber} - {liabilitiesNumber} = {solvedEquity}
+                </>,
+            ],
+            interpretation: `Equity is the residual interest left for the owners after liabilities are deducted from assets. Based on assets of ${formatPHP(assetsNumber)} and liabilities of ${formatPHP(liabilitiesNumber ?? 0)}, equity is ${formatPHP(solvedEquity)}.`,
         };
     }, [assets, liabilities, equity]);
 
     return (
         <CalculatorPageLayout
-        badge="Accounting"
-        title="Accounting Equation Solver"
-        description="Enter any 2 values and leave 1 blank. AccCalc will solve the missing amount using the accounting equation."
-        inputSection={
-            <InputGrid columns={3}>
-            <InputCard
-                label="Assets"
-                value={assets}
-                onChange={setAssets}
-                placeholder="150000"
-            />
-            <InputCard
-                label="Liabilities"
-                value={liabilities}
-                onChange={setLiabilities}
-                placeholder="60000"
-            />
-            <InputCard
-                label="Equity"
-                value={equity}
-                onChange={setEquity}
-                placeholder="90000"
-            />
-            </InputGrid>
-        }
-        resultSection={
-            result && "error" in result ? (
-            <SectionCard className="border-yellow-400/20 bg-yellow-500/10">
-                <p className="text-sm font-medium text-yellow-300">Input notice</p>
-                <p className="mt-2 text-sm leading-6 text-yellow-200">
-                {result.error}
-                </p>
-            </SectionCard>
-            ) : result ? (
-            <ResultGrid columns={2}>
-                <ResultCard title="Solved Field" value={result.solvedField} />
-                <ResultCard
-                title="Solved Amount"
-                value={formatPHP(result.solvedValue)}
-                />
-            </ResultGrid>
-            ) : null
-        }
-        explanationSection={
-            result && !("error" in result) ? (
-            <FormulaCard formula={result.formula} steps={result.steps} />
-            ) : null
-        }
+            badge="Accounting"
+            title="Accounting Equation Solver"
+            description="Enter any 2 values and leave 1 blank. AccCalc will solve the missing amount using the accounting equation."
+            inputSection={
+                <InputGrid columns={3}>
+                    <InputCard
+                        label="Assets"
+                        value={assets}
+                        onChange={setAssets}
+                        placeholder="150000"
+                    />
+                    <InputCard
+                        label="Liabilities"
+                        value={liabilities}
+                        onChange={setLiabilities}
+                        placeholder="60000"
+                    />
+                    <InputCard
+                        label="Equity"
+                        value={equity}
+                        onChange={setEquity}
+                        placeholder="90000"
+                    />
+                </InputGrid>
+            }
+            resultSection={
+                result && "error" in result ? (
+                    <SectionCard className="border-yellow-400/20 bg-yellow-500/10">
+                        <p className="text-sm font-medium text-yellow-300">Input notice</p>
+                        <p className="mt-2 text-sm leading-6 text-yellow-200">
+                            {result.error}
+                        </p>
+                    </SectionCard>
+                ) : result ? (
+                    <ResultGrid columns={2}>
+                        <ResultCard title="Solved Field" value={result.solvedField} />
+                        <ResultCard
+                            title="Solved Amount"
+                            value={formatPHP(result.solvedValue)}
+                        />
+                    </ResultGrid>
+                ) : null
+            }
+            explanationSection={
+                result && !("error" in result) ? (
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        interpretation={result.interpretation}
+                    />
+                ) : null
+            }
         />
     );
 }

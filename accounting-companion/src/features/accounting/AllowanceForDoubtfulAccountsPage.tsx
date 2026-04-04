@@ -25,11 +25,7 @@ export default function AllowanceForDoubtfulAccountsPage() {
 
         const parsedAccountsReceivable = Number(accountsReceivable);
         const parsedEstimatedUncollectibleRate = Number(estimatedUncollectibleRate);
-
-        const numericValues = [
-            parsedAccountsReceivable,
-            parsedEstimatedUncollectibleRate,
-        ];
+        const numericValues = [parsedAccountsReceivable, parsedEstimatedUncollectibleRate];
 
         if (numericValues.some((value) => Number.isNaN(value))) {
             return {
@@ -37,10 +33,7 @@ export default function AllowanceForDoubtfulAccountsPage() {
             };
         }
 
-        if (
-            parsedAccountsReceivable < 0 ||
-            parsedEstimatedUncollectibleRate < 0
-        ) {
+        if (parsedAccountsReceivable < 0 || parsedEstimatedUncollectibleRate < 0) {
             return {
                 error: "Values cannot be negative.",
             };
@@ -54,7 +47,6 @@ export default function AllowanceForDoubtfulAccountsPage() {
 
         const allowance =
             parsedAccountsReceivable * (parsedEstimatedUncollectibleRate / 100);
-
         const netRealizableValue = parsedAccountsReceivable - allowance;
 
         return {
@@ -62,15 +54,16 @@ export default function AllowanceForDoubtfulAccountsPage() {
             netRealizableValue,
             formula: (
                 <>
-                    Allowance for Doubtful Accounts = Accounts Receivable × Estimated Uncollectible Rate
+                    Allowance for Doubtful Accounts = Accounts Receivable x Estimated Uncollectible Rate
                     <br />
-                    Net Realizable Value = Accounts Receivable − Allowance for Doubtful Accounts
+                    Net Realizable Value = Accounts Receivable - Allowance for Doubtful Accounts
                 </>
             ),
             steps: [
-                `Allowance = ${formatPHP(parsedAccountsReceivable)} × ${parsedEstimatedUncollectibleRate}% = ${formatPHP(allowance)}`,
-                `Net Realizable Value = ${formatPHP(parsedAccountsReceivable)} − ${formatPHP(allowance)} = ${formatPHP(netRealizableValue)}`,
+                `Allowance = ${formatPHP(parsedAccountsReceivable)} x ${parsedEstimatedUncollectibleRate}% = ${formatPHP(allowance)}`,
+                `Net Realizable Value = ${formatPHP(parsedAccountsReceivable)} - ${formatPHP(allowance)} = ${formatPHP(netRealizableValue)}`,
             ],
+            interpretation: `If ${parsedEstimatedUncollectibleRate.toFixed(2)}% of receivables are expected to be uncollectible, the estimated allowance is ${formatPHP(allowance)} on accounts receivable of ${formatPHP(parsedAccountsReceivable)}. The remaining ${formatPHP(netRealizableValue)} is the net amount expected to be collected.`,
         };
     }, [accountsReceivable, estimatedUncollectibleRate]);
 
@@ -118,7 +111,11 @@ export default function AllowanceForDoubtfulAccountsPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

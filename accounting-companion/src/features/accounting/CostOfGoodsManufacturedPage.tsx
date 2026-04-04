@@ -64,9 +64,7 @@ export default function CostOfGoodsManufacturedPage() {
         }
 
         const totalManufacturingCosts =
-            parsedDirectMaterialsUsed +
-            parsedDirectLabor +
-            parsedManufacturingOverhead;
+            parsedDirectMaterialsUsed + parsedDirectLabor + parsedManufacturingOverhead;
 
         const totalCostOfWorkInProcess =
             parsedBeginningWorkInProcess + totalManufacturingCosts;
@@ -88,7 +86,7 @@ export default function CostOfGoodsManufacturedPage() {
                 <>
                     Total Manufacturing Costs = Direct Materials Used + Direct Labor + Manufacturing Overhead
                     <br />
-                    Cost of Goods Manufactured = Beginning Work in Process + Total Manufacturing Costs − Ending Work in Process
+                    Cost of Goods Manufactured = Beginning Work in Process + Total Manufacturing Costs - Ending Work in Process
                 </>
             ),
             steps: [
@@ -96,6 +94,7 @@ export default function CostOfGoodsManufacturedPage() {
                 `Total cost of work in process = ${formatPHP(parsedBeginningWorkInProcess)} + ${formatPHP(totalManufacturingCosts)} = ${formatPHP(totalCostOfWorkInProcess)}`,
                 `Cost of goods manufactured = ${formatPHP(totalCostOfWorkInProcess)} - ${formatPHP(parsedEndingWorkInProcess)} = ${formatPHP(costOfGoodsManufactured)}`,
             ],
+            interpretation: `Current production added ${formatPHP(totalManufacturingCosts)} in manufacturing costs during the period. After combining those costs with beginning work in process of ${formatPHP(parsedBeginningWorkInProcess)} and removing ending work in process of ${formatPHP(parsedEndingWorkInProcess)}, the amount completed and transferred out is ${formatPHP(costOfGoodsManufactured)} as cost of goods manufactured.`,
         };
     }, [
         beginningWorkInProcess,
@@ -171,7 +170,11 @@ export default function CostOfGoodsManufacturedPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />
