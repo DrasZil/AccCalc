@@ -58,6 +58,13 @@ export const ALL_FIELD_KEYS = [
     "manufacturingOverhead",
     "beginningWorkInProcess",
     "endingWorkInProcess",
+    "currentAssets",
+    "currentLiabilities",
+    "cash",
+    "marketableSecurities",
+    "netReceivables",
+    "netCreditSales",
+    "averageAccountsReceivable",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];
@@ -93,6 +100,7 @@ export const ALL_FIELD_KEYS = [
     description: string;
     required: readonly FieldKey[];
     optional?: readonly FieldKey[];
+    aliases?: readonly string[];
     keywords: readonly RegExp[];
     };
 

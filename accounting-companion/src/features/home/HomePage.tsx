@@ -151,6 +151,27 @@ const tools = [
         path: "/accounting/cost-of-goods-manufactured",
         category: "Accounting",
     },
+    {
+        title: "Current Ratio & Working Capital",
+        description:
+            "Measure liquidity using current assets and current liabilities.",
+        path: "/accounting/current-ratio",
+        category: "Accounting",
+    },
+    {
+        title: "Quick Ratio",
+        description:
+            "Measure immediate liquidity using quick assets and current liabilities.",
+        path: "/accounting/quick-ratio",
+        category: "Accounting",
+    },
+    {
+        title: "Accounts Receivable Turnover",
+        description:
+            "Compute turnover and average collection period for receivables analysis.",
+        path: "/accounting/receivables-turnover",
+        category: "Accounting",
+    },
 ];
 
 export default function HomePage() {

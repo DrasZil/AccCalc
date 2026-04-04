@@ -69,6 +69,9 @@ const navGroups: NavGroup[] = [
             { label: "Partnership Profit Sharing", path: "/accounting/partnership-profit-sharing" },
             { label: "Philippine VAT", path: "/accounting/philippine-vat" },
             { label: "Cost of Goods Manufactured", path: "/accounting/cost-of-goods-manufactured" },
+            { label: "Current Ratio & Working Capital", path: "/accounting/current-ratio" },
+            { label: "Quick Ratio", path: "/accounting/quick-ratio" },
+            { label: "Accounts Receivable Turnover", path: "/accounting/receivables-turnover" },
         ],
     },
 ];

@@ -27,6 +27,9 @@ import AllowanceForDoubtfulAccountsPage from "./features/accounting/AllowanceFor
 import PartnershipProfitSharingPage from "./features/accounting/PartnershipProfitSharingPage";
 import PhilippineVATPage from "./features/accounting/PhilippineVATPage";
 import CostOfGoodsManufacturedPage from "./features/accounting/CostOfGoodsManufacturedPage";
+import CurrentRatioPage from "./features/accounting/CurrentRatioPage";
+import QuickRatioPage from "./features/accounting/QuickRatioPage";
+import ReceivablesTurnoverPage from "./features/accounting/ReceivablesTurnoverPage";
 
 
 export default function App() {
@@ -58,6 +61,9 @@ export default function App() {
           <Route path="/accounting/partnership-profit-sharing" element={<PartnershipProfitSharingPage />} />
           <Route path="/accounting/philippine-vat" element={<PhilippineVATPage />} />
           <Route path="/accounting/cost-of-goods-manufactured" element={<CostOfGoodsManufacturedPage />} />
+          <Route path="/accounting/current-ratio" element={<CurrentRatioPage />} />
+          <Route path="/accounting/quick-ratio" element={<QuickRatioPage />} />
+          <Route path="/accounting/receivables-turnover" element={<ReceivablesTurnoverPage />} />
           <Route path="smart/solver" element={<SmartSolverPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />

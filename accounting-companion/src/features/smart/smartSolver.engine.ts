@@ -647,6 +647,81 @@ import type {
             "ending work in process inventory",
         ],
     },
+
+    currentAssets: {
+        label: "Current Assets",
+        placeholder: "250000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["current assets", "total current assets"],
+    },
+
+    currentLiabilities: {
+        label: "Current Liabilities",
+        placeholder: "100000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["current liabilities", "total current liabilities"],
+    },
+
+    cash: {
+        label: "Cash",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["cash", "cash on hand"],
+    },
+
+    marketableSecurities: {
+        label: "Marketable Securities",
+        placeholder: "25000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "marketable securities",
+            "temporary investments",
+            "short term investments",
+        ],
+    },
+
+    netReceivables: {
+        label: "Net Receivables",
+        placeholder: "40000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "net receivables",
+            "net accounts receivable",
+            "receivables",
+        ],
+    },
+
+    netCreditSales: {
+        label: "Net Credit Sales",
+        placeholder: "600000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["net credit sales", "credit sales"],
+    },
+
+    averageAccountsReceivable: {
+        label: "Average Accounts Receivable",
+        placeholder: "75000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "average accounts receivable",
+            "average receivables",
+            "average ar",
+        ],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -1019,6 +1094,7 @@ import type {
         description:
             "Estimate uncollectible accounts and net realizable value using accounts receivable and an estimated uncollectible rate.",
         required: ["accountsReceivable", "estimatedUncollectibleRate"],
+        aliases: ["allowance method", "bad debt expense", "nrv of receivables"],
         keywords: [
             /allowance for doubtful accounts/i,
             /doubtful accounts/i,
@@ -1036,6 +1112,11 @@ import type {
             "Allocate partnership profit or loss among partners using agreed ratios.",
         required: ["partnershipAmount", "partnerARatio", "partnerBRatio"],
         optional: ["partnerCRatio"],
+        aliases: [
+            "partnership distribution",
+            "profit sharing ratio",
+            "profit and loss sharing",
+        ],
         keywords: [
             /partnership profit/i,
             /partnership loss/i,
@@ -1055,6 +1136,7 @@ import type {
         description:
             "Compute output VAT, input VAT, and VAT payable using VATable sales and purchases.",
         required: ["vatableSales", "vatablePurchases"],
+        aliases: ["philippine vat", "vat computation", "output vat and input vat"],
         keywords: [
             /vat/i,
             /value added tax/i,
@@ -1079,6 +1161,7 @@ import type {
             "beginningWorkInProcess",
             "endingWorkInProcess",
         ],
+        aliases: ["manufacturing costs", "factory costs schedule", "schedule of cgm"],
         keywords: [
             /cost of goods manufactured/i,
             /\bcogm\b/i,
@@ -1088,6 +1171,56 @@ import type {
             /manufacturing overhead/i,
             /work in process/i,
             /\bwip\b/i,
+        ],
+    },
+    {
+        id: "current-ratio",
+        name: "Current Ratio & Working Capital",
+        route: "/accounting/current-ratio",
+        description:
+            "Measure liquidity using current assets and current liabilities.",
+        required: ["currentAssets", "currentLiabilities"],
+        aliases: ["working capital", "liquidity ratio", "short term solvency"],
+        keywords: [
+            /current ratio/i,
+            /working capital/i,
+            /liquidity/i,
+            /current assets/i,
+            /current liabilities/i,
+        ],
+    },
+    {
+        id: "quick-ratio",
+        name: "Quick Ratio",
+        route: "/accounting/quick-ratio",
+        description:
+            "Measure immediate liquidity using cash, marketable securities, receivables, and current liabilities.",
+        required: ["cash", "marketableSecurities", "netReceivables", "currentLiabilities"],
+        aliases: ["acid test ratio", "acid-test ratio", "immediate liquidity"],
+        keywords: [
+            /quick ratio/i,
+            /acid[- ]test/i,
+            /cash/i,
+            /marketable securities/i,
+            /receivables/i,
+            /current liabilities/i,
+        ],
+    },
+    {
+        id: "receivables-turnover",
+        name: "Accounts Receivable Turnover",
+        route: "/accounting/receivables-turnover",
+        description:
+            "Compute receivables turnover and average collection period.",
+        required: ["netCreditSales", "averageAccountsReceivable"],
+        aliases: ["ar turnover", "receivable turnover", "collection period"],
+        keywords: [
+            /accounts receivable turnover/i,
+            /receivables turnover/i,
+            /average collection period/i,
+            /collection period/i,
+            /credit sales/i,
+            /average accounts receivable/i,
         ],
     },
     ];
@@ -1162,6 +1295,16 @@ import type {
         "i"
         ),
     ]);
+    }
+
+    function countPhraseMatches(text: string, phrases: readonly string[] = []): number {
+    if (!phrases.length || !text) return 0;
+
+    return phrases.reduce((count, phrase) => {
+        const normalizedPhrase = normalizeText(phrase);
+        if (!normalizedPhrase) return count;
+        return text.includes(normalizedPhrase) ? count + 1 : count;
+    }, 0);
     }
 
     export function extractTime(text: string): {
@@ -1256,6 +1399,24 @@ import type {
     return result;
     }
 
+    function extractPartnershipRatios(text: string): Partial<Record<FieldKey, string>> {
+    const result: Partial<Record<FieldKey, string>> = {};
+    const ratioMatch = text.match(
+        /(?:ratio|sharing|share)\s*(?:of|is|=|:)?\s*(\d+(?:\.\d+)?)\s*[:\-]\s*(\d+(?:\.\d+)?)(?:\s*[:\-]\s*(\d+(?:\.\d+)?))?/i
+    );
+
+    if (!ratioMatch) return result;
+
+    result.partnerARatio = numberToInput(Number(ratioMatch[1]));
+    result.partnerBRatio = numberToInput(Number(ratioMatch[2]));
+
+    if (ratioMatch[3] !== undefined) {
+        result.partnerCRatio = numberToInput(Number(ratioMatch[3]));
+    }
+
+    return result;
+    }
+
     function setFact(
     target: Partial<Record<FieldKey, string>>,
     key: FieldKey,
@@ -1303,6 +1464,14 @@ import type {
 
     if (facts.sales && !facts.revenue) {
         facts.revenue = facts.sales;
+    }
+
+    if (facts.accountsReceivable && !facts.netReceivables) {
+        facts.netReceivables = facts.accountsReceivable;
+    }
+
+    if (facts.netReceivables && !facts.accountsReceivable) {
+        facts.accountsReceivable = facts.netReceivables;
     }
     }
 
@@ -1410,6 +1579,22 @@ import type {
         text,
         FIELD_META.endingWorkInProcess.aliases ?? []
     );
+    const currentAssets = extractNumberByAliases(text, FIELD_META.currentAssets.aliases ?? []);
+    const currentLiabilities = extractNumberByAliases(
+        text,
+        FIELD_META.currentLiabilities.aliases ?? []
+    );
+    const cash = extractNumberByAliases(text, FIELD_META.cash.aliases ?? []);
+    const marketableSecurities = extractNumberByAliases(
+        text,
+        FIELD_META.marketableSecurities.aliases ?? []
+    );
+    const netReceivables = extractNumberByAliases(text, FIELD_META.netReceivables.aliases ?? []);
+    const netCreditSales = extractNumberByAliases(text, FIELD_META.netCreditSales.aliases ?? []);
+    const averageAccountsReceivable = extractNumberByAliases(
+        text,
+        FIELD_META.averageAccountsReceivable.aliases ?? []
+    );
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
@@ -1476,6 +1661,7 @@ import type {
     const bookError = extractNumberByAliases(text, FIELD_META.bookError.aliases ?? []);
 
     const creditTerms = extractCreditTerms(text);
+    const partnershipRatios = extractPartnershipRatios(text);
 
     setFact(facts, "principal", principal);
     setFact(facts, "rate", rate);
@@ -1537,8 +1723,19 @@ import type {
     setFact(facts, "manufacturingOverhead", manufacturingOverhead);
     setFact(facts, "beginningWorkInProcess", beginningWorkInProcess);
     setFact(facts, "endingWorkInProcess", endingWorkInProcess);
+    setFact(facts, "currentAssets", currentAssets);
+    setFact(facts, "currentLiabilities", currentLiabilities);
+    setFact(facts, "cash", cash);
+    setFact(facts, "marketableSecurities", marketableSecurities);
+    setFact(facts, "netReceivables", netReceivables);
+    setFact(facts, "netCreditSales", netCreditSales);
+    setFact(facts, "averageAccountsReceivable", averageAccountsReceivable);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
+        setFact(facts, key as FieldKey, value);
+    });
+
+    Object.entries(partnershipRatios).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);
     });
 
@@ -1570,18 +1767,22 @@ import type {
     /* SCORING */
     /* -------------------------------------------------------------------------- */
 
-    export function buildReason(
+export function buildReason(
     calculator: CalculatorConfig,
     merged: FieldsState,
     query: string
     ): string {
     const matchedFields = calculator.required.filter((field) => merged[field] !== "");
     const matchedKeywords = calculator.keywords.filter((keyword) => keyword.test(query)).length;
+    const matchedAliases = countPhraseMatches(query, calculator.aliases);
 
-    if (matchedFields.length === calculator.required.length && matchedKeywords > 0) {
+    if (
+        matchedFields.length === calculator.required.length &&
+        (matchedKeywords > 0 || matchedAliases > 0)
+    ) {
         return `Matched all required values (${matchedFields
         .map(humanizeField)
-        .join(", ")}) and recognized related keywords from your natural-language input.`;
+        .join(", ")}) and recognized related accounting vocabulary from your natural-language input.`;
     }
 
     if (matchedFields.length === calculator.required.length) {
@@ -1600,7 +1801,7 @@ import type {
     return calculator.description;
     }
 
-    export function scoreCalculator(
+export function scoreCalculator(
     calculator: CalculatorConfig,
     merged: FieldsState,
     query: string,
@@ -1616,9 +1817,17 @@ import type {
     score += extractedRequired.length * 5;
 
     if (missingRequired.length === 0) score += 20;
+    score += (calculator.optional ?? []).filter((field) => merged[field] !== "").length * 8;
 
     calculator.keywords.forEach((keyword) => {
         if (keyword.test(query)) score += 7;
+    });
+
+    score += countPhraseMatches(query, calculator.aliases) * 9;
+
+    calculator.required.forEach((field) => {
+        const aliases = FIELD_META[field]?.aliases ?? [];
+        score += countPhraseMatches(query, aliases) * 2;
     });
 
     if (presentRequired.length === 0 && missingRequired.length > 0) {
@@ -1660,11 +1869,16 @@ import type {
     return `${best.name} is ready. You can apply detected values and open the calculator.`;
     }
 
-    export function makePrefill(
-    calculator: { required: readonly FieldKey[] },
+export function makePrefill(
+    calculator: { required: readonly FieldKey[]; optional?: readonly FieldKey[] },
     merged: FieldsState
     ): Partial<FieldsState> {
-    return calculator.required.reduce<Partial<FieldsState>>((acc, field) => {
+    const fieldsToPrefill = [
+        ...calculator.required,
+        ...(calculator.optional ?? []),
+    ] as FieldKey[];
+
+    return fieldsToPrefill.reduce<Partial<FieldsState>>((acc, field) => {
         acc[field] = merged[field] ?? "";
         return acc;
     }, {});
