@@ -706,7 +706,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["current assets", "total current assets"],
+        aliases: [
+            "current assets",
+            "total current assets",
+            "short term assets",
+            "short-term assets",
+            "assets due within one year",
+            "assets available within one year",
+        ],
     },
 
     currentLiabilities: {
@@ -715,7 +722,15 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["current liabilities", "total current liabilities"],
+        aliases: [
+            "current liabilities",
+            "total current liabilities",
+            "short term liabilities",
+            "short-term liabilities",
+            "short term debts",
+            "debts due within one year",
+            "obligations due within one year",
+        ],
     },
 
     cash: {
@@ -724,7 +739,13 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["cash", "cash on hand"],
+        aliases: [
+            "cash",
+            "cash on hand",
+            "available cash",
+            "cash available",
+            "cash balance",
+        ],
     },
 
     marketableSecurities: {
@@ -737,6 +758,9 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "marketable securities",
             "temporary investments",
             "short term investments",
+            "cash equivalents",
+            "near cash investments",
+            "liquid investments",
         ],
     },
 
@@ -750,6 +774,9 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "net receivables",
             "net accounts receivable",
             "receivables",
+            "collectible receivables",
+            "collectible accounts receivable",
+            "customer balances after allowance",
         ],
     },
 
@@ -759,7 +786,13 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["net credit sales", "credit sales"],
+        aliases: [
+            "net credit sales",
+            "credit sales",
+            "sales on credit",
+            "sales made on account",
+            "sales on account",
+        ],
     },
 
     averageAccountsReceivable: {
@@ -772,6 +805,9 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "average accounts receivable",
             "average receivables",
             "average ar",
+            "average customer receivables",
+            "average customer balances",
+            "average trade receivables",
         ],
     },
 
@@ -808,7 +844,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["net credit purchases", "credit purchases", "purchases on account"],
+        aliases: [
+            "net credit purchases",
+            "credit purchases",
+            "purchases on account",
+            "purchases on credit",
+            "goods bought on credit",
+            "goods purchased on account",
+        ],
     },
 
     averageAccountsPayable: {
@@ -817,7 +860,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["average accounts payable", "average payables", "average ap"],
+        aliases: [
+            "average accounts payable",
+            "average payables",
+            "average ap",
+            "average supplier payables",
+            "average trade payables",
+            "average amount owed to suppliers",
+        ],
     },
 
     netIncome: {
@@ -841,7 +891,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["income before interest and taxes", "ebit", "earnings before interest and taxes"],
+        aliases: [
+            "income before interest and taxes",
+            "ebit",
+            "earnings before interest and taxes",
+            "profit before interest and tax",
+            "income before finance cost and tax",
+            "operating profit before interest and tax",
+        ],
     },
 
     interestExpense: {
@@ -850,7 +907,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["interest expense", "finance cost", "borrowing cost"],
+        aliases: [
+            "interest expense",
+            "finance cost",
+            "borrowing cost",
+            "interest cost",
+            "loan interest",
+            "finance charges",
+        ],
     },
 
     commonEquity: {
@@ -859,7 +923,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["common equity", "equity available to common shareholders", "common stockholders equity"],
+        aliases: [
+            "common equity",
+            "equity available to common shareholders",
+            "common stockholders equity",
+            "common shareholders equity",
+            "ordinary shareholders equity",
+            "equity for common shareholders",
+        ],
     },
 
     outstandingCommonShares: {
@@ -881,6 +952,8 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "average total assets",
             "average assets",
             "average asset base",
+            "average total resources",
+            "average resources",
         ],
     },
 
@@ -896,6 +969,8 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "average owner's equity",
             "average shareholders equity",
             "average stockholders equity",
+            "average owners funds",
+            "average shareholders funds",
         ],
     },
 
@@ -983,7 +1058,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["base period amount", "previous period amount", "last year amount"],
+        aliases: [
+            "base period amount",
+            "previous period amount",
+            "last year amount",
+            "prior period amount",
+            "earlier period amount",
+            "previous year amount",
+        ],
     },
 
     currentPeriodAmount: {
@@ -992,7 +1074,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["current period amount", "this year amount", "current year amount"],
+        aliases: [
+            "current period amount",
+            "this year amount",
+            "current year amount",
+            "this period amount",
+            "latest period amount",
+            "present period amount",
+        ],
     },
 
     statementItemAmount: {
@@ -1001,7 +1090,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["statement item amount", "line item amount", "account balance"],
+        aliases: [
+            "statement item amount",
+            "line item amount",
+            "account balance",
+            "specific line item",
+            "account being analyzed",
+            "line amount",
+        ],
     },
 
     statementBaseAmount: {
@@ -1010,7 +1106,15 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "money",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["statement base amount", "base total", "sales total", "asset total"],
+        aliases: [
+            "statement base amount",
+            "base total",
+            "sales total",
+            "asset total",
+            "total used as base",
+            "base denominator",
+            "base amount for percentage",
+        ],
     },
     };
 
@@ -1912,6 +2016,66 @@ export function normalizeText(text: string = ""): string {
     }, normalized);
     }
 
+    const MATCH_STOP_WORDS = new Set([
+    "a",
+    "an",
+    "and",
+    "as",
+    "at",
+    "for",
+    "from",
+    "in",
+    "into",
+    "is",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "with",
+    ]);
+
+    function tokenizeForMatching(value: string): string[] {
+    return normalizeText(value)
+        .replace(/['’]/g, "")
+        .replace(/[/:()-]/g, " ")
+        .split(/\s+/)
+        .filter((token) => token.length > 1 && !MATCH_STOP_WORDS.has(token));
+    }
+
+    function buildPhraseVariants(phrase: string): string[] {
+    const normalized = normalizeText(phrase);
+    if (!normalized) return [];
+
+    const variants = new Set<string>([normalized]);
+
+    variants.add(normalized.replace(/['’]/g, ""));
+    variants.add(normalized.replace(/\s*&\s*/g, " and "));
+    variants.add(normalized.replace(/\band\b/g, "&"));
+    variants.add(normalized.replace(/-/g, " "));
+    variants.add(normalized.replace(/\//g, " "));
+    variants.add(normalized.replace(/\bshort term\b/g, "short-term"));
+    variants.add(normalized.replace(/\bshort-term\b/g, "short term"));
+    variants.add(normalized.replace(/\byear\b/g, "yr"));
+    variants.add(normalized.replace(/\byears\b/g, "yrs"));
+    variants.add(normalized.replace(/\baccounts receivable\b/g, "receivables"));
+    variants.add(normalized.replace(/\baccounts payable\b/g, "payables"));
+
+    return [...variants].filter(Boolean);
+    }
+
+    function buildAliasRegexGroup(aliases: readonly string[]): string {
+    return [...new Set(aliases.flatMap(buildPhraseVariants))]
+        .map((alias) =>
+        escapeRegExp(alias)
+            .replace(/\\ /g, "\\s+")
+            .replace(/\\-/g, "(?:-|\\\\s)")
+            .replace(/\\\//g, "(?:/|\\\\s)")
+            .replace(/&/g, "(?:&|and)")
+        )
+        .join("|");
+    }
+
     export function toNumber(value: string | number | null | undefined): number | null {
     if (value === null || value === undefined) return null;
 
@@ -1953,17 +2117,26 @@ export function normalizeText(text: string = ""): string {
     ): number | null {
     if (!aliases.length) return null;
 
-    const joined = aliases.map(escapeRegExp).join("|");
+    const joined = buildAliasRegexGroup(aliases);
     const currencyPrefix = options?.allowCurrency === false ? "" : "[\u20B1$]?";
     const percentSuffix = options?.percent ? "\\s*%?" : "";
+    const fillerWords = "(?:\\s+(?:is|are|was|were|=|:|of|for|at|to|worth|totals?|totaling|amounting|came|comes|comes to|stands at))?";
 
     return extractFirstNumber(text, [
         new RegExp(
-        `(?:${joined})\\s*(?:is|=|:|of|for|at)?\\s*${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
+        `(?:${joined})${fillerWords}\\s*${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
         "i"
         ),
         new RegExp(
-        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}\\s*(?:${joined})`,
+        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}${fillerWords}\\s*(?:${joined})`,
+        "i"
+        ),
+        new RegExp(
+        `(?:${joined})[^\\d\\n]{0,24}${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
+        "i"
+        ),
+        new RegExp(
+        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}[^\\d\\n]{0,24}(?:${joined})`,
         "i"
         ),
     ]);
@@ -1972,10 +2145,24 @@ export function normalizeText(text: string = ""): string {
     function countPhraseMatches(text: string, phrases: readonly string[] = []): number {
     if (!phrases.length || !text) return 0;
 
+    const normalizedText = normalizeText(text);
+    const textTokens = new Set(tokenizeForMatching(normalizedText));
+
     return phrases.reduce((count, phrase) => {
-        const normalizedPhrase = normalizeText(phrase);
-        if (!normalizedPhrase) return count;
-        return text.includes(normalizedPhrase) ? count + 1 : count;
+        const variants = buildPhraseVariants(phrase);
+        if (!variants.length) return count;
+
+        const matched = variants.some((variant) => {
+        if (normalizedText.includes(variant)) return true;
+
+        const tokens = tokenizeForMatching(variant);
+        if (tokens.length < 2) return false;
+
+        const overlap = tokens.filter((token) => textTokens.has(token)).length;
+        return overlap >= Math.max(2, Math.ceil(tokens.length * 0.6));
+        });
+
+        return matched ? count + 1 : count;
     }, 0);
     }
 
@@ -1992,19 +2179,50 @@ export function normalizeText(text: string = ""): string {
     [/\bamount customers owe\b/g, "accounts receivable"],
     [/\bcredit customers still owe\b/g, "accounts receivable"],
     [/\bunpaid customer balances\b/g, "accounts receivable"],
+    [/\bmoney owed by customers\b/g, "accounts receivable"],
+    [/\bamount collectible from customers\b/g, "accounts receivable"],
+    [/\bcustomer balances after allowance\b/g, "net receivables"],
     [/\bmoney in the bank\b/g, "cash"],
     [/\bcash in bank\b/g, "cash"],
     [/\bshort term investments\b/g, "marketable securities"],
     [/\bitems easy to convert to cash\b/g, "marketable securities"],
+    [/\bcash equivalents\b/g, "marketable securities"],
+    [/\bnear cash investments\b/g, "marketable securities"],
+    [/\bshort term assets\b/g, "current assets"],
+    [/\bshort-term assets\b/g, "current assets"],
+    [/\bassets due within one year\b/g, "current assets"],
+    [/\bshort term liabilities\b/g, "current liabilities"],
+    [/\bshort-term liabilities\b/g, "current liabilities"],
+    [/\bshort term debts\b/g, "current liabilities"],
+    [/\bdebts due within one year\b/g, "current liabilities"],
+    [/\bobligations due within one year\b/g, "current liabilities"],
     [/\bsales on account\b/g, "net credit sales"],
     [/\bcredit revenue\b/g, "net credit sales"],
+    [/\bsales on credit\b/g, "net credit sales"],
+    [/\bsales made on account\b/g, "net credit sales"],
     [/\baverage customer balances\b/g, "average accounts receivable"],
+    [/\baverage customer receivables\b/g, "average accounts receivable"],
     [/\bstock on hand\b/g, "inventory"],
     [/\baverage stock on hand\b/g, "average inventory"],
     [/\bcost of items sold\b/g, "cost of goods sold"],
+    [/\bpurchases on credit\b/g, "net credit purchases"],
+    [/\bpurchases made on credit\b/g, "net credit purchases"],
+    [/\bgoods bought on credit\b/g, "net credit purchases"],
+    [/\bgoods purchased on account\b/g, "net credit purchases"],
+    [/\baverage amount owed to suppliers\b/g, "average accounts payable"],
+    [/\baverage supplier balances\b/g, "average accounts payable"],
     [/\bprofit after tax\b/g, "net income"],
     [/\bearned after all costs\b/g, "net income"],
     [/\basset base\b/g, "total assets"],
+    [/\bprofit before interest and tax\b/g, "income before interest and taxes"],
+    [/\bincome before finance cost and tax\b/g, "income before interest and taxes"],
+    [/\boperating profit before interest and tax\b/g, "income before interest and taxes"],
+    [/\bfinance charges\b/g, "interest expense"],
+    [/\binterest cost\b/g, "interest expense"],
+    [/\bloan interest\b/g, "interest expense"],
+    [/\bordinary shareholders equity\b/g, "common equity"],
+    [/\bequity for common shareholders\b/g, "common equity"],
+    [/\bcommon shareholders equity\b/g, "common equity"],
     [/\bamount due after vat\b/g, "vat payable"],
     [/\btax on sales\b/g, "output vat"],
     [/\btax on purchases\b/g, "input vat"],
@@ -2692,6 +2910,7 @@ export function scoreCalculator(
     });
 
     score += countPhraseMatches(query, calculator.aliases) * 9;
+    score += countPhraseMatches(query, [calculator.name]) * 6;
 
     calculator.required.forEach((field) => {
         const aliases = FIELD_META[field]?.aliases ?? [];

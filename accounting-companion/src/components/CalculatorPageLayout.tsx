@@ -8,6 +8,7 @@ type CalculatorPageLayoutProps = {
   inputSection: ReactNode;
   resultSection?: ReactNode;
   explanationSection?: ReactNode;
+  prioritizeResultSection?: boolean;
 };
 
 export default function CalculatorPageLayout({
@@ -17,6 +18,7 @@ export default function CalculatorPageLayout({
   inputSection,
   resultSection,
   explanationSection,
+  prioritizeResultSection = false,
 }: CalculatorPageLayoutProps) {
   return (
     <div className="space-y-6">
@@ -26,9 +28,9 @@ export default function CalculatorPageLayout({
         description={description}
       />
 
-      {inputSection}
+      {prioritizeResultSection ? resultSection : inputSection}
 
-      {resultSection}
+      {prioritizeResultSection ? inputSection : resultSection}
 
       {explanationSection}
     </div>

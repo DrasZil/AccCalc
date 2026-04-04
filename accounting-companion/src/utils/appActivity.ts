@@ -40,6 +40,8 @@ const STORAGE_KEY = "accalc-app-activity";
 const UPDATED_EVENT = "accalc-app-activity-updated";
 const MAX_RECENT = 80;
 const MAX_SAVED = 40;
+let cachedActivityRaw: string | null | undefined;
+let cachedActivitySnapshot: AppActivityState;
 
 const DEFAULT_ACTIVITY_STATE: AppActivityState = {
     version: 1,
@@ -53,6 +55,8 @@ const DEFAULT_ACTIVITY_STATE: AppActivityState = {
     recent: [],
     savedRecords: [],
 };
+
+cachedActivitySnapshot = DEFAULT_ACTIVITY_STATE;
 
 function sanitizeActivity(
     value: Partial<AppActivityState> | null | undefined
@@ -120,17 +124,35 @@ export function readAppActivity(): AppActivityState {
 
     try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (!raw) return DEFAULT_ACTIVITY_STATE;
-        return sanitizeActivity(JSON.parse(raw) as Partial<AppActivityState>);
+        if (raw === cachedActivityRaw) {
+            return cachedActivitySnapshot;
+        }
+
+        if (!raw) {
+            cachedActivityRaw = raw;
+            cachedActivitySnapshot = DEFAULT_ACTIVITY_STATE;
+            return cachedActivitySnapshot;
+        }
+
+        cachedActivityRaw = raw;
+        cachedActivitySnapshot = sanitizeActivity(
+            JSON.parse(raw) as Partial<AppActivityState>
+        );
+        return cachedActivitySnapshot;
     } catch {
-        return DEFAULT_ACTIVITY_STATE;
+        cachedActivityRaw = null;
+        cachedActivitySnapshot = DEFAULT_ACTIVITY_STATE;
+        return cachedActivitySnapshot;
     }
 }
 
 function writeAppActivity(nextValue: AppActivityState) {
     if (typeof window === "undefined") return;
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextValue));
+    const serializedActivity = JSON.stringify(nextValue);
+    cachedActivityRaw = serializedActivity;
+    cachedActivitySnapshot = nextValue;
+    window.localStorage.setItem(STORAGE_KEY, serializedActivity);
     window.dispatchEvent(new Event(UPDATED_EVENT));
 }
 

@@ -16,6 +16,8 @@ export type AppSettings = {
 
 const STORAGE_KEY = "accalc-app-settings";
 const SETTINGS_UPDATED_EVENT = "accalc-settings-updated";
+let cachedSettingsRaw: string | null | undefined;
+let cachedSettingsSnapshot: AppSettings;
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
     autoExpandActiveNavGroup: false,
@@ -30,6 +32,8 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
     showNewFeatureIndicators: true,
     saveOfflineHistory: true,
 };
+
+cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
 
 function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSettings {
     return {
@@ -67,12 +71,24 @@ export function readAppSettings(): AppSettings {
 
     try {
         const rawValue = window.localStorage.getItem(STORAGE_KEY);
-        if (!rawValue) return DEFAULT_APP_SETTINGS;
+        if (rawValue === cachedSettingsRaw) {
+            return cachedSettingsSnapshot;
+        }
+
+        if (!rawValue) {
+            cachedSettingsRaw = rawValue;
+            cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
+            return cachedSettingsSnapshot;
+        }
 
         const parsedValue = JSON.parse(rawValue) as Partial<AppSettings>;
-        return sanitizeSettings(parsedValue);
+        cachedSettingsRaw = rawValue;
+        cachedSettingsSnapshot = sanitizeSettings(parsedValue);
+        return cachedSettingsSnapshot;
     } catch {
-        return DEFAULT_APP_SETTINGS;
+        cachedSettingsRaw = null;
+        cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
+        return cachedSettingsSnapshot;
     }
 }
 
@@ -84,7 +100,10 @@ export function updateAppSettings(nextValue: Partial<AppSettings>) {
         ...nextValue,
     });
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedSettings));
+    const serializedSettings = JSON.stringify(mergedSettings);
+    cachedSettingsRaw = serializedSettings;
+    cachedSettingsSnapshot = mergedSettings;
+    window.localStorage.setItem(STORAGE_KEY, serializedSettings);
     window.dispatchEvent(new Event(SETTINGS_UPDATED_EVENT));
 }
 

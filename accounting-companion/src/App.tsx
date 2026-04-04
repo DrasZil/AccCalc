@@ -1,65 +1,149 @@
+import { Suspense, lazy, type ReactNode } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import AppLayout from "./features/layout/AppLayout";
-import BasicCalculatorPage from "./features/basic/BasicCalculatorPage";
-import AccountingEquationPage from "./features/accounting/AccountEquationPage";
-import AllowanceForDoubtfulAccountsPage from "./features/accounting/AllowanceForDoubtfulAccountsPage";
-import AssetTurnoverPage from "./features/accounting/AssetTurnoverPage";
-import BankReconciliationPage from "./features/accounting/BankReconciliationPage";
-import BookValuePerSharePage from "./features/accounting/BookValuePerSharePage";
-import CashDiscountPage from "./features/accounting/CashDiscountPage";
-import CostOfGoodsManufacturedPage from "./features/accounting/CostOfGoodsManufacturedPage";
-import CurrentRatioPage from "./features/accounting/CurrentRatioPage";
-import DebtRatioPage from "./features/accounting/DebtRatioPage";
-import DebtToEquityPage from "./features/accounting/DebtToEquityPage";
-import DecliningBalanceDepreciationPage from "./features/accounting/DoubleDecliningBalancePage";
-import EarningsPerSharePage from "./features/accounting/EarningsPerSharePage";
-import FIFOInventoryPage from "./features/accounting/FIFOInventoryPage";
-import GrossProfitMethodPage from "./features/accounting/GrossProfitMethodPage";
-import HorizontalAnalysisPage from "./features/accounting/HorizontalAnalysisPage";
-import InventoryTurnoverPage from "./features/accounting/InventoryTurnoverPage";
-import LaborRateVariancePage from "./features/accounting/LaborRateVariancePage";
-import MaterialsPriceVariancePage from "./features/accounting/MaterialsPriceVariancePage";
-import NoteInterestPage from "./features/accounting/NoteInterestPage";
-import PartnershipProfitSharingPage from "./features/accounting/PartnershipProfitSharingPage";
-import PartnershipSalaryInterestPage from "./features/accounting/PartnershipSalaryInterestPage";
-import PartnershipAdmissionBonusPage from "./features/accounting/PartnershipAdmissionBonusPage";
-import PartnershipAdmissionGoodwillPage from "./features/accounting/PartnershipAdmissionGoodwillPage";
-import PhilippineVATPage from "./features/accounting/PhilippineVATPage";
-import PrimeConversionCostPage from "./features/accounting/PrimeConversionCostPage";
-import QuickRatioPage from "./features/accounting/QuickRatioPage";
-import ReceivablesTurnoverPage from "./features/accounting/ReceivablesTurnoverPage";
-import ReturnOnAssetsPage from "./features/accounting/ReturnOnAssetsPage";
-import ReturnOnEquityPage from "./features/accounting/ReturnOnEquityPage";
-import StraightLineDepreciationPage from "./features/accounting/StraightLineDepreciationPage";
-import TimesInterestEarnedPage from "./features/accounting/TimesInterestEarnedPage";
-import UnitsOfProductionDepreciationPage from "./features/accounting/UnitsOfProductionDepreciationPage";
-import VerticalAnalysisPage from "./features/accounting/VerticalAnalysisPage";
-import WeightedAverageInventoryPage from "./features/accounting/WeightedAverageInventoryPage";
-import AccountsPayableTurnoverPage from "./features/accounting/AccountsPayableTurnoverPage";
-import BreakEvenPage from "./features/business/BreakEvenPage";
-import ContributionMarginPage from "./features/business/ContributionMarginPage";
-import MarginOfSafetyPage from "./features/business/MarginOfSafetyPage";
-import MarkupMarginPage from "./features/business/MarkupMarginPage";
-import NetProfitMarginPage from "./features/business/NetProfitMarginPage";
-import OperatingLeveragePage from "./features/business/OperatingLeveragePage";
-import ProfitLossPage from "./features/business/ProfitLossPage";
-import TargetProfitPage from "./features/business/TargetProfitPage";
-import EffectiveInterestRatePage from "./features/finance/EffectiveInterestRatePage";
-import FutureValueAnnuityPage from "./features/finance/FutureValueAnnuityPage";
-import FutureValuePage from "./features/finance/FutureValuePage";
-import LoanAmortizationPage from "./features/finance/LoanAmortizationPage";
-import PresentValueAnnuityPage from "./features/finance/PresentValueAnnuityPage";
-import PresentValuePage from "./features/finance/PresentValuePage";
-import SimpleInterestPage from "./features/finance/SimpleInterestPage";
-import SinkingFundDepositPage from "./features/finance/SinkingFundDepositPage";
-import CompoundInterestPage from "./features/finance/CompoundInterestPage";
-import HomePage from "./features/home/HomePage";
-import AppLayoutMetaAbout from "./features/meta/AboutPage";
-import FeedbackPage from "./features/meta/FeedBackPage";
-import HistoryPage from "./features/meta/HistoryPage";
-import SettingsPage from "./features/meta/SettingsPage";
-import SmartSolverPage from "./features/smart/SmartSolverPage";
+
+const BasicCalculatorPage = lazy(() => import("./features/basic/BasicCalculatorPage"));
+const AccountingEquationPage = lazy(() => import("./features/accounting/AccountEquationPage"));
+const AllowanceForDoubtfulAccountsPage = lazy(
+    () => import("./features/accounting/AllowanceForDoubtfulAccountsPage")
+);
+const AssetTurnoverPage = lazy(() => import("./features/accounting/AssetTurnoverPage"));
+const BankReconciliationPage = lazy(
+    () => import("./features/accounting/BankReconciliationPage")
+);
+const BookValuePerSharePage = lazy(
+    () => import("./features/accounting/BookValuePerSharePage")
+);
+const CashDiscountPage = lazy(() => import("./features/accounting/CashDiscountPage"));
+const CostOfGoodsManufacturedPage = lazy(
+    () => import("./features/accounting/CostOfGoodsManufacturedPage")
+);
+const CurrentRatioPage = lazy(() => import("./features/accounting/CurrentRatioPage"));
+const DebtRatioPage = lazy(() => import("./features/accounting/DebtRatioPage"));
+const DebtToEquityPage = lazy(() => import("./features/accounting/DebtToEquityPage"));
+const DecliningBalanceDepreciationPage = lazy(
+    () => import("./features/accounting/DoubleDecliningBalancePage")
+);
+const EarningsPerSharePage = lazy(() => import("./features/accounting/EarningsPerSharePage"));
+const FIFOInventoryPage = lazy(() => import("./features/accounting/FIFOInventoryPage"));
+const GrossProfitMethodPage = lazy(() => import("./features/accounting/GrossProfitMethodPage"));
+const HorizontalAnalysisPage = lazy(
+    () => import("./features/accounting/HorizontalAnalysisPage")
+);
+const InventoryTurnoverPage = lazy(
+    () => import("./features/accounting/InventoryTurnoverPage")
+);
+const LaborRateVariancePage = lazy(
+    () => import("./features/accounting/LaborRateVariancePage")
+);
+const MaterialsPriceVariancePage = lazy(
+    () => import("./features/accounting/MaterialsPriceVariancePage")
+);
+const NoteInterestPage = lazy(() => import("./features/accounting/NoteInterestPage"));
+const PartnershipProfitSharingPage = lazy(
+    () => import("./features/accounting/PartnershipProfitSharingPage")
+);
+const PartnershipSalaryInterestPage = lazy(
+    () => import("./features/accounting/PartnershipSalaryInterestPage")
+);
+const PartnershipAdmissionBonusPage = lazy(
+    () => import("./features/accounting/PartnershipAdmissionBonusPage")
+);
+const PartnershipAdmissionGoodwillPage = lazy(
+    () => import("./features/accounting/PartnershipAdmissionGoodwillPage")
+);
+const PhilippineVATPage = lazy(() => import("./features/accounting/PhilippineVATPage"));
+const PrimeConversionCostPage = lazy(
+    () => import("./features/accounting/PrimeConversionCostPage")
+);
+const QuickRatioPage = lazy(() => import("./features/accounting/QuickRatioPage"));
+const ReceivablesTurnoverPage = lazy(
+    () => import("./features/accounting/ReceivablesTurnoverPage")
+);
+const ReturnOnAssetsPage = lazy(() => import("./features/accounting/ReturnOnAssetsPage"));
+const ReturnOnEquityPage = lazy(() => import("./features/accounting/ReturnOnEquityPage"));
+const StraightLineDepreciationPage = lazy(
+    () => import("./features/accounting/StraightLineDepreciationPage")
+);
+const TimesInterestEarnedPage = lazy(
+    () => import("./features/accounting/TimesInterestEarnedPage")
+);
+const UnitsOfProductionDepreciationPage = lazy(
+    () => import("./features/accounting/UnitsOfProductionDepreciationPage")
+);
+const VerticalAnalysisPage = lazy(() => import("./features/accounting/VerticalAnalysisPage"));
+const WeightedAverageInventoryPage = lazy(
+    () => import("./features/accounting/WeightedAverageInventoryPage")
+);
+const AccountsPayableTurnoverPage = lazy(
+    () => import("./features/accounting/AccountsPayableTurnoverPage")
+);
+const BreakEvenPage = lazy(() => import("./features/business/BreakEvenPage"));
+const ContributionMarginPage = lazy(
+    () => import("./features/business/ContributionMarginPage")
+);
+const MarginOfSafetyPage = lazy(() => import("./features/business/MarginOfSafetyPage"));
+const MarkupMarginPage = lazy(() => import("./features/business/MarkupMarginPage"));
+const NetProfitMarginPage = lazy(() => import("./features/business/NetProfitMarginPage"));
+const OperatingLeveragePage = lazy(
+    () => import("./features/business/OperatingLeveragePage")
+);
+const ProfitLossPage = lazy(() => import("./features/business/ProfitLossPage"));
+const TargetProfitPage = lazy(() => import("./features/business/TargetProfitPage"));
+const EffectiveInterestRatePage = lazy(
+    () => import("./features/finance/EffectiveInterestRatePage")
+);
+const FutureValueAnnuityPage = lazy(
+    () => import("./features/finance/FutureValueAnnuityPage")
+);
+const FutureValuePage = lazy(() => import("./features/finance/FutureValuePage"));
+const LoanAmortizationPage = lazy(
+    () => import("./features/finance/LoanAmortizationPage")
+);
+const PresentValueAnnuityPage = lazy(
+    () => import("./features/finance/PresentValueAnnuityPage")
+);
+const PresentValuePage = lazy(() => import("./features/finance/PresentValuePage"));
+const SimpleInterestPage = lazy(() => import("./features/finance/SimpleInterestPage"));
+const SinkingFundDepositPage = lazy(
+    () => import("./features/finance/SinkingFundDepositPage")
+);
+const CompoundInterestPage = lazy(() => import("./features/finance/CompoundInterestPage"));
+const HomePage = lazy(() => import("./features/home/HomePage"));
+const AboutPage = lazy(() => import("./features/meta/AboutPage"));
+const FeedbackPage = lazy(() => import("./features/meta/FeedBackPage"));
+const HistoryPage = lazy(() => import("./features/meta/HistoryPage"));
+const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
+const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
+
+function RouteFallback() {
+    return (
+        <div className="space-y-4">
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(82,197,135,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.24)] md:p-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-green-300">
+                    Loading
+                </p>
+                <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
+                    Preparing the next tool
+                </h1>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 md:text-base">
+                    AccCalc is loading this page separately to keep the initial app faster on deployed and installed use.
+                </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5">
+                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                    <div className="loading-shimmer h-full w-1/3 rounded-full bg-[linear-gradient(90deg,rgba(74,222,128,0.2),rgba(134,239,172,0.95),rgba(74,222,128,0.2))]" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function RouteShell({ children }: { children: ReactNode }) {
+    return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
+}
 
 export default function App() {
     return (
@@ -67,69 +151,69 @@ export default function App() {
             <HashRouter>
                 <Routes>
                     <Route path="/" element={<AppLayout />}>
-                        <Route index element={<HomePage />} />
-                        <Route path="history" element={<HistoryPage />} />
-                        <Route path="basic" element={<BasicCalculatorPage />} />
-                        <Route path="smart/solver" element={<SmartSolverPage />} />
+                        <Route index element={<RouteShell><HomePage /></RouteShell>} />
+                        <Route path="history" element={<RouteShell><HistoryPage /></RouteShell>} />
+                        <Route path="basic" element={<RouteShell><BasicCalculatorPage /></RouteShell>} />
+                        <Route path="smart/solver" element={<RouteShell><SmartSolverPage /></RouteShell>} />
 
-                        <Route path="finance/simple-interest" element={<SimpleInterestPage />} />
-                        <Route path="finance/compound-interest" element={<CompoundInterestPage />} />
-                        <Route path="finance/future-value" element={<FutureValuePage />} />
-                        <Route path="finance/present-value" element={<PresentValuePage />} />
-                        <Route path="finance/future-value-annuity" element={<FutureValueAnnuityPage />} />
-                        <Route path="finance/present-value-annuity" element={<PresentValueAnnuityPage />} />
-                        <Route path="finance/effective-interest-rate" element={<EffectiveInterestRatePage />} />
-                        <Route path="finance/sinking-fund-deposit" element={<SinkingFundDepositPage />} />
-                        <Route path="finance/loan-amortization" element={<LoanAmortizationPage />} />
+                        <Route path="finance/simple-interest" element={<RouteShell><SimpleInterestPage /></RouteShell>} />
+                        <Route path="finance/compound-interest" element={<RouteShell><CompoundInterestPage /></RouteShell>} />
+                        <Route path="finance/future-value" element={<RouteShell><FutureValuePage /></RouteShell>} />
+                        <Route path="finance/present-value" element={<RouteShell><PresentValuePage /></RouteShell>} />
+                        <Route path="finance/future-value-annuity" element={<RouteShell><FutureValueAnnuityPage /></RouteShell>} />
+                        <Route path="finance/present-value-annuity" element={<RouteShell><PresentValueAnnuityPage /></RouteShell>} />
+                        <Route path="finance/effective-interest-rate" element={<RouteShell><EffectiveInterestRatePage /></RouteShell>} />
+                        <Route path="finance/sinking-fund-deposit" element={<RouteShell><SinkingFundDepositPage /></RouteShell>} />
+                        <Route path="finance/loan-amortization" element={<RouteShell><LoanAmortizationPage /></RouteShell>} />
 
-                        <Route path="business/profit-loss" element={<ProfitLossPage />} />
-                        <Route path="business/break-even" element={<BreakEvenPage />} />
-                        <Route path="business/contribution-margin" element={<ContributionMarginPage />} />
-                        <Route path="business/markup-margin" element={<MarkupMarginPage />} />
-                        <Route path="business/target-profit" element={<TargetProfitPage />} />
-                        <Route path="business/margin-of-safety" element={<MarginOfSafetyPage />} />
-                        <Route path="business/net-profit-margin" element={<NetProfitMarginPage />} />
-                        <Route path="business/operating-leverage" element={<OperatingLeveragePage />} />
+                        <Route path="business/profit-loss" element={<RouteShell><ProfitLossPage /></RouteShell>} />
+                        <Route path="business/break-even" element={<RouteShell><BreakEvenPage /></RouteShell>} />
+                        <Route path="business/contribution-margin" element={<RouteShell><ContributionMarginPage /></RouteShell>} />
+                        <Route path="business/markup-margin" element={<RouteShell><MarkupMarginPage /></RouteShell>} />
+                        <Route path="business/target-profit" element={<RouteShell><TargetProfitPage /></RouteShell>} />
+                        <Route path="business/margin-of-safety" element={<RouteShell><MarginOfSafetyPage /></RouteShell>} />
+                        <Route path="business/net-profit-margin" element={<RouteShell><NetProfitMarginPage /></RouteShell>} />
+                        <Route path="business/operating-leverage" element={<RouteShell><OperatingLeveragePage /></RouteShell>} />
 
-                        <Route path="accounting/accounting-equation" element={<AccountingEquationPage />} />
-                        <Route path="accounting/notes-interest" element={<NoteInterestPage />} />
-                        <Route path="accounting/straight-line-depreciation" element={<StraightLineDepreciationPage />} />
-                        <Route path="accounting/declining-balance-depreciation" element={<DecliningBalanceDepreciationPage />} />
-                        <Route path="accounting/units-of-production-depreciation" element={<UnitsOfProductionDepreciationPage />} />
-                        <Route path="accounting/cash-discount" element={<CashDiscountPage />} />
-                        <Route path="accounting/fifo-inventory" element={<FIFOInventoryPage />} />
-                        <Route path="accounting/weighted-average-inventory" element={<WeightedAverageInventoryPage />} />
-                        <Route path="accounting/gross-profit-method" element={<GrossProfitMethodPage />} />
-                        <Route path="accounting/bank-reconciliation" element={<BankReconciliationPage />} />
-                        <Route path="accounting/allowance-doubtful-accounts" element={<AllowanceForDoubtfulAccountsPage />} />
-                        <Route path="accounting/partnership-profit-sharing" element={<PartnershipProfitSharingPage />} />
-                        <Route path="accounting/partnership-salary-interest" element={<PartnershipSalaryInterestPage />} />
-                        <Route path="accounting/partnership-admission-bonus" element={<PartnershipAdmissionBonusPage />} />
-                        <Route path="accounting/partnership-admission-goodwill" element={<PartnershipAdmissionGoodwillPage />} />
-                        <Route path="accounting/philippine-vat" element={<PhilippineVATPage />} />
-                        <Route path="accounting/cost-of-goods-manufactured" element={<CostOfGoodsManufacturedPage />} />
-                        <Route path="accounting/prime-conversion-cost" element={<PrimeConversionCostPage />} />
-                        <Route path="accounting/materials-price-variance" element={<MaterialsPriceVariancePage />} />
-                        <Route path="accounting/labor-rate-variance" element={<LaborRateVariancePage />} />
-                        <Route path="accounting/current-ratio" element={<CurrentRatioPage />} />
-                        <Route path="accounting/quick-ratio" element={<QuickRatioPage />} />
-                        <Route path="accounting/receivables-turnover" element={<ReceivablesTurnoverPage />} />
-                        <Route path="accounting/inventory-turnover" element={<InventoryTurnoverPage />} />
-                        <Route path="accounting/accounts-payable-turnover" element={<AccountsPayableTurnoverPage />} />
-                        <Route path="accounting/debt-to-equity" element={<DebtToEquityPage />} />
-                        <Route path="accounting/return-on-assets" element={<ReturnOnAssetsPage />} />
-                        <Route path="accounting/times-interest-earned" element={<TimesInterestEarnedPage />} />
-                        <Route path="accounting/debt-ratio" element={<DebtRatioPage />} />
-                        <Route path="accounting/earnings-per-share" element={<EarningsPerSharePage />} />
-                        <Route path="accounting/book-value-per-share" element={<BookValuePerSharePage />} />
-                        <Route path="accounting/horizontal-analysis" element={<HorizontalAnalysisPage />} />
-                        <Route path="accounting/vertical-analysis" element={<VerticalAnalysisPage />} />
-                        <Route path="accounting/asset-turnover" element={<AssetTurnoverPage />} />
-                        <Route path="accounting/return-on-equity" element={<ReturnOnEquityPage />} />
+                        <Route path="accounting/accounting-equation" element={<RouteShell><AccountingEquationPage /></RouteShell>} />
+                        <Route path="accounting/notes-interest" element={<RouteShell><NoteInterestPage /></RouteShell>} />
+                        <Route path="accounting/straight-line-depreciation" element={<RouteShell><StraightLineDepreciationPage /></RouteShell>} />
+                        <Route path="accounting/declining-balance-depreciation" element={<RouteShell><DecliningBalanceDepreciationPage /></RouteShell>} />
+                        <Route path="accounting/units-of-production-depreciation" element={<RouteShell><UnitsOfProductionDepreciationPage /></RouteShell>} />
+                        <Route path="accounting/cash-discount" element={<RouteShell><CashDiscountPage /></RouteShell>} />
+                        <Route path="accounting/fifo-inventory" element={<RouteShell><FIFOInventoryPage /></RouteShell>} />
+                        <Route path="accounting/weighted-average-inventory" element={<RouteShell><WeightedAverageInventoryPage /></RouteShell>} />
+                        <Route path="accounting/gross-profit-method" element={<RouteShell><GrossProfitMethodPage /></RouteShell>} />
+                        <Route path="accounting/bank-reconciliation" element={<RouteShell><BankReconciliationPage /></RouteShell>} />
+                        <Route path="accounting/allowance-doubtful-accounts" element={<RouteShell><AllowanceForDoubtfulAccountsPage /></RouteShell>} />
+                        <Route path="accounting/partnership-profit-sharing" element={<RouteShell><PartnershipProfitSharingPage /></RouteShell>} />
+                        <Route path="accounting/partnership-salary-interest" element={<RouteShell><PartnershipSalaryInterestPage /></RouteShell>} />
+                        <Route path="accounting/partnership-admission-bonus" element={<RouteShell><PartnershipAdmissionBonusPage /></RouteShell>} />
+                        <Route path="accounting/partnership-admission-goodwill" element={<RouteShell><PartnershipAdmissionGoodwillPage /></RouteShell>} />
+                        <Route path="accounting/philippine-vat" element={<RouteShell><PhilippineVATPage /></RouteShell>} />
+                        <Route path="accounting/cost-of-goods-manufactured" element={<RouteShell><CostOfGoodsManufacturedPage /></RouteShell>} />
+                        <Route path="accounting/prime-conversion-cost" element={<RouteShell><PrimeConversionCostPage /></RouteShell>} />
+                        <Route path="accounting/materials-price-variance" element={<RouteShell><MaterialsPriceVariancePage /></RouteShell>} />
+                        <Route path="accounting/labor-rate-variance" element={<RouteShell><LaborRateVariancePage /></RouteShell>} />
+                        <Route path="accounting/current-ratio" element={<RouteShell><CurrentRatioPage /></RouteShell>} />
+                        <Route path="accounting/quick-ratio" element={<RouteShell><QuickRatioPage /></RouteShell>} />
+                        <Route path="accounting/receivables-turnover" element={<RouteShell><ReceivablesTurnoverPage /></RouteShell>} />
+                        <Route path="accounting/inventory-turnover" element={<RouteShell><InventoryTurnoverPage /></RouteShell>} />
+                        <Route path="accounting/accounts-payable-turnover" element={<RouteShell><AccountsPayableTurnoverPage /></RouteShell>} />
+                        <Route path="accounting/debt-to-equity" element={<RouteShell><DebtToEquityPage /></RouteShell>} />
+                        <Route path="accounting/return-on-assets" element={<RouteShell><ReturnOnAssetsPage /></RouteShell>} />
+                        <Route path="accounting/times-interest-earned" element={<RouteShell><TimesInterestEarnedPage /></RouteShell>} />
+                        <Route path="accounting/debt-ratio" element={<RouteShell><DebtRatioPage /></RouteShell>} />
+                        <Route path="accounting/earnings-per-share" element={<RouteShell><EarningsPerSharePage /></RouteShell>} />
+                        <Route path="accounting/book-value-per-share" element={<RouteShell><BookValuePerSharePage /></RouteShell>} />
+                        <Route path="accounting/horizontal-analysis" element={<RouteShell><HorizontalAnalysisPage /></RouteShell>} />
+                        <Route path="accounting/vertical-analysis" element={<RouteShell><VerticalAnalysisPage /></RouteShell>} />
+                        <Route path="accounting/asset-turnover" element={<RouteShell><AssetTurnoverPage /></RouteShell>} />
+                        <Route path="accounting/return-on-equity" element={<RouteShell><ReturnOnEquityPage /></RouteShell>} />
 
-                        <Route path="settings" element={<SettingsPage />} />
-                        <Route path="settings/about" element={<AppLayoutMetaAbout />} />
-                        <Route path="settings/feedback" element={<FeedbackPage />} />
+                        <Route path="settings" element={<RouteShell><SettingsPage /></RouteShell>} />
+                        <Route path="settings/about" element={<RouteShell><AboutPage /></RouteShell>} />
+                        <Route path="settings/feedback" element={<RouteShell><FeedbackPage /></RouteShell>} />
                     </Route>
                 </Routes>
             </HashRouter>

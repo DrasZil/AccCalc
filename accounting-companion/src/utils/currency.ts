@@ -33,18 +33,18 @@ export const SUPPORTED_CURRENCIES: Array<{
 ];
 
 const CURRENCY_HINTS: Array<[SupportedCurrencyCode, RegExp[]]> = [
-    ["PHP", [/\bphp\b/i, /\bphilippine peso(s)?\b/i, /\bpeso(s)?\b/i, /₱/]],
+    ["PHP", [/\bphp\b/i, /\bphilippine peso(s)?\b/i, /\bpeso(s)?\b/i, /\u20B1/]],
     ["USD", [/\busd\b/i, /\bus dollar(s)?\b/i, /\bdollar(s)?\b/i, /\$/]],
-    ["EUR", [/\beur\b/i, /\beuro(s)?\b/i, /€/]],
-    ["GBP", [/\bgbp\b/i, /\bpound sterling\b/i, /\bpound(s)?\b/i, /£/]],
-    ["JPY", [/\bjpy\b/i, /\byen\b/i, /¥/]],
+    ["EUR", [/\beur\b/i, /\beuro(s)?\b/i, /\u20AC/]],
+    ["GBP", [/\bgbp\b/i, /\bpound sterling\b/i, /\bpound(s)?\b/i, /\u00A3/]],
+    ["JPY", [/\bjpy\b/i, /\byen\b/i, /\u00A5/]],
     ["CAD", [/\bcad\b/i, /\bcanadian dollar(s)?\b/i]],
     ["AUD", [/\baud\b/i, /\baustralian dollar(s)?\b/i]],
     ["SGD", [/\bsgd\b/i, /\bsingapore dollar(s)?\b/i]],
     ["HKD", [/\bhkd\b/i, /\bhong kong dollar(s)?\b/i]],
     ["CNY", [/\bcny\b/i, /\byuan\b/i, /\brmb\b/i]],
-    ["INR", [/\binr\b/i, /\brupee(s)?\b/i, /₹/]],
-    ["KRW", [/\bkrw\b/i, /\bwon\b/i, /₩/]],
+    ["INR", [/\binr\b/i, /\brupee(s)?\b/i, /\u20B9/]],
+    ["KRW", [/\bkrw\b/i, /\bwon\b/i, /\u20A9/]],
     ["AED", [/\baed\b/i, /\bdirham(s)?\b/i]],
 ];
 
