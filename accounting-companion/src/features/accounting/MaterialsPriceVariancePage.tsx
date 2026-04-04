@@ -34,8 +34,23 @@ export default function MaterialsPriceVariancePage() {
             return { error: "All fields must contain valid numbers." };
         }
 
-        const variance =
-            parsedActualQuantity * (parsedActualPrice - parsedStandardPrice);
+        if (
+            parsedActualQuantity < 0 ||
+            parsedActualPrice < 0 ||
+            parsedStandardPrice < 0
+        ) {
+            return {
+                error: "Actual quantity, actual price, and standard price cannot be negative.",
+            };
+        }
+
+        const variance = parsedActualQuantity * (parsedActualPrice - parsedStandardPrice);
+        const direction =
+            variance > 0
+                ? "Unfavorable"
+                : variance < 0
+                  ? "Favorable"
+                  : "None";
         const interpretation =
             variance > 0
                 ? "Unfavorable variance. Actual material price exceeded the standard price."
@@ -45,7 +60,9 @@ export default function MaterialsPriceVariancePage() {
 
         return {
             variance,
-            formula: "Materials Price Variance = Actual Quantity Purchased x (Actual Price - Standard Price)",
+            direction,
+            formula:
+                "Materials Price Variance = Actual Quantity Purchased x (Actual Price - Standard Price)",
             steps: [
                 `Variance = ${parsedActualQuantity} x (${formatPHP(parsedActualPrice)} - ${formatPHP(parsedStandardPrice)}) = ${formatPHP(variance)}`,
             ],
@@ -69,15 +86,30 @@ export default function MaterialsPriceVariancePage() {
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Cost"
+            badge="Managerial & Cost"
             title="Materials Price Variance"
             description="Measure whether direct materials were bought at a price above or below the standard cost."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>
-                        <InputCard label="Actual Quantity" value={actualQuantity} onChange={setActualQuantity} placeholder="5000" />
-                        <InputCard label="Actual Price per Unit" value={actualPrice} onChange={setActualPrice} placeholder="22" />
-                        <InputCard label="Standard Price per Unit" value={standardPrice} onChange={setStandardPrice} placeholder="20" />
+                        <InputCard
+                            label="Actual Quantity"
+                            value={actualQuantity}
+                            onChange={setActualQuantity}
+                            placeholder="5000"
+                        />
+                        <InputCard
+                            label="Actual Price per Unit"
+                            value={actualPrice}
+                            onChange={setActualPrice}
+                            placeholder="22"
+                        />
+                        <InputCard
+                            label="Standard Price per Unit"
+                            value={standardPrice}
+                            onChange={setStandardPrice}
+                            placeholder="20"
+                        />
                     </InputGrid>
                 </SectionCard>
             }
@@ -90,7 +122,7 @@ export default function MaterialsPriceVariancePage() {
                 ) : result ? (
                     <ResultGrid columns={2}>
                         <ResultCard title="Price Variance" value={formatPHP(result.variance)} />
-                        <ResultCard title="Variance Direction" value={result.interpretation} />
+                        <ResultCard title="Variance Direction" value={result.direction} />
                     </ResultGrid>
                 ) : null
             }

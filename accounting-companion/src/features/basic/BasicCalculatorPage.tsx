@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import Decimal from "decimal.js";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import ResultCard from "../../components/resultCard";
@@ -32,30 +32,30 @@ const BUTTON_ROWS: ButtonSpec[][] = [
     [
         { label: "AC", value: "AC", kind: "action" },
         { label: "CE", value: "CE", kind: "action" },
-        { label: "⌫", value: "BACKSPACE", kind: "action" },
+        { label: "Back", value: "BACKSPACE", kind: "action" },
         { label: "(", value: "(", kind: "operator" },
         { label: ")", value: ")", kind: "operator" },
     ],
     [
-        { label: "x²", value: "SQUARE", kind: "action" },
-        { label: "√", value: "SQRT", kind: "action" },
+        { label: "x^2", value: "SQUARE", kind: "action" },
+        { label: "sqrt", value: "SQRT", kind: "action" },
         { label: "1/x", value: "RECIPROCAL", kind: "action" },
         { label: "%", value: "%", kind: "operator" },
-        { label: "÷", value: "/", kind: "operator" },
+        { label: "/", value: "/", kind: "operator" },
     ],
     [
         { label: "7", value: "7", kind: "number" },
         { label: "8", value: "8", kind: "number" },
         { label: "9", value: "9", kind: "number" },
-        { label: "×", value: "*", kind: "operator" },
-        { label: "−", value: "-", kind: "operator" },
+        { label: "*", value: "*", kind: "operator" },
+        { label: "-", value: "-", kind: "operator" },
     ],
     [
         { label: "4", value: "4", kind: "number" },
         { label: "5", value: "5", kind: "number" },
         { label: "6", value: "6", kind: "number" },
         { label: "+", value: "+", kind: "operator" },
-        { label: "±", value: "SIGN", kind: "action" },
+        { label: "+/-", value: "SIGN", kind: "action" },
     ],
     [
         { label: "1", value: "1", kind: "number" },
@@ -64,9 +64,7 @@ const BUTTON_ROWS: ButtonSpec[][] = [
         { label: ".", value: ".", kind: "number" },
         { label: "=", value: "=", kind: "accent" },
     ],
-    [
-        { label: "0", value: "0", kind: "number" },
-    ],
+    [{ label: "0", value: "0", kind: "number" }],
 ];
 
 function isOperator(token: string): token is CalcOperator {
@@ -74,14 +72,16 @@ function isOperator(token: string): token is CalcOperator {
 }
 
 function formatForDisplay(value: Decimal): string {
-    const fixed = value.toFixed(12).replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
+    const fixed = value
+        .toFixed(12)
+        .replace(/(\.\d*?[1-9])0+$/u, "$1")
+        .replace(/\.0+$/u, "");
     if (fixed.length <= 16) return fixed;
     return value.toSignificantDigits(10).toString();
 }
 
 function renderToken(token: string): string {
-    if (token === "*") return "×";
-    if (token === "/") return "÷";
+    if (token === "*") return "x";
     return token;
 }
 
@@ -309,7 +309,10 @@ export default function BasicCalculatorPage() {
         }
 
         setCurrentInput((previousValue) => {
-            if (previousValue.length <= 1 || (previousValue.length === 2 && previousValue.startsWith("-"))) {
+            if (
+                previousValue.length <= 1 ||
+                (previousValue.length === 2 && previousValue.startsWith("-"))
+            ) {
                 return "0";
             }
             return previousValue.slice(0, -1);
@@ -356,7 +359,11 @@ export default function BasicCalculatorPage() {
                 setJustEvaluated(false);
             }
 
-            if (currentInput !== "0" || nextTokens.length === 0 || nextTokens[nextTokens.length - 1] === ")") {
+            if (
+                currentInput !== "0" ||
+                nextTokens.length === 0 ||
+                nextTokens[nextTokens.length - 1] === ")"
+            ) {
                 if (!(nextTokens[nextTokens.length - 1] === ")" && currentInput === "0")) {
                     nextTokens.push(currentInput);
                 }
@@ -536,7 +543,9 @@ export default function BasicCalculatorPage() {
                 return;
             case "SQRT":
                 applyUnaryOperation((input) => {
-                    if (input.isNegative()) throw new Error("Cannot take square root of a negative number.");
+                    if (input.isNegative()) {
+                        throw new Error("Cannot take square root of a negative number.");
+                    }
                     return input.sqrt();
                 }, "Square root applied");
                 return;
@@ -581,62 +590,62 @@ export default function BasicCalculatorPage() {
         window.localStorage.setItem("accalc-basic-history", JSON.stringify(history));
     }, [history, settings.saveOfflineHistory]);
 
-    useEffect(() => {
-        function handleKeyDown(event: KeyboardEvent) {
-            const { key } = event;
+    const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
+        const { key } = event;
 
-            if (/^\d$/u.test(key)) {
-                handleAction(key);
-                return;
-            }
-
-            if (key === ".") {
-                handleAction(".");
-                return;
-            }
-
-            if (key === "Backspace") {
-                event.preventDefault();
-                handleAction("BACKSPACE");
-                return;
-            }
-
-            if (key === "Delete") {
-                event.preventDefault();
-                handleAction("CE");
-                return;
-            }
-
-            if (key === "Escape") {
-                event.preventDefault();
-                handleAction("AC");
-                return;
-            }
-
-            if (key === "Enter" || key === "=") {
-                event.preventDefault();
-                handleAction("=");
-                return;
-            }
-
-            if (key === "(" || key === ")") {
-                handleAction(key);
-                return;
-            }
-
-            if (key === "%") {
-                handleAction("%");
-                return;
-            }
-
-            if (["+", "-", "*", "/"].includes(key)) {
-                handleAction(key);
-            }
+        if (/^\d$/u.test(key)) {
+            handleAction(key);
+            return;
         }
 
+        if (key === ".") {
+            handleAction(".");
+            return;
+        }
+
+        if (key === "Backspace") {
+            event.preventDefault();
+            handleAction("BACKSPACE");
+            return;
+        }
+
+        if (key === "Delete") {
+            event.preventDefault();
+            handleAction("CE");
+            return;
+        }
+
+        if (key === "Escape") {
+            event.preventDefault();
+            handleAction("AC");
+            return;
+        }
+
+        if (key === "Enter" || key === "=") {
+            event.preventDefault();
+            handleAction("=");
+            return;
+        }
+
+        if (key === "(" || key === ")") {
+            handleAction(key);
+            return;
+        }
+
+        if (key === "%") {
+            handleAction("%");
+            return;
+        }
+
+        if (["+", "-", "*", "/"].includes(key)) {
+            handleAction(key);
+        }
+    });
+
+    useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    });
+    }, []);
 
     return (
         <CalculatorPageLayout
@@ -651,10 +660,10 @@ export default function BasicCalculatorPage() {
                                 <p className="min-h-6 text-right text-xs uppercase tracking-[0.18em] text-gray-500">
                                     {statusMessage}
                                 </p>
-                                <p className="mt-2 min-h-10 text-right text-sm text-gray-400 break-all">
+                                <p className="mt-2 min-h-10 break-all text-right text-sm text-gray-400">
                                     {expressionDisplay || "0"}
                                 </p>
-                                <p className="mt-3 min-h-16 text-right text-4xl font-bold tracking-tight text-white break-all md:text-5xl">
+                                <p className="mt-3 min-h-16 break-all text-right text-4xl font-bold tracking-tight text-white md:text-5xl">
                                     {currentInput}
                                 </p>
                             </div>
@@ -683,10 +692,7 @@ export default function BasicCalculatorPage() {
                                 title="Memory"
                                 value={memoryValue ? formatForDisplay(memoryValue) : "Empty"}
                             />
-                            <ResultCard
-                                title="History Count"
-                                value={String(history.length)}
-                            />
+                            <ResultCard title="History Count" value={String(history.length)} />
                         </ResultGrid>
 
                         <SectionCard>
@@ -704,7 +710,7 @@ export default function BasicCalculatorPage() {
                                                 setJustEvaluated(true);
                                                 setStatusMessage("Loaded from history");
                                             }}
-                                            className="block w-full rounded-[1.35rem] border border-white/10 bg-black/20 px-4 py-3 text-left transition hover:bg-white/6"
+                                            className="block w-full rounded-[1.35rem] border border-white/10 bg-black/20 px-4 py-3 text-left transition hover:bg-white/[0.06]"
                                         >
                                             <p className="text-xs uppercase tracking-[0.16em] text-gray-500">
                                                 {entry.expression}

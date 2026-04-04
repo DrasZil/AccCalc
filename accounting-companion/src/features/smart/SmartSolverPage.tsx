@@ -25,6 +25,7 @@ import {
     FIELD_KEYS,
     FIELD_META,
     INITIAL_FIELDS,
+    CALCULATORS,
     analyzeSmartInput,
     makePrefill,
 } from "./smartSolver.engine";
@@ -160,17 +161,19 @@ export default function SmartSolverPage() {
         [analysis.detectedCurrency, analysis.extractedEntries, deferredSmartInput]
     );
 
+    const solverCoverageRoutes = useMemo(
+        () => new Set(CALCULATORS.map((calculator) => calculator.route)),
+        []
+    );
+
     const solverCoverageGroups = useMemo(
         () =>
             APP_NAV_GROUPS.map((group) => ({
                 title: group.title,
                 hint: group.hint,
-                items: group.items.filter(
-                    (item) =>
-                        !["/", "/history", "/settings", "/smart/solver"].includes(item.path)
-                ),
+                items: group.items.filter((item) => solverCoverageRoutes.has(item.path)),
             })).filter((group) => group.items.length > 0),
-        []
+        [solverCoverageRoutes]
     );
 
     const totalCoveredTools = useMemo(
@@ -370,7 +373,7 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently spans ${totalCoveredTools} tools across ${solverCoverageGroups.length} calculator categories and scales with the app catalog as new tools are added.`}
+            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories.`}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard className="overflow-hidden">
@@ -499,7 +502,7 @@ export default function SmartSolverPage() {
                         >
                             <div className="space-y-3">
                                 <p className="text-sm leading-6 text-slate-400">
-                                    Smart Solver currently spans {totalCoveredTools} tools across{" "}
+                                    Smart Solver currently supports {totalCoveredTools} solver-ready tools across{" "}
                                     {solverCoverageGroups.length} active calculator categories.
                                 </p>
                                 <div className="grid gap-3 sm:grid-cols-2">

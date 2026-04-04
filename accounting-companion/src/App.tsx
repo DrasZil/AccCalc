@@ -5,6 +5,9 @@ import AppLayout from "./features/layout/AppLayout";
 
 const BasicCalculatorPage = lazy(() => import("./features/basic/BasicCalculatorPage"));
 const AccountingEquationPage = lazy(() => import("./features/accounting/AccountEquationPage"));
+const AccountClassificationPage = lazy(
+    () => import("./features/accounting/AccountClassificationPage")
+);
 const AllowanceForDoubtfulAccountsPage = lazy(
     () => import("./features/accounting/AllowanceForDoubtfulAccountsPage")
 );
@@ -23,6 +26,9 @@ const CostOfGoodsManufacturedPage = lazy(
 const CurrentRatioPage = lazy(() => import("./features/accounting/CurrentRatioPage"));
 const DebtRatioPage = lazy(() => import("./features/accounting/DebtRatioPage"));
 const DebtToEquityPage = lazy(() => import("./features/accounting/DebtToEquityPage"));
+const DebitCreditTrainerPage = lazy(
+    () => import("./features/accounting/DebitCreditTrainerPage")
+);
 const DecliningBalanceDepreciationPage = lazy(
     () => import("./features/accounting/DoubleDecliningBalancePage")
 );
@@ -72,6 +78,9 @@ const TimesInterestEarnedPage = lazy(
     () => import("./features/accounting/TimesInterestEarnedPage")
 );
 const TradeDiscountPage = lazy(() => import("./features/accounting/TradeDiscountPage"));
+const TrialBalanceCheckerPage = lazy(
+    () => import("./features/accounting/TrialBalanceCheckerPage")
+);
 const UnitsOfProductionDepreciationPage = lazy(
     () => import("./features/accounting/UnitsOfProductionDepreciationPage")
 );
@@ -113,11 +122,20 @@ const SinkingFundDepositPage = lazy(
     () => import("./features/finance/SinkingFundDepositPage")
 );
 const CompoundInterestPage = lazy(() => import("./features/finance/CompoundInterestPage"));
+const NetPresentValuePage = lazy(() => import("./features/finance/NetPresentValuePage"));
+const PaybackPeriodPage = lazy(() => import("./features/finance/PaybackPeriodPage"));
 const HomePage = lazy(() => import("./features/home/HomePage"));
 const AboutPage = lazy(() => import("./features/meta/AboutPage"));
 const FeedbackPage = lazy(() => import("./features/meta/FeedBackPage"));
 const HistoryPage = lazy(() => import("./features/meta/HistoryPage"));
+const ProfitabilityIndexPage = lazy(
+    () => import("./features/finance/ProfitabilityIndexPage")
+);
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
+const StandardDeviationPage = lazy(
+    () => import("./features/statistics/StandardDeviationPage")
+);
+const WeightedMeanPage = lazy(() => import("./features/businessMath/WeightedMeanPage"));
 const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
 
 function RouteFallback() {
@@ -168,6 +186,9 @@ export default function App() {
                         <Route path="finance/effective-interest-rate" element={<RouteShell><EffectiveInterestRatePage /></RouteShell>} />
                         <Route path="finance/sinking-fund-deposit" element={<RouteShell><SinkingFundDepositPage /></RouteShell>} />
                         <Route path="finance/loan-amortization" element={<RouteShell><LoanAmortizationPage /></RouteShell>} />
+                        <Route path="finance/npv" element={<RouteShell><NetPresentValuePage /></RouteShell>} />
+                        <Route path="finance/profitability-index" element={<RouteShell><ProfitabilityIndexPage /></RouteShell>} />
+                        <Route path="finance/payback-period" element={<RouteShell><PaybackPeriodPage /></RouteShell>} />
 
                         <Route path="business/profit-loss" element={<RouteShell><ProfitLossPage /></RouteShell>} />
                         <Route path="business/break-even" element={<RouteShell><BreakEvenPage /></RouteShell>} />
@@ -177,13 +198,16 @@ export default function App() {
                         <Route path="business/margin-of-safety" element={<RouteShell><MarginOfSafetyPage /></RouteShell>} />
                         <Route path="business/net-profit-margin" element={<RouteShell><NetProfitMarginPage /></RouteShell>} />
                         <Route path="business/operating-leverage" element={<RouteShell><OperatingLeveragePage /></RouteShell>} />
+                        <Route path="business-math/weighted-mean" element={<RouteShell><WeightedMeanPage /></RouteShell>} />
 
                         <Route path="accounting/accounting-equation" element={<RouteShell><AccountingEquationPage /></RouteShell>} />
+                        <Route path="accounting/account-classification" element={<RouteShell><AccountClassificationPage /></RouteShell>} />
                         <Route path="accounting/notes-interest" element={<RouteShell><NoteInterestPage /></RouteShell>} />
                         <Route path="accounting/straight-line-depreciation" element={<RouteShell><StraightLineDepreciationPage /></RouteShell>} />
                         <Route path="accounting/declining-balance-depreciation" element={<RouteShell><DecliningBalanceDepreciationPage /></RouteShell>} />
                         <Route path="accounting/units-of-production-depreciation" element={<RouteShell><UnitsOfProductionDepreciationPage /></RouteShell>} />
                         <Route path="accounting/cash-discount" element={<RouteShell><CashDiscountPage /></RouteShell>} />
+                        <Route path="accounting/debit-credit-trainer" element={<RouteShell><DebitCreditTrainerPage /></RouteShell>} />
                         <Route path="accounting/fifo-inventory" element={<RouteShell><FIFOInventoryPage /></RouteShell>} />
                         <Route path="accounting/weighted-average-inventory" element={<RouteShell><WeightedAverageInventoryPage /></RouteShell>} />
                         <Route path="accounting/gross-profit-method" element={<RouteShell><GrossProfitMethodPage /></RouteShell>} />
@@ -216,6 +240,9 @@ export default function App() {
                         <Route path="accounting/asset-turnover" element={<RouteShell><AssetTurnoverPage /></RouteShell>} />
                         <Route path="accounting/return-on-equity" element={<RouteShell><ReturnOnEquityPage /></RouteShell>} />
                         <Route path="accounting/trade-discount" element={<RouteShell><TradeDiscountPage /></RouteShell>} />
+                        <Route path="accounting/trial-balance-checker" element={<RouteShell><TrialBalanceCheckerPage /></RouteShell>} />
+
+                        <Route path="statistics/standard-deviation" element={<RouteShell><StandardDeviationPage /></RouteShell>} />
 
                         <Route path="settings" element={<RouteShell><SettingsPage /></RouteShell>} />
                         <Route path="settings/about" element={<RouteShell><AboutPage /></RouteShell>} />

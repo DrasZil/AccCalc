@@ -41,13 +41,24 @@ export default function PrimeConversionCostPage() {
             return { error: "All fields must contain valid numbers." };
         }
 
+        if (
+            parsedDirectMaterialsUsed < 0 ||
+            parsedDirectLabor < 0 ||
+            parsedManufacturingOverhead < 0
+        ) {
+            return {
+                error: "Direct materials used, direct labor, and manufacturing overhead cannot be negative.",
+            };
+        }
+
         const primeCost = parsedDirectMaterialsUsed + parsedDirectLabor;
         const conversionCost = parsedDirectLabor + parsedManufacturingOverhead;
 
         return {
             primeCost,
             conversionCost,
-            formula: "Prime Cost = Direct Materials Used + Direct Labor; Conversion Cost = Direct Labor + Manufacturing Overhead",
+            formula:
+                "Prime Cost = Direct Materials Used + Direct Labor; Conversion Cost = Direct Labor + Manufacturing Overhead",
             steps: [
                 `Prime cost = ${formatPHP(parsedDirectMaterialsUsed)} + ${formatPHP(parsedDirectLabor)} = ${formatPHP(primeCost)}`,
                 `Conversion cost = ${formatPHP(parsedDirectLabor)} + ${formatPHP(parsedManufacturingOverhead)} = ${formatPHP(conversionCost)}`,
@@ -73,15 +84,30 @@ export default function PrimeConversionCostPage() {
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Cost"
+            badge="Managerial & Cost"
             title="Prime and Conversion Cost"
             description="Separate direct production inputs from conversion-related costs for cost accounting analysis."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>
-                        <InputCard label="Direct Materials Used" value={directMaterialsUsed} onChange={setDirectMaterialsUsed} placeholder="120000" />
-                        <InputCard label="Direct Labor" value={directLabor} onChange={setDirectLabor} placeholder="90000" />
-                        <InputCard label="Manufacturing Overhead" value={manufacturingOverhead} onChange={setManufacturingOverhead} placeholder="50000" />
+                        <InputCard
+                            label="Direct Materials Used"
+                            value={directMaterialsUsed}
+                            onChange={setDirectMaterialsUsed}
+                            placeholder="120000"
+                        />
+                        <InputCard
+                            label="Direct Labor"
+                            value={directLabor}
+                            onChange={setDirectLabor}
+                            placeholder="90000"
+                        />
+                        <InputCard
+                            label="Manufacturing Overhead"
+                            value={manufacturingOverhead}
+                            onChange={setManufacturingOverhead}
+                            placeholder="50000"
+                        />
                     </InputGrid>
                 </SectionCard>
             }
@@ -94,7 +120,10 @@ export default function PrimeConversionCostPage() {
                 ) : result ? (
                     <ResultGrid columns={2}>
                         <ResultCard title="Prime Cost" value={formatPHP(result.primeCost)} />
-                        <ResultCard title="Conversion Cost" value={formatPHP(result.conversionCost)} />
+                        <ResultCard
+                            title="Conversion Cost"
+                            value={formatPHP(result.conversionCost)}
+                        />
                     </ResultGrid>
                 ) : null
             }

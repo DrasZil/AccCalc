@@ -147,12 +147,59 @@ export function ShellIcon({
         );
     }
 
+    if (kind === "Accounting") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M5 18h14" />
+                <path d="M7 8h10" />
+                <path d="M7 12h4" />
+                <path d="M13 12h4" />
+                <path d="M7 16h10" />
+                <rect x="5" y="5" width="14" height="14" rx="2.5" />
+            </svg>
+        );
+    }
+
     if (kind === "Business") {
         return (
             <svg {...sharedProps}>
                 <path d="M4.5 19h15" />
                 <path d="M7 19V9h4v10" />
                 <path d="M13 19V5h4v14" />
+            </svg>
+        );
+    }
+
+    if (kind === "Managerial & Cost") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M6 7h12" />
+                <path d="M8 4v6" />
+                <path d="M16 4v6" />
+                <path d="M5 10.5h14v7A2.5 2.5 0 0 1 16.5 20h-9A2.5 2.5 0 0 1 5 17.5v-7Z" />
+                <path d="M10 14h4" />
+            </svg>
+        );
+    }
+
+    if (kind === "Business Math") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M6 6h12" />
+                <path d="M6 12h12" />
+                <path d="M8.5 4.5v15" />
+                <path d="M15.5 4.5v15" />
+            </svg>
+        );
+    }
+
+    if (kind === "Statistics") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M5 18.5h14" />
+                <path d="M7.5 18.5v-4" />
+                <path d="M12 18.5v-8" />
+                <path d="M16.5 18.5v-11" />
             </svg>
         );
     }

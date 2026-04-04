@@ -9,9 +9,11 @@ export type AppNavGroupTitle =
     | "General"
     | "Core Tools"
     | "Smart Tools"
+    | "Accounting"
     | "Finance"
-    | "Business"
-    | "Accounting";
+    | "Managerial & Cost"
+    | "Business Math"
+    | "Statistics";
 
 export type AppNavGroup = {
     title: AppNavGroupTitle;
@@ -26,166 +28,136 @@ export type RouteMeta = {
     category: AppNavGroupTitle;
     description: string;
     shortLabel?: string;
+    aliases: string[];
+    keywords: string[];
+    tags: string[];
+    isNew?: boolean;
 };
 
-export const APP_NAV_GROUPS: AppNavGroup[] = [
-    {
-        title: "General",
-        hint: "Home, settings, and saved activity",
-        tone: "from-emerald-400/20 to-transparent",
-        items: [
-            {
-                label: "Home",
-                path: "/",
-                shortLabel: "Home",
-                description: "Return to the main workspace overview.",
-            },
-            {
-                label: "History",
-                path: "/history",
-                shortLabel: "Saved",
-                description: "Review your recent routes, prompts, and saved activity.",
-            },
-            {
-                label: "Settings",
-                path: "/settings",
-                shortLabel: "Prefs",
-                description: "Control app behavior, reminders, currency, and motion.",
-            },
-        ],
-    },
-    {
-        title: "Core Tools",
-        hint: "Daily utility calculators",
-        tone: "from-cyan-400/15 to-transparent",
-        items: [
-            {
-                label: "Basic Calculator",
-                path: "/basic",
-                shortLabel: "Calculator",
-                description: "Proper calculator with memory, keyboard support, and history.",
-            },
-        ],
-    },
-    {
-        title: "Smart Tools",
-        hint: "Prompt-driven routing",
-        tone: "from-amber-300/15 to-transparent",
-        items: [
-            {
-                label: "Smart Solver",
-                path: "/smart/solver",
-                shortLabel: "Solver",
-                description: "Interpret natural language and route to the right tool.",
-            },
-        ],
-    },
-    {
-        title: "Finance",
-        hint: "Time value, loans, and rates",
-        tone: "from-sky-400/15 to-transparent",
-        items: [
-            { label: "Simple Interest", path: "/finance/simple-interest" },
-            { label: "Compound Interest", path: "/finance/compound-interest" },
-            { label: "Future Value", path: "/finance/future-value" },
-            { label: "Present Value", path: "/finance/present-value" },
-            { label: "Future Value of Annuity", path: "/finance/future-value-annuity" },
-            { label: "Present Value of Annuity", path: "/finance/present-value-annuity" },
-            { label: "Loan Amortization", path: "/finance/loan-amortization" },
-            { label: "Effective Interest Rate", path: "/finance/effective-interest-rate" },
-            { label: "Sinking Fund Deposit", path: "/finance/sinking-fund-deposit" },
-        ],
-    },
-    {
-        title: "Business",
-        hint: "CVP and performance measures",
-        tone: "from-orange-400/15 to-transparent",
-        items: [
-            { label: "Profit / Loss", path: "/business/profit-loss" },
-            { label: "Break-even Point", path: "/business/break-even" },
-            { label: "Contribution Margin", path: "/business/contribution-margin" },
-            { label: "Markup & Margin", path: "/business/markup-margin" },
-            { label: "Target Profit", path: "/business/target-profit" },
-            { label: "Margin of Safety", path: "/business/margin-of-safety" },
-            { label: "Net Profit Margin", path: "/business/net-profit-margin" },
-            { label: "Operating Leverage", path: "/business/operating-leverage" },
-        ],
-    },
-    {
-        title: "Accounting",
-        hint: "University-ready accounting topics",
-        tone: "from-green-400/20 to-transparent",
-        items: [
-            { label: "Accounting Equation", path: "/accounting/accounting-equation" },
-            { label: "Notes Interest", path: "/accounting/notes-interest" },
-            { label: "Straight-line Depreciation", path: "/accounting/straight-line-depreciation" },
-            { label: "Declining Balance Depreciation", path: "/accounting/declining-balance-depreciation" },
-            { label: "Units of Production Depreciation", path: "/accounting/units-of-production-depreciation" },
-            { label: "Cash Discount", path: "/accounting/cash-discount" },
-            { label: "FIFO Inventory", path: "/accounting/fifo-inventory" },
-            { label: "Weighted Average Inventory", path: "/accounting/weighted-average-inventory" },
-            { label: "Gross Profit Method", path: "/accounting/gross-profit-method" },
-            { label: "Gross Profit Rate", path: "/accounting/gross-profit-rate" },
-            { label: "Bank Reconciliation", path: "/accounting/bank-reconciliation" },
-            { label: "Allowance for Doubtful Accounts", path: "/accounting/allowance-doubtful-accounts" },
-            { label: "Partnership Profit Sharing", path: "/accounting/partnership-profit-sharing" },
-            { label: "Partnership Salary & Interest", path: "/accounting/partnership-salary-interest" },
-            { label: "Partnership Admission Bonus", path: "/accounting/partnership-admission-bonus" },
-            { label: "Partnership Admission Goodwill", path: "/accounting/partnership-admission-goodwill" },
-            { label: "Philippine VAT", path: "/accounting/philippine-vat" },
-            { label: "Trade Discount", path: "/accounting/trade-discount" },
-            { label: "Cost of Goods Manufactured", path: "/accounting/cost-of-goods-manufactured" },
-            { label: "Prime & Conversion Cost", path: "/accounting/prime-conversion-cost" },
-            { label: "Materials Price Variance", path: "/accounting/materials-price-variance" },
-            { label: "Labor Rate Variance", path: "/accounting/labor-rate-variance" },
-            { label: "Current Ratio & Working Capital", path: "/accounting/current-ratio" },
-            { label: "Quick Ratio", path: "/accounting/quick-ratio" },
-            { label: "Cash Ratio", path: "/accounting/cash-ratio" },
-            { label: "Accounts Receivable Turnover", path: "/accounting/receivables-turnover" },
-            { label: "Inventory Turnover", path: "/accounting/inventory-turnover" },
-            { label: "Accounts Payable Turnover", path: "/accounting/accounts-payable-turnover" },
-            { label: "Debt to Equity Ratio", path: "/accounting/debt-to-equity" },
-            { label: "Return on Assets", path: "/accounting/return-on-assets" },
-            { label: "Times Interest Earned", path: "/accounting/times-interest-earned" },
-            { label: "Debt Ratio", path: "/accounting/debt-ratio" },
-            { label: "Earnings Per Share", path: "/accounting/earnings-per-share" },
-            { label: "Book Value Per Share", path: "/accounting/book-value-per-share" },
-            { label: "Horizontal Analysis", path: "/accounting/horizontal-analysis" },
-            { label: "Vertical Analysis", path: "/accounting/vertical-analysis" },
-            { label: "Asset Turnover", path: "/accounting/asset-turnover" },
-            { label: "Return on Equity", path: "/accounting/return-on-equity" },
-        ],
-    },
+const GROUP_CONFIG: Record<
+    AppNavGroupTitle,
+    { hint: string; tone: string; order: number }
+> = {
+    General: { hint: "Home, settings, and saved activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
+    "Core Tools": { hint: "Daily utility calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
+    "Smart Tools": { hint: "Prompt-based routing", tone: "from-amber-300/15 to-transparent", order: 2 },
+    Accounting: { hint: "Financial accounting, statements, and review tools", tone: "from-green-400/20 to-transparent", order: 3 },
+    Finance: { hint: "Time value, loans, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
+    "Managerial & Cost": { hint: "CVP, costing, variances, and depreciation", tone: "from-orange-400/15 to-transparent", order: 5 },
+    "Business Math": { hint: "Commercial math, pricing, and applied percentages", tone: "from-fuchsia-400/15 to-transparent", order: 6 },
+    Statistics: { hint: "Foundational statistics and analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
+};
+
+function feature(
+    path: string,
+    label: string,
+    category: AppNavGroupTitle,
+    description: string,
+    aliases: string[] = [],
+    tags: string[] = [],
+    shortLabel?: string,
+    isNew = false,
+    keywords: string[] = []
+): RouteMeta {
+    return { path, label, category, description, aliases, tags, shortLabel, isNew, keywords };
+}
+
+export const APP_ROUTE_META: RouteMeta[] = [
+    feature("/", "Home", "General", "Main workspace overview.", ["dashboard", "homepage"], ["home"], "Home"),
+    feature("/history", "History", "General", "Saved prompts and recent activity.", ["recent", "saved work"], ["history"], "Saved", true),
+    feature("/settings", "Settings", "General", "Currency, motion, and app preferences.", ["preferences", "options"], ["settings"], "Prefs"),
+    feature("/settings/about", "About", "General", "App background and context.", ["about acccalc"], ["about"], "About"),
+    feature("/settings/feedback", "Feedback", "General", "Suggestions and issue reporting.", ["support", "report issue"], ["feedback"], "Feedback"),
+    feature("/basic", "Basic Calculator", "Core Tools", "Expression calculator with memory and keyboard support.", ["basic calc", "standard calculator"], ["calculator"], "Calculator"),
+    feature("/smart/solver", "Smart Solver", "Smart Tools", "Natural-language routing into the right tool.", ["prompt solver", "smart search"], ["smart", "routing"], "Solver"),
+
+    feature("/accounting/accounting-equation", "Accounting Equation", "Accounting", "Solve assets, liabilities, or equity.", ["assets liabilities equity", "ale"], ["fundamentals"]),
+    feature("/accounting/notes-interest", "Notes Interest", "Accounting", "Compute note interest and maturity value.", ["note receivable interest", "maturity value"], ["notes", "interest"]),
+    feature("/accounting/cash-discount", "Cash Discount", "Accounting", "Evaluate cash discount credit terms.", ["2/10 n/30", "credit terms"], ["discount", "merchandising"]),
+    feature("/accounting/fifo-inventory", "FIFO Inventory", "Accounting", "FIFO cost of goods sold and ending inventory.", ["first in first out", "fifo cogs"], ["inventory", "cogs"]),
+    feature("/accounting/weighted-average-inventory", "Weighted Average Inventory", "Accounting", "Weighted-average unit cost, COGS, and ending inventory.", ["average cost inventory"], ["inventory", "cogs"]),
+    feature("/accounting/gross-profit-method", "Gross Profit Method", "Accounting", "Estimate gross profit, COGS, and ending inventory.", ["gp method", "inventory estimate"], ["inventory", "estimate"]),
+    feature("/accounting/bank-reconciliation", "Bank Reconciliation", "Accounting", "Reconcile bank and book balances.", ["bank recon", "cash reconciliation"], ["cash", "reconciliation"]),
+    feature("/accounting/allowance-doubtful-accounts", "Allowance for Doubtful Accounts", "Accounting", "Estimate bad debt allowance and NRV.", ["bad debts", "net realizable value", "ada"], ["receivables", "allowance"]),
+    feature("/accounting/partnership-profit-sharing", "Partnership Profit Sharing", "Accounting", "Allocate partnership profit or loss.", ["partnership ratio sharing"], ["partnership", "allocation"]),
+    feature("/accounting/partnership-salary-interest", "Partnership Salary and Interest", "Accounting", "Use salary allowances, interest, and a remainder ratio.", ["salary allowance partnership", "interest on capital"], ["partnership", "allocation"], undefined, true),
+    feature("/accounting/partnership-admission-bonus", "Partnership Admission Bonus", "Accounting", "Incoming partner capital credit under the bonus method.", ["bonus method admission"], ["partnership", "admission"], undefined, true),
+    feature("/accounting/partnership-admission-goodwill", "Partnership Admission Goodwill", "Accounting", "Implied capital and goodwill under the goodwill method.", ["goodwill method admission"], ["partnership", "admission"], undefined, true),
+    feature("/accounting/philippine-vat", "Philippine VAT", "Accounting", "Output VAT, input VAT, and net VAT at 12%.", ["vat payable", "input vat", "output vat"], ["tax", "philippines"]),
+    feature("/accounting/current-ratio", "Current Ratio and Working Capital", "Accounting", "Current ratio plus working capital.", ["working capital", "liquidity ratio"], ["ratios", "liquidity"]),
+    feature("/accounting/quick-ratio", "Quick Ratio", "Accounting", "Acid-test liquidity coverage.", ["acid test ratio"], ["ratios", "liquidity"]),
+    feature("/accounting/cash-ratio", "Cash Ratio", "Accounting", "Strict liquidity using only cash and near-cash items.", ["strict liquidity ratio"], ["ratios", "liquidity"], undefined, true),
+    feature("/accounting/receivables-turnover", "Accounts Receivable Turnover", "Accounting", "Receivables turnover and collection period.", ["ar turnover", "collection period"], ["ratios", "receivables"]),
+    feature("/accounting/inventory-turnover", "Inventory Turnover", "Accounting", "Inventory turnover and days in inventory.", ["days in inventory"], ["ratios", "inventory"]),
+    feature("/accounting/accounts-payable-turnover", "Accounts Payable Turnover", "Accounting", "Payables turnover and payment period.", ["ap turnover", "payment period"], ["ratios", "payables"], undefined, true),
+    feature("/accounting/debt-to-equity", "Debt to Equity Ratio", "Accounting", "Leverage using total liabilities and equity.", ["de ratio", "debt equity"], ["ratios", "solvency"]),
+    feature("/accounting/debt-ratio", "Debt Ratio", "Accounting", "Proportion of assets financed by liabilities.", ["liabilities to assets"], ["ratios", "solvency"]),
+    feature("/accounting/return-on-assets", "Return on Assets", "Accounting", "Profitability relative to average assets.", ["roa"], ["ratios", "profitability"]),
+    feature("/accounting/asset-turnover", "Asset Turnover", "Accounting", "Net sales generated per peso of average assets.", ["sales to assets"], ["ratios", "efficiency"]),
+    feature("/accounting/return-on-equity", "Return on Equity", "Accounting", "Profitability relative to average equity.", ["roe"], ["ratios", "profitability"]),
+    feature("/accounting/times-interest-earned", "Times Interest Earned", "Accounting", "Interest coverage using EBIT.", ["interest coverage", "tie ratio"], ["ratios", "solvency"], undefined, true),
+    feature("/accounting/earnings-per-share", "Earnings Per Share", "Accounting", "Basic EPS from net income, preferred dividends, and weighted shares.", ["eps"], ["ratios", "equity"]),
+    feature("/accounting/book-value-per-share", "Book Value Per Share", "Accounting", "Book value represented by each common share.", ["bvps"], ["ratios", "equity"], undefined, true),
+    feature("/accounting/horizontal-analysis", "Horizontal Analysis", "Accounting", "Amount and percentage change across periods.", ["trend analysis"], ["analysis", "statements"]),
+    feature("/accounting/vertical-analysis", "Vertical Analysis", "Accounting", "Common-size statement percentage.", ["common size"], ["analysis", "statements"]),
+    feature("/accounting/trial-balance-checker", "Trial Balance Checker", "Accounting", "Compare total debits and credits.", ["trial balance", "tb checker"], ["accounting cycle"], undefined, true),
+    feature("/accounting/account-classification", "Account Classification Helper", "Accounting", "Look up account type, statement section, and normal balance.", ["normal balance helper", "chart of accounts helper"], ["accounting cycle", "classification"], undefined, true),
+    feature("/accounting/debit-credit-trainer", "Debit and Credit Trainer", "Accounting", "Practice normal debit and credit balances.", ["debit credit quiz", "dr cr trainer"], ["accounting cycle", "study"], undefined, true),
+
+    feature("/finance/simple-interest", "Simple Interest", "Finance", "Simple interest and total amount.", ["i prt", "interest only"], ["interest"]),
+    feature("/finance/compound-interest", "Compound Interest", "Finance", "Compound interest using compounding frequency.", ["compounded interest"], ["interest"]),
+    feature("/finance/future-value", "Future Value", "Finance", "Future value of a single amount.", ["fv", "single sum future value"], ["tvm"]),
+    feature("/finance/present-value", "Present Value", "Finance", "Present worth of a future amount.", ["pv", "discounted value"], ["tvm"]),
+    feature("/finance/future-value-annuity", "Future Value of Annuity", "Finance", "Future value of an ordinary annuity.", ["fva", "annuity accumulation"], ["annuity", "tvm"]),
+    feature("/finance/present-value-annuity", "Present Value of Annuity", "Finance", "Present value of an ordinary annuity.", ["pva", "annuity present worth"], ["annuity", "tvm"]),
+    feature("/finance/effective-interest-rate", "Effective Interest Rate", "Finance", "Convert nominal annual rate to effective annual rate.", ["ear", "nominal vs effective"], ["rates"]),
+    feature("/finance/sinking-fund-deposit", "Sinking Fund Deposit", "Finance", "Regular deposit needed to reach a target amount.", ["required deposit", "sinking fund"], ["annuity", "savings"]),
+    feature("/finance/loan-amortization", "Loan Amortization", "Finance", "Monthly payment, total paid, and total interest.", ["monthly payment", "loan payment"], ["loan", "payment"]),
+    feature("/finance/npv", "Net Present Value", "Finance", "Discount cash flows and compare them with the initial investment.", ["npv", "discounted cash flow"], ["capital budgeting"], "NPV", true),
+    feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
+    feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
+
+    feature("/business/profit-loss", "Profit and Loss", "Business Math", "Compare revenue and cost.", ["profit or loss", "gain or loss"], ["commercial math"]),
+    feature("/business/markup-margin", "Markup and Margin", "Business Math", "Compare markup on cost and margin on selling price.", ["gross margin", "markup percentage"], ["pricing"]),
+    feature("/business/net-profit-margin", "Net Profit Margin", "Business Math", "Net income per peso of net sales.", ["net margin"], ["profitability"]),
+    feature("/business-math/weighted-mean", "Weighted Mean", "Business Math", "Weighted mean from values and weights.", ["weighted average", "average with weights"], ["statistics"], undefined, true),
+
+    feature("/business/contribution-margin", "Contribution Margin", "Managerial & Cost", "Contribution margin amount and ratio.", ["cm ratio"], ["cvp"]),
+    feature("/business/break-even", "Break-even Point", "Managerial & Cost", "Break-even units and sales.", ["break even", "be point"], ["cvp"]),
+    feature("/business/target-profit", "Target Profit", "Managerial & Cost", "Required units and sales for a target profit.", ["target income"], ["cvp"]),
+    feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
+    feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
+    feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
+    feature("/accounting/prime-conversion-cost", "Prime and Conversion Cost", "Managerial & Cost", "Prime cost and conversion cost.", ["prime cost", "conversion cost"], ["cost accounting"], undefined, true),
+    feature("/accounting/materials-price-variance", "Materials Price Variance", "Managerial & Cost", "Direct materials price variance.", ["mpv", "material price variance"], ["variance"], undefined, true),
+    feature("/accounting/labor-rate-variance", "Labor Rate Variance", "Managerial & Cost", "Direct labor rate variance.", ["labor wage variance"], ["variance"], undefined, true),
+    feature("/accounting/straight-line-depreciation", "Straight-line Depreciation", "Managerial & Cost", "Annual depreciation under the straight-line method.", ["straight line"], ["depreciation"]),
+    feature("/accounting/declining-balance-depreciation", "Declining Balance Depreciation", "Managerial & Cost", "Double declining balance depreciation.", ["ddb", "double declining balance"], ["depreciation"]),
+    feature("/accounting/units-of-production-depreciation", "Units of Production Depreciation", "Managerial & Cost", "Depreciation based on actual output.", ["units of activity depreciation"], ["depreciation"], undefined, true),
+
+    feature("/statistics/standard-deviation", "Standard Deviation", "Statistics", "Mean, variance, and standard deviation for a list of values.", ["sd", "variance"], ["statistics", "analytics"], undefined, true),
 ];
 
-export const NEW_FEATURE_PATHS = new Set<string>([
-    "/history",
-    "/accounting/partnership-salary-interest",
-    "/accounting/prime-conversion-cost",
-    "/accounting/materials-price-variance",
-    "/accounting/labor-rate-variance",
-    "/accounting/units-of-production-depreciation",
-    "/accounting/partnership-admission-bonus",
-    "/accounting/partnership-admission-goodwill",
-    "/accounting/accounts-payable-turnover",
-    "/accounting/times-interest-earned",
-    "/accounting/book-value-per-share",
-    "/accounting/gross-profit-rate",
-    "/accounting/trade-discount",
-    "/accounting/cash-ratio",
-]);
+export const APP_ROUTE_META_MAP = new Map(APP_ROUTE_META.map((item) => [item.path, item]));
 
-export const APP_ROUTE_META: RouteMeta[] = APP_NAV_GROUPS.flatMap((group) =>
-    group.items.map((item) => ({
-        path: item.path,
-        label: item.label,
-        category: group.title,
-        description: item.description ?? `${item.label} in the ${group.title} category.`,
-        shortLabel: item.shortLabel,
-    }))
+export const NEW_FEATURE_PATHS = new Set(
+    APP_ROUTE_META.filter((item) => item.isNew).map((item) => item.path)
 );
 
-export const APP_ROUTE_META_MAP = new Map(APP_ROUTE_META.map((item) => [item.path, item]));
+export const APP_NAV_GROUPS: AppNavGroup[] = Object.entries(GROUP_CONFIG)
+    .sort(([, left], [, right]) => left.order - right.order)
+    .map(([title, config]) => ({
+        title: title as AppNavGroupTitle,
+        hint: config.hint,
+        tone: config.tone,
+        items: APP_ROUTE_META.filter((item) => item.category === title).map((item) => ({
+            label: item.label,
+            path: item.path,
+            shortLabel: item.shortLabel,
+            description: item.description,
+        })),
+    }))
+    .filter((group) => group.items.length > 0);
 
 export function getRouteMeta(path: string): RouteMeta | null {
     return APP_ROUTE_META_MAP.get(path) ?? null;

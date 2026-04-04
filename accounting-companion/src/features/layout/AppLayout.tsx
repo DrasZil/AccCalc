@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import FeatureSearch from "../../components/FeatureSearch";
 import InstallPrompt from "../../components/InstallPrompt";
 import {
     markPathSeen,
@@ -32,9 +33,11 @@ const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
     General: false,
     "Core Tools": false,
     "Smart Tools": false,
-    Finance: false,
-    Business: false,
     Accounting: false,
+    Finance: false,
+    "Managerial & Cost": false,
+    "Business Math": false,
+    Statistics: false,
 };
 
 function isPathActive(currentPath: string, itemPath: string) {
@@ -99,7 +102,7 @@ function SidebarContent({
                     <div className="mt-2 flex items-center justify-between gap-3">
                         <p className="text-lg font-semibold text-white">{toolCount}</p>
                         <p className="text-xs leading-5 text-gray-400">
-                            Grouped by general, core, smart, finance, business, and accounting.
+                            Grouped by accounting, finance, managerial and cost, business math, and statistics.
                         </p>
                     </div>
                 </div>
@@ -584,6 +587,9 @@ export default function AppLayout() {
                                     <ShellIcon kind="menu" />
                                 </button>
                             </div>
+                        </div>
+                        <div className="px-4 pb-3 md:px-6">
+                            <FeatureSearch />
                         </div>
                     </header>
 

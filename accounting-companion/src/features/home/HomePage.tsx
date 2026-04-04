@@ -1,73 +1,22 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import FeatureSearch from "../../components/FeatureSearch";
 import { getRecommendedRoutes, useAppActivity } from "../../utils/appActivity";
-import { APP_ROUTE_META, NEW_FEATURE_PATHS } from "../../utils/appCatalog";
+import {
+    APP_NAV_GROUPS,
+    APP_ROUTE_META_MAP,
+    NEW_FEATURE_PATHS,
+} from "../../utils/appCatalog";
 import { useAppSettings } from "../../utils/appSettings";
 
-const spotlightTools = [
-    {
-        title: "Smart Solver",
-        description: "Describe a problem naturally and get matched with the right calculator plus dynamic inputs.",
-        path: "/smart/solver",
-        category: "Smart Tools",
-    },
-    {
-        title: "Basic Calculator",
-        description: "Open the upgraded calculator pad with memory, keyboard support, and proper expression handling.",
-        path: "/basic",
-        category: "Core",
-    },
-    {
-        title: "Vertical Analysis",
-        description: "Translate statement items into common-size percentages for classroom or reporting work.",
-        path: "/accounting/vertical-analysis",
-        category: "Accounting",
-    },
-    {
-        title: "History",
-        description: "Return to saved prompts, prior routes, and recommendations that persist on this device.",
-        path: "/history",
-        category: "General",
-    },
+const SPOTLIGHT_PATHS = [
+    "/smart/solver",
+    "/accounting/trial-balance-checker",
+    "/finance/npv",
+    "/accounting/debit-credit-trainer",
 ];
 
-const categoryDecks = [
-    {
-        title: "Finance",
-        description: "Time value, annuities, rates, and loan work.",
-        links: [
-            { label: "Simple Interest", path: "/finance/simple-interest" },
-            { label: "Loan Amortization", path: "/finance/loan-amortization" },
-            { label: "Effective Interest Rate", path: "/finance/effective-interest-rate" },
-            { label: "Sinking Fund Deposit", path: "/finance/sinking-fund-deposit" },
-        ],
-    },
-    {
-        title: "Business",
-        description: "CVP analysis, margins, and operating performance.",
-        links: [
-            { label: "Break-even Point", path: "/business/break-even" },
-            { label: "Margin of Safety", path: "/business/margin-of-safety" },
-            { label: "Net Profit Margin", path: "/business/net-profit-margin" },
-            { label: "Operating Leverage", path: "/business/operating-leverage" },
-        ],
-    },
-    {
-        title: "Accounting",
-        description: "Core accounting procedures, partnerships, cost accounting, and statement analysis.",
-        links: [
-            { label: "Gross Profit Rate", path: "/accounting/gross-profit-rate" },
-            { label: "Cash Ratio", path: "/accounting/cash-ratio" },
-            { label: "Trade Discount", path: "/accounting/trade-discount" },
-            { label: "Partnership Salary & Interest", path: "/accounting/partnership-salary-interest" },
-            { label: "Prime & Conversion Cost", path: "/accounting/prime-conversion-cost" },
-            { label: "Materials Price Variance", path: "/accounting/materials-price-variance" },
-            { label: "Labor Rate Variance", path: "/accounting/labor-rate-variance" },
-            { label: "Partnership Admission Bonus", path: "/accounting/partnership-admission-bonus" },
-            { label: "Book Value Per Share", path: "/accounting/book-value-per-share" },
-        ],
-    },
-];
+const HIDDEN_HOME_PATHS = new Set(["/", "/settings/about", "/settings/feedback"]);
 
 export default function HomePage() {
     const activity = useAppActivity();
@@ -76,14 +25,40 @@ export default function HomePage() {
     const recommended = getRecommendedRoutes(activity, "/");
     const savedPromptCount = activity.savedRecords.length;
     const activeToolCount = Object.keys(activity.toolUsage).length;
+
     const unseenFeatures = useMemo(
         () =>
-            APP_ROUTE_META.filter(
+            Array.from(APP_ROUTE_META_MAP.values()).filter(
                 (route) =>
                     NEW_FEATURE_PATHS.has(route.path) &&
                     !activity.seenNewPaths.includes(route.path)
             ),
         [activity.seenNewPaths]
+    );
+
+    const spotlightTools = useMemo(
+        () =>
+            SPOTLIGHT_PATHS.map((path) => APP_ROUTE_META_MAP.get(path)).filter(
+                (item): item is NonNullable<typeof item> => Boolean(item)
+            ),
+        []
+    );
+
+    const browseGroups = useMemo(
+        () =>
+            APP_NAV_GROUPS.filter((group) => group.title !== "General").map((group) => ({
+                ...group,
+                items: group.items.filter((item) => !HIDDEN_HOME_PATHS.has(item.path)),
+                featuredItems: group.items
+                    .filter((item) => !HIDDEN_HOME_PATHS.has(item.path))
+                    .slice(0, group.title === "Accounting" ? 6 : 5),
+            })),
+        []
+    );
+
+    const totalBrowsableTools = browseGroups.reduce(
+        (total, group) => total + group.items.length,
+        0
     );
 
     return (
@@ -92,13 +67,15 @@ export default function HomePage() {
                 <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-end">
                     <div className="max-w-3xl">
                         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-green-300">
-                            Smart Accounting Toolkit
+                            Accounting-first calculator platform
                         </p>
                         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl xl:text-6xl">
-                            Premium accounting tools for study, drills, and practical work.
+                            Reliable tools for accounting, finance, managerial work, business math, and statistics.
                         </h1>
                         <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300 md:text-lg">
-                            AccCalc is built for Philippine students, reviewees, and working users who need reliable formulas, cleaner interfaces, stronger explanations, and offline-friendly access across finance, business, and accounting topics.
+                            AccCalc is built for assignments, quizzes, reviews, and practical class use.
+                            The app prioritizes formula accuracy, cleaner interpretation, and direct
+                            routes into the exact tool you need.
                         </p>
 
                         <div className="mt-6 flex flex-wrap gap-3">
@@ -115,14 +92,22 @@ export default function HomePage() {
                                 Open history
                             </Link>
                         </div>
+
+                        <FeatureSearch
+                            variant="hero"
+                            className="mt-6 max-w-2xl"
+                            placeholder="Search NPV, debit and credit, FIFO, trial balance, gross profit, weighted mean..."
+                        />
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Saved offline</p>
-                            <p className="mt-2 text-lg font-semibold">
-                                {settings.saveOfflineHistory ? "History enabled" : "History disabled"}
-                            </p>
+                            <p className="text-sm text-gray-400">Browsable tools</p>
+                            <p className="mt-2 text-lg font-semibold">{totalBrowsableTools}</p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm text-gray-400">Active categories</p>
+                            <p className="mt-2 text-lg font-semibold">{browseGroups.length}</p>
                         </div>
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
                             <p className="text-sm text-gray-400">Saved prompts</p>
@@ -145,7 +130,7 @@ export default function HomePage() {
                                     What is new
                                 </p>
                                 <h2 className="mt-3 text-2xl font-semibold text-white">
-                                    {unseenFeatures.length} new update{unseenFeatures.length > 1 ? "s" : ""} waiting for you.
+                                    {unseenFeatures.length} update{unseenFeatures.length > 1 ? "s" : ""} ready to explore.
                                 </h2>
                                 <p className="mt-2 text-sm leading-6 text-gray-400">
                                     New items disappear from this section after you open them.
@@ -196,21 +181,29 @@ export default function HomePage() {
                     </p>
                     <div className="mt-4 space-y-3">
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Students and reviewees</p>
+                            <p className="text-sm font-medium text-white">Assignments and activities</p>
                             <p className="mt-2 text-sm leading-6 text-gray-400">
-                                Use formulas, term explanations, and interpretations to study faster and check answers with context.
+                                Move from formulas to interpreted answers faster when checking class problems and workbook items.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Professionals and staff</p>
+                            <p className="text-sm font-medium text-white">Quizzes and reviews</p>
                             <p className="mt-2 text-sm leading-6 text-gray-400">
-                                Open a focused tool directly or let Smart Solver route plain-language requests into the correct calculator.
+                                Use the trainer and classification helpers to reinforce normal balances, account types, and ratio logic.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm font-medium text-white">Installed app users</p>
+                            <p className="text-sm font-medium text-white">Offline-friendly study flow</p>
                             <p className="mt-2 text-sm leading-6 text-gray-400">
-                                Use the PWA for faster relaunches, offline-friendly access, update notices, and saved activity on the device.
+                                Recent prompts, saved activity, and installed-app behavior stay available on the device.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Saved offline</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                {settings.saveOfflineHistory
+                                    ? "History saving is enabled for this device."
+                                    : "History saving is currently disabled in settings."}
                             </p>
                         </div>
                     </div>
@@ -270,7 +263,7 @@ export default function HomePage() {
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Spotlight tools</h2>
                     <p className="mt-1 text-sm text-gray-400">
-                        Fast routes into guided solving, proper computation, and saved progress.
+                        Fast routes into guided solving, clean interpretation, and class-ready outputs.
                     </p>
                 </div>
 
@@ -291,7 +284,7 @@ export default function HomePage() {
                             </div>
 
                             <h3 className="mt-4 text-xl font-semibold leading-snug text-white">
-                                {tool.title}
+                                {tool.label}
                             </h3>
                             <p className="mt-3 text-sm leading-6 text-gray-300">
                                 {tool.description}
@@ -301,35 +294,50 @@ export default function HomePage() {
                 </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-3">
-                {categoryDecks.map((deck) => (
-                    <div
-                        key={deck.title}
-                        className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
-                    >
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
-                            {deck.title}
-                        </p>
-                        <h3 className="mt-3 text-2xl font-semibold text-white">
-                            {deck.description}
-                        </h3>
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Browse by category</h2>
+                    <p className="mt-1 text-sm text-gray-400">
+                        Organized from the shared app catalog so navigation and search stay consistent as the platform grows.
+                    </p>
+                </div>
 
-                        <div className="mt-5 space-y-2">
-                            {deck.links.map((link) => (
-                                <Link
-                                    key={link.path}
-                                    to={link.path}
-                                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition duration-300 hover:border-white/15 hover:bg-white/[0.08]"
-                                >
-                                    <span>{link.label}</span>
-                                    <span className="text-xs uppercase tracking-[0.18em] text-gray-500">
-                                        {NEW_FEATURE_PATHS.has(link.path) ? "New" : "Open"}
-                                    </span>
-                                </Link>
-                            ))}
+                <div className="grid gap-4 xl:grid-cols-3">
+                    {browseGroups.map((group) => (
+                        <div
+                            key={group.title}
+                            className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
+                        >
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                                    {group.title}
+                                </p>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                    {group.items.length}
+                                </span>
+                            </div>
+
+                            <h3 className="mt-3 text-2xl font-semibold text-white">
+                                {group.hint}
+                            </h3>
+
+                            <div className="mt-5 space-y-2">
+                                {group.featuredItems.map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition duration-300 hover:border-white/15 hover:bg-white/[0.08]"
+                                    >
+                                        <span>{item.label}</span>
+                                        <span className="text-xs uppercase tracking-[0.18em] text-gray-500">
+                                            {NEW_FEATURE_PATHS.has(item.path) ? "New" : "Open"}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </section>
         </div>
     );

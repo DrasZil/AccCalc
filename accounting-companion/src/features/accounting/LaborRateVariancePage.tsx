@@ -30,8 +30,19 @@ export default function LaborRateVariancePage() {
             return { error: "All fields must contain valid numbers." };
         }
 
-        const variance =
-            parsedActualHours * (parsedActualRate - parsedStandardRate);
+        if (parsedActualHours < 0 || parsedActualRate < 0 || parsedStandardRate < 0) {
+            return {
+                error: "Actual hours, actual rate, and standard rate cannot be negative.",
+            };
+        }
+
+        const variance = parsedActualHours * (parsedActualRate - parsedStandardRate);
+        const direction =
+            variance > 0
+                ? "Unfavorable"
+                : variance < 0
+                  ? "Favorable"
+                  : "None";
         const interpretation =
             variance > 0
                 ? "Unfavorable variance. Actual labor rate exceeded the standard rate."
@@ -41,6 +52,7 @@ export default function LaborRateVariancePage() {
 
         return {
             variance,
+            direction,
             formula: "Labor Rate Variance = Actual Hours x (Actual Rate - Standard Rate)",
             steps: [
                 `Variance = ${parsedActualHours} x (${formatPHP(parsedActualRate)} - ${formatPHP(parsedStandardRate)}) = ${formatPHP(variance)}`,
@@ -65,15 +77,30 @@ export default function LaborRateVariancePage() {
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Cost"
+            badge="Managerial & Cost"
             title="Labor Rate Variance"
             description="Check whether actual direct labor wage rates were above or below the standard labor rate."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>
-                        <InputCard label="Actual Hours" value={actualHours} onChange={setActualHours} placeholder="2400" />
-                        <InputCard label="Actual Rate per Hour" value={actualRate} onChange={setActualRate} placeholder="180" />
-                        <InputCard label="Standard Rate per Hour" value={standardRate} onChange={setStandardRate} placeholder="170" />
+                        <InputCard
+                            label="Actual Hours"
+                            value={actualHours}
+                            onChange={setActualHours}
+                            placeholder="2400"
+                        />
+                        <InputCard
+                            label="Actual Rate per Hour"
+                            value={actualRate}
+                            onChange={setActualRate}
+                            placeholder="180"
+                        />
+                        <InputCard
+                            label="Standard Rate per Hour"
+                            value={standardRate}
+                            onChange={setStandardRate}
+                            placeholder="170"
+                        />
                     </InputGrid>
                 </SectionCard>
             }
@@ -86,7 +113,7 @@ export default function LaborRateVariancePage() {
                 ) : result ? (
                     <ResultGrid columns={2}>
                         <ResultCard title="Labor Rate Variance" value={formatPHP(result.variance)} />
-                        <ResultCard title="Variance Direction" value={result.interpretation} />
+                        <ResultCard title="Variance Direction" value={result.direction} />
                     </ResultGrid>
                 ) : null
             }

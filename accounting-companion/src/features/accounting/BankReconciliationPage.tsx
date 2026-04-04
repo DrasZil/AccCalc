@@ -9,6 +9,15 @@ import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
+function parseOptionalAmount(value: string) {
+    if (value.trim() === "") return 0;
+    return Number(value);
+}
+
+function formatSignedCurrency(value: number) {
+    return `${value >= 0 ? "+" : "-"} ${formatPHP(Math.abs(value))}`;
+}
+
 export default function BankReconciliationPage() {
     const [bankBalance, setBankBalance] = useState("");
     const [bookBalance, setBookBalance] = useState("");
@@ -31,27 +40,16 @@ export default function BankReconciliationPage() {
     });
 
     const result = useMemo(() => {
-        const values = [
-            bankBalance,
-            bookBalance,
-            depositsInTransit,
-            outstandingChecks,
-            serviceCharges,
-            nsfChecks,
-            bankError,
-            bookError,
-        ];
-
-        if (values.some((value) => value.trim() === "")) return null;
+        if (bankBalance.trim() === "" || bookBalance.trim() === "") return null;
 
         const parsedBankBalance = Number(bankBalance);
         const parsedBookBalance = Number(bookBalance);
-        const parsedDepositsInTransit = Number(depositsInTransit);
-        const parsedOutstandingChecks = Number(outstandingChecks);
-        const parsedServiceCharges = Number(serviceCharges);
-        const parsedNsfChecks = Number(nsfChecks);
-        const parsedBankError = Number(bankError);
-        const parsedBookError = Number(bookError);
+        const parsedDepositsInTransit = parseOptionalAmount(depositsInTransit);
+        const parsedOutstandingChecks = parseOptionalAmount(outstandingChecks);
+        const parsedServiceCharges = parseOptionalAmount(serviceCharges);
+        const parsedNsfChecks = parseOptionalAmount(nsfChecks);
+        const parsedBankError = parseOptionalAmount(bankError);
+        const parsedBookError = parseOptionalAmount(bookError);
 
         const numericValues = [
             parsedBankBalance,
@@ -66,7 +64,7 @@ export default function BankReconciliationPage() {
 
         if (numericValues.some((value) => Number.isNaN(value))) {
             return {
-                error: "All inputs must be valid numbers.",
+                error: "All entered values must be valid numbers. Leave optional adjustments blank if they do not apply.",
             };
         }
 
@@ -109,52 +107,61 @@ export default function BankReconciliationPage() {
             isBalanced,
             formula: (
                 <>
-                    Adjusted Bank Balance = Bank Balance + Deposits in Transit − Outstanding Checks ± Bank Error
+                    Adjusted Bank Balance = Bank Balance + Deposits in Transit - Outstanding Checks
+                    +/- Bank Error
                     <br />
-                    Adjusted Book Balance = Book Balance − Service Charges − NSF Checks ± Book Error
+                    Adjusted Book Balance = Book Balance - Service Charges - NSF Checks +/- Book Error
                 </>
             ),
             steps: [
-                `Adjusted Bank Balance = ${formatPHP(parsedBankBalance)} + ${formatPHP(
-                    parsedDepositsInTransit
-                )} − ${formatPHP(parsedOutstandingChecks)} ${
-                    parsedBankError >= 0 ? "+" : "−"
-                } ${formatPHP(Math.abs(parsedBankError))} = ${formatPHP(adjustedBank)}`,
-                `Adjusted Book Balance = ${formatPHP(parsedBookBalance)} − ${formatPHP(
-                    parsedServiceCharges
-                )} − ${formatPHP(parsedNsfChecks)} ${
-                    parsedBookError >= 0 ? "+" : "−"
-                } ${formatPHP(Math.abs(parsedBookError))} = ${formatPHP(adjustedBook)}`,
+                `Adjusted bank balance = ${formatPHP(parsedBankBalance)} + ${formatPHP(parsedDepositsInTransit)} - ${formatPHP(parsedOutstandingChecks)} ${formatSignedCurrency(parsedBankError)} = ${formatPHP(adjustedBank)}`,
+                `Adjusted book balance = ${formatPHP(parsedBookBalance)} - ${formatPHP(parsedServiceCharges)} - ${formatPHP(parsedNsfChecks)} ${formatSignedCurrency(parsedBookError)} = ${formatPHP(adjustedBook)}`,
                 isBalanced
-                    ? `Both adjusted balances match at ${formatPHP(adjustedBank)}.`
-                    : `Adjusted balances do not match yet. Difference = ${formatPHP(difference)}.`,
+                    ? `Both adjusted balances reconcile at ${formatPHP(adjustedBank)}.`
+                    : `The adjusted balances still differ by ${formatPHP(Math.abs(difference))}.`,
             ],
             glossary: [
-                { term: "Deposits in Transit", meaning: "Deposits already recorded in the books but not yet reflected on the bank statement." },
-                { term: "Outstanding Checks", meaning: "Checks already issued and recorded by the business but not yet cleared by the bank." },
-                { term: "Service Charges", meaning: "Bank fees that reduce the book balance once recognized." },
-                { term: "NSF Checks", meaning: "Customer checks returned by the bank because of insufficient funds." },
+                {
+                    term: "Deposits in transit",
+                    meaning: "Deposits already recorded in the cash book but not yet reflected on the bank statement.",
+                },
+                {
+                    term: "Outstanding checks",
+                    meaning: "Checks already issued and recorded by the business but not yet cleared by the bank.",
+                },
+                {
+                    term: "Service charges",
+                    meaning: "Bank fees that reduce the book balance once recognized.",
+                },
+                {
+                    term: "NSF checks",
+                    meaning: "Customer checks returned by the bank because of insufficient funds.",
+                },
             ],
             interpretation: isBalanced
-                ? `After considering timing differences and errors, both records reconcile to ${formatPHP(adjustedBank)}.`
-                : `The reconciliation is still off by ${formatPHP(Math.abs(difference))}. Review whether any reconciling item or adjustment is missing or signed incorrectly.`,
+                ? `After timing differences and error adjustments, both records reconcile to ${formatPHP(adjustedBank)}.`
+                : `The reconciliation is still off by ${formatPHP(Math.abs(difference))}. Review whether a reconciling item is missing or an error adjustment was signed the wrong way.`,
+            assumptions: [
+                "Leave optional adjustment fields blank when no item applies; blanks are treated as zero.",
+                "Enter error adjustments with their effect on the related balance: positive to increase, negative to decrease.",
+            ],
         };
     }, [
         bankBalance,
+        bankError,
         bookBalance,
+        bookError,
         depositsInTransit,
+        nsfChecks,
         outstandingChecks,
         serviceCharges,
-        nsfChecks,
-        bankError,
-        bookError,
     ]);
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Cash"
+            badge="Accounting | Cash"
             title="Bank Reconciliation"
-            description="Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and errors."
+            description="Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and error adjustments."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>
@@ -174,37 +181,37 @@ export default function BankReconciliationPage() {
                             label="Deposits in Transit"
                             value={depositsInTransit}
                             onChange={setDepositsInTransit}
-                            placeholder="3500"
+                            placeholder="Leave blank if none"
                         />
                         <InputCard
                             label="Outstanding Checks"
                             value={outstandingChecks}
                             onChange={setOutstandingChecks}
-                            placeholder="2000"
+                            placeholder="Leave blank if none"
                         />
                         <InputCard
                             label="Service Charges"
                             value={serviceCharges}
                             onChange={setServiceCharges}
-                            placeholder="300"
+                            placeholder="Leave blank if none"
                         />
                         <InputCard
                             label="NSF Checks"
                             value={nsfChecks}
                             onChange={setNsfChecks}
-                            placeholder="700"
+                            placeholder="Leave blank if none"
                         />
                         <InputCard
                             label="Bank Error Adjustment"
                             value={bankError}
                             onChange={setBankError}
-                            placeholder="-200 or 200"
+                            placeholder="Use + or - only if needed"
                         />
                         <InputCard
                             label="Book Error Adjustment"
                             value={bookError}
                             onChange={setBookError}
-                            placeholder="-150 or 150"
+                            placeholder="Use + or - only if needed"
                         />
                     </InputGrid>
                 </SectionCard>
@@ -216,7 +223,7 @@ export default function BankReconciliationPage() {
                         <p className="mt-2 text-sm leading-6 text-yellow-200">{result.error}</p>
                     </SectionCard>
                 ) : result ? (
-                    <ResultGrid columns={3}>
+                    <ResultGrid columns={4}>
                         <ResultCard
                             title="Adjusted Bank Balance"
                             value={formatPHP(result.adjustedBank)}
@@ -224,6 +231,10 @@ export default function BankReconciliationPage() {
                         <ResultCard
                             title="Adjusted Book Balance"
                             value={formatPHP(result.adjustedBook)}
+                        />
+                        <ResultCard
+                            title="Difference"
+                            value={formatPHP(Math.abs(result.difference))}
                         />
                         <ResultCard
                             title="Status"
@@ -239,6 +250,7 @@ export default function BankReconciliationPage() {
                         steps={result.steps}
                         glossary={result.glossary}
                         interpretation={result.interpretation}
+                        assumptions={result.assumptions}
                     />
                 ) : null
             }
