@@ -9,6 +9,7 @@ import type {
     SmartSolverAnalysis,
     } from "./smartSolver.types";
     import { ALL_FIELD_KEYS } from "./smartSolver.types";
+import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/currency";
 
     /* -------------------------------------------------------------------------- */
     /* FIELDS */
@@ -99,10 +100,12 @@ import type {
         visibleInManualInputs: false,
         aliases: [
         "future value",
-        "future worth",
-        "maturity value",
-        "amount after",
-        "value after",
+            "future worth",
+            "maturity value",
+            "amount after",
+            "value after",
+            "target amount",
+            "goal amount",
         ],
     },
 
@@ -121,7 +124,7 @@ import type {
         kind: "percent",
         group: "finance",
         visibleInManualInputs: false,
-        aliases: ["annual rate", "yearly rate"],
+        aliases: ["annual rate", "yearly rate", "nominal rate", "stated rate"],
     },
 
     years: {
@@ -266,6 +269,24 @@ import type {
         group: "accounting",
         visibleInManualInputs: false,
         aliases: ["salvage value", "residual value"],
+    },
+
+    totalEstimatedUnits: {
+        label: "Total Estimated Units",
+        placeholder: "50000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["total estimated units", "estimated total units", "total units of output"],
+    },
+
+    unitsProduced: {
+        label: "Units Produced",
+        placeholder: "12000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["units produced", "actual units produced", "units this period"],
     },
 
     usefulLife: {
@@ -554,6 +575,33 @@ import type {
         ],
     },
 
+    totalOldCapital: {
+        label: "Total Old Partners' Capital",
+        placeholder: "300000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["total old capital", "old partners capital", "capital before admission"],
+    },
+
+    partnerInvestment: {
+        label: "Incoming Partner Investment",
+        placeholder: "120000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["partner investment", "incoming partner investment", "new partner investment"],
+    },
+
+    ownershipPercentage: {
+        label: "Ownership Percentage (%)",
+        placeholder: "25",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["ownership percentage", "ownership interest", "capital interest percentage"],
+    },
+
     partnerARatio: {
         label: "Partner A Ratio",
         placeholder: "3",
@@ -754,6 +802,24 @@ import type {
         ],
     },
 
+    netCreditPurchases: {
+        label: "Net Credit Purchases",
+        placeholder: "420000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["net credit purchases", "credit purchases", "purchases on account"],
+    },
+
+    averageAccountsPayable: {
+        label: "Average Accounts Payable",
+        placeholder: "70000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["average accounts payable", "average payables", "average ap"],
+    },
+
     netIncome: {
         label: "Net Income",
         placeholder: "85000",
@@ -769,6 +835,42 @@ import type {
         ],
     },
 
+    incomeBeforeInterestAndTaxes: {
+        label: "Income Before Interest and Taxes",
+        placeholder: "250000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["income before interest and taxes", "ebit", "earnings before interest and taxes"],
+    },
+
+    interestExpense: {
+        label: "Interest Expense",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["interest expense", "finance cost", "borrowing cost"],
+    },
+
+    commonEquity: {
+        label: "Common Equity",
+        placeholder: "900000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["common equity", "equity available to common shareholders", "common stockholders equity"],
+    },
+
+    outstandingCommonShares: {
+        label: "Outstanding Common Shares",
+        placeholder: "100000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["outstanding common shares", "common shares outstanding", "number of common shares"],
+    },
+
     averageTotalAssets: {
         label: "Average Total Assets",
         placeholder: "500000",
@@ -779,6 +881,21 @@ import type {
             "average total assets",
             "average assets",
             "average asset base",
+        ],
+    },
+
+    averageEquity: {
+        label: "Average Equity",
+        placeholder: "350000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "average equity",
+            "average owners equity",
+            "average owner's equity",
+            "average shareholders equity",
+            "average stockholders equity",
         ],
     },
 
@@ -1017,6 +1134,41 @@ import type {
         /regular payment/i,
         ],
     },
+    {
+        id: "effective-interest-rate",
+        name: "Effective Interest Rate",
+        route: "/finance/effective-interest-rate",
+        description:
+        "Best when the user wants the true annual rate after compounding.",
+        required: ["annualRate", "timesCompounded"],
+        aliases: ["effective annual rate", "ear", "eir", "true annual rate"],
+        keywords: [
+        /effective interest rate/i,
+        /effective annual rate/i,
+        /\bear\b/i,
+        /\beir\b/i,
+        /true annual rate/i,
+        /nominal rate/i,
+        /stated rate/i,
+        ],
+    },
+    {
+        id: "sinking-fund-deposit",
+        name: "Sinking Fund Deposit",
+        route: "/finance/sinking-fund-deposit",
+        description:
+        "Best when the user wants the regular deposit needed to reach a future target amount.",
+        required: ["futureValue", "rate", "periods"],
+        aliases: ["sinking fund", "deposit needed", "required periodic deposit"],
+        keywords: [
+        /sinking fund/i,
+        /required deposit/i,
+        /deposit needed/i,
+        /target amount/i,
+        /future fund/i,
+        /save up/i,
+        ],
+    },
 
     {
         id: "loan-amortization",
@@ -1103,6 +1255,38 @@ import type {
         /break-even sales/i,
         /actual sales/i,
         /sales can drop/i,
+        ],
+    },
+    {
+        id: "net-profit-margin",
+        name: "Net Profit Margin",
+        route: "/business/net-profit-margin",
+        description:
+        "Best when the user wants net income as a percentage of net sales.",
+        required: ["netIncome", "netSales"],
+        aliases: ["profit margin", "return on sales", "bottom line margin"],
+        keywords: [
+        /net profit margin/i,
+        /profit margin/i,
+        /return on sales/i,
+        /net income margin/i,
+        /bottom line margin/i,
+        ],
+    },
+    {
+        id: "operating-leverage",
+        name: "Operating Leverage",
+        route: "/business/operating-leverage",
+        description:
+        "Best when the user wants to measure how strongly operating income responds to sales changes.",
+        required: ["sales", "variableCosts", "fixedCosts"],
+        aliases: ["degree of operating leverage", "dol", "sales sensitivity"],
+        keywords: [
+        /operating leverage/i,
+        /degree of operating leverage/i,
+        /\bdol\b/i,
+        /sensitivity of profit/i,
+        /sales sensitivity/i,
         ],
     },
 
@@ -1231,6 +1415,22 @@ import type {
         /accelerated depreciation/i,
         /book value/i,
         /depreciation expense/i,
+        ],
+    },
+    {
+        id: "units-of-production-depreciation",
+        name: "Units of Production Depreciation",
+        route: "/accounting/units-of-production-depreciation",
+        description:
+        "Best when depreciation is based on actual units produced versus total estimated units.",
+        required: ["cost", "salvageValue", "totalEstimatedUnits", "unitsProduced"],
+        aliases: ["units of production", "activity method depreciation", "depreciation per unit"],
+        keywords: [
+        /units of production/i,
+        /activity method/i,
+        /depreciation per unit/i,
+        /units produced/i,
+        /estimated units/i,
         ],
     },
 
@@ -1364,7 +1564,39 @@ import type {
             /share net income/i,
             /share net loss/i,
             /partner a/i,
-            /partner b/i,
+        /partner b/i,
+        ],
+    },
+    {
+        id: "partnership-admission-bonus",
+        name: "Partnership Admission Bonus",
+        route: "/accounting/partnership-admission-bonus",
+        description:
+            "Best when a new partner is admitted and bonus method capital credit is needed.",
+        required: ["totalOldCapital", "partnerInvestment", "ownershipPercentage"],
+        aliases: ["bonus method admission", "admission bonus", "partnership bonus method"],
+        keywords: [
+            /bonus method/i,
+            /partner admission/i,
+            /admit a new partner/i,
+            /bonus to old partners/i,
+            /capital credit/i,
+        ],
+    },
+    {
+        id: "partnership-admission-goodwill",
+        name: "Partnership Admission Goodwill",
+        route: "/accounting/partnership-admission-goodwill",
+        description:
+            "Best when a new partner admission problem requires implied goodwill.",
+        required: ["totalOldCapital", "partnerInvestment", "ownershipPercentage"],
+        aliases: ["goodwill method admission", "partnership goodwill method", "implied goodwill"],
+        keywords: [
+            /goodwill method/i,
+            /implied goodwill/i,
+            /partner admission/i,
+            /admit a new partner/i,
+            /goodwill on admission/i,
         ],
     },
     {
@@ -1474,7 +1706,56 @@ import type {
             /stock turnover/i,
             /days in inventory/i,
             /\bcogs\b/i,
-            /average inventory/i,
+        /average inventory/i,
+        ],
+    },
+    {
+        id: "accounts-payable-turnover",
+        name: "Accounts Payable Turnover",
+        route: "/accounting/accounts-payable-turnover",
+        description:
+            "Compute payable turnover and average payment period.",
+        required: ["netCreditPurchases", "averageAccountsPayable"],
+        aliases: ["ap turnover", "payables turnover", "days to pay suppliers"],
+        keywords: [
+            /accounts payable turnover/i,
+            /payables turnover/i,
+            /average payment period/i,
+            /days to pay suppliers/i,
+            /credit purchases/i,
+            /average accounts payable/i,
+        ],
+    },
+    {
+        id: "times-interest-earned",
+        name: "Times Interest Earned",
+        route: "/accounting/times-interest-earned",
+        description:
+            "Measure interest coverage using income before interest and taxes.",
+        required: ["incomeBeforeInterestAndTaxes", "interestExpense"],
+        aliases: ["interest coverage", "tie ratio", "earnings coverage"],
+        keywords: [
+            /times interest earned/i,
+            /interest coverage/i,
+            /\btie\b/i,
+            /ebit/i,
+            /interest expense/i,
+        ],
+    },
+    {
+        id: "book-value-per-share",
+        name: "Book Value Per Share",
+        route: "/accounting/book-value-per-share",
+        description:
+            "Compute book value attributed to each outstanding common share.",
+        required: ["commonEquity", "outstandingCommonShares"],
+        aliases: ["bvps", "book value of common share", "equity per share"],
+        keywords: [
+            /book value per share/i,
+            /\bbvps\b/i,
+            /book value of common share/i,
+            /equity per share/i,
+            /outstanding common shares/i,
         ],
     },
     {
@@ -1506,7 +1787,41 @@ import type {
             /\broa\b/i,
             /profitability/i,
             /net income/i,
+        /average total assets/i,
+        ],
+    },
+    {
+        id: "asset-turnover",
+        name: "Asset Turnover",
+        route: "/accounting/asset-turnover",
+        description:
+            "Compute how efficiently assets are used to generate net sales.",
+        required: ["netSales", "averageTotalAssets"],
+        aliases: ["assets turnover", "sales to assets", "asset efficiency"],
+        keywords: [
+            /asset turnover/i,
+            /assets turnover/i,
+            /sales to assets/i,
+            /asset efficiency/i,
+            /net sales/i,
             /average total assets/i,
+        ],
+    },
+    {
+        id: "return-on-equity",
+        name: "Return on Equity",
+        route: "/accounting/return-on-equity",
+        description:
+            "Compute return on owners' equity using net income and average equity.",
+        required: ["netIncome", "averageEquity"],
+        aliases: ["roe", "owners equity return", "shareholders return"],
+        keywords: [
+            /return on equity/i,
+            /\broe\b/i,
+            /owners'? equity/i,
+            /shareholders'? equity/i,
+            /stockholders'? equity/i,
+            /average equity/i,
         ],
     },
     {
@@ -1587,6 +1902,7 @@ import type {
 export function normalizeText(text: string = ""): string {
     const normalized = String(text)
         .toLowerCase()
+        .replace(/₱/g, " php ")
         .replace(/[,_]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -1600,8 +1916,9 @@ export function normalizeText(text: string = ""): string {
     if (value === null || value === undefined) return null;
 
     let cleaned = String(value).trim();
+    cleaned = stripCurrencyMarkers(cleaned);
     cleaned = cleaned.replace(/,/g, "");
-    cleaned = cleaned.replace(/[₱$%\s]/g, "");
+    cleaned = cleaned.replace(/[\u20B1$%\s]/g, "");
 
     if (!cleaned) return null;
 
@@ -1637,7 +1954,7 @@ export function normalizeText(text: string = ""): string {
     if (!aliases.length) return null;
 
     const joined = aliases.map(escapeRegExp).join("|");
-    const currencyPrefix = options?.allowCurrency === false ? "" : "[₱$]?";
+    const currencyPrefix = options?.allowCurrency === false ? "" : "[\u20B1$]?";
     const percentSuffix = options?.percent ? "\\s*%?" : "";
 
     return extractFirstNumber(text, [
@@ -1714,6 +2031,31 @@ export function normalizeText(text: string = ""): string {
     [/\btrend percentage\b/g, "horizontal analysis"],
     [/\bcommon size\b/g, "vertical analysis"],
     [/\bcommon-size\b/g, "vertical analysis"],
+    [/\btrue annual rate\b/g, "effective annual rate"],
+    [/\bactual annual rate\b/g, "effective annual rate"],
+    [/\bnominal annual rate\b/g, "nominal rate"],
+    [/\bamount i want to have later\b/g, "future value"],
+    [/\bmoney i want to accumulate\b/g, "future value"],
+    [/\bdeposit needed every period\b/g, "required periodic deposit"],
+    [/\bhow much to save each period\b/g, "required periodic deposit"],
+    [/\bbottom line margin\b/g, "net profit margin"],
+    [/\bprofit from each peso of sales\b/g, "net profit margin"],
+    [/\boperating profit sensitivity\b/g, "operating leverage"],
+    [/\bhow sensitive profit is to sales\b/g, "operating leverage"],
+    [/\bassets generate sales\b/g, "asset turnover"],
+    [/\bsales produced by assets\b/g, "asset turnover"],
+    [/\breturn for owners\b/g, "return on equity"],
+    [/\bowners'? return\b/g, "return on equity"],
+    [/\bdepreciation by units\b/g, "units of production depreciation"],
+    [/\bdepreciation based on output\b/g, "units of production depreciation"],
+    [/\bbonus on admission\b/g, "partnership admission bonus"],
+    [/\bgoodwill on admission\b/g, "partnership admission goodwill"],
+    [/\bpay suppliers\b/g, "accounts payable turnover"],
+    [/\bhow fast we pay creditors\b/g, "accounts payable turnover"],
+    [/\binterest coverage\b/g, "times interest earned"],
+    [/\bearnings cover interest\b/g, "times interest earned"],
+    [/\bbook value of share\b/g, "book value per share"],
+    [/\bequity per share\b/g, "book value per share"],
     ];
 
     export function extractTime(text: string): {
@@ -1811,7 +2153,7 @@ export function normalizeText(text: string = ""): string {
     function extractPartnershipRatios(text: string): Partial<Record<FieldKey, string>> {
     const result: Partial<Record<FieldKey, string>> = {};
     const ratioMatch = text.match(
-        /(?:ratio|sharing|share)\s*(?:of|is|=|:)?\s*(\d+(?:\.\d+)?)\s*[:\-]\s*(\d+(?:\.\d+)?)(?:\s*[:\-]\s*(\d+(?:\.\d+)?))?/i
+        /(?:ratio|sharing|share)\s*(?:of|is|=|:)?\s*(\d+(?:\.\d+)?)\s*[:-]\s*(\d+(?:\.\d+)?)(?:\s*[:-]\s*(\d+(?:\.\d+)?))?/i
     );
 
     if (!ratioMatch) return result;
@@ -1891,6 +2233,18 @@ export function normalizeText(text: string = ""): string {
         facts.assets = facts.averageTotalAssets;
     }
 
+    if (facts.equity && !facts.averageEquity) {
+        facts.averageEquity = facts.equity;
+    }
+
+    if (facts.averageEquity && !facts.equity) {
+        facts.equity = facts.averageEquity;
+    }
+
+    if (facts.equity && !facts.commonEquity) {
+        facts.commonEquity = facts.equity;
+    }
+
     if (facts.sales && !facts.actualSales) {
         facts.actualSales = facts.sales;
     }
@@ -1918,8 +2272,8 @@ export function normalizeText(text: string = ""): string {
     const facts: Partial<Record<FieldKey, string>> = {};
 
     const principal = extractFirstNumber(text, [
-        /(?:principal|capital|loan amount|amount borrowed|investment|invested|borrowed)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
-        /\bon\s*[₱$]?(-?\d+(?:\.\d+)?)(?=.*(?:interest|rate|years?|months?|days?))/i,
+        /(?:principal|capital|loan amount|amount borrowed|investment|invested|borrowed)\s*(?:is|=|:|of|for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
+        /\bon\s*[\u20B1$]?(-?\d+(?:\.\d+)?)(?=.*(?:interest|rate|years?|months?|days?))/i,
     ]);
 
     const rate = extractFirstNumber(text, [
@@ -1935,13 +2289,13 @@ export function normalizeText(text: string = ""): string {
     if (compounding.note) notes.push(compounding.note);
 
     const cost = extractFirstNumber(text, [
-        /(?:cost|expense|expenses|buying price|purchase price)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
-        /(?:bought|purchased)\s*(?:for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:cost|expense|expenses|buying price|purchase price)\s*(?:is|=|:|of|for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:bought|purchased)\s*(?:for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
     ]);
 
     const revenue = extractFirstNumber(text, [
-        /(?:revenue|sales|income|selling price|selling amount)\s*(?:is|=|:|of|for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
-        /(?:sold|sell)\s*(?:for)?\s*[₱$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:revenue|sales|income|selling price|selling amount)\s*(?:is|=|:|of|for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
+        /(?:sold|sell)\s*(?:for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
     ]);
 
     const presentValue = extractNumberByAliases(text, FIELD_META.presentValue.aliases ?? []);
@@ -1973,6 +2327,11 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.partnershipAmount.aliases ?? []
     );
+    const totalOldCapital = extractNumberByAliases(text, FIELD_META.totalOldCapital.aliases ?? []);
+    const partnerInvestment = extractNumberByAliases(text, FIELD_META.partnerInvestment.aliases ?? []);
+    const ownershipPercentage = extractNumberByAliases(text, FIELD_META.ownershipPercentage.aliases ?? [], {
+        percent: true,
+    });
     const partnerARatio = extractNumberByAliases(text, FIELD_META.partnerARatio.aliases ?? [], {
         allowCurrency: false,
     });
@@ -2023,10 +2382,19 @@ export function normalizeText(text: string = ""): string {
     const costOfGoodsSold = extractNumberByAliases(text, FIELD_META.costOfGoodsSold.aliases ?? []);
     const averageInventory = extractNumberByAliases(text, FIELD_META.averageInventory.aliases ?? []);
     const netIncome = extractNumberByAliases(text, FIELD_META.netIncome.aliases ?? []);
+    const netCreditPurchases = extractNumberByAliases(text, FIELD_META.netCreditPurchases.aliases ?? []);
+    const averageAccountsPayable = extractNumberByAliases(text, FIELD_META.averageAccountsPayable.aliases ?? []);
+    const incomeBeforeInterestAndTaxes = extractNumberByAliases(text, FIELD_META.incomeBeforeInterestAndTaxes.aliases ?? []);
+    const interestExpense = extractNumberByAliases(text, FIELD_META.interestExpense.aliases ?? []);
+    const commonEquity = extractNumberByAliases(text, FIELD_META.commonEquity.aliases ?? []);
+    const outstandingCommonShares = extractNumberByAliases(text, FIELD_META.outstandingCommonShares.aliases ?? [], {
+        allowCurrency: false,
+    });
     const averageTotalAssets = extractNumberByAliases(
         text,
         FIELD_META.averageTotalAssets.aliases ?? []
     );
+    const averageEquity = extractNumberByAliases(text, FIELD_META.averageEquity.aliases ?? []);
     const periodicPayment = extractNumberByAliases(text, FIELD_META.periodicPayment.aliases ?? []);
     const periods = extractNumberByAliases(text, FIELD_META.periods.aliases ?? [], {
         allowCurrency: false,
@@ -2071,6 +2439,12 @@ export function normalizeText(text: string = ""): string {
     const invoice = extractNumberByAliases(text, FIELD_META.invoice.aliases ?? []);
     const discountRate = extractNumberByAliases(text, FIELD_META.discountRate.aliases ?? [], {
         percent: true,
+    });
+    const totalEstimatedUnits = extractNumberByAliases(text, FIELD_META.totalEstimatedUnits.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const unitsProduced = extractNumberByAliases(text, FIELD_META.unitsProduced.aliases ?? [], {
+        allowCurrency: false,
     });
     const daysPaid = extractNumberByAliases(text, FIELD_META.daysPaid.aliases ?? [], {
         allowCurrency: false,
@@ -2152,6 +2526,8 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "equity", equity);
     setFact(facts, "invoice", invoice);
     setFact(facts, "discountRate", discountRate);
+    setFact(facts, "totalEstimatedUnits", totalEstimatedUnits);
+    setFact(facts, "unitsProduced", unitsProduced);
     setFact(facts, "daysPaid", daysPaid);
     setFact(facts, "salvageValue", salvageValue);
     setFact(facts, "usefulLife", usefulLife);
@@ -2180,6 +2556,9 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "accountsReceivable", accountsReceivable);
     setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);
     setFact(facts, "partnershipAmount", partnershipAmount);
+    setFact(facts, "totalOldCapital", totalOldCapital);
+    setFact(facts, "partnerInvestment", partnerInvestment);
+    setFact(facts, "ownershipPercentage", ownershipPercentage);
     setFact(facts, "partnerARatio", partnerARatio);
     setFact(facts, "partnerBRatio", partnerBRatio);
     setFact(facts, "partnerCRatio", partnerCRatio);
@@ -2200,7 +2579,14 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "costOfGoodsSold", costOfGoodsSold);
     setFact(facts, "averageInventory", averageInventory);
     setFact(facts, "netIncome", netIncome);
+    setFact(facts, "netCreditPurchases", netCreditPurchases);
+    setFact(facts, "averageAccountsPayable", averageAccountsPayable);
+    setFact(facts, "incomeBeforeInterestAndTaxes", incomeBeforeInterestAndTaxes);
+    setFact(facts, "interestExpense", interestExpense);
+    setFact(facts, "commonEquity", commonEquity);
+    setFact(facts, "outstandingCommonShares", outstandingCommonShares);
     setFact(facts, "averageTotalAssets", averageTotalAssets);
+    setFact(facts, "averageEquity", averageEquity);
     setFact(facts, "periodicPayment", periodicPayment);
     setFact(facts, "periods", periods);
     setFact(facts, "targetProfit", targetProfit);
@@ -2373,6 +2759,7 @@ export function makePrefill(
     const extracted = extractFacts(smartInput);
     const merged = mergeInputs(fields, extracted);
     const normalizedQuery = normalizeText(smartInput);
+    const detectedCurrency = detectCurrencyFromText(smartInput);
 
     const ranked: RankedCalculator[] = CALCULATORS.map((calculator) => {
         const score = scoreCalculator(calculator, merged, normalizedQuery, extracted);
@@ -2400,9 +2787,11 @@ export function makePrefill(
         ranked,
         best,
         secondBest,
+        detectedCurrency,
         followUp: buildFollowUp(best, secondBest),
         hasStrongMatch: Boolean(best && best.score >= 55),
         isReadyToRoute: Boolean(best && best.score >= 55 && best.missing.length === 0),
         extractedEntries,
     };
 }
+

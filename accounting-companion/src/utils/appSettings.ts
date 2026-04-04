@@ -6,6 +6,12 @@ export type AppSettings = {
     smartSolverShowPromptExamples: boolean;
     smartSolverMaxSuggestions: number;
     rememberDesktopSidebarVisibility: boolean;
+    enableMotionEffects: boolean;
+    preferredCurrency: string;
+    showFeedbackReminders: boolean;
+    showOpeningAnimation: boolean;
+    showNewFeatureIndicators: boolean;
+    saveOfflineHistory: boolean;
 };
 
 const STORAGE_KEY = "accalc-app-settings";
@@ -17,6 +23,12 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
     smartSolverShowPromptExamples: true,
     smartSolverMaxSuggestions: 4,
     rememberDesktopSidebarVisibility: true,
+    enableMotionEffects: true,
+    preferredCurrency: "PHP",
+    showFeedbackReminders: true,
+    showOpeningAnimation: true,
+    showNewFeatureIndicators: true,
+    saveOfflineHistory: true,
 };
 
 function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSettings {
@@ -31,6 +43,20 @@ function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSe
                 : DEFAULT_APP_SETTINGS.smartSolverMaxSuggestions,
         rememberDesktopSidebarVisibility:
             value?.rememberDesktopSidebarVisibility ?? DEFAULT_APP_SETTINGS.rememberDesktopSidebarVisibility,
+        enableMotionEffects:
+            value?.enableMotionEffects ?? DEFAULT_APP_SETTINGS.enableMotionEffects,
+        preferredCurrency:
+            typeof value?.preferredCurrency === "string" && value.preferredCurrency.trim() !== ""
+                ? value.preferredCurrency.toUpperCase()
+                : DEFAULT_APP_SETTINGS.preferredCurrency,
+        showFeedbackReminders:
+            value?.showFeedbackReminders ?? DEFAULT_APP_SETTINGS.showFeedbackReminders,
+        showOpeningAnimation:
+            value?.showOpeningAnimation ?? DEFAULT_APP_SETTINGS.showOpeningAnimation,
+        showNewFeatureIndicators:
+            value?.showNewFeatureIndicators ?? DEFAULT_APP_SETTINGS.showNewFeatureIndicators,
+        saveOfflineHistory:
+            value?.saveOfflineHistory ?? DEFAULT_APP_SETTINGS.saveOfflineHistory,
     };
 }
 

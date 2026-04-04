@@ -12,9 +12,9 @@ export default function FeedbackPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                badge="Settings • Feedback"
+                badge="Settings / Feedback"
                 title="Help improve AccCalc"
-                description="Share bugs, suggestions, missing calculators, and interface issues that can make AccCalc better."
+                description="Share bugs, suggestions, missing calculators, and interface issues that can make AccCalc better for students and professionals."
             />
 
             <SectionCard>
@@ -22,7 +22,8 @@ export default function FeedbackPage() {
                     <p>
                         Feedback helps prioritize the next calculators, improve Smart
                         Solver vocabulary, and refine the interface for real student and
-                        professional use cases.
+                        professional use cases, including mobile, installed PWA, and
+                        deployed-site behavior.
                     </p>
 
                     {hasForm ? (

@@ -64,6 +64,16 @@ export default class AppErrorBoundary extends Component<
                             >
                                 Try again
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    window.location.hash = "#/";
+                                    window.location.reload();
+                                }}
+                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white"
+                            >
+                                Go home
+                            </button>
                         </div>
                     </div>
                 </div>

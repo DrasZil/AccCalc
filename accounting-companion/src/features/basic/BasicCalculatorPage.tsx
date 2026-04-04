@@ -4,6 +4,8 @@ import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { saveToolRecord } from "../../utils/appActivity";
+import { useAppSettings } from "../../utils/appSettings";
 
 type CalcOperator = "+" | "-" | "*" | "/";
 type Token = string;
@@ -197,21 +199,33 @@ function getButtonClass(kind: ButtonSpec["kind"] = "number", value?: string) {
     }
 
     if (kind === "operator") {
-        return `${baseClass} border border-green-400/10 bg-green-500/12 text-green-200 hover:bg-green-500/18`;
+        return `${baseClass} border border-green-400/10 bg-green-500/[0.12] text-green-200 hover:bg-green-500/[0.18]`;
     }
 
     if (kind === "action") {
-        return `${baseClass} border border-white/10 bg-white/8 text-gray-100 hover:bg-white/12`;
+        return `${baseClass} border border-white/10 bg-white/[0.08] text-gray-100 hover:bg-white/[0.12]`;
     }
 
     return `${baseClass} border border-white/10 bg-black/25 text-white hover:bg-black/35`;
 }
 
 export default function BasicCalculatorPage() {
+    const settings = useAppSettings();
     const [currentInput, setCurrentInput] = useState("0");
     const [tokens, setTokens] = useState<Token[]>([]);
     const [memoryValue, setMemoryValue] = useState<Decimal | null>(null);
-    const [history, setHistory] = useState<HistoryEntry[]>([]);
+    const [history, setHistory] = useState<HistoryEntry[]>(() => {
+        if (typeof window === "undefined") return [];
+
+        try {
+            const raw = window.localStorage.getItem("accalc-basic-history");
+            if (!raw) return [];
+            const parsed = JSON.parse(raw) as HistoryEntry[];
+            return Array.isArray(parsed) ? parsed.slice(0, 8) : [];
+        } catch {
+            return [];
+        }
+    });
     const [justEvaluated, setJustEvaluated] = useState(false);
     const [statusMessage, setStatusMessage] = useState("Ready");
 
@@ -436,6 +450,12 @@ export default function BasicCalculatorPage() {
             setHistory((previousHistory) =>
                 [{ expression, result: formattedResult }, ...previousHistory].slice(0, 8)
             );
+            saveToolRecord({
+                title: "Basic Calculator",
+                path: "/basic",
+                input: expression,
+                result: formattedResult,
+            });
             setTokens([]);
             setCurrentInput(formattedResult);
             setJustEvaluated(true);
@@ -555,6 +575,11 @@ export default function BasicCalculatorPage() {
                 return;
         }
     }
+
+    useEffect(() => {
+        if (!settings.saveOfflineHistory || typeof window === "undefined") return;
+        window.localStorage.setItem("accalc-basic-history", JSON.stringify(history));
+    }, [history, settings.saveOfflineHistory]);
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {

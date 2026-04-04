@@ -1,300 +1,254 @@
 import { Link } from "react-router-dom";
+import { getRecommendedRoutes, useAppActivity } from "../../utils/appActivity";
+import { NEW_FEATURE_PATHS } from "../../utils/appCatalog";
+import { useAppSettings } from "../../utils/appSettings";
 
-const tools = [
-    {
-        title: "Basic Calculator",
-        description: "Perform everyday arithmetic operations quickly and cleanly.",
-        path: "/basic",
-        category: "Core",
-    },
+const spotlightTools = [
     {
         title: "Smart Solver",
-        description: "Describe a problem naturally and get adaptive inputs plus the right calculator.",
+        description: "Describe a problem naturally and get matched with the right calculator plus dynamic inputs.",
         path: "/smart/solver",
         category: "Smart Tools",
     },
     {
-        title: "Simple Interest Calculator",
-        description: "Compute interest, total amount, and understand the full solution.",
-        path: "/finance/simple-interest",
-        category: "Finance",
-    },
-    {
-        title: "Compound Interest",
-        description: "Compute compound interest and total accumulated amount.",
-        path: "/finance/compound-interest",
-        category: "Finance",
-    },
-    {
-        title: "Future Value",
-        description: "Estimate how much a present amount will grow over time.",
-        path: "/finance/future-value",
-        category: "Finance",
-    },
-    {
-        title: "Present Value",
-        description: "Find the present worth of a future amount using discounting.",
-        path: "/finance/present-value",
-        category: "Finance",
-    },
-    {
-        title: "Future Value of Annuity",
-        description: "Compute the accumulated value of equal periodic payments.",
-        path: "/finance/future-value-annuity",
-        category: "Finance",
-    },
-    {
-        title: "Present Value of Annuity",
-        description: "Compute the present worth of equal periodic payments.",
-        path: "/finance/present-value-annuity",
-        category: "Finance",
-    },
-    {
-        title: "Loan / Amortization",
-        description: "Estimate monthly payment, total paid, and total interest for a loan.",
-        path: "/finance/loan-amortization",
-        category: "Finance",
-    },
-    {
-        title: "Profit / Loss Calculator",
-        description: "Compare revenue and cost to identify profit, loss, or break-even.",
-        path: "/business/profit-loss",
-        category: "Business",
-    },
-    {
-        title: "Break-even Point",
-        description: "Find the units and sales needed to avoid profit or loss.",
-        path: "/business/break-even",
-        category: "Business",
-    },
-    {
-        title: "Contribution Margin",
-        description: "Measure how much sales contribute toward fixed costs and profit.",
-        path: "/business/contribution-margin",
-        category: "Business",
-    },
-    {
-        title: "Markup & Margin",
-        description: "Compute profit, markup percentage, and margin percentage from cost and selling price.",
-        path: "/business/markup-margin",
-        category: "Business",
-    },
-    {
-        title: "Target Profit",
-        description: "Find the units and sales needed to achieve a target profit.",
-        path: "/business/target-profit",
-        category: "Business",
-    },
-    {
-        title: "Margin of Safety",
-        description: "Measure how much sales can drop before reaching break-even.",
-        path: "/business/margin-of-safety",
-        category: "Business",
-    },
-    {
-        title: "Straight-Line Depreciation",
-        description: "Compute annual depreciation using the straight-line method.",
-        path: "/accounting/straight-line-depreciation",
-        category: "Accounting",
-    },
-    {
-        title: "Double Declining Balance",
-        description: "Estimate depreciation expense and book value using accelerated depreciation.",
-        path: "/accounting/declining-balance-depreciation",
-        category: "Accounting",
-    },
-    {
-        title: "Accounting Equation",
-        description: "Enter any 2 values and solve for assets, liabilities, or equity.",
-        path: "/accounting/accounting-equation",
-        category: "Accounting",
-    },
-    {
-        title: "Notes Interest",
-        description: "Compute interest and maturity value for notes receivable or notes payable.",
-        path: "/accounting/notes-interest",
-        category: "Accounting",
-    },
-    {
-        title: "Cash Discount / Credit Terms",
-        description: "Solve payment amounts for terms like 2/10, n/30.",
-        path: "/accounting/cash-discount",
-        category: "Accounting",
-    },
-    {
-        title: "FIFO Inventory",
-        description: "Compute cost of goods sold and ending inventory using the FIFO method.",
-        path: "/accounting/fifo-inventory",
-        category: "Accounting",
-    },
-    {
-        title: "Weighted Average Inventory",
-        description: "Compute weighted average unit cost, cost of goods sold, and ending inventory.",
-        path: "/accounting/weighted-average-inventory",
-        category: "Accounting",
-    },
-    {
-        title: "Gross Profit Method",
-        description: "Estimate gross profit, cost of goods sold, and ending inventory.",
-        path: "/accounting/gross-profit-method",
-        category: "Accounting",
-    },
-    {
-        title: "Bank Reconciliation",
-        description: "Reconcile bank and book balances using common reconciling items.",
-        path: "/accounting/bank-reconciliation",
-        category: "Accounting",
-    },
-    {
-        title: "Allowance for Doubtful Accounts",
-        description: "Estimate uncollectible accounts and net realizable value.",
-        path: "/accounting/allowance-doubtful-accounts",
-        category: "Accounting",
-    },
-    {
-        title: "Partnership Profit Sharing",
-        description: "Allocate partnership profit or loss using agreed ratios.",
-        path: "/accounting/partnership-profit-sharing",
-        category: "Accounting",
-    },
-    {
-        title: "Philippine VAT",
-        description: "Compute output VAT, input VAT, and VAT payable using the 12% rate.",
-        path: "/accounting/philippine-vat",
-        category: "Accounting",
-    },
-    {
-        title: "Cost of Goods Manufactured",
-        description: "Compute total manufacturing costs and cost of goods manufactured.",
-        path: "/accounting/cost-of-goods-manufactured",
-        category: "Accounting",
-    },
-    {
-        title: "Current Ratio & Working Capital",
-        description: "Measure liquidity using current assets and current liabilities.",
-        path: "/accounting/current-ratio",
-        category: "Accounting",
-    },
-    {
-        title: "Quick Ratio",
-        description: "Measure immediate liquidity using quick assets and current liabilities.",
-        path: "/accounting/quick-ratio",
-        category: "Accounting",
-    },
-    {
-        title: "Accounts Receivable Turnover",
-        description: "Compute turnover and average collection period for receivables analysis.",
-        path: "/accounting/receivables-turnover",
-        category: "Accounting",
-    },
-    {
-        title: "Inventory Turnover",
-        description: "Compute inventory turnover and days in inventory for analysis problems.",
-        path: "/accounting/inventory-turnover",
-        category: "Accounting",
-    },
-    {
-        title: "Debt to Equity Ratio",
-        description: "Measure leverage using total liabilities and total equity.",
-        path: "/accounting/debt-to-equity",
-        category: "Accounting",
-    },
-    {
-        title: "Return on Assets",
-        description: "Compute return on assets using net income and average total assets.",
-        path: "/accounting/return-on-assets",
-        category: "Accounting",
-    },
-    {
-        title: "Debt Ratio",
-        description: "Measure the percentage of assets financed through liabilities.",
-        path: "/accounting/debt-ratio",
-        category: "Accounting",
-    },
-    {
-        title: "Earnings Per Share",
-        description: "Compute basic EPS using net income, preferred dividends, and common shares.",
-        path: "/accounting/earnings-per-share",
-        category: "Accounting",
-    },
-    {
-        title: "Horizontal Analysis",
-        description: "Compare a statement item across periods using amount and percentage change.",
-        path: "/accounting/horizontal-analysis",
-        category: "Accounting",
+        title: "Basic Calculator",
+        description: "Open the upgraded calculator pad with memory, keyboard support, and proper expression handling.",
+        path: "/basic",
+        category: "Core",
     },
     {
         title: "Vertical Analysis",
-        description: "Express a statement item as a percentage of a selected base total.",
+        description: "Translate statement items into common-size percentages for classroom or reporting work.",
         path: "/accounting/vertical-analysis",
         category: "Accounting",
     },
     {
-        title: "Settings",
-        description: "Control navigation, Smart Solver behavior, and app preferences.",
-        path: "/settings",
+        title: "History",
+        description: "Return to saved prompts, prior routes, and recommendations that persist on this device.",
+        path: "/history",
         category: "General",
     },
 ];
 
+const categoryDecks = [
+    {
+        title: "Finance",
+        description: "Time value, annuities, rates, and loan work.",
+        links: [
+            { label: "Simple Interest", path: "/finance/simple-interest" },
+            { label: "Loan Amortization", path: "/finance/loan-amortization" },
+            { label: "Effective Interest Rate", path: "/finance/effective-interest-rate" },
+            { label: "Sinking Fund Deposit", path: "/finance/sinking-fund-deposit" },
+        ],
+    },
+    {
+        title: "Business",
+        description: "CVP analysis, margins, and operating performance.",
+        links: [
+            { label: "Break-even Point", path: "/business/break-even" },
+            { label: "Margin of Safety", path: "/business/margin-of-safety" },
+            { label: "Net Profit Margin", path: "/business/net-profit-margin" },
+            { label: "Operating Leverage", path: "/business/operating-leverage" },
+        ],
+    },
+    {
+        title: "Accounting",
+        description: "Core accounting procedures, partnerships, cost accounting, and statement analysis.",
+        links: [
+            { label: "Partnership Salary & Interest", path: "/accounting/partnership-salary-interest" },
+            { label: "Prime & Conversion Cost", path: "/accounting/prime-conversion-cost" },
+            { label: "Materials Price Variance", path: "/accounting/materials-price-variance" },
+            { label: "Labor Rate Variance", path: "/accounting/labor-rate-variance" },
+            { label: "Partnership Admission Bonus", path: "/accounting/partnership-admission-bonus" },
+            { label: "Book Value Per Share", path: "/accounting/book-value-per-share" },
+        ],
+    },
+];
+
 export default function HomePage() {
+    const activity = useAppActivity();
+    const settings = useAppSettings();
+    const recommended = getRecommendedRoutes(activity, "/");
+    const savedPromptCount = activity.savedRecords.length;
+    const activeToolCount = Object.keys(activity.toolUsage).length;
+
     return (
         <div className="space-y-8 md:space-y-10">
             <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(88,196,135,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.22)] md:p-10">
-                <div className="grid gap-8 xl:grid-cols-[1.3fr_0.7fr] xl:items-end">
+                <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-end">
                     <div className="max-w-3xl">
                         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-green-300">
                             Smart Accounting Toolkit
                         </p>
                         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-5xl xl:text-6xl">
-                            Premium accounting tools for study, drills, and real problem solving.
+                            Premium accounting tools for study, drills, and practical work.
                         </h1>
                         <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300 md:text-lg">
-                            AccCalc helps students, reviewees, and professionals solve
-                            finance, business, and accounting calculations with a cleaner
-                            workflow and curriculum-aligned coverage.
+                            AccCalc is built for Philippine students, reviewees, and working users who need reliable formulas, cleaner interfaces, stronger explanations, and offline-friendly access across finance, business, and accounting topics.
                         </p>
+
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <Link
+                                to="/smart/solver"
+                                className="rounded-xl bg-green-500 px-5 py-3 text-sm font-semibold text-black transition duration-300 hover:bg-green-400"
+                            >
+                                Open Smart Solver
+                            </Link>
+                            <Link
+                                to="/history"
+                                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-white/10"
+                            >
+                                Open history
+                            </Link>
+                        </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Purpose</p>
-                            <p className="mt-2 text-lg font-semibold">Study + practical use</p>
+                            <p className="text-sm text-gray-400">Saved offline</p>
+                            <p className="mt-2 text-lg font-semibold">
+                                {settings.saveOfflineHistory ? "History enabled" : "History disabled"}
+                            </p>
                         </div>
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Focus</p>
-                            <p className="mt-2 text-lg font-semibold">Readable, accurate, guided</p>
+                            <p className="text-sm text-gray-400">Saved prompts</p>
+                            <p className="mt-2 text-lg font-semibold">{savedPromptCount}</p>
                         </div>
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-                            <p className="text-sm text-gray-400">Audience</p>
-                            <p className="mt-2 text-lg font-semibold">Students to professionals</p>
+                            <p className="text-sm text-gray-400">Used tools</p>
+                            <p className="mt-2 text-lg font-semibold">{activeToolCount}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+                <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                        What is new
+                    </p>
+                    <h2 className="mt-3 text-2xl font-semibold text-white">
+                        Stronger accounting depth, smarter routing, and persistent offline use.
+                    </h2>
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Accounting depth</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                Partnership, cost accounting, manufacturing, statement analysis, and ratio tools.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Smarter guidance</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                Smart Solver now recognizes broader vocabulary, currency cues, and more real-world phrasing.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Offline continuity</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                History, prompts, recommendations, and app preferences stay on this device.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                        Best use cases
+                    </p>
+                    <div className="mt-4 space-y-3">
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Students and reviewees</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                Use formulas, term explanations, and interpretations to study faster and check answers with context.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Professionals and staff</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                Open a focused tool directly or let Smart Solver route plain-language requests into the correct calculator.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <p className="text-sm font-medium text-white">Installed app users</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
+                                Use the PWA for faster relaunches, offline-friendly access, update notices, and saved activity on the device.
+                            </p>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section className="space-y-4">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Quick access</h2>
-                    <p className="mt-1 text-sm text-gray-400">
-                        Open a calculator directly or start from Smart Solver when you only
-                        know the problem in plain language.
-                    </p>
+                <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight">Recommended for you</h2>
+                        <p className="mt-1 text-sm text-gray-400">
+                            Driven by recent activity and the tools you revisit most often.
+                        </p>
+                    </div>
+                    <Link
+                        to="/settings"
+                        className="text-sm font-medium text-green-300 transition duration-300 hover:text-green-200"
+                    >
+                        Open settings
+                    </Link>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {tools.map((tool) => (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    {recommended.map((tool) => (
                         <Link
                             key={tool.path}
                             to={tool.path}
-                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
+                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
                         >
                             <div className="flex items-center justify-between gap-3">
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
                                     {tool.category}
                                 </span>
-                                <span className="text-sm text-gray-500 transition group-hover:text-gray-300">
-                                    Open →
+                                {NEW_FEATURE_PATHS.has(tool.path) ? (
+                                    <span className="rounded-full border border-green-400/15 bg-green-500/10 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-green-300">
+                                        New
+                                    </span>
+                                ) : (
+                                    <span className="text-sm text-gray-500 transition duration-300 group-hover:text-gray-300">
+                                        Open
+                                    </span>
+                                )}
+                            </div>
+
+                            <h3 className="mt-4 text-xl font-semibold leading-snug text-white">
+                                {tool.label}
+                            </h3>
+                            <p className="mt-3 text-sm leading-6 text-gray-300">
+                                {tool.description}
+                            </p>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Spotlight tools</h2>
+                    <p className="mt-1 text-sm text-gray-400">
+                        Fast routes into guided solving, proper computation, and saved progress.
+                    </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    {spotlightTools.map((tool) => (
+                        <Link
+                            key={tool.path}
+                            to={tool.path}
+                            className="group rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-green-400/20 hover:bg-white/10"
+                        >
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-medium text-gray-300">
+                                    {tool.category}
+                                </span>
+                                <span className="text-sm text-gray-500 transition duration-300 group-hover:text-gray-300">
+                                    Open
                                 </span>
                             </div>
 
@@ -307,6 +261,37 @@ export default function HomePage() {
                         </Link>
                     ))}
                 </div>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-3">
+                {categoryDecks.map((deck) => (
+                    <div
+                        key={deck.title}
+                        className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
+                    >
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-green-300">
+                            {deck.title}
+                        </p>
+                        <h3 className="mt-3 text-2xl font-semibold text-white">
+                            {deck.description}
+                        </h3>
+
+                        <div className="mt-5 space-y-2">
+                            {deck.links.map((link) => (
+                                <Link
+                                    key={link.path}
+                                    to={link.path}
+                                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition duration-300 hover:border-white/15 hover:bg-white/[0.08]"
+                                >
+                                    <span>{link.label}</span>
+                                    <span className="text-xs uppercase tracking-[0.18em] text-gray-500">
+                                        {NEW_FEATURE_PATHS.has(link.path) ? "New" : "Open"}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </section>
         </div>
     );

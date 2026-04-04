@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AccCalc Change Summary</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: "Segoe UI", Aptos, Arial, sans-serif;
+            line-height: 1.55;
+            color: #143222;
+            background: #f5f8f5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(circle at top right, rgba(80, 175, 118, 0.12), transparent 25%),
+                linear-gradient(180deg, #f7fbf7 0%, #eef5ef 100%);
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 32px 56px;
+        }
+
+        header {
+            border: 1px solid rgba(20, 50, 34, 0.1);
+            border-radius: 28px;
+            padding: 28px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 16px 50px rgba(20, 50, 34, 0.08);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(37, 99, 65, 0.08);
+            color: #256341;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        h1, h2 {
+            margin: 0;
+        }
+
+        h1 {
+            margin-top: 14px;
+            font-size: 34px;
+            line-height: 1.1;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .intro {
+            margin-top: 14px;
+            color: #355444;
+        }
+
+        section {
+            margin-top: 26px;
+            border: 1px solid rgba(20, 50, 34, 0.08);
+            border-radius: 24px;
+            padding: 24px 26px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 14px 40px rgba(20, 50, 34, 0.05);
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        li + li {
+            margin-top: 8px;
+        }
+
+        .meta {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #557062;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <div class="badge">AccCalc Summary</div>
+            <h1>AccCalc Progress Summary</h1>
+            <p class="intro">
+                This document summarizes the major app changes completed so far across the accounting companion project, including features, Smart Solver upgrades, shell UX, deployment handling, PWA behavior, and offline user experience improvements.
+            </p>
+            <p class="meta">Version 1.0.0 • Generated April 4, 2026 • Static-site PWA</p>
+        </header>
+
+        <section>
+            <h2>1. Core product expansion</h2>
+            <ul>
+                <li>Expanded the app from a small calculator set into a larger multi-category toolkit covering finance, business, accounting, smart routing, settings, and persistent user history.</li>
+                <li>Upgraded the basic calculator to behave more like a real calculator with memory controls, better expression handling, parentheses, CE/AC, unary actions, keyboard support, and reusable recent calculations.</li>
+                <li>Added a true settings area and later converted it into a toggleable settings drawer so users can open and close settings without losing context.</li>
+                <li>Added a dedicated history area so users can reopen previous activity and saved prompts directly from the app.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>2. Smart Solver improvements</h2>
+            <ul>
+                <li>Expanded Smart Solver from a limited matcher into a broader natural-language interpreter that works across finance, business, and accounting pages.</li>
+                <li>Improved vocabulary mapping so casual terms, student wording, and more professional accounting language can point to the same concepts.</li>
+                <li>Added dynamic input adaptation so the visible form changes based on the detected calculator and extracted accounting fields.</li>
+                <li>Added better calculator switching, extracted value application, detected currency handling, and stronger prompt-to-route behavior.</li>
+                <li>Started saving Smart Solver prompts into offline activity history for later review.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Accounting coverage added</h2>
+            <ul>
+                <li>Added partnership-related tools including profit sharing, admission under bonus method, admission under goodwill method, and salary-and-interest distribution.</li>
+                <li>Added depreciation and inventory analysis coverage including straight-line, declining balance, units-of-production, FIFO, weighted average, and gross profit method support.</li>
+                <li>Added manufacturing and cost-accounting topics including cost of goods manufactured, prime cost and conversion cost, materials price variance, and labor rate variance.</li>
+                <li>Added accounting analysis and ratio tools including current ratio, quick ratio, receivables turnover, inventory turnover, accounts payable turnover, debt-to-equity, debt ratio, return on assets, return on equity, asset turnover, times interest earned, EPS, and book value per share.</li>
+                <li>Added statement-analysis tools such as horizontal analysis and vertical analysis, along with Philippine VAT and other practical classroom topics.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Explanations and learning support</h2>
+            <ul>
+                <li>Enhanced the result/explanation pattern so calculators can show formulas, worked steps, glossary-style definitions of accounting terms, and plain-language interpretations.</li>
+                <li>Applied this explanation structure across many accounting, business, and finance pages to make the app more useful for both students and practitioners.</li>
+                <li>Improved readability by keeping meaning and interpretation close to the actual computed outputs instead of leaving the user with numbers only.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. Navigation and interface improvements</h2>
+            <ul>
+                <li>Reworked the sidebar into a collapsed-first structure to reduce clutter and improve category hierarchy.</li>
+                <li>Moved About and Feedback into Settings and later added a history route and better top-level app organization.</li>
+                <li>Added icon-based shell controls, improved spacing and hierarchy, reduced header height on smaller screens, and made the shell more cohesive across desktop and mobile.</li>
+                <li>Added new-feature indicators so users can see what is newly added and have that marker disappear after opening the item once.</li>
+                <li>Added premium but restrained motion, startup visuals, and cleaner app-surface transitions without turning the UI into heavy or laggy animation.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Offline history, recommendations, and reminders</h2>
+            <ul>
+                <li>Added a client-side activity store backed by local storage so route visits, saved prompts, calculator outputs, and usage patterns persist after the app is closed.</li>
+                <li>Added personalized recommendations driven by user activity and category usage.</li>
+                <li>Added a feedback reminder flow that appears only after meaningful usage and can be postponed or disabled permanently.</li>
+                <li>Added device-local history controls in Settings, including the ability to clear stored activity.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Currency and regional handling</h2>
+            <ul>
+                <li>Introduced app-wide currency settings with PHP as the default but support for many common currencies.</li>
+                <li>Made Smart Solver detect prompt currency markers such as peso words, PHP, the peso sign, USD, and other common currency symbols.</li>
+                <li>Updated formatting helpers so result cards and explanations follow the selected or detected display currency.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>8. PWA and deployment handling</h2>
+            <ul>
+                <li>Improved service worker behavior so production installs update more aggressively and dev mode unregisters workers to avoid stale localhost behavior.</li>
+                <li>Added update-takeover behavior, update notifications after refresh, and stronger cache version naming under semantic versioning.</li>
+                <li>Changed the app to use hash-based routing for static deployment so deep pages work better on hosts without server-side rewrites.</li>
+                <li>Added path-rewrite handling and app-shell fallback behavior to reduce refresh and page-not-found problems on deployed web and installed PWA use.</li>
+                <li>Improved manifest and shell metadata for more reliable install and update behavior.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Stability and error handling</h2>
+            <ul>
+                <li>Added an app-wide render error boundary so users do not just see a blank screen when a render failure happens.</li>
+                <li>Added user-facing notice handling for runtime issues and background promise failures.</li>
+                <li>Added startup buffering and safer launch behavior, especially for installed PWA use.</li>
+                <li>Cleaned several shell and navigation issues that previously caused blank or inconsistent rendering.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>10. Current verification status</h2>
+            <ul>
+                <li>TypeScript compilation currently passes with <code>npx tsc -b</code>.</li>
+                <li>The production build in this machine still fails because Vite/Tailwind cannot load the native <code>@tailwindcss/oxide-win32-x64-msvc</code> dependency and also hits a local <code>spawn EPERM</code> issue. That is an environment-specific tooling problem rather than a TypeScript app error.</li>
+                <li>The app code has been structured for static deployment and installed PWA use, but the final production bundle still needs a machine where the Vite/Tailwind native dependency can load normally.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

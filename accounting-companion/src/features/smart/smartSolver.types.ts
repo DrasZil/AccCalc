@@ -25,6 +25,8 @@ export const ALL_FIELD_KEYS = [
     "totalDays",
     "daysPaid",
     "salvageValue",
+    "totalEstimatedUnits",
+    "unitsProduced",
     "usefulLife",
     "year",
     "beginningUnits",
@@ -48,6 +50,9 @@ export const ALL_FIELD_KEYS = [
     "accountsReceivable",
     "estimatedUncollectibleRate",
     "partnershipAmount",
+    "totalOldCapital",
+    "partnerInvestment",
+    "ownershipPercentage",
     "partnerARatio",
     "partnerBRatio",
     "partnerCRatio",
@@ -67,8 +72,15 @@ export const ALL_FIELD_KEYS = [
     "averageAccountsReceivable",
     "costOfGoodsSold",
     "averageInventory",
+    "netCreditPurchases",
+    "averageAccountsPayable",
     "netIncome",
+    "incomeBeforeInterestAndTaxes",
+    "interestExpense",
+    "commonEquity",
+    "outstandingCommonShares",
     "averageTotalAssets",
+    "averageEquity",
     "periodicPayment",
     "periods",
     "targetProfit",
@@ -128,12 +140,13 @@ export const ALL_FIELD_KEYS = [
     reason: string;
     };
 
-    export type SmartSolverAnalysis = {
+export type SmartSolverAnalysis = {
     extracted: ExtractedFacts;
     merged: FieldsState;
     ranked: RankedCalculator[];
     best: RankedCalculator | null;
     secondBest: RankedCalculator | null;
+    detectedCurrency: string | null;
     followUp: string;
     hasStrongMatch: boolean;
     isReadyToRoute: boolean;

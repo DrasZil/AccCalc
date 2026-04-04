@@ -12,7 +12,9 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { recordToolVisit, saveToolRecord } from "../../utils/appActivity";
 import { useAppSettings } from "../../utils/appSettings";
+import { updateAppSettings } from "../../utils/appSettings";
 import type { CalculatorConfig, FieldKey, FieldsState, RankedCalculator } from "./smartSolver.types";
 import {
     FIELD_KEYS,
@@ -27,6 +29,13 @@ const SMART_PROMPT_EXAMPLES = [
     "Find the quick ratio if cash is 50,000, marketable securities 25,000, receivables 40,000, and current liabilities 100,000.",
     "Compute VAT payable if vatable sales are 150,000 and vatable purchases are 80,000.",
     "Split partnership profit of 120,000 in the ratio 3:2:1.",
+    "What is the true annual rate if the nominal rate is 12% compounded monthly?",
+    "How much should we deposit every quarter to reach 500,000 in 20 periods at 3% per period?",
+    "Find return on equity if net income is 120,000 and average equity is 480,000.",
+    "We made 600,000 in sales, 360,000 variable costs, and 150,000 fixed costs. What is the operating leverage?",
+    "Compute units of production depreciation if cost is 500,000, salvage is 50,000, total estimated units are 100,000, and this year produced 12,000 units.",
+    "A new partner invests 120,000 for a 25% interest and old partners' capital is 300,000. Use the bonus method.",
+    "Find accounts payable turnover if net credit purchases are 420,000 and average accounts payable is 70,000.",
 ];
 
 function dedupeFieldKeys(keys: FieldKey[]): FieldKey[] {
@@ -123,6 +132,19 @@ export default function SmartSolverPage() {
                 ...analysis.merged,
             }));
         });
+
+        if (analysis.detectedCurrency) {
+            updateAppSettings({ preferredCurrency: analysis.detectedCurrency });
+        }
+
+        if (smartInput.trim() !== "") {
+            saveToolRecord({
+                title: "Smart Solver Prompt",
+                path: "/smart/solver",
+                input: smartInput.trim(),
+                result: selectedCalculator?.name,
+            });
+        }
     };
 
     const handleClearAll = () => {
@@ -133,6 +155,11 @@ export default function SmartSolverPage() {
 
     const handleUseSuggestedCalculator = () => {
         if (!selectedCalculator || !selectedCalculatorRouteReady) return;
+
+        recordToolVisit(selectedCalculator.route, {
+            summary: `Opened from Smart Solver using the prompt: ${smartInput.trim() || "No prompt text saved."}`,
+            kind: "smart",
+        });
 
         navigate(selectedCalculator.route, {
             state: {
@@ -178,6 +205,11 @@ export default function SmartSolverPage() {
                                 <p className="mt-3 text-sm leading-6 text-gray-400">
                                     {promptAudienceHint}
                                 </p>
+                                {analysis.detectedCurrency ? (
+                                    <p className="mt-2 text-xs uppercase tracking-[0.16em] text-green-300">
+                                        Detected currency: {analysis.detectedCurrency}
+                                    </p>
+                                ) : null}
 
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <button
