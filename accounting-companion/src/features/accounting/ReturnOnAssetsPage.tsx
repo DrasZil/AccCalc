@@ -44,6 +44,15 @@ export default function ReturnOnAssetsPage() {
                 `Return on Assets = ${formatPHP(parsedNetIncome)} / ${formatPHP(parsedAverageTotalAssets)} = ${(returnOnAssets / 100).toFixed(4)}`,
                 `Return on Assets = ${returnOnAssets.toFixed(2)}%`,
             ],
+            glossary: [
+                { term: "Net Income", meaning: "Profit remaining after all expenses for the period." },
+                { term: "Average Total Assets", meaning: "Average amount of assets used during the period." },
+                { term: "Return on Assets", meaning: "A profitability ratio showing how effectively assets are used to generate income." },
+            ],
+            interpretation:
+                returnOnAssets >= 10
+                    ? `A return on assets of ${returnOnAssets.toFixed(2)}% suggests the assets are generating relatively strong profit.`
+                    : `A return on assets of ${returnOnAssets.toFixed(2)}% shows how much profit is earned for every peso invested in average assets.`,
         };
     }, [averageTotalAssets, netIncome]);
 
@@ -85,7 +94,12 @@ export default function ReturnOnAssetsPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

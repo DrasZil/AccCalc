@@ -55,6 +55,13 @@ export default function InventoryTurnoverPage() {
                 `Inventory Turnover = ${formatPHP(parsedCostOfGoodsSold)} / ${formatPHP(parsedAverageInventory)} = ${inventoryTurnover.toFixed(2)} times`,
                 `Days in Inventory = 365 / ${inventoryTurnover.toFixed(2)} = ${daysInInventory.toFixed(2)} days`,
             ],
+            glossary: [
+                { term: "Cost of Goods Sold", meaning: "The cost assigned to goods actually sold during the period." },
+                { term: "Average Inventory", meaning: "Average amount invested in inventory for the period." },
+                { term: "Inventory Turnover", meaning: "How many times inventory is sold or used up during the period." },
+                { term: "Days in Inventory", meaning: "Estimated number of days goods stay in inventory before being sold." },
+            ],
+            interpretation: `Inventory turns about ${inventoryTurnover.toFixed(2)} times per year, meaning goods stay in stock for around ${daysInInventory.toFixed(2)} days on average.`,
         };
     }, [averageInventory, costOfGoodsSold]);
 
@@ -96,7 +103,12 @@ export default function InventoryTurnoverPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import InstallPrompt from "../../components/InstallPrompt";
+import { useAppSettings } from "../../utils/appSettings";
 
 type NavItem = {
     label: string;
@@ -24,7 +25,10 @@ type OpenGroupsState = {
 const navGroups: NavGroup[] = [
     {
         title: "General",
-        items: [{ label: "Home", path: "/" }],
+        items: [
+            { label: "Home", path: "/" },
+            { label: "Settings", path: "/settings" },
+        ],
     },
     {
         title: "Core Tools",
@@ -41,6 +45,8 @@ const navGroups: NavGroup[] = [
             { label: "Compound Interest", path: "/finance/compound-interest" },
             { label: "Future Value", path: "/finance/future-value" },
             { label: "Present Value", path: "/finance/present-value" },
+            { label: "Future Value of Annuity", path: "/finance/future-value-annuity" },
+            { label: "Present Value of Annuity", path: "/finance/present-value-annuity" },
             { label: "Loan Amortization", path: "/finance/loan-amortization" },
         ],
     },
@@ -51,6 +57,8 @@ const navGroups: NavGroup[] = [
             { label: "Break-even Point", path: "/business/break-even" },
             { label: "Contribution Margin", path: "/business/contribution-margin" },
             { label: "Markup & Margin", path: "/business/markup-margin" },
+            { label: "Target Profit", path: "/business/target-profit" },
+            { label: "Margin of Safety", path: "/business/margin-of-safety" },
         ],
     },
     {
@@ -75,13 +83,12 @@ const navGroups: NavGroup[] = [
             { label: "Inventory Turnover", path: "/accounting/inventory-turnover" },
             { label: "Debt to Equity Ratio", path: "/accounting/debt-to-equity" },
             { label: "Return on Assets", path: "/accounting/return-on-assets" },
+            { label: "Debt Ratio", path: "/accounting/debt-ratio" },
+            { label: "Earnings Per Share", path: "/accounting/earnings-per-share" },
+            { label: "Horizontal Analysis", path: "/accounting/horizontal-analysis" },
+            { label: "Vertical Analysis", path: "/accounting/vertical-analysis" },
         ],
     },
-];
-
-const bottomNavItems: NavItem[] = [
-    { label: "About", path: "/about" },
-    { label: "Feedback", path: "/feedback" },
 ];
 
 type SidebarContentProps = {
@@ -98,7 +105,7 @@ function SidebarContent({
     closeMobileSidebar,
 }: SidebarContentProps) {
     return (
-        <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(12,18,15,0.96),rgba(7,10,8,0.98))]">
+        <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(9,18,14,0.98),rgba(6,10,8,0.98))]">
             <div className="border-b border-white/10 px-4 py-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -129,13 +136,21 @@ function SidebarContent({
                     {navGroups.map((group) => {
                         const groupKey = group.title as keyof OpenGroupsState;
                         const groupIsOpen = openGroups[groupKey];
+                        const groupHasActiveItem = group.items.some(
+                            (item) => item.path === locationPathname
+                        );
 
                         return (
                             <div key={group.title}>
                                 <button
                                     type="button"
                                     onClick={() => toggleGroup(groupKey)}
-                                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-white/[0.07]"
+                                    className={[
+                                        "flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition",
+                                        groupHasActiveItem
+                                            ? "border-green-400/20 bg-green-500/10 text-green-200"
+                                            : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]",
+                                    ].join(" ")}
                                 >
                                     <span>{group.title}</span>
                                     <span
@@ -174,28 +189,6 @@ function SidebarContent({
                         );
                     })}
                 </nav>
-
-                <div className="mt-6 space-y-2 border-t border-white/10 pt-4">
-                    {bottomNavItems.map((item) => {
-                        const isActive = locationPathname === item.path;
-
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                onClick={closeMobileSidebar}
-                                className={[
-                                    "block rounded-2xl px-4 py-3 text-sm font-medium transition",
-                                    isActive
-                                        ? "bg-green-500/15 text-green-300 ring-1 ring-green-400/20"
-                                        : "bg-white/[0.03] text-white hover:bg-white/[0.06]",
-                                ].join(" ")}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    })}
-                </div>
             </div>
 
             <div className="border-t border-white/10 p-4">
@@ -210,37 +203,49 @@ function SidebarContent({
 
 export default function AppLayout() {
     const location = useLocation();
+    const settings = useAppSettings();
 
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
     const [desktopSidebarVisible, setDesktopSidebarVisible] = useState<boolean>(true);
     const [openGroups, setOpenGroups] = useState<OpenGroupsState>({
-        General: true,
-        "Core Tools": true,
-        "Smart Tools": true,
-        Finance: true,
+        General: false,
+        "Core Tools": false,
+        "Smart Tools": false,
+        Finance: false,
         Business: false,
-        Accounting: true,
+        Accounting: false,
     });
 
     useEffect(() => {
         if (typeof window === "undefined") return;
 
+        if (!settings.rememberDesktopSidebarVisibility) {
+            setDesktopSidebarVisible(true);
+            return;
+        }
+
         const saved = window.localStorage.getItem("accalc-desktop-sidebar-visible");
         if (saved !== null) {
             setDesktopSidebarVisible(saved === "true");
         }
-    }, []);
+    }, [settings.rememberDesktopSidebarVisibility]);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
+        if (!settings.rememberDesktopSidebarVisibility) {
+            window.localStorage.removeItem("accalc-desktop-sidebar-visible");
+            return;
+        }
 
         window.localStorage.setItem(
             "accalc-desktop-sidebar-visible",
             String(desktopSidebarVisible)
         );
-    }, [desktopSidebarVisible]);
+    }, [desktopSidebarVisible, settings.rememberDesktopSidebarVisibility]);
 
     useEffect(() => {
+        if (!settings.autoExpandActiveNavGroup) return;
+
         setOpenGroups((current) => {
             const nextOpenGroups: OpenGroupsState = { ...current };
 
@@ -255,7 +260,7 @@ export default function AppLayout() {
 
             return nextOpenGroups;
         });
-    }, [location.pathname]);
+    }, [location.pathname, settings.autoExpandActiveNavGroup]);
 
     function toggleGroup(groupTitle: keyof OpenGroupsState) {
         setOpenGroups((current) => ({
@@ -321,6 +326,30 @@ export default function AppLayout() {
                                 >
                                     {desktopSidebarVisible ? "Hide sidebar" : "Show sidebar"}
                                 </button>
+
+                                <Link
+                                    to="/settings"
+                                    className={[
+                                        "hidden rounded-xl border px-4 py-2 text-sm font-medium transition md:inline-flex",
+                                        location.pathname.startsWith("/settings")
+                                            ? "border-green-400/20 bg-green-500/15 text-green-300"
+                                            : "border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.08]",
+                                    ].join(" ")}
+                                >
+                                    Settings
+                                </Link>
+
+                                <Link
+                                    to="/settings"
+                                    className={[
+                                        "rounded-xl border px-3 py-2 text-sm font-medium transition md:hidden",
+                                        location.pathname.startsWith("/settings")
+                                            ? "border-green-400/20 bg-green-500/15 text-green-300"
+                                            : "border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.08]",
+                                    ].join(" ")}
+                                >
+                                    Settings
+                                </Link>
 
                                 <button
                                     type="button"

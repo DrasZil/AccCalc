@@ -70,6 +70,16 @@ export default function QuickRatioPage() {
                 `Quick Assets = ${formatPHP(parsedCash)} + ${formatPHP(parsedMarketableSecurities)} + ${formatPHP(parsedNetReceivables)} = ${formatPHP(quickAssets)}`,
                 `Quick Ratio = ${formatPHP(quickAssets)} / ${formatPHP(parsedCurrentLiabilities)} = ${quickRatio.toFixed(2)}:1`,
             ],
+            glossary: [
+                { term: "Cash", meaning: "Currency and immediately available cash balances." },
+                { term: "Marketable Securities", meaning: "Short-term investments that can be quickly converted to cash." },
+                { term: "Net Receivables", meaning: "Expected collectible amount from customers after allowances." },
+                { term: "Quick Ratio", meaning: "A stricter liquidity ratio that excludes inventory and other less liquid current assets." },
+            ],
+            interpretation:
+                quickRatio >= 1
+                    ? `A quick ratio of ${quickRatio.toFixed(2)}:1 suggests the entity can cover current liabilities using its most liquid assets.`
+                    : `A quick ratio of ${quickRatio.toFixed(2)}:1 suggests immediate liquid assets may not fully cover current liabilities.`,
         };
     }, [cash, currentLiabilities, marketableSecurities, netReceivables]);
 
@@ -118,7 +128,12 @@ export default function QuickRatioPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

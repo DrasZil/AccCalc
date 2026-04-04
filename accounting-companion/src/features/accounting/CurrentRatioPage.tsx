@@ -55,6 +55,16 @@ export default function CurrentRatioPage() {
                 `Current Ratio = ${formatPHP(assets)} / ${formatPHP(liabilities)} = ${currentRatio.toFixed(2)}:1`,
                 `Working Capital = ${formatPHP(assets)} - ${formatPHP(liabilities)} = ${formatPHP(workingCapital)}`,
             ],
+            glossary: [
+                { term: "Current Assets", meaning: "Assets expected to be converted into cash or used within one year or one operating cycle." },
+                { term: "Current Liabilities", meaning: "Obligations expected to be settled within one year or one operating cycle." },
+                { term: "Current Ratio", meaning: "A liquidity ratio that compares current assets with current liabilities." },
+                { term: "Working Capital", meaning: "The excess of current assets over current liabilities." },
+            ],
+            interpretation:
+                currentRatio >= 1
+                    ? `A current ratio of ${currentRatio.toFixed(2)}:1 suggests the entity has more current assets than current liabilities. Working capital is ${formatPHP(workingCapital)}.`
+                    : `A current ratio of ${currentRatio.toFixed(2)}:1 suggests current liabilities exceed current asset coverage, so liquidity should be monitored carefully.`,
         };
     }, [currentAssets, currentLiabilities]);
 
@@ -96,7 +106,12 @@ export default function CurrentRatioPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

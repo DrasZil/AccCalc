@@ -55,6 +55,13 @@ export default function ReceivablesTurnoverPage() {
                 `Receivables Turnover = ${formatPHP(sales)} / ${formatPHP(receivables)} = ${receivablesTurnover.toFixed(2)} times`,
                 `Average Collection Period = 365 / ${receivablesTurnover.toFixed(2)} = ${averageCollectionPeriod.toFixed(2)} days`,
             ],
+            glossary: [
+                { term: "Net Credit Sales", meaning: "Sales made on account after deductions such as returns and allowances." },
+                { term: "Average Accounts Receivable", meaning: "Average receivables balance for the period." },
+                { term: "Receivables Turnover", meaning: "How many times receivables are converted into cash during the period." },
+                { term: "Average Collection Period", meaning: "Estimated number of days it takes to collect receivables." },
+            ],
+            interpretation: `Receivables are collected about ${receivablesTurnover.toFixed(2)} times per year, or roughly every ${averageCollectionPeriod.toFixed(2)} days.`,
         };
     }, [averageAccountsReceivable, netCreditSales]);
 
@@ -102,7 +109,12 @@ export default function ReceivablesTurnoverPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

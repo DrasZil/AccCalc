@@ -781,6 +781,120 @@ import type {
             "average asset base",
         ],
     },
+
+    periodicPayment: {
+        label: "Periodic Payment",
+        placeholder: "5000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: [
+            "periodic payment",
+            "regular payment",
+            "annuity payment",
+            "payment each period",
+            "deposit each period",
+        ],
+    },
+
+    periods: {
+        label: "Number of Periods",
+        placeholder: "12",
+        kind: "number",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: [
+            "number of periods",
+            "periods",
+            "installments",
+            "payment periods",
+        ],
+    },
+
+    targetProfit: {
+        label: "Target Profit",
+        placeholder: "50000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["target profit", "desired profit", "required profit"],
+    },
+
+    actualSales: {
+        label: "Actual Sales",
+        placeholder: "400000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual sales", "current sales", "real sales"],
+    },
+
+    breakEvenSalesAmount: {
+        label: "Break-even Sales",
+        placeholder: "300000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["break-even sales", "breakeven sales", "sales at break even"],
+    },
+
+    preferredDividends: {
+        label: "Preferred Dividends",
+        placeholder: "15000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["preferred dividends", "preferred dividend requirement"],
+    },
+
+    weightedAverageCommonShares: {
+        label: "Weighted Average Common Shares",
+        placeholder: "100000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "weighted average common shares",
+            "weighted average shares",
+            "average common shares",
+        ],
+    },
+
+    basePeriodAmount: {
+        label: "Base Period Amount",
+        placeholder: "120000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["base period amount", "previous period amount", "last year amount"],
+    },
+
+    currentPeriodAmount: {
+        label: "Current Period Amount",
+        placeholder: "150000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["current period amount", "this year amount", "current year amount"],
+    },
+
+    statementItemAmount: {
+        label: "Statement Item Amount",
+        placeholder: "45000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["statement item amount", "line item amount", "account balance"],
+    },
+
+    statementBaseAmount: {
+        label: "Statement Base Amount",
+        placeholder: "300000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["statement base amount", "base total", "sales total", "asset total"],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -870,6 +984,39 @@ import type {
         /future amount/i,
         ],
     },
+    {
+        id: "future-value-annuity",
+        name: "Future Value of Annuity",
+        route: "/finance/future-value-annuity",
+        description:
+        "Best when the user gives a regular payment, periodic rate, and number of periods for an annuity accumulation problem.",
+        required: ["periodicPayment", "rate", "periods"],
+        aliases: ["annuity future value", "ordinary annuity future value", "sinking fund"],
+        keywords: [
+        /future value of annuity/i,
+        /annuity future value/i,
+        /ordinary annuity/i,
+        /regular payment/i,
+        /deposit each period/i,
+        /sinking fund/i,
+        ],
+    },
+    {
+        id: "present-value-annuity",
+        name: "Present Value of Annuity",
+        route: "/finance/present-value-annuity",
+        description:
+        "Best when the user gives a regular payment, periodic rate, and number of periods for an annuity present value problem.",
+        required: ["periodicPayment", "rate", "periods"],
+        aliases: ["annuity present value", "ordinary annuity present value"],
+        keywords: [
+        /present value of annuity/i,
+        /annuity present value/i,
+        /ordinary annuity/i,
+        /installment value/i,
+        /regular payment/i,
+        ],
+    },
 
     {
         id: "loan-amortization",
@@ -924,6 +1071,38 @@ import type {
         /selling price per unit/i,
         /variable cost per unit/i,
         /units to break even/i,
+        ],
+    },
+    {
+        id: "target-profit",
+        name: "Target Profit Calculator",
+        route: "/business/target-profit",
+        description:
+        "Best when the user wants the required units or sales needed to reach a target profit.",
+        required: ["fixedCosts", "targetProfit", "sellingPricePerUnit", "variableCostPerUnit"],
+        aliases: ["required profit", "desired profit", "sales for target profit"],
+        keywords: [
+        /target profit/i,
+        /desired profit/i,
+        /required profit/i,
+        /required sales/i,
+        /required units/i,
+        ],
+    },
+    {
+        id: "margin-of-safety",
+        name: "Margin of Safety",
+        route: "/business/margin-of-safety",
+        description:
+        "Best when the user compares actual sales with break-even sales.",
+        required: ["actualSales", "breakEvenSalesAmount"],
+        aliases: ["safety margin", "sales cushion", "how much sales can drop"],
+        keywords: [
+        /margin of safety/i,
+        /safety margin/i,
+        /break-even sales/i,
+        /actual sales/i,
+        /sales can drop/i,
         ],
     },
 
@@ -1330,6 +1509,71 @@ import type {
             /average total assets/i,
         ],
     },
+    {
+        id: "debt-ratio",
+        name: "Debt Ratio",
+        route: "/accounting/debt-ratio",
+        description:
+            "Measure the proportion of assets financed by liabilities.",
+        required: ["liabilities", "assets"],
+        aliases: ["total debt ratio", "liabilities to assets", "debt percentage"],
+        keywords: [
+            /debt ratio/i,
+            /liabilities to assets/i,
+            /total liabilities/i,
+            /total assets/i,
+            /debt percentage/i,
+        ],
+    },
+    {
+        id: "earnings-per-share",
+        name: "Earnings Per Share",
+        route: "/accounting/earnings-per-share",
+        description:
+            "Compute EPS using net income, preferred dividends, and weighted average common shares.",
+        required: ["netIncome", "preferredDividends", "weightedAverageCommonShares"],
+        aliases: ["eps", "basic earnings per share", "profit per share"],
+        keywords: [
+            /earnings per share/i,
+            /\beps\b/i,
+            /basic eps/i,
+            /preferred dividends/i,
+            /weighted average common shares/i,
+        ],
+    },
+    {
+        id: "horizontal-analysis",
+        name: "Horizontal Analysis",
+        route: "/accounting/horizontal-analysis",
+        description:
+            "Compute amount change and percentage change between a base period and a current period.",
+        required: ["basePeriodAmount", "currentPeriodAmount"],
+        aliases: ["trend analysis", "period-to-period analysis", "year-over-year change"],
+        keywords: [
+            /horizontal analysis/i,
+            /trend analysis/i,
+            /increase or decrease/i,
+            /year over year/i,
+            /base period/i,
+            /current period/i,
+        ],
+    },
+    {
+        id: "vertical-analysis",
+        name: "Vertical Analysis",
+        route: "/accounting/vertical-analysis",
+        description:
+            "Compute the percentage of a statement item against a base total.",
+        required: ["statementItemAmount", "statementBaseAmount"],
+        aliases: ["common size analysis", "common-size percentage", "statement percentage"],
+        keywords: [
+            /vertical analysis/i,
+            /common size/i,
+            /common-size/i,
+            /statement item/i,
+            /base total/i,
+        ],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
@@ -1457,6 +1701,19 @@ export function normalizeText(text: string = ""): string {
     [/\bimmediate liquidity\b/g, "quick ratio"],
     [/\bcollect receivables\b/g, "accounts receivable turnover"],
     [/\bhow fast inventory moves\b/g, "inventory turnover"],
+    [/\bregular deposit each period\b/g, "periodic payment"],
+    [/\bpayment every period\b/g, "periodic payment"],
+    [/\bnumber of installments\b/g, "periods"],
+    [/\bdesired profit\b/g, "target profit"],
+    [/\brequired profit\b/g, "target profit"],
+    [/\bcurrent sales\b/g, "actual sales"],
+    [/\bsales at break even\b/g, "break-even sales"],
+    [/\bprofit per share\b/g, "earnings per share"],
+    [/\bbasic eps\b/g, "earnings per share"],
+    [/\byear over year change\b/g, "horizontal analysis"],
+    [/\btrend percentage\b/g, "horizontal analysis"],
+    [/\bcommon size\b/g, "vertical analysis"],
+    [/\bcommon-size\b/g, "vertical analysis"],
     ];
 
     export function extractTime(text: string): {
@@ -1633,6 +1890,14 @@ export function normalizeText(text: string = ""): string {
     if (facts.averageTotalAssets && !facts.assets) {
         facts.assets = facts.averageTotalAssets;
     }
+
+    if (facts.sales && !facts.actualSales) {
+        facts.actualSales = facts.sales;
+    }
+
+    if (facts.actualSales && !facts.sales) {
+        facts.sales = facts.actualSales;
+    }
     }
 
     /* -------------------------------------------------------------------------- */
@@ -1761,6 +2026,41 @@ export function normalizeText(text: string = ""): string {
     const averageTotalAssets = extractNumberByAliases(
         text,
         FIELD_META.averageTotalAssets.aliases ?? []
+    );
+    const periodicPayment = extractNumberByAliases(text, FIELD_META.periodicPayment.aliases ?? []);
+    const periods = extractNumberByAliases(text, FIELD_META.periods.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const targetProfit = extractNumberByAliases(text, FIELD_META.targetProfit.aliases ?? []);
+    const actualSales = extractNumberByAliases(text, FIELD_META.actualSales.aliases ?? []);
+    const breakEvenSalesAmount = extractNumberByAliases(
+        text,
+        FIELD_META.breakEvenSalesAmount.aliases ?? []
+    );
+    const preferredDividends = extractNumberByAliases(
+        text,
+        FIELD_META.preferredDividends.aliases ?? []
+    );
+    const weightedAverageCommonShares = extractNumberByAliases(
+        text,
+        FIELD_META.weightedAverageCommonShares.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const basePeriodAmount = extractNumberByAliases(
+        text,
+        FIELD_META.basePeriodAmount.aliases ?? []
+    );
+    const currentPeriodAmount = extractNumberByAliases(
+        text,
+        FIELD_META.currentPeriodAmount.aliases ?? []
+    );
+    const statementItemAmount = extractNumberByAliases(
+        text,
+        FIELD_META.statementItemAmount.aliases ?? []
+    );
+    const statementBaseAmount = extractNumberByAliases(
+        text,
+        FIELD_META.statementBaseAmount.aliases ?? []
     );
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
@@ -1901,6 +2201,17 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "averageInventory", averageInventory);
     setFact(facts, "netIncome", netIncome);
     setFact(facts, "averageTotalAssets", averageTotalAssets);
+    setFact(facts, "periodicPayment", periodicPayment);
+    setFact(facts, "periods", periods);
+    setFact(facts, "targetProfit", targetProfit);
+    setFact(facts, "actualSales", actualSales);
+    setFact(facts, "breakEvenSalesAmount", breakEvenSalesAmount);
+    setFact(facts, "preferredDividends", preferredDividends);
+    setFact(facts, "weightedAverageCommonShares", weightedAverageCommonShares);
+    setFact(facts, "basePeriodAmount", basePeriodAmount);
+    setFact(facts, "currentPeriodAmount", currentPeriodAmount);
+    setFact(facts, "statementItemAmount", statementItemAmount);
+    setFact(facts, "statementBaseAmount", statementBaseAmount);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);

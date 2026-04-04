@@ -69,6 +69,17 @@ export const ALL_FIELD_KEYS = [
     "averageInventory",
     "netIncome",
     "averageTotalAssets",
+    "periodicPayment",
+    "periods",
+    "targetProfit",
+    "actualSales",
+    "breakEvenSalesAmount",
+    "preferredDividends",
+    "weightedAverageCommonShares",
+    "basePeriodAmount",
+    "currentPeriodAmount",
+    "statementItemAmount",
+    "statementBaseAmount",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

@@ -46,6 +46,15 @@ export default function DebtToEquityPage() {
             steps: [
                 `Debt to Equity Ratio = ${formatPHP(parsedLiabilities)} / ${formatPHP(parsedEquity)} = ${debtToEquity.toFixed(2)}:1`,
             ],
+            glossary: [
+                { term: "Total Liabilities", meaning: "All obligations owed by the business to outsiders." },
+                { term: "Total Equity", meaning: "Residual interest of the owners after deducting liabilities from assets." },
+                { term: "Debt to Equity Ratio", meaning: "A leverage ratio showing how much debt is used relative to equity." },
+            ],
+            interpretation:
+                debtToEquity > 1
+                    ? `A debt to equity ratio of ${debtToEquity.toFixed(2)}:1 means liabilities are greater than equity, indicating heavier dependence on borrowed funds.`
+                    : `A debt to equity ratio of ${debtToEquity.toFixed(2)}:1 means equity is at least as large as debt, indicating a more balanced capital structure.`,
         };
     }, [equity, liabilities]);
 
@@ -86,7 +95,12 @@ export default function DebtToEquityPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
                 ) : null
             }
         />

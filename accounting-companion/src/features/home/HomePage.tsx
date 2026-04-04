@@ -38,6 +38,18 @@ const tools = [
         category: "Finance",
     },
     {
+        title: "Future Value of Annuity",
+        description: "Compute the accumulated value of equal periodic payments.",
+        path: "/finance/future-value-annuity",
+        category: "Finance",
+    },
+    {
+        title: "Present Value of Annuity",
+        description: "Compute the present worth of equal periodic payments.",
+        path: "/finance/present-value-annuity",
+        category: "Finance",
+    },
+    {
         title: "Loan / Amortization",
         description: "Estimate monthly payment, total paid, and total interest for a loan.",
         path: "/finance/loan-amortization",
@@ -65,6 +77,18 @@ const tools = [
         title: "Markup & Margin",
         description: "Compute profit, markup percentage, and margin percentage from cost and selling price.",
         path: "/business/markup-margin",
+        category: "Business",
+    },
+    {
+        title: "Target Profit",
+        description: "Find the units and sales needed to achieve a target profit.",
+        path: "/business/target-profit",
+        category: "Business",
+    },
+    {
+        title: "Margin of Safety",
+        description: "Measure how much sales can drop before reaching break-even.",
+        path: "/business/margin-of-safety",
         category: "Business",
     },
     {
@@ -180,6 +204,36 @@ const tools = [
         description: "Compute return on assets using net income and average total assets.",
         path: "/accounting/return-on-assets",
         category: "Accounting",
+    },
+    {
+        title: "Debt Ratio",
+        description: "Measure the percentage of assets financed through liabilities.",
+        path: "/accounting/debt-ratio",
+        category: "Accounting",
+    },
+    {
+        title: "Earnings Per Share",
+        description: "Compute basic EPS using net income, preferred dividends, and common shares.",
+        path: "/accounting/earnings-per-share",
+        category: "Accounting",
+    },
+    {
+        title: "Horizontal Analysis",
+        description: "Compare a statement item across periods using amount and percentage change.",
+        path: "/accounting/horizontal-analysis",
+        category: "Accounting",
+    },
+    {
+        title: "Vertical Analysis",
+        description: "Express a statement item as a percentage of a selected base total.",
+        path: "/accounting/vertical-analysis",
+        category: "Accounting",
+    },
+    {
+        title: "Settings",
+        description: "Control navigation, Smart Solver behavior, and app preferences.",
+        path: "/settings",
+        category: "General",
     },
 ];
 

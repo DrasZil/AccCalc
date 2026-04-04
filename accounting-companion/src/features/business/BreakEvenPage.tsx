@@ -17,12 +17,12 @@ export default function BreakEvenPage() {
     useSmartSolverConnector({
         fixedCosts: setFixedCosts,
         sellingPricePerUnit: setSellingPricePerUnit,
-        variableCostPerUnit: setVariableCostPerUnit
+        variableCostPerUnit: setVariableCostPerUnit,
     });
 
     const result = useMemo(() => {
         if (!fixedCosts || !sellingPricePerUnit || !variableCostPerUnit) {
-        return null;
+            return null;
         }
 
         const fixed = Number(fixedCosts);
@@ -30,93 +30,105 @@ export default function BreakEvenPage() {
         const variable = Number(variableCostPerUnit);
 
         if (Number.isNaN(fixed) || Number.isNaN(selling) || Number.isNaN(variable)) {
-        return null;
+            return null;
         }
 
         const contributionMarginPerUnit = selling - variable;
 
         if (contributionMarginPerUnit <= 0) {
-        return {
-            error:
-            "Selling price per unit must be greater than variable cost per unit to have a valid break-even point.",
-        };
+            return {
+                error:
+                    "Selling price per unit must be greater than variable cost per unit to have a valid break-even point.",
+            };
         }
 
         const breakEvenUnits = fixed / contributionMarginPerUnit;
         const breakEvenSales = breakEvenUnits * selling;
 
         return {
-        contributionMarginPerUnit,
-        breakEvenUnits,
-        breakEvenSales,
-        formula:
-            "Break-even Units = Fixed Costs / (Selling Price per Unit - Variable Cost per Unit)",
-        steps: [
-            `Fixed Costs = ${fixed}`,
-            `Selling Price per Unit = ${selling}`,
-            `Variable Cost per Unit = ${variable}`,
-            `Contribution Margin per Unit = ${selling} - ${variable} = ${contributionMarginPerUnit}`,
-            `Break-even Units = ${fixed} / ${contributionMarginPerUnit} = ${breakEvenUnits}`,
-            `Break-even Sales = ${breakEvenUnits} × ${selling} = ${breakEvenSales}`,
-        ],
+            contributionMarginPerUnit,
+            breakEvenUnits,
+            breakEvenSales,
+            formula:
+                "Break-even Units = Fixed Costs / (Selling Price per Unit - Variable Cost per Unit)",
+            steps: [
+                `Fixed Costs = ${fixed}`,
+                `Selling Price per Unit = ${selling}`,
+                `Variable Cost per Unit = ${variable}`,
+                `Contribution Margin per Unit = ${selling} - ${variable} = ${contributionMarginPerUnit}`,
+                `Break-even Units = ${fixed} / ${contributionMarginPerUnit} = ${breakEvenUnits}`,
+                `Break-even Sales = ${breakEvenUnits} × ${selling} = ${breakEvenSales}`,
+            ],
+            glossary: [
+                { term: "Fixed Costs", meaning: "Costs that remain constant in total within the relevant range." },
+                { term: "Variable Cost per Unit", meaning: "The cost assigned to each unit sold or produced." },
+                { term: "Contribution Margin per Unit", meaning: "The amount from each unit that helps cover fixed costs and profit." },
+                { term: "Break-even Point", meaning: "The level where total revenue exactly equals total cost." },
+            ],
+            interpretation: `The business must sell about ${breakEvenUnits.toFixed(2)} units, or ${formatPHP(breakEvenSales)} in sales, to avoid profit or loss.`,
         };
     }, [fixedCosts, sellingPricePerUnit, variableCostPerUnit]);
 
     return (
         <CalculatorPageLayout
-        badge="Business"
-        title="Break-even Calculator"
-        description="Find how many units and how much sales are needed to break even."
-        inputSection={
-            <InputGrid columns={3}>
-            <InputCard
-                label="Fixed Costs"
-                value={fixedCosts}
-                onChange={setFixedCosts}
-                placeholder="10000"
-            />
-            <InputCard
-                label="Selling Price per Unit"
-                value={sellingPricePerUnit}
-                onChange={setSellingPricePerUnit}
-                placeholder="200"
-            />
-            <InputCard
-                label="Variable Cost per Unit"
-                value={variableCostPerUnit}
-                onChange={setVariableCostPerUnit}
-                placeholder="120"
-            />
-            </InputGrid>
-        }
-        resultSection={
-            result && "error" in result ? (
-            <SectionCard className="border-red-400/20 bg-red-500/10">
-                <p className="text-sm font-medium text-red-300">Input issue</p>
-                <p className="mt-2 text-sm leading-6 text-red-200">{result.error}</p>
-            </SectionCard>
-            ) : result ? (
-            <ResultGrid columns={2}>
-                <ResultCard
-                title="Contribution Margin / Unit"
-                value={formatPHP(result.contributionMarginPerUnit)}
-                />
-                <ResultCard
-                title="Break-even Units"
-                value={result.breakEvenUnits.toFixed(2)}
-                />
-                <ResultCard
-                title="Break-even Sales"
-                value={formatPHP(result.breakEvenSales)}
-                />
-            </ResultGrid>
-            ) : null
-        }
-        explanationSection={
-            result && !("error" in result) ? (
-            <FormulaCard formula={result.formula} steps={result.steps} />
-            ) : null
-        }
+            badge="Business"
+            title="Break-even Calculator"
+            description="Find how many units and how much sales are needed to break even."
+            inputSection={
+                <InputGrid columns={3}>
+                    <InputCard
+                        label="Fixed Costs"
+                        value={fixedCosts}
+                        onChange={setFixedCosts}
+                        placeholder="10000"
+                    />
+                    <InputCard
+                        label="Selling Price per Unit"
+                        value={sellingPricePerUnit}
+                        onChange={setSellingPricePerUnit}
+                        placeholder="200"
+                    />
+                    <InputCard
+                        label="Variable Cost per Unit"
+                        value={variableCostPerUnit}
+                        onChange={setVariableCostPerUnit}
+                        placeholder="120"
+                    />
+                </InputGrid>
+            }
+            resultSection={
+                result && "error" in result ? (
+                    <SectionCard className="border-red-400/20 bg-red-500/10">
+                        <p className="text-sm font-medium text-red-300">Input issue</p>
+                        <p className="mt-2 text-sm leading-6 text-red-200">{result.error}</p>
+                    </SectionCard>
+                ) : result ? (
+                    <ResultGrid columns={2}>
+                        <ResultCard
+                            title="Contribution Margin / Unit"
+                            value={formatPHP(result.contributionMarginPerUnit)}
+                        />
+                        <ResultCard
+                            title="Break-even Units"
+                            value={result.breakEvenUnits.toFixed(2)}
+                        />
+                        <ResultCard
+                            title="Break-even Sales"
+                            value={formatPHP(result.breakEvenSales)}
+                        />
+                    </ResultGrid>
+                ) : null
+            }
+            explanationSection={
+                result && !("error" in result) ? (
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                    />
+                ) : null
+            }
         />
     );
 }

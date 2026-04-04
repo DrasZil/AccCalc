@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useAppSettings } from "../utils/appSettings";
 
 type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;
@@ -17,6 +18,7 @@ type BeforeInstallPromptEvent = Event & {
         useState<BeforeInstallPromptEvent | null>(null);
     const [showInstallCard, setShowInstallCard] = useState(true);
     const [copied, setCopied] = useState(false);
+    const settings = useAppSettings();
 
     const isHomePage = location.pathname === "/";
 
@@ -91,7 +93,7 @@ type BeforeInstallPromptEvent = Event & {
         }
     }
 
-    if (!isHomePage || isStandalone || !showInstallCard) return null;
+    if (!settings.showInstallPrompt || !isHomePage || isStandalone || !showInstallCard) return null;
 
     return (
         <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-2xl border border-white/10 bg-neutral-900/95 p-4 text-white shadow-xl backdrop-blur">

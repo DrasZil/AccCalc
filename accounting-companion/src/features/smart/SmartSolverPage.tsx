@@ -12,6 +12,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { useAppSettings } from "../../utils/appSettings";
 import type { CalculatorConfig, FieldKey, FieldsState, RankedCalculator } from "./smartSolver.types";
 import {
     FIELD_KEYS,
@@ -34,6 +35,7 @@ function dedupeFieldKeys(keys: FieldKey[]): FieldKey[] {
 
 export default function SmartSolverPage() {
     const navigate = useNavigate();
+    const settings = useAppSettings();
 
     const [smartInput, setSmartInput] = useState<string>("");
     const [fields, setFields] = useState<FieldsState>(() => ({ ...INITIAL_FIELDS }));
@@ -210,7 +212,8 @@ export default function SmartSolverPage() {
                                     Prompt ideas
                                 </p>
                                 <div className="mt-4 space-y-2">
-                                    {SMART_PROMPT_EXAMPLES.map((example) => (
+                                    {settings.smartSolverShowPromptExamples
+                                        ? SMART_PROMPT_EXAMPLES.map((example) => (
                                         <button
                                             key={example}
                                             type="button"
@@ -219,7 +222,12 @@ export default function SmartSolverPage() {
                                         >
                                             {example}
                                         </button>
-                                    ))}
+                                        ))
+                                        : (
+                                            <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-gray-400">
+                                                Prompt examples are currently hidden in Settings.
+                                            </p>
+                                        )}
                                 </div>
                             </div>
                         </div>
@@ -350,7 +358,9 @@ export default function SmartSolverPage() {
                         </p>
 
                         <div className="mt-4 grid gap-3 md:grid-cols-2">
-                            {analysis.ranked.slice(0, 4).map((calculator) => {
+                            {analysis.ranked
+                                .slice(0, settings.smartSolverMaxSuggestions)
+                                .map((calculator) => {
                                 const isActive = selectedCalculator?.id === calculator.id;
 
                                 return (
