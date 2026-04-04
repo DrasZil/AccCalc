@@ -68,6 +68,77 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
     }
 }
 
+const ROUTE_DRAFT_STORAGE_PREFIX = "accalc-route-draft";
+
+function getDraftStorageKey(pathname: string) {
+    return `${ROUTE_DRAFT_STORAGE_PREFIX}:${pathname}`;
+}
+
+function getDraftFields(root: HTMLElement) {
+    return Array.from(
+        root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+            "input, textarea, select"
+        )
+    ).filter(
+        (field) =>
+            !field.disabled &&
+            field.type !== "hidden" &&
+            field.type !== "password" &&
+            !field.closest("[data-no-persist]")
+    );
+}
+
+function getDraftFieldKey(
+    field: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
+    index: number
+) {
+    const shellLabel = field
+        .closest(".app-input-shell, .app-panel, .app-panel-elevated, .app-subtle-surface")
+        ?.querySelector("label")
+        ?.textContent?.trim();
+
+    return [
+        field.tagName.toLowerCase(),
+        field.type,
+        field.name,
+        field.id,
+        field.getAttribute("aria-label"),
+        field.getAttribute("placeholder"),
+        shellLabel,
+        index,
+    ]
+        .filter(Boolean)
+        .join("|");
+}
+
+function syncPersistedField(
+    field: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
+    nextValue: string
+) {
+    if (field instanceof HTMLInputElement && (field.type === "checkbox" || field.type === "radio")) {
+        const nextChecked = nextValue === "1";
+        if (field.checked === nextChecked) return;
+
+        field.checked = nextChecked;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+    }
+
+    if (field.value === nextValue) return;
+
+    const prototype =
+        field instanceof HTMLTextAreaElement
+            ? window.HTMLTextAreaElement.prototype
+            : field instanceof HTMLSelectElement
+              ? window.HTMLSelectElement.prototype
+              : window.HTMLInputElement.prototype;
+    const descriptor = Object.getOwnPropertyDescriptor(prototype, "value");
+    descriptor?.set?.call(field, nextValue);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+    field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+
 type SidebarContentProps = {
     locationPathname: string;
     openGroups: OpenGroupsState;
@@ -85,27 +156,25 @@ function SidebarContent({
     showNewIndicators,
     seenNewPaths,
 }: SidebarContentProps) {
-    const toolCount = APP_NAV_GROUPS.reduce((total, group) => total + group.items.length, 0);
-
     return (
         <div
             className="flex h-full flex-col"
             style={{ background: "linear-gradient(180deg, var(--app-surface), var(--app-elevated))" }}
         >
-            <div className="border-b app-divider px-4 py-5">
+            <div className="border-b app-divider px-4 py-3.5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                         <Link to="/" onClick={closeMobileSidebar} className="block">
-                            <div className="app-chip-accent inline-flex items-center rounded-full px-3 py-1">
+                            <div className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                 Study workspace
                             </div>
-                            <h1 className="mt-3 truncate text-[1.9rem] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-sidebar-text)]">
+                            <h1 className="mt-2 truncate text-[1.55rem] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-sidebar-text)]">
                                 AccCalc
                             </h1>
                         </Link>
 
-                        <p className="mt-2 max-w-xs text-[0.94rem] leading-7 app-sidebar-group-hint">
-                            Finance, business, and accounting tools with guided interpretation, offline history, and cleaner study flow.
+                        <p className="mt-1.5 max-w-xs text-[0.8rem] leading-5 app-sidebar-group-hint">
+                            Accounting, finance, business math, and study helpers in one cleaner workspace.
                         </p>
                     </div>
 
@@ -120,22 +189,8 @@ function SidebarContent({
                 </div>
             </div>
 
-            <div className="border-b app-divider px-4 py-4">
-                <div className="app-subtle-surface rounded-[1.35rem] px-4 py-3">
-                    <p className="app-section-kicker">
-                        Available tools
-                    </p>
-                    <div className="mt-2 flex items-center justify-between gap-3">
-                        <p className="app-metric-value text-[1.5rem]">{toolCount}</p>
-                        <p className="max-w-[13rem] text-[0.82rem] leading-5 app-sidebar-group-hint">
-                            Grouped by accounting, finance, managerial and cost, business math, and statistics.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3 scrollbar-premium">
-                <nav className="space-y-4">
+            <div className="flex-1 overflow-y-auto px-2.5 py-3 scrollbar-premium">
+                <nav className="space-y-2.5">
                     {APP_NAV_GROUPS.map((group) => {
                         const groupIsOpen = openGroups[group.title];
                         const groupHasActiveItem = group.items.some((item) =>
@@ -155,24 +210,24 @@ function SidebarContent({
                                     type="button"
                                     onClick={() => toggleGroup(group.title)}
                                     className={[
-                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1.35rem] px-4 py-3.5 text-left transition duration-300",
+                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1.2rem] px-3.5 py-3 text-left transition duration-300",
                                         groupHasActiveItem ? "app-sidebar-group-active" : "",
                                     ].join(" ")}
                                 >
                                     <div
-                                        className="app-sidebar-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-[color:var(--app-sidebar-text)]"
+                                        className="app-sidebar-icon inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[1.05rem] text-[color:var(--app-sidebar-text)]"
                                         style={{ background: getSidebarTone(group.title) }}
                                     >
                                         <ShellIcon
                                             kind={group.title}
-                                            className="h-[1.125rem] w-[1.125rem]"
+                                            className="h-[1rem] w-[1rem]"
                                         />
                                     </div>
 
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="flex min-w-0 items-center gap-2">
-                                                <p className="app-sidebar-group-title truncate text-[0.96rem] font-semibold tracking-[-0.02em]">
+                                                <p className="app-sidebar-group-title truncate text-[0.92rem] font-semibold tracking-[-0.02em]">
                                                     {group.title}
                                                 </p>
                                                 {hasUnseenItem ? <NewBadge /> : null}
@@ -181,7 +236,7 @@ function SidebarContent({
                                                 {group.items.length}
                                             </span>
                                         </div>
-                                        <p className="app-sidebar-group-hint mt-1 text-[0.82rem] leading-5">
+                                        <p className="app-sidebar-group-hint mt-1 text-[0.76rem] leading-5">
                                             {group.hint}
                                         </p>
                                     </div>
@@ -199,13 +254,13 @@ function SidebarContent({
                                     className={[
                                         "grid overflow-hidden transition-all duration-300",
                                         groupIsOpen
-                                            ? "mt-2 grid-rows-[1fr] opacity-100"
+                                            ? "mt-1.5 grid-rows-[1fr] opacity-100"
                                             : "grid-rows-[0fr] opacity-0",
                                     ].join(" ")}
                                 >
                                     <div className="min-h-0 overflow-hidden">
-                                        <div className="ml-5 border-l app-divider pl-4 pt-2">
-                                            <div className="space-y-2">
+                                        <div className="ml-4 border-l app-divider pl-3 pt-1.5">
+                                            <div className="space-y-1.5">
                                                 {group.items.map((item) => {
                                                     const isActive = isPathActive(
                                                         locationPathname,
@@ -222,13 +277,13 @@ function SidebarContent({
                                                             to={item.path}
                                                             onClick={closeMobileSidebar}
                                                             className={[
-                                                                "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-sm font-medium leading-5 transition duration-300",
+                                                                "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium leading-5 transition duration-300",
                                                                 isActive
                                                                     ? "app-sidebar-link-active"
                                                                     : "",
                                                             ].join(" ")}
                                                         >
-                                                            <span className="app-sidebar-link-title min-w-0 truncate">
+                                                            <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
                                                                 {item.label}
                                                             </span>
                                                             {isNew ? (
@@ -236,7 +291,7 @@ function SidebarContent({
                                                             ) : (
                                                                 <span
                                                                     className={[
-                                                                        "app-sidebar-link-meta rounded-full px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em]",
+                                                                        "app-sidebar-link-meta rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]",
                                                                         isActive
                                                                             ? "app-chip-accent"
                                                                             : "",
@@ -260,11 +315,7 @@ function SidebarContent({
                 </nav>
             </div>
 
-            <div className="border-t app-divider p-4">
-                <p className="app-sidebar-footer text-xs leading-6">
-                    Collapsed-first navigation with group counts, new markers, and offline history support.
-                </p>
-            </div>
+
         </div>
     );
 }
@@ -275,6 +326,7 @@ export default function AppLayout() {
     const activity = useAppActivity();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
+    const mainRef = useRef<HTMLElement | null>(null);
 
     const [mobileSidebarRoute, setMobileSidebarRoute] = useState<string | null>(null);
     const [desktopSidebarVisible, setDesktopSidebarVisible] = useState<boolean>(() => {
@@ -373,6 +425,7 @@ export default function AppLayout() {
             String(desktopSidebarVisible)
         );
     }, [desktopSidebarVisible, settings.rememberDesktopSidebarVisibility]);
+
 
     useEffect(() => {
         if (typeof document === "undefined") return;
@@ -517,6 +570,87 @@ export default function AppLayout() {
         };
     }, []);
 
+    useEffect(() => {
+        if (typeof window === "undefined" || !mainRef.current) return;
+
+        const draftStorageKey = getDraftStorageKey(location.pathname);
+
+        if (!settings.saveOfflineHistory) {
+            try {
+                window.localStorage.removeItem(draftStorageKey);
+            } catch {
+                // Ignore storage removal failures.
+            }
+            return;
+        }
+
+        const root = mainRef.current;
+        const persistDraft = () => {
+            const fields = getDraftFields(root);
+            const snapshot = fields.reduce<Record<string, string>>((record, field, index) => {
+                const key = getDraftFieldKey(field, index);
+                const value =
+                    field instanceof HTMLInputElement &&
+                    (field.type === "checkbox" || field.type === "radio")
+                        ? field.checked
+                            ? "1"
+                            : ""
+                        : field.value;
+
+                if (value.trim() !== "") {
+                    record[key] = value;
+                }
+
+                return record;
+            }, {});
+
+            try {
+                if (Object.keys(snapshot).length === 0) {
+                    window.localStorage.removeItem(draftStorageKey);
+                    return;
+                }
+
+                window.localStorage.setItem(draftStorageKey, JSON.stringify(snapshot));
+            } catch {
+                // Ignore storage write failures so tools continue working.
+            }
+        };
+
+        const restoreDraft = () => {
+            try {
+                const rawDraft = window.localStorage.getItem(draftStorageKey);
+                if (!rawDraft) return;
+
+                const parsedDraft = JSON.parse(rawDraft) as Record<string, string>;
+                const fields = getDraftFields(root);
+
+                fields.forEach((field, index) => {
+                    const key = getDraftFieldKey(field, index);
+                    const nextValue = parsedDraft[key];
+
+                    if (typeof nextValue === "string") {
+                        syncPersistedField(field, nextValue);
+                    }
+                });
+            } catch {
+                // Ignore malformed drafts and continue rendering normally.
+            }
+        };
+
+        const restoreTimer = window.setTimeout(() => {
+            restoreDraft();
+            window.setTimeout(persistDraft, 0);
+        }, 60);
+
+        root.addEventListener("input", persistDraft, true);
+        root.addEventListener("change", persistDraft, true);
+
+        return () => {
+            window.clearTimeout(restoreTimer);
+            root.removeEventListener("input", persistDraft, true);
+            root.removeEventListener("change", persistDraft, true);
+        };
+    }, [location.pathname, settings.saveOfflineHistory]);
     function toggleGroup(groupTitle: AppNavGroupTitle) {
         setOpenGroups((current) => ({
             ...current,
@@ -525,7 +659,7 @@ export default function AppLayout() {
     }
 
     const settingsButtonClass = [
-        "app-icon-button inline-flex rounded-xl p-2.5",
+        "app-icon-button inline-flex rounded-xl p-2.25",
         settingsPanelOpen
             ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] text-[color:var(--app-accent)]"
             : "",
@@ -550,7 +684,7 @@ export default function AppLayout() {
             <div className="flex min-h-screen items-start">
                 {effectiveDesktopSidebarVisible ? (
                     <aside
-                        className="sticky top-0 hidden h-screen w-80 shrink-0 border-r app-divider backdrop-blur-xl xl:block"
+                        className="sticky top-0 hidden h-screen w-[18.75rem] shrink-0 border-r app-divider backdrop-blur-xl xl:block"
                         style={{ background: "var(--app-sidebar-bg)" }}
                     >
                         <SidebarContent
@@ -566,7 +700,7 @@ export default function AppLayout() {
 
                 <aside
                     className={[
-                        "fixed inset-y-0 left-0 z-[92] w-[88vw] max-w-[21rem] border-r app-divider backdrop-blur-xl transition-transform duration-300 xl:hidden",
+                        "fixed inset-y-0 left-0 z-[92] w-[84vw] max-w-[18.75rem] border-r app-divider backdrop-blur-xl transition-transform duration-300 xl:hidden",
                         mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
                     ].join(" ")}
                     style={{ background: "var(--app-sidebar-bg)" }}
@@ -599,37 +733,47 @@ export default function AppLayout() {
                         className="sticky top-0 z-[90] border-b app-divider backdrop-blur-xl"
                         style={{ background: "var(--app-header-bg)" }}
                     >
-                        <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-6 md:py-3">
-                            <div className="min-w-0">
-                                <p className="app-kicker text-[0.64rem] md:text-[0.68rem]">
+                        <div className="flex items-center justify-between gap-3 px-4 py-2 md:px-5 md:py-2.5">
+                            <div className="min-w-0 flex-1 pr-2">
+                                <p className="app-kicker hidden text-[0.62rem] sm:block">
                                     {currentMeta?.category ?? "Accounting companion"}
                                 </p>
-                                <div className="mt-1 flex items-center gap-2">
-                                    <h2 className="truncate text-base font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] sm:text-lg md:text-[1.35rem]">
+                                <div className="flex items-center gap-2">
+                                    <h2 className="truncate text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.12rem]">
                                         {currentMeta?.label ??
                                             "Learn faster. Calculate with confidence."}
                                     </h2>
                                     {unseenCount > 0 && location.pathname !== "/history" ? (
                                         <Link
                                             to="/history"
-                                            className="app-badge-new hidden rounded-full px-2.5 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] sm:inline-flex"
+                                            className="app-badge-new hidden rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] lg:inline-flex"
                                         >
                                             {unseenCount} new
                                         </Link>
                                     ) : null}
                                 </div>
-                                <p className="mt-1 hidden text-[0.82rem] leading-5 app-helper md:block">
+                                <p className="mt-0.5 hidden text-[0.76rem] leading-5 app-helper xl:block">
                                     {currentMeta?.description ??
                                         "Cleaner accounting, business, and finance tools for study and practical work."}
                                 </p>
                             </div>
 
                             <div className="flex items-center gap-2">
+                                <div
+                                    data-header-search
+                                    className="hidden min-w-[12rem] flex-1 max-w-[16rem] md:block lg:max-w-[18rem] xl:max-w-[20rem]"
+                                >
+                                    <FeatureSearch
+                                        className="w-full"
+                                        placeholder="Search tools"
+                                    />
+                                </div>
+
                                 <Link
                                     to="/history"
                                     aria-label="Open history"
                                     title="History"
-                                    className="app-icon-button hidden rounded-xl p-2.5 md:inline-flex"
+                                    className="app-icon-button hidden rounded-xl p-2.25 md:inline-flex"
                                 >
                                     <ShellIcon kind="history" />
                                 </Link>
@@ -647,7 +791,7 @@ export default function AppLayout() {
                                             ? "Hide sidebar"
                                             : "Show sidebar"
                                     }
-                                    className="app-icon-button hidden rounded-xl p-2.5 xl:inline-flex"
+                                    className="app-icon-button hidden rounded-xl p-2.25 xl:inline-flex"
                                 >
                                     <ShellIcon
                                         kind={
@@ -657,6 +801,8 @@ export default function AppLayout() {
                                         }
                                     />
                                 </button>
+
+
 
                                 <button
                                     type="button"
@@ -668,7 +814,7 @@ export default function AppLayout() {
                                     }
                                     aria-label={themeButtonLabel}
                                     title={themeButtonLabel}
-                                    className="app-icon-button hidden rounded-xl p-2.5 md:inline-flex"
+                                    className="app-icon-button hidden rounded-xl p-2.25 md:inline-flex"
                                 >
                                     <ShellIcon
                                         kind={
@@ -699,25 +845,22 @@ export default function AppLayout() {
                                     type="button"
                                     onClick={() => setMobileSidebarRoute(location.pathname)}
                                     aria-label="Open menu"
-                                    className="app-icon-button rounded-xl p-2.5 xl:hidden"
+                                    className="app-icon-button rounded-xl p-2.25 xl:hidden"
                                 >
                                     <ShellIcon kind="menu" />
                                 </button>
                             </div>
                         </div>
-                        <div className="px-4 pb-3 md:px-6">
-                            <FeatureSearch />
-                        </div>
                     </header>
 
-                    <main className="px-4 py-5 md:px-6 md:py-7">
+                    <main ref={mainRef} className="px-4 py-4 md:px-5 md:py-6">
                         <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">
                             <Outlet />
                         </div>
                     </main>
 
                     {settings.showInstallPrompt ? (
-                        <div className="px-4 pb-6 md:px-6">
+                        <div className="px-4 pb-6 md:px-5">
                             <div className="app-page-shell">
                                 <InstallPrompt />
                             </div>
@@ -759,3 +902,10 @@ export default function AppLayout() {
         </div>
     );
 }
+
+
+
+
+
+
+

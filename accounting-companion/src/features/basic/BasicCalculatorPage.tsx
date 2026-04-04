@@ -21,6 +21,41 @@ type HistoryEntry = {
     result: string;
 };
 
+type BasicCalculatorDraft = {
+    currentInput: string;
+    tokens: Token[];
+    memoryValue: string | null;
+    justEvaluated: boolean;
+    statusMessage: string;
+};
+
+const BASIC_CALCULATOR_DRAFT_KEY = "accalc-basic-draft";
+
+function readBasicCalculatorDraft(): BasicCalculatorDraft | null {
+    if (typeof window === "undefined") return null;
+
+    try {
+        const raw = window.localStorage.getItem(BASIC_CALCULATOR_DRAFT_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw) as Partial<BasicCalculatorDraft>;
+        return {
+            currentInput:
+                typeof parsed.currentInput === "string" ? parsed.currentInput : "0",
+            tokens: Array.isArray(parsed.tokens)
+                ? parsed.tokens.filter((token): token is Token => typeof token === "string")
+                : [],
+            memoryValue:
+                typeof parsed.memoryValue === "string" ? parsed.memoryValue : null,
+            justEvaluated: Boolean(parsed.justEvaluated),
+            statusMessage:
+                typeof parsed.statusMessage === "string" ? parsed.statusMessage : "Ready",
+        };
+    } catch {
+        return null;
+    }
+}
+
 const BUTTON_ROWS: ButtonSpec[][] = [
     [
         { label: "MC", value: "MC", kind: "action" },
@@ -211,9 +246,18 @@ function getButtonClass(kind: ButtonSpec["kind"] = "number", value?: string) {
 
 export default function BasicCalculatorPage() {
     const settings = useAppSettings();
-    const [currentInput, setCurrentInput] = useState("0");
-    const [tokens, setTokens] = useState<Token[]>([]);
-    const [memoryValue, setMemoryValue] = useState<Decimal | null>(null);
+    const savedDraft = useMemo(() => readBasicCalculatorDraft(), []);
+    const [currentInput, setCurrentInput] = useState(savedDraft?.currentInput ?? "0");
+    const [tokens, setTokens] = useState<Token[]>(savedDraft?.tokens ?? []);
+    const [memoryValue, setMemoryValue] = useState<Decimal | null>(() => {
+        if (!savedDraft?.memoryValue) return null;
+
+        try {
+            return new Decimal(savedDraft.memoryValue);
+        } catch {
+            return null;
+        }
+    });
     const [history, setHistory] = useState<HistoryEntry[]>(() => {
         if (typeof window === "undefined") return [];
 
@@ -226,8 +270,8 @@ export default function BasicCalculatorPage() {
             return [];
         }
     });
-    const [justEvaluated, setJustEvaluated] = useState(false);
-    const [statusMessage, setStatusMessage] = useState("Ready");
+    const [justEvaluated, setJustEvaluated] = useState(savedDraft?.justEvaluated ?? false);
+    const [statusMessage, setStatusMessage] = useState(savedDraft?.statusMessage ?? "Ready");
 
     const expressionDisplay = useMemo(() => {
         const displayTokens = [...tokens];
@@ -586,6 +630,33 @@ export default function BasicCalculatorPage() {
     }
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        if (!settings.saveOfflineHistory) {
+            window.localStorage.removeItem(BASIC_CALCULATOR_DRAFT_KEY);
+            return;
+        }
+
+        window.localStorage.setItem(
+            BASIC_CALCULATOR_DRAFT_KEY,
+            JSON.stringify({
+                currentInput,
+                tokens,
+                memoryValue: memoryValue?.toString() ?? null,
+                justEvaluated,
+                statusMessage,
+            } satisfies BasicCalculatorDraft)
+        );
+    }, [
+        currentInput,
+        justEvaluated,
+        memoryValue,
+        settings.saveOfflineHistory,
+        statusMessage,
+        tokens,
+    ]);
+
+    useEffect(() => {
         if (!settings.saveOfflineHistory || typeof window === "undefined") return;
         window.localStorage.setItem("accalc-basic-history", JSON.stringify(history));
     }, [history, settings.saveOfflineHistory]);
@@ -751,3 +822,8 @@ export default function BasicCalculatorPage() {
         />
     );
 }
+
+
+
+
+

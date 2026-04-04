@@ -15,6 +15,7 @@ type FeatureSearchProps = {
     variant?: "header" | "hero";
     className?: string;
     placeholder?: string;
+    autoFocus?: boolean;
 };
 
 function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
@@ -48,6 +49,7 @@ export default function FeatureSearch({
     variant = "header",
     className = "",
     placeholder = "Search calculators, helpers, aliases, abbreviations, or topics",
+    autoFocus = false,
 }: FeatureSearchProps) {
     const navigate = useNavigate();
     const location = useLocation();
@@ -147,6 +149,7 @@ export default function FeatureSearch({
                     <input
                         ref={inputRef}
                         type="text"
+                        autoFocus={autoFocus}
                         value={query}
                         onChange={(event) => {
                             setQuery(event.target.value);
