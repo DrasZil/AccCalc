@@ -27,12 +27,15 @@ export function usePersistedCalculatorField(fieldKey: string, initialValue = "")
     );
 
     useEffect(() => {
-        if (!settings.saveOfflineHistory) {
-            setValue(initialValue);
-            return;
-        }
+        const nextValue = settings.saveOfflineHistory
+            ? readStoredValue(storageKey, initialValue)
+            : initialValue;
 
-        setValue(readStoredValue(storageKey, initialValue));
+        const timer = window.setTimeout(() => {
+            setValue(nextValue);
+        }, 0);
+
+        return () => window.clearTimeout(timer);
     }, [initialValue, settings.saveOfflineHistory, storageKey]);
 
     useEffect(() => {

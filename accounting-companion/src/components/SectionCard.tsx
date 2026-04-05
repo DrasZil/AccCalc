@@ -11,7 +11,7 @@ export default function SectionCard({
 }: SectionCardProps) {
     return (
         <div
-            className={`app-panel app-card-hover rounded-[var(--app-radius-lg)] p-5 md:p-6 lg:p-7 ${className}`}
+            className={`app-panel rounded-[var(--app-radius-lg)] p-4 md:p-5 lg:p-6 ${className}`}
         >
             {children}
         </div>

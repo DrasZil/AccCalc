@@ -1116,6 +1116,33 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "base amount for percentage",
         ],
     },
+
+    receivablesDays: {
+        label: "Receivables Days",
+        placeholder: "36",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["receivables days", "collection days", "days sales outstanding", "dso"],
+    },
+
+    inventoryDays: {
+        label: "Inventory Days",
+        placeholder: "52",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["inventory days", "days in inventory", "days inventory stays on hand"],
+    },
+
+    payablesDays: {
+        label: "Payables Days",
+        placeholder: "28",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["payables days", "days payable outstanding", "days to pay suppliers", "dpo"],
+    },
     };
 
     export const INITIAL_FIELDS: FieldsState = FIELD_KEYS.reduce((acc, key) => {
@@ -1624,6 +1651,31 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /\bcogs\b/i,
         ],
     },
+    {
+        id: "inventory-method-comparison",
+        name: "Inventory Method Comparison",
+        route: "/accounting/inventory-method-comparison",
+        description:
+            "Compare FIFO and weighted average results using the same inventory layers and units sold.",
+        required: [
+            "beginningUnits",
+            "beginningCost",
+            "purchase1Units",
+            "purchase1Cost",
+            "purchase2Units",
+            "purchase2Cost",
+            "unitsSold",
+        ],
+        aliases: ["fifo vs weighted average", "inventory comparison", "compare inventory methods"],
+        keywords: [
+            /fifo vs weighted average/i,
+            /compare inventory methods/i,
+            /inventory method comparison/i,
+            /fifo compared with weighted average/i,
+            /\bfifo\b/i,
+            /weighted average/i,
+        ],
+    },
 
     {
         id: "bank-reconciliation",
@@ -1827,6 +1879,24 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /cash coverage/i,
             /cash and marketable securities/i,
             /marketable securities/i,
+        ],
+    },
+    {
+        id: "cash-conversion-cycle",
+        name: "Cash Conversion Cycle",
+        route: "/accounting/cash-conversion-cycle",
+        description:
+            "Measure how long cash is tied up in receivables and inventory after considering supplier payment timing.",
+        required: ["receivablesDays", "inventoryDays", "payablesDays"],
+        aliases: ["ccc", "cash cycle", "working capital cycle"],
+        keywords: [
+            /cash conversion cycle/i,
+            /\bccc\b/i,
+            /cash cycle/i,
+            /working capital cycle/i,
+            /receivables days/i,
+            /inventory days/i,
+            /payables days/i,
         ],
     },
     {
@@ -2040,6 +2110,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /common-size/i,
             /statement item/i,
             /base total/i,
+        ],
+    },
+    {
+        id: "depreciation-schedule-comparison",
+        name: "Depreciation Schedule Comparison",
+        route: "/accounting/depreciation-schedule-comparison",
+        description:
+            "Compare straight-line and double-declining depreciation schedules across the asset life.",
+        required: ["cost", "salvageValue", "usefulLife"],
+        aliases: ["compare depreciation methods", "depreciation comparison", "straight line vs ddb"],
+        keywords: [
+            /compare depreciation methods/i,
+            /depreciation comparison/i,
+            /straight line vs ddb/i,
+            /straight[- ]line/i,
+            /double declining/i,
         ],
     },
     ];
@@ -2298,6 +2384,12 @@ export function normalizeText(text: string = ""): string {
     [/\btrend percentage\b/g, "horizontal analysis"],
     [/\bcommon size\b/g, "vertical analysis"],
     [/\bcommon-size\b/g, "vertical analysis"],
+    [/\bdays sales outstanding\b/g, "receivables days"],
+    [/\bdso\b/g, "receivables days"],
+    [/\bdays payable outstanding\b/g, "payables days"],
+    [/\bdpo\b/g, "payables days"],
+    [/\bcash cycle\b/g, "cash conversion cycle"],
+    [/\bworking capital cycle\b/g, "cash conversion cycle"],
     [/\btrue annual rate\b/g, "effective annual rate"],
     [/\bactual annual rate\b/g, "effective annual rate"],
     [/\bnominal annual rate\b/g, "nominal rate"],
@@ -2697,6 +2789,15 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.statementBaseAmount.aliases ?? []
     );
+    const receivablesDays = extractNumberByAliases(text, FIELD_META.receivablesDays.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const inventoryDays = extractNumberByAliases(text, FIELD_META.inventoryDays.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const payablesDays = extractNumberByAliases(text, FIELD_META.payablesDays.aliases ?? [], {
+        allowCurrency: false,
+    });
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
@@ -2865,6 +2966,9 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "currentPeriodAmount", currentPeriodAmount);
     setFact(facts, "statementItemAmount", statementItemAmount);
     setFact(facts, "statementBaseAmount", statementBaseAmount);
+    setFact(facts, "receivablesDays", receivablesDays);
+    setFact(facts, "inventoryDays", inventoryDays);
+    setFact(facts, "payablesDays", payablesDays);
 
     Object.entries(creditTerms).forEach(([key, value]) => {
         setFact(facts, key as FieldKey, value);

@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import {
     computeBreakEven,
     computeCashDiscount,
+    computeCashConversionCycle,
     computeCashRatio,
     computeCompoundInterest,
     computeCurrentRatio,
+    computeDepreciationComparisonSchedule,
     computeDoubleDecliningBalance,
     computeEffectiveAnnualRate,
     computeFutureValue,
     computeFutureValueOfOrdinaryAnnuity,
     computeGrossProfitRate,
+    computeInventoryMethodComparison,
     computeLoanAmortization,
     computeMarkupMargin,
     computeNetPresentValue,
@@ -284,6 +287,47 @@ runTest("trial balance tolerance keeps tiny rounding differences balanced", () =
     assertClose(unbalanced.amountToCorrect, 500);
 });
 
+runTest("inventory comparison shows FIFO and weighted average differences", () => {
+    const result = computeInventoryMethodComparison({
+        beginningUnits: 100,
+        beginningCost: 50,
+        purchase1Units: 80,
+        purchase1Cost: 55,
+        purchase2Units: 120,
+        purchase2Cost: 60,
+        unitsSold: 150,
+    });
+
+    assertClose(result.fifo.costOfGoodsSold, 7750);
+    assertClose(result.weightedAverage.costOfGoodsSold, 8300, 1e-5);
+    assertClose(result.fifo.endingInventory, 8850);
+    assertClose(result.weightedAverage.endingInventory, 8300, 1e-5);
+});
+
+runTest("depreciation comparison schedule respects salvage floor", () => {
+    const result = computeDepreciationComparisonSchedule({
+        cost: 50000,
+        salvageValue: 5000,
+        usefulLifeYears: 5,
+    });
+
+    assertClose(result.straightLineAmount, 9000);
+    assertClose(result.schedule[0].ddbExpense, 20000);
+    assertClose(result.schedule.at(-1)?.ddbBookValue ?? 0, 5000);
+});
+
+runTest("cash conversion cycle summarizes working-capital timing", () => {
+    const result = computeCashConversionCycle({
+        receivablesDays: 36,
+        inventoryDays: 52,
+        payablesDays: 28,
+    });
+
+    assertClose(result.operatingCycle, 88);
+    assertClose(result.cashConversionCycle, 60);
+    assert.equal(result.pressureLevel, "elevated");
+});
+
 runTest("number list parser accepts mixed separators and rejects bad entries", () => {
     const parsed = parseNumberList("10, 20\n30;40");
     const invalid = parseNumberList("10, nope, 30");
@@ -297,10 +341,12 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const npvResults = searchAppRoutes("npv");
     const typoResults = searchAppRoutes("trial balnce");
     const aliasResults = searchAppRoutes("benefit cost ratio");
+    const cycleResults = searchAppRoutes("cash cycle");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
+    assert.equal(cycleResults[0]?.path, "/accounting/cash-conversion-cycle");
 });
 
 runTest("account reference search finds aliases and abbreviations", () => {

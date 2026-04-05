@@ -92,6 +92,9 @@ export const ALL_FIELD_KEYS = [
     "currentPeriodAmount",
     "statementItemAmount",
     "statementBaseAmount",
+    "receivablesDays",
+    "inventoryDays",
+    "payablesDays",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

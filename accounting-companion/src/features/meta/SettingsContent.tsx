@@ -9,6 +9,7 @@ import {
     useAppSettings,
 } from "../../utils/appSettings";
 import { SUPPORTED_CURRENCIES } from "../../utils/currency";
+import { APP_RELEASE_NOTES, APP_VERSION } from "../../utils/appRelease";
 
 type SettingsContentProps = {
     compact?: boolean;
@@ -373,6 +374,25 @@ export default function SettingsContent({
                             Clear history
                         </button>
                     </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard>
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="app-section-kicker">Release</p>
+                        <h2 className="app-section-title mt-3 text-xl">AccCalc {APP_VERSION}</h2>
+                    </div>
+                    <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
+                        Major upgrade
+                    </span>
+                </div>
+                <div className="mt-4 space-y-3">
+                    {APP_RELEASE_NOTES.slice(0, 4).map((note) => (
+                        <div key={note} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                            <p className="app-body-md text-sm">{note}</p>
+                        </div>
+                    ))}
                 </div>
             </SectionCard>
         </div>

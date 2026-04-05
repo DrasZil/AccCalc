@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import FeatureSearch from "../../components/FeatureSearch";
 import InstallPrompt from "../../components/InstallPrompt";
+import ToolPinButton from "../../components/ToolPinButton";
 import {
+    getPinnedRoutes,
+    getRecentRoutes,
     markPathSeen,
     noteFeedbackReminderShown,
     recordAppLaunch,
@@ -16,6 +19,7 @@ import {
     getRouteMeta,
     type AppNavGroupTitle,
 } from "../../utils/appCatalog";
+import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import {
@@ -40,6 +44,8 @@ const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
     Statistics: false,
 };
 
+const ROUTE_DRAFT_STORAGE_PREFIX = "accalc-route-draft";
+
 function isPathActive(currentPath: string, itemPath: string) {
     if (itemPath === "/") return currentPath === "/";
     return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
@@ -48,27 +54,25 @@ function isPathActive(currentPath: string, itemPath: string) {
 function getSidebarTone(groupTitle: AppNavGroupTitle) {
     switch (groupTitle) {
         case "General":
-            return "linear-gradient(135deg, rgba(244, 184, 96, 0.24), rgba(176, 124, 255, 0.06))";
+            return "linear-gradient(135deg, rgba(220, 146, 71, 0.24), rgba(28, 121, 204, 0.08))";
         case "Core Tools":
-            return "linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(176, 124, 255, 0.05))";
+            return "linear-gradient(135deg, rgba(28, 121, 204, 0.24), rgba(14, 148, 136, 0.08))";
         case "Smart Tools":
-            return "linear-gradient(135deg, rgba(244, 184, 96, 0.22), rgba(61, 214, 181, 0.08))";
+            return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(14, 148, 136, 0.1))";
         case "Accounting":
-            return "linear-gradient(135deg, rgba(61, 214, 181, 0.22), rgba(176, 124, 255, 0.06))";
+            return "linear-gradient(135deg, rgba(14, 148, 136, 0.24), rgba(28, 121, 204, 0.08))";
         case "Finance":
-            return "linear-gradient(135deg, rgba(176, 124, 255, 0.22), rgba(96, 165, 250, 0.07))";
+            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(43, 70, 229, 0.1))";
         case "Managerial & Cost":
-            return "linear-gradient(135deg, rgba(244, 184, 96, 0.18), rgba(96, 165, 250, 0.06))";
+            return "linear-gradient(135deg, rgba(220, 146, 71, 0.18), rgba(43, 70, 229, 0.08))";
         case "Business Math":
-            return "linear-gradient(135deg, rgba(176, 124, 255, 0.18), rgba(244, 184, 96, 0.08))";
+            return "linear-gradient(135deg, rgba(43, 70, 229, 0.18), rgba(220, 146, 71, 0.08))";
         case "Statistics":
-            return "linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(61, 214, 181, 0.08))";
+            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(14, 148, 136, 0.1))";
         default:
-            return "linear-gradient(135deg, rgba(176, 124, 255, 0.16), rgba(61, 214, 181, 0.06))";
+            return "linear-gradient(135deg, rgba(43, 70, 229, 0.16), rgba(14, 148, 136, 0.06))";
     }
 }
-
-const ROUTE_DRAFT_STORAGE_PREFIX = "accalc-route-draft";
 
 function getDraftStorageKey(pathname: string) {
     return `${ROUTE_DRAFT_STORAGE_PREFIX}:${pathname}`;
@@ -115,10 +119,12 @@ function syncPersistedField(
     field: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
     nextValue: string
 ) {
-    if (field instanceof HTMLInputElement && (field.type === "checkbox" || field.type === "radio")) {
+    if (
+        field instanceof HTMLInputElement &&
+        (field.type === "checkbox" || field.type === "radio")
+    ) {
         const nextChecked = nextValue === "1";
         if (field.checked === nextChecked) return;
-
         field.checked = nextChecked;
         field.dispatchEvent(new Event("change", { bubbles: true }));
         return;
@@ -138,7 +144,6 @@ function syncPersistedField(
     field.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
-
 type SidebarContentProps = {
     locationPathname: string;
     openGroups: OpenGroupsState;
@@ -146,6 +151,8 @@ type SidebarContentProps = {
     closeMobileSidebar: () => void;
     showNewIndicators: boolean;
     seenNewPaths: string[];
+    pinnedRoutes: ReturnType<typeof getPinnedRoutes>;
+    recentRoutes: ReturnType<typeof getRecentRoutes>;
 };
 
 function SidebarContent({
@@ -155,18 +162,22 @@ function SidebarContent({
     closeMobileSidebar,
     showNewIndicators,
     seenNewPaths,
+    pinnedRoutes,
+    recentRoutes,
 }: SidebarContentProps) {
     return (
         <div
             className="flex h-full flex-col"
-            style={{ background: "linear-gradient(180deg, var(--app-surface), var(--app-elevated))" }}
+            style={{
+                background: "linear-gradient(180deg, var(--app-surface), var(--app-elevated))",
+            }}
         >
-            <div className="border-b app-divider px-4 py-3.5">
+            <div className="border-b app-divider px-4 py-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                         <Link to="/" onClick={closeMobileSidebar} className="block">
                             <div className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
-                                Study workspace
+                                Release {APP_VERSION}
                             </div>
                             <h1 className="mt-2 truncate text-[1.55rem] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-sidebar-text)]">
                                 AccCalc
@@ -174,7 +185,7 @@ function SidebarContent({
                         </Link>
 
                         <p className="mt-1.5 max-w-xs text-[0.8rem] leading-5 app-sidebar-group-hint">
-                            Accounting, finance, business math, and study helpers in one cleaner workspace.
+                            Smarter accounting, finance, and business calculators built for classwork and real-world checking.
                         </p>
                     </div>
 
@@ -190,6 +201,55 @@ function SidebarContent({
             </div>
 
             <div className="flex-1 overflow-y-auto px-2.5 py-3 scrollbar-premium">
+                {pinnedRoutes.length > 0 ? (
+                    <div className="mb-4 space-y-2">
+                        <p className="app-section-kicker px-2 text-[0.68rem]">Pinned tools</p>
+                        <div className="space-y-1.5">
+                            {pinnedRoutes.map((route) => (
+                                <Link
+                                    key={route.path}
+                                    to={route.path}
+                                    onClick={closeMobileSidebar}
+                                    className={[
+                                        "app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-3 text-sm font-medium leading-5 transition duration-300",
+                                        isPathActive(locationPathname, route.path)
+                                            ? "app-sidebar-link-active"
+                                            : "",
+                                    ].join(" ")}
+                                >
+                                    <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
+                                        {route.label}
+                                    </span>
+                                    <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        Pin
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
+
+                {recentRoutes.length > 0 ? (
+                    <div className="mb-4 space-y-2">
+                        <p className="app-section-kicker px-2 text-[0.68rem]">Continue</p>
+                        <div className="grid gap-2">
+                            {recentRoutes.map((route) => (
+                                <Link
+                                    key={route.path}
+                                    to={route.path}
+                                    onClick={closeMobileSidebar}
+                                    className="app-list-link rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium"
+                                >
+                                    <span className="block truncate text-[color:var(--app-text)]">
+                                        {route.label}
+                                    </span>
+                                    <span className="app-helper text-xs">{route.category}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
+
                 <nav className="space-y-2.5">
                     {APP_NAV_GROUPS.map((group) => {
                         const groupIsOpen = openGroups[group.title];
@@ -218,10 +278,7 @@ function SidebarContent({
                                         className="app-sidebar-icon inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[1.05rem] text-[color:var(--app-sidebar-text)]"
                                         style={{ background: getSidebarTone(group.title) }}
                                     >
-                                        <ShellIcon
-                                            kind={group.title}
-                                            className="h-[1rem] w-[1rem]"
-                                        />
+                                        <ShellIcon kind={group.title} className="h-[1rem] w-[1rem]" />
                                     </div>
 
                                     <div className="min-w-0 flex-1">
@@ -315,12 +372,57 @@ function SidebarContent({
                 </nav>
             </div>
 
-
+            <div className="border-t app-divider px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="app-helper text-xs">Current release</p>
+                        <p className="text-sm font-semibold text-[color:var(--app-sidebar-text)]">
+                            Version {APP_VERSION}
+                        </p>
+                    </div>
+                    <Link
+                        to="/history"
+                        onClick={closeMobileSidebar}
+                        className="app-button-ghost rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em]"
+                    >
+                        Activity
+                    </Link>
+                </div>
+            </div>
         </div>
     );
 }
 
+function MobileNavButton({
+    active,
+    label,
+    icon,
+    onClick,
+}: {
+    active?: boolean;
+    label: string;
+    icon: ReactNode;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={[
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-xs font-semibold transition",
+                active
+                    ? "bg-[var(--app-accent-soft)] text-[color:var(--app-accent)]"
+                    : "text-[color:var(--app-text-secondary)]",
+            ].join(" ")}
+        >
+            {icon}
+            <span>{label}</span>
+        </button>
+    );
+}
+
 export default function AppLayout() {
+    const navigate = useNavigate();
     const location = useLocation();
     const settings = useAppSettings();
     const activity = useAppActivity();
@@ -329,9 +431,9 @@ export default function AppLayout() {
     const mainRef = useRef<HTMLElement | null>(null);
 
     const [mobileSidebarRoute, setMobileSidebarRoute] = useState<string | null>(null);
+    const [mobileSearchRoute, setMobileSearchRoute] = useState<string | null>(null);
     const [desktopSidebarVisible, setDesktopSidebarVisible] = useState<boolean>(() => {
         if (typeof window === "undefined") return true;
-
         const saved = window.localStorage.getItem("accalc-desktop-sidebar-visible");
         return saved === null ? true : saved === "true";
     });
@@ -352,8 +454,7 @@ export default function AppLayout() {
             {
                 id: `app-updated-${Date.now()}`,
                 title: "App updated",
-                message:
-                    "AccCalc refreshed to the latest deployed version. Your installed app should now match the newest release.",
+                message: `AccCalc ${APP_VERSION} is now active with the latest calculator and interface improvements.`,
                 tone: "success",
             },
         ];
@@ -365,6 +466,7 @@ export default function AppLayout() {
     const feedbackShownRef = useRef(false);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
+    const mobileSearchOpen = mobileSearchRoute === location.pathname;
     const settingsPanelOpen = settingsPanelRoute === location.pathname;
     const effectiveDesktopSidebarVisible = settings.rememberDesktopSidebarVisibility
         ? desktopSidebarVisible
@@ -375,6 +477,12 @@ export default function AppLayout() {
                 ? "dark"
                 : "light"
             : settings.themePreference;
+    const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
+    const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
+    const isPinEligible = Boolean(
+        currentMeta && currentMeta.path !== "/" && currentMeta.path !== "/history"
+    );
+
     const effectiveOpenGroups = useMemo(() => {
         if (!settings.autoExpandActiveNavGroup) {
             return openGroups;
@@ -394,6 +502,7 @@ export default function AppLayout() {
 
         return nextOpenGroups;
     }, [location.pathname, openGroups, settings.autoExpandActiveNavGroup]);
+
     const unseenCount = useMemo(
         () =>
             APP_NAV_GROUPS.flatMap((group) => group.items).filter(
@@ -412,6 +521,18 @@ export default function AppLayout() {
         }, 7000);
     }
 
+    function closeTransientPanels() {
+        setMobileSidebarRoute(null);
+        setMobileSearchRoute(null);
+    }
+
+    function toggleGroup(groupTitle: AppNavGroupTitle) {
+        setOpenGroups((current) => ({
+            ...current,
+            [groupTitle]: !current[groupTitle],
+        }));
+    }
+
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -426,7 +547,6 @@ export default function AppLayout() {
         );
     }, [desktopSidebarVisible, settings.rememberDesktopSidebarVisibility]);
 
-
     useEffect(() => {
         if (typeof document === "undefined") return;
         document.body.dataset.motion = settings.enableMotionEffects ? "on" : "off";
@@ -436,18 +556,14 @@ export default function AppLayout() {
         if (typeof window === "undefined") return;
 
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-        const handleChange = (event: MediaQueryListEvent) => {
-            setSystemPrefersDark(event.matches);
-        };
+        const handleChange = (event: MediaQueryListEvent) => setSystemPrefersDark(event.matches);
 
-        setSystemPrefersDark(mediaQuery.matches);
         mediaQuery.addEventListener("change", handleChange);
         return () => mediaQuery.removeEventListener("change", handleChange);
     }, []);
 
     useEffect(() => {
         if (typeof document === "undefined") return;
-
         document.documentElement.dataset.theme = resolvedTheme;
         document.body.dataset.theme = resolvedTheme;
     }, [resolvedTheme]);
@@ -534,10 +650,7 @@ export default function AppLayout() {
         feedbackShownRef.current = true;
         noteFeedbackReminderShown();
 
-        const timer = window.setTimeout(() => {
-            setFeedbackVisible(true);
-        }, 0);
-
+        const timer = window.setTimeout(() => setFeedbackVisible(true), 0);
         return () => window.clearTimeout(timer);
     }, [activity, settings.showFeedbackReminders]);
 
@@ -651,12 +764,6 @@ export default function AppLayout() {
             root.removeEventListener("change", persistDraft, true);
         };
     }, [location.pathname, settings.saveOfflineHistory]);
-    function toggleGroup(groupTitle: AppNavGroupTitle) {
-        setOpenGroups((current) => ({
-            ...current,
-            [groupTitle]: !current[groupTitle],
-        }));
-    }
 
     const settingsButtonClass = [
         "app-icon-button inline-flex rounded-xl p-2.25",
@@ -676,31 +783,30 @@ export default function AppLayout() {
                     setNotices((current) => current.filter((notice) => notice.id !== id))
                 }
             />
-            <FeedbackReminder
-                visible={feedbackVisible}
-                onClose={() => setFeedbackVisible(false)}
-            />
+            <FeedbackReminder visible={feedbackVisible} onClose={() => setFeedbackVisible(false)} />
 
             <div className="flex min-h-screen items-start">
                 {effectiveDesktopSidebarVisible ? (
                     <aside
-                        className="sticky top-0 hidden h-screen w-[18.75rem] shrink-0 border-r app-divider backdrop-blur-xl xl:block"
+                        className="sticky top-0 hidden h-screen w-[19rem] shrink-0 border-r app-divider backdrop-blur-xl xl:block"
                         style={{ background: "var(--app-sidebar-bg)" }}
                     >
                         <SidebarContent
                             locationPathname={location.pathname}
                             openGroups={effectiveOpenGroups}
                             toggleGroup={toggleGroup}
-                            closeMobileSidebar={() => setMobileSidebarRoute(null)}
+                            closeMobileSidebar={closeTransientPanels}
                             showNewIndicators={settings.showNewFeatureIndicators}
                             seenNewPaths={activity.seenNewPaths}
+                            pinnedRoutes={pinnedRoutes}
+                            recentRoutes={recentRoutes}
                         />
                     </aside>
                 ) : null}
 
                 <aside
                     className={[
-                        "fixed inset-y-0 left-0 z-[92] w-[84vw] max-w-[18.75rem] border-r app-divider backdrop-blur-xl transition-transform duration-300 xl:hidden",
+                        "fixed inset-y-0 left-0 z-[92] w-[84vw] max-w-[19rem] border-r app-divider backdrop-blur-xl transition-transform duration-300 xl:hidden",
                         mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
                     ].join(" ")}
                     style={{ background: "var(--app-sidebar-bg)" }}
@@ -709,19 +815,21 @@ export default function AppLayout() {
                         locationPathname={location.pathname}
                         openGroups={effectiveOpenGroups}
                         toggleGroup={toggleGroup}
-                        closeMobileSidebar={() => setMobileSidebarRoute(null)}
+                        closeMobileSidebar={closeTransientPanels}
                         showNewIndicators={settings.showNewFeatureIndicators}
                         seenNewPaths={activity.seenNewPaths}
+                        pinnedRoutes={pinnedRoutes}
+                        recentRoutes={recentRoutes}
                     />
                 </aside>
 
                 <button
                     type="button"
-                    onClick={() => setMobileSidebarRoute(null)}
+                    onClick={closeTransientPanels}
                     aria-label="Close sidebar overlay"
                     className={[
                         "app-backdrop fixed inset-0 z-[91] transition duration-300 xl:hidden",
-                        mobileSidebarOpen
+                        mobileSidebarOpen || mobileSearchOpen
                             ? "pointer-events-auto opacity-100"
                             : "pointer-events-none opacity-0",
                     ].join(" ")}
@@ -733,16 +841,12 @@ export default function AppLayout() {
                         className="sticky top-0 z-[90] border-b app-divider backdrop-blur-xl"
                         style={{ background: "var(--app-header-bg)" }}
                     >
-                        <div className="flex items-center justify-between gap-3 px-4 py-2 md:px-5 md:py-2.5">
+                        <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5 md:py-3">
                             <div className="min-w-0 flex-1 pr-2">
-                                <p className="app-kicker hidden text-[0.62rem] sm:block">
-                                    {currentMeta?.category ?? "Accounting companion"}
-                                </p>
                                 <div className="flex items-center gap-2">
-                                    <h2 className="truncate text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.12rem]">
-                                        {currentMeta?.label ??
-                                            "Learn faster. Calculate with confidence."}
-                                    </h2>
+                                    <p className="app-kicker hidden text-[0.62rem] sm:block">
+                                        {currentMeta?.category ?? "Accounting companion"}
+                                    </p>
                                     {unseenCount > 0 && location.pathname !== "/history" ? (
                                         <Link
                                             to="/history"
@@ -752,6 +856,10 @@ export default function AppLayout() {
                                         </Link>
                                     ) : null}
                                 </div>
+                                <h2 className="mt-1 truncate text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.12rem]">
+                                    {currentMeta?.label ??
+                                        "Learn faster. Calculate with confidence."}
+                                </h2>
                                 <p className="mt-0.5 hidden text-[0.76rem] leading-5 app-helper xl:block">
                                     {currentMeta?.description ??
                                         "Cleaner accounting, business, and finance tools for study and practical work."}
@@ -759,15 +867,15 @@ export default function AppLayout() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <div
-                                    data-header-search
-                                    className="hidden min-w-[12rem] flex-1 max-w-[16rem] md:block lg:max-w-[18rem] xl:max-w-[20rem]"
-                                >
-                                    <FeatureSearch
-                                        className="w-full"
-                                        placeholder="Search tools"
-                                    />
+                                <div className="hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]">
+                                    <FeatureSearch key={location.pathname} className="w-full" placeholder="Search tools" />
                                 </div>
+
+                                {isPinEligible && currentMeta ? (
+                                    <div className="hidden md:block">
+                                        <ToolPinButton path={currentMeta.path} label={currentMeta.label} />
+                                    </div>
+                                ) : null}
 
                                 <Link
                                     to="/history"
@@ -782,14 +890,10 @@ export default function AppLayout() {
                                     type="button"
                                     onClick={() => setDesktopSidebarVisible((current) => !current)}
                                     aria-label={
-                                        effectiveDesktopSidebarVisible
-                                            ? "Hide sidebar"
-                                            : "Show sidebar"
+                                        effectiveDesktopSidebarVisible ? "Hide sidebar" : "Show sidebar"
                                     }
                                     title={
-                                        effectiveDesktopSidebarVisible
-                                            ? "Hide sidebar"
-                                            : "Show sidebar"
+                                        effectiveDesktopSidebarVisible ? "Hide sidebar" : "Show sidebar"
                                     }
                                     className="app-icon-button hidden rounded-xl p-2.25 xl:inline-flex"
                                 >
@@ -801,8 +905,6 @@ export default function AppLayout() {
                                         }
                                     />
                                 </button>
-
-
 
                                 <button
                                     type="button"
@@ -817,12 +919,18 @@ export default function AppLayout() {
                                     className="app-icon-button hidden rounded-xl p-2.25 md:inline-flex"
                                 >
                                     <ShellIcon
-                                        kind={
-                                            resolvedTheme === "dark"
-                                                ? "theme-light"
-                                                : "theme-dark"
-                                        }
+                                        kind={resolvedTheme === "dark" ? "theme-light" : "theme-dark"}
                                     />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileSearchRoute(location.pathname)}
+                                    aria-label="Open mobile search"
+                                    title="Search"
+                                    className="app-icon-button rounded-xl p-2.25 md:hidden"
+                                >
+                                    <ShellIcon kind="search" />
                                 </button>
 
                                 <button
@@ -832,9 +940,7 @@ export default function AppLayout() {
                                             current === location.pathname ? null : location.pathname
                                         )
                                     }
-                                    aria-label={
-                                        settingsPanelOpen ? "Close settings" : "Open settings"
-                                    }
+                                    aria-label={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     title={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     className={settingsButtonClass}
                                 >
@@ -853,14 +959,14 @@ export default function AppLayout() {
                         </div>
                     </header>
 
-                    <main ref={mainRef} className="px-4 py-4 md:px-5 md:py-6">
+                    <main ref={mainRef} className="px-4 pb-24 pt-4 md:px-5 md:pb-6 md:pt-6">
                         <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">
                             <Outlet />
                         </div>
                     </main>
 
                     {settings.showInstallPrompt ? (
-                        <div className="px-4 pb-6 md:px-5">
+                        <div className="px-4 pb-24 md:px-5 md:pb-6">
                             <div className="app-page-shell">
                                 <InstallPrompt />
                             </div>
@@ -883,9 +989,7 @@ export default function AppLayout() {
                         className="app-panel-elevated h-screen rounded-none border-y-0 border-r-0 shadow-none"
                         style={{
                             width: "min(34rem, 38vw)",
-                            transform: settingsPanelOpen
-                                ? "translateX(0)"
-                                : "translateX(2rem)",
+                            transform: settingsPanelOpen ? "translateX(0)" : "translateX(2rem)",
                             transition:
                                 "transform 280ms ease, opacity 220ms ease, width 280ms ease",
                         }}
@@ -895,17 +999,79 @@ export default function AppLayout() {
                 </div>
             </div>
 
-            <SettingsDrawer
-                open={settingsPanelOpen}
-                onClose={() => setSettingsPanelRoute(null)}
-            />
+            <div
+                className={[
+                    "fixed inset-x-3 bottom-3 z-[95] xl:hidden",
+                    mobileSearchOpen ? "pointer-events-none opacity-0" : "",
+                ].join(" ")}
+            >
+                <div className="app-panel rounded-[1.6rem] p-2 shadow-[var(--app-shadow-lg)]">
+                    <div className="grid grid-cols-5 gap-1.5">
+                        <MobileNavButton
+                            active={location.pathname === "/"}
+                            label="Home"
+                            icon={<ShellIcon kind="General" className="h-5 w-5" />}
+                            onClick={() => navigate("/")}
+                        />
+                        <MobileNavButton
+                            active={location.pathname === "/smart/solver"}
+                            label="Solver"
+                            icon={<ShellIcon kind="spark" className="h-5 w-5" />}
+                            onClick={() => navigate("/smart/solver")}
+                        />
+                        <MobileNavButton
+                            label="Search"
+                            icon={<ShellIcon kind="search" className="h-5 w-5" />}
+                            onClick={() => setMobileSearchRoute(location.pathname)}
+                        />
+                        <MobileNavButton
+                            active={location.pathname === "/history"}
+                            label="History"
+                            icon={<ShellIcon kind="history" className="h-5 w-5" />}
+                            onClick={() => navigate("/history")}
+                        />
+                        <MobileNavButton
+                            label="Menu"
+                            icon={<ShellIcon kind="menu" className="h-5 w-5" />}
+                            onClick={() => setMobileSidebarRoute(location.pathname)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className={[
+                    "fixed inset-x-3 top-[calc(var(--app-header-height)+0.75rem)] z-[96] transition duration-300 md:hidden",
+                    mobileSearchOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+                ].join(" ")}
+            >
+                <div className="app-search-panel rounded-[1.6rem] p-3">
+                    <div className="flex items-center justify-between gap-3 px-1 pb-3">
+                        <div>
+                            <p className="app-kicker text-[0.68rem]">Mobile search</p>
+                            <p className="app-helper mt-1 text-xs">
+                                Find calculators, helpers, categories, and recent additions quickly.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setMobileSearchRoute(null)}
+                            className="app-icon-button rounded-xl p-2"
+                            aria-label="Close search"
+                        >
+                            <ShellIcon kind="close" className="h-4 w-4" />
+                        </button>
+                    </div>
+                    <FeatureSearch
+                        key={`mobile-${location.pathname}`}
+                        variant="hero"
+                        autoFocus
+                        placeholder="Search ratios, depreciation, inventory, Smart Solver..."
+                    />
+                </div>
+            </div>
+
+            <SettingsDrawer open={settingsPanelOpen} onClose={() => setSettingsPanelRoute(null)} />
         </div>
     );
 }
-
-
-
-
-
-
-

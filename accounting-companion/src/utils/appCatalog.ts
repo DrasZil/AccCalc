@@ -76,6 +76,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/accounting/cash-discount", "Cash Discount", "Accounting", "Evaluate cash discount credit terms.", ["2/10 n/30", "credit terms"], ["discount", "merchandising"]),
     feature("/accounting/fifo-inventory", "FIFO Inventory", "Accounting", "FIFO cost of goods sold and ending inventory.", ["first in first out", "fifo cogs"], ["inventory", "cogs"]),
     feature("/accounting/weighted-average-inventory", "Weighted Average Inventory", "Accounting", "Weighted-average unit cost, COGS, and ending inventory.", ["average cost inventory"], ["inventory", "cogs"]),
+    feature("/accounting/inventory-method-comparison", "Inventory Method Comparison", "Accounting", "Compare FIFO and weighted-average effects on COGS and ending inventory.", ["fifo vs weighted average", "inventory comparison"], ["inventory", "analysis"], undefined, true),
     feature("/accounting/gross-profit-method", "Gross Profit Method", "Accounting", "Estimate gross profit, COGS, and ending inventory.", ["gp method", "inventory estimate"], ["inventory", "estimate"]),
     feature("/accounting/bank-reconciliation", "Bank Reconciliation", "Accounting", "Reconcile bank and book balances.", ["bank recon", "cash reconciliation"], ["cash", "reconciliation"]),
     feature("/accounting/allowance-doubtful-accounts", "Allowance for Doubtful Accounts", "Accounting", "Estimate bad debt allowance and NRV.", ["bad debts", "net realizable value", "ada"], ["receivables", "allowance"]),
@@ -87,6 +88,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/accounting/current-ratio", "Current Ratio and Working Capital", "Accounting", "Current ratio plus working capital.", ["working capital", "liquidity ratio"], ["ratios", "liquidity"]),
     feature("/accounting/quick-ratio", "Quick Ratio", "Accounting", "Acid-test liquidity coverage.", ["acid test ratio"], ["ratios", "liquidity"]),
     feature("/accounting/cash-ratio", "Cash Ratio", "Accounting", "Strict liquidity using only cash and near-cash items.", ["strict liquidity ratio"], ["ratios", "liquidity"], undefined, true),
+    feature("/accounting/cash-conversion-cycle", "Cash Conversion Cycle", "Accounting", "Measure how long cash stays tied up in operations.", ["ccc", "cash cycle", "working capital cycle"], ["ratios", "working capital"], undefined, true),
     feature("/accounting/receivables-turnover", "Accounts Receivable Turnover", "Accounting", "Receivables turnover and collection period.", ["ar turnover", "collection period"], ["ratios", "receivables"]),
     feature("/accounting/inventory-turnover", "Inventory Turnover", "Accounting", "Inventory turnover and days in inventory.", ["days in inventory"], ["ratios", "inventory"]),
     feature("/accounting/accounts-payable-turnover", "Accounts Payable Turnover", "Accounting", "Payables turnover and payment period.", ["ap turnover", "payment period"], ["ratios", "payables"], undefined, true),
@@ -134,6 +136,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/accounting/straight-line-depreciation", "Straight-line Depreciation", "Managerial & Cost", "Annual depreciation under the straight-line method.", ["straight line"], ["depreciation"]),
     feature("/accounting/declining-balance-depreciation", "Declining Balance Depreciation", "Managerial & Cost", "Double declining balance depreciation.", ["ddb", "double declining balance"], ["depreciation"]),
     feature("/accounting/units-of-production-depreciation", "Units of Production Depreciation", "Managerial & Cost", "Depreciation based on actual output.", ["units of activity depreciation"], ["depreciation"], undefined, true),
+    feature("/accounting/depreciation-schedule-comparison", "Depreciation Schedule Comparison", "Managerial & Cost", "Compare straight-line and double-declining schedules across an asset's life.", ["depreciation comparison", "compare depreciation methods"], ["depreciation", "analysis"], undefined, true),
 
     feature("/statistics/standard-deviation", "Standard Deviation", "Statistics", "Mean, variance, and standard deviation for a list of values.", ["sd", "variance"], ["statistics", "analytics"], undefined, true),
 ];

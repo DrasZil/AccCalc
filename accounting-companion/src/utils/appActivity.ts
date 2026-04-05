@@ -31,6 +31,7 @@ export type AppActivityState = {
     feedbackDismissedUntil: number;
     feedbackDismissedForever: boolean;
     seenNewPaths: string[];
+    pinnedPaths: string[];
     toolUsage: Record<string, number>;
     recent: ActivityEntry[];
     savedRecords: SavedToolRecord[];
@@ -51,6 +52,7 @@ const DEFAULT_ACTIVITY_STATE: AppActivityState = {
     feedbackDismissedUntil: 0,
     feedbackDismissedForever: false,
     seenNewPaths: [],
+    pinnedPaths: [],
     toolUsage: {},
     recent: [],
     savedRecords: [],
@@ -74,6 +76,9 @@ function sanitizeActivity(
         feedbackDismissedForever: value?.feedbackDismissedForever ?? false,
         seenNewPaths: Array.isArray(value?.seenNewPaths)
             ? value.seenNewPaths.filter((item): item is string => typeof item === "string")
+            : [],
+        pinnedPaths: Array.isArray(value?.pinnedPaths)
+            ? value.pinnedPaths.filter((item): item is string => typeof item === "string").slice(0, 8)
             : [],
         toolUsage:
             typeof value?.toolUsage === "object" && value.toolUsage
@@ -280,6 +285,35 @@ export function clearStoredActivity() {
     writeAppActivity(DEFAULT_ACTIVITY_STATE);
 }
 
+export function togglePinnedPath(path: string) {
+    updateAppActivity((current) => {
+        const nextPinnedPaths = current.pinnedPaths.includes(path)
+            ? current.pinnedPaths.filter((item) => item !== path)
+            : [path, ...current.pinnedPaths].slice(0, 8);
+
+        return {
+            ...current,
+            pinnedPaths: nextPinnedPaths,
+        };
+    });
+}
+
+export function getPinnedRoutes(activity: AppActivityState) {
+    return activity.pinnedPaths
+        .map((path) => resolveMeta(path))
+        .filter((route): route is RouteMeta => Boolean(route));
+}
+
+export function getRecentRoutes(activity: AppActivityState, limit = 4) {
+    return activity.recent
+        .map((entry) => resolveMeta(entry.path))
+        .filter((route, index, routes): route is RouteMeta => {
+            if (!route) return false;
+            return routes.findIndex((candidate) => candidate?.path === route.path) === index;
+        })
+        .slice(0, limit);
+}
+
 export function shouldShowFeedbackReminder(
     activity: AppActivityState,
     enabled: boolean
@@ -304,6 +338,7 @@ export function getRecommendedRoutes(activity: AppActivityState, currentPath?: s
         .map((route) => {
             let score = activity.toolUsage[route.path] ?? 0;
 
+            if (activity.pinnedPaths.includes(route.path)) score += 10;
             if (popularPaths.has(route.path)) score += 6;
             if (recentPath && route.path === recentPath) score += 5;
             if (currentMeta && route.category === currentMeta.category && route.path !== "/") {

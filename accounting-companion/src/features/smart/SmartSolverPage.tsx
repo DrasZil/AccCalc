@@ -4,6 +4,7 @@ import {
     useEffect,
     useMemo,
     useState,
+    type ReactNode,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
@@ -45,6 +46,9 @@ const SMART_PROMPT_EXAMPLES = [
     "Compute units of production depreciation if cost is 500,000, salvage is 50,000, total estimated units are 100,000, and this year produced 12,000 units.",
     "A new partner invests 120,000 for a 25% interest and old partners' capital is 300,000. Use the bonus method.",
     "Find accounts payable turnover if net credit purchases are 420,000 and average accounts payable is 70,000.",
+    "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
+    "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
+    "Compare depreciation methods for cost 500,000, salvage 50,000, and useful life 5 years.",
 ];
 
 type ActionTone = "success" | "warning" | "info";
@@ -59,7 +63,7 @@ type CollapsibleSectionProps = {
     description: string;
     open: boolean;
     onToggle: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
 };
 
 function dedupeFieldKeys(keys: FieldKey[]): FieldKey[] {
@@ -68,14 +72,14 @@ function dedupeFieldKeys(keys: FieldKey[]): FieldKey[] {
 
 function feedbackClassName(tone: ActionTone) {
     if (tone === "success") {
-        return "border-green-400/20 bg-green-500/10 text-green-100";
+        return "app-tone-success";
     }
 
     if (tone === "warning") {
-        return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+        return "app-tone-warning";
     }
 
-    return "border-white/10 bg-white/5 text-slate-200";
+    return "app-subtle-surface text-[color:var(--app-text)]";
 }
 
 function collapseButtonLabel(open: boolean) {
@@ -97,12 +101,12 @@ function CollapsibleSection({
                 className="flex w-full items-start justify-between gap-4 text-left"
             >
                 <div>
-                    <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+                    <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--app-text)]">
                         {title}
                     </h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-400">{description}</p>
+                    <p className="app-body-md mt-1 text-sm">{description}</p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">
+                <span className="app-chip rounded-full px-3 py-1 text-xs">
                     {collapseButtonLabel(open)}
                 </span>
             </button>
@@ -374,16 +378,17 @@ export default function SmartSolverPage() {
             badge="Smart Tools"
             title="Smart Solver"
             description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories.`}
+            prioritizeResultSection={hasAnyInput}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard className="overflow-hidden">
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="max-w-3xl">
-                                    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+                                    <p className="app-section-kicker text-xs">
                                         Prompt Workspace
                                     </p>
-                                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                                    <p className="app-body-md mt-2 text-sm">
                                         Paste the full problem first. Smart Solver reads normal wording,
                                         classroom terms, and more formal accounting language, then prepares
                                         the most likely tool and its inputs.
@@ -392,13 +397,13 @@ export default function SmartSolverPage() {
 
                                 <div className="flex flex-wrap gap-2">
                                     {analysis.detectedCurrency ? (
-                                        <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-emerald-200">
+                                        <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
                                             Currency {analysis.detectedCurrency}
                                         </span>
                                     ) : null}
 
                                     {selectedCalculator ? (
-                                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">
+                                        <span className="app-chip rounded-full px-3 py-1 text-xs">
                                             {selectedCalculator.confidence} Match
                                         </span>
                                     ) : null}
@@ -408,27 +413,27 @@ export default function SmartSolverPage() {
                             <textarea
                                 value={smartInput}
                                 onChange={(e) => setSmartInput(e.target.value)}
-                                rows={6}
+                                rows={5}
                                 placeholder='Example: "Customers still owe us 75,000 and 4% may not be collected."'
-                                className="w-full rounded-[1.65rem] border border-white/10 bg-black/20 px-5 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/35 focus:bg-black/30 focus:ring-2 focus:ring-emerald-400/15"
+                                className="app-field w-full rounded-[1.45rem] px-4 py-4 text-sm outline-none"
                             />
 
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                                <p className="text-sm leading-6 text-slate-400">{promptAudienceHint}</p>
+                                <p className="app-body-md text-sm">{promptAudienceHint}</p>
 
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         type="button"
                                         onClick={handleApplyDetected}
                                         className={[
-                                            "rounded-xl border px-4 py-2 text-sm font-medium transition",
+                                            "rounded-xl px-4 py-2 text-sm font-medium transition",
                                             currentApplySignature === lastApplySignature &&
                                             lastApplyOutcome === "applied"
-                                                ? "border-emerald-400/20 bg-emerald-500/15 text-emerald-100"
+                                                ? "app-button-secondary border-[color:var(--app-border-secondary)]"
                                                 : currentApplySignature === lastApplySignature &&
                                                     lastApplyOutcome === "empty"
-                                                  ? "border-amber-400/20 bg-amber-500/10 text-amber-100"
-                                                  : "border-white/10 bg-white/5 text-white hover:bg-white/10",
+                                                  ? "app-button-secondary border-[color:rgba(245,158,11,0.22)]"
+                                                  : "app-button-secondary",
                                         ].join(" ")}
                                     >
                                         {applyButtonLabel}
@@ -438,7 +443,7 @@ export default function SmartSolverPage() {
                                         type="button"
                                         onClick={handleUseSuggestedCalculator}
                                         disabled={!selectedCalculatorRouteReady}
-                                        className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-medium text-black transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/50 disabled:text-black/70"
+                                        className="app-button-primary rounded-xl px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         Open Selected Tool
                                     </button>
@@ -446,7 +451,7 @@ export default function SmartSolverPage() {
                                     <button
                                         type="button"
                                         onClick={handleClearAll}
-                                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                                        className="app-button-ghost rounded-xl px-4 py-2 text-sm font-medium"
                                     >
                                         Clear
                                     </button>
@@ -473,21 +478,21 @@ export default function SmartSolverPage() {
                             onToggle={() => setShowGuide((prev) => !prev)}
                         >
                             <div className="grid gap-3 sm:grid-cols-3">
-                                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <p className="text-sm font-medium text-white">1. Write the problem</p>
-                                    <p className="mt-1 text-sm leading-6 text-slate-400">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3">
+                                    <p className="text-sm font-medium text-[color:var(--app-text)]">1. Write the problem</p>
+                                    <p className="app-body-md mt-1 text-sm">
                                         Use plain English, classroom terminology, abbreviations, or accounting jargon.
                                     </p>
                                 </div>
-                                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <p className="text-sm font-medium text-white">2. Apply detected values</p>
-                                    <p className="mt-1 text-sm leading-6 text-slate-400">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3">
+                                    <p className="text-sm font-medium text-[color:var(--app-text)]">2. Apply detected values</p>
+                                    <p className="app-body-md mt-1 text-sm">
                                         The solver fills the review inputs and confirms whether the action worked.
                                     </p>
                                 </div>
-                                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <p className="text-sm font-medium text-white">3. Review and open</p>
-                                    <p className="mt-1 text-sm leading-6 text-slate-400">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3">
+                                    <p className="text-sm font-medium text-[color:var(--app-text)]">3. Review and open</p>
+                                    <p className="app-body-md mt-1 text-sm">
                                         Check the suggested tool, complete any missing values, then continue.
                                     </p>
                                 </div>
@@ -501,7 +506,7 @@ export default function SmartSolverPage() {
                             onToggle={() => setShowCoverage((prev) => !prev)}
                         >
                             <div className="space-y-3">
-                                <p className="text-sm leading-6 text-slate-400">
+                                <p className="app-body-md text-sm">
                                     Smart Solver currently supports {totalCoveredTools} solver-ready tools across{" "}
                                     {solverCoverageGroups.length} active calculator categories.
                                 </p>
@@ -509,17 +514,17 @@ export default function SmartSolverPage() {
                                     {solverCoverageGroups.map((group) => (
                                         <div
                                             key={group.title}
-                                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                                            className="app-subtle-surface rounded-2xl px-4 py-3"
                                         >
                                             <div className="flex items-center justify-between gap-3">
-                                                <p className="text-sm font-semibold text-white">
+                                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                                     {group.title}
                                                 </p>
-                                                <span className="text-xs uppercase tracking-[0.16em] text-slate-400">
+                                                <span className="app-helper text-xs uppercase tracking-[0.16em]">
                                                     {group.items.length} tools
                                                 </span>
                                             </div>
-                                            <p className="mt-1 text-sm leading-6 text-slate-400">
+                                            <p className="app-body-md mt-1 text-sm">
                                                 {group.hint}
                                             </p>
                                         </div>
@@ -546,7 +551,7 @@ export default function SmartSolverPage() {
                                                 setSmartInput(example);
                                             });
                                         }}
-                                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm leading-6 text-slate-200 transition hover:bg-white/10"
+                                        className="app-list-link w-full rounded-2xl px-4 py-3 text-left text-sm leading-6"
                                     >
                                         {example}
                                     </button>
@@ -562,16 +567,16 @@ export default function SmartSolverPage() {
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="max-w-3xl">
-                                    <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+                                    <h3 className="app-section-kicker text-xs">
                                         Match Summary
                                     </h3>
-                                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                                    <p className="app-body-md mt-2 text-sm">
                                         This is the clean summary of what Smart Solver currently understands from the prompt.
                                     </p>
                                 </div>
 
                                 {selectedCalculator ? (
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">
+                                    <span className="app-chip rounded-full px-3 py-1 text-xs">
                                         {selectedCalculator.score}% confidence
                                     </span>
                                 ) : null}
@@ -612,28 +617,28 @@ export default function SmartSolverPage() {
                     <SectionCard>
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
-                                    Review Inputs
-                                </h3>
-                                <p className="mt-1 text-sm leading-6 text-slate-400">
-                                    These inputs adapt to the active tool and should be your final check before continuing.
-                                </p>
-                            </div>
+                                    <h3 className="app-section-kicker text-xs">
+                                        Review Inputs
+                                    </h3>
+                                    <p className="app-body-md mt-1 text-sm">
+                                        These inputs adapt to the active tool and should be your final check before continuing.
+                                    </p>
+                                </div>
 
-                            {selectedCalculator ? (
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-emerald-200">
-                                        {selectedCalculator.name}
-                                    </span>
-                                    {selectedCalculator.missing.length ? (
-                                        <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-amber-200">
-                                            {selectedCalculator.missing.length} missing
+                                {selectedCalculator ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
+                                            {selectedCalculator.name}
                                         </span>
-                                    ) : (
-                                        <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-emerald-200">
-                                            Ready
-                                        </span>
-                                    )}
+                                        {selectedCalculator.missing.length ? (
+                                            <span className="app-tone-warning rounded-full px-3 py-1 text-xs uppercase tracking-[0.16em]">
+                                                {selectedCalculator.missing.length} missing
+                                            </span>
+                                        ) : (
+                                            <span className="app-tone-success rounded-full px-3 py-1 text-xs uppercase tracking-[0.16em]">
+                                                Ready
+                                            </span>
+                                        )}
                                 </div>
                             ) : null}
                         </div>
@@ -660,13 +665,13 @@ export default function SmartSolverPage() {
                     <SectionCard>
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
-                                    Matching Tools
-                                </h3>
-                                <p className="mt-1 text-sm leading-6 text-slate-400">
-                                    The top matches are shown first. Switch tools if the current interpretation is slightly off.
-                                </p>
-                            </div>
+                                    <h3 className="app-section-kicker text-xs">
+                                        Matching Tools
+                                    </h3>
+                                    <p className="app-body-md mt-1 text-sm">
+                                        The top matches are shown first. Switch tools if the current interpretation is slightly off.
+                                    </p>
+                                </div>
                         </div>
 
                         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -681,25 +686,25 @@ export default function SmartSolverPage() {
                                         className={[
                                             "rounded-[1.35rem] border px-4 py-4 text-left transition",
                                             isActive
-                                                ? "border-emerald-400/25 bg-emerald-500/10"
-                                                : "border-white/10 bg-white/5 hover:bg-white/10",
+                                                ? "border-[color:var(--app-border-secondary)] bg-[var(--app-accent-secondary-soft)]"
+                                                : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
                                         ].join(" ")}
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
-                                                <p className="text-sm font-semibold text-white">
+                                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                                     {calculator.name}
                                                 </p>
-                                                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                                                <p className="app-helper mt-1 text-xs uppercase tracking-[0.16em]">
                                                     {calculator.confidence} match
                                                 </p>
                                             </div>
-                                            <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-xs text-slate-300">
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-xs">
                                                 {calculator.score}%
                                             </span>
                                         </div>
 
-                                        <p className="mt-3 text-sm leading-6 text-slate-400">
+                                        <p className="app-body-md mt-3 text-sm">
                                             {calculator.reason}
                                         </p>
                                     </button>
@@ -721,17 +726,17 @@ export default function SmartSolverPage() {
                                         key={calculator.id}
                                         type="button"
                                         onClick={() => handleSelectCalculator(calculator)}
-                                        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:bg-white/10"
+                                        className="app-list-link rounded-2xl px-4 py-4 text-left transition"
                                     >
                                         <div className="flex items-start justify-between gap-3">
-                                            <p className="text-sm font-semibold text-white">
+                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                                 {calculator.name}
                                             </p>
-                                            <span className="text-xs uppercase tracking-[0.16em] text-slate-400">
+                                            <span className="app-helper text-xs uppercase tracking-[0.16em]">
                                                 {calculator.score}%
                                             </span>
                                         </div>
-                                        <p className="mt-2 text-sm leading-6 text-slate-400">
+                                        <p className="app-body-md mt-2 text-sm">
                                             {calculator.reason}
                                         </p>
                                     </button>
@@ -750,31 +755,28 @@ export default function SmartSolverPage() {
                             {analysis.extractedEntries.length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
                                     {analysis.extractedEntries.map(([key, value]) => (
-                                        <span
-                                            key={key}
-                                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"
-                                        >
+                                        <span key={key} className="app-list-link rounded-full px-3 py-1 text-xs font-medium">
                                             {FIELD_META[key].label}: {value}
                                         </span>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm leading-6 text-slate-400">
+                                <p className="app-body-md text-sm">
                                     No values extracted yet from the prompt.
                                 </p>
                             )}
 
                             {selectedCalculator ? (
-                                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <p className="text-sm font-medium text-white">Why this match</p>
-                                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3">
+                                    <p className="text-sm font-medium text-[color:var(--app-text)]">Why this match</p>
+                                    <p className="app-body-md mt-2 text-sm">
                                         {selectedCalculator.reason}
                                     </p>
                                 </div>
                             ) : null}
 
                             {analysis.extracted.notes.length > 0 ? (
-                                <div className="space-y-1 text-sm leading-6 text-slate-400">
+                                <div className="space-y-1 text-sm leading-6 text-[color:var(--app-text-secondary)]">
                                     {analysis.extracted.notes.map((note) => (
                                         <p key={note}>{note}</p>
                                     ))}

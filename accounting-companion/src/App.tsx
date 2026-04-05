@@ -16,6 +16,9 @@ const BankReconciliationPage = lazy(
     () => import("./features/accounting/BankReconciliationPage")
 );
 const CashRatioPage = lazy(() => import("./features/accounting/CashRatioPage"));
+const CashConversionCyclePage = lazy(
+    () => import("./features/accounting/CashConversionCyclePage")
+);
 const BookValuePerSharePage = lazy(
     () => import("./features/accounting/BookValuePerSharePage")
 );
@@ -74,6 +77,9 @@ const ReturnOnEquityPage = lazy(() => import("./features/accounting/ReturnOnEqui
 const StraightLineDepreciationPage = lazy(
     () => import("./features/accounting/StraightLineDepreciationPage")
 );
+const DepreciationScheduleComparisonPage = lazy(
+    () => import("./features/accounting/DepreciationScheduleComparisonPage")
+);
 const TimesInterestEarnedPage = lazy(
     () => import("./features/accounting/TimesInterestEarnedPage")
 );
@@ -87,6 +93,9 @@ const UnitsOfProductionDepreciationPage = lazy(
 const VerticalAnalysisPage = lazy(() => import("./features/accounting/VerticalAnalysisPage"));
 const WeightedAverageInventoryPage = lazy(
     () => import("./features/accounting/WeightedAverageInventoryPage")
+);
+const InventoryMethodComparisonPage = lazy(
+    () => import("./features/accounting/InventoryMethodComparisonPage")
 );
 const AccountsPayableTurnoverPage = lazy(
     () => import("./features/accounting/AccountsPayableTurnoverPage")
@@ -212,10 +221,12 @@ export default function App() {
                         <Route path="accounting/straight-line-depreciation" element={<RouteShell><StraightLineDepreciationPage /></RouteShell>} />
                         <Route path="accounting/declining-balance-depreciation" element={<RouteShell><DecliningBalanceDepreciationPage /></RouteShell>} />
                         <Route path="accounting/units-of-production-depreciation" element={<RouteShell><UnitsOfProductionDepreciationPage /></RouteShell>} />
+                        <Route path="accounting/depreciation-schedule-comparison" element={<RouteShell><DepreciationScheduleComparisonPage /></RouteShell>} />
                         <Route path="accounting/cash-discount" element={<RouteShell><CashDiscountPage /></RouteShell>} />
                         <Route path="accounting/debit-credit-trainer" element={<RouteShell><DebitCreditTrainerPage /></RouteShell>} />
                         <Route path="accounting/fifo-inventory" element={<RouteShell><FIFOInventoryPage /></RouteShell>} />
                         <Route path="accounting/weighted-average-inventory" element={<RouteShell><WeightedAverageInventoryPage /></RouteShell>} />
+                        <Route path="accounting/inventory-method-comparison" element={<RouteShell><InventoryMethodComparisonPage /></RouteShell>} />
                         <Route path="accounting/gross-profit-method" element={<RouteShell><GrossProfitMethodPage /></RouteShell>} />
                         <Route path="accounting/gross-profit-rate" element={<RouteShell><GrossProfitRatePage /></RouteShell>} />
                         <Route path="accounting/bank-reconciliation" element={<RouteShell><BankReconciliationPage /></RouteShell>} />
@@ -232,6 +243,7 @@ export default function App() {
                         <Route path="accounting/current-ratio" element={<RouteShell><CurrentRatioPage /></RouteShell>} />
                         <Route path="accounting/quick-ratio" element={<RouteShell><QuickRatioPage /></RouteShell>} />
                         <Route path="accounting/cash-ratio" element={<RouteShell><CashRatioPage /></RouteShell>} />
+                        <Route path="accounting/cash-conversion-cycle" element={<RouteShell><CashConversionCyclePage /></RouteShell>} />
                         <Route path="accounting/receivables-turnover" element={<RouteShell><ReceivablesTurnoverPage /></RouteShell>} />
                         <Route path="accounting/inventory-turnover" element={<RouteShell><InventoryTurnoverPage /></RouteShell>} />
                         <Route path="accounting/accounts-payable-turnover" element={<RouteShell><AccountsPayableTurnoverPage /></RouteShell>} />

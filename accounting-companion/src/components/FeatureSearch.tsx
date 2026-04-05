@@ -8,7 +8,7 @@ import {
     useState,
     type KeyboardEvent,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getSuggestedRoutes, searchAppRoutes, type AppSearchResult } from "../utils/appSearch";
 
 type FeatureSearchProps = {
@@ -52,7 +52,6 @@ export default function FeatureSearch({
     autoFocus = false,
 }: FeatureSearchProps) {
     const navigate = useNavigate();
-    const location = useLocation();
     const resultsId = useId();
     const rootRef = useRef<HTMLDivElement | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -70,11 +69,6 @@ export default function FeatureSearch({
     );
 
     useEffect(() => {
-        setOpen(false);
-        setActiveIndex(0);
-    }, [location.pathname]);
-
-    useEffect(() => {
         function handlePointerDown(event: MouseEvent) {
             if (!rootRef.current?.contains(event.target as Node)) {
                 setOpen(false);
@@ -84,10 +78,6 @@ export default function FeatureSearch({
         document.addEventListener("mousedown", handlePointerDown);
         return () => document.removeEventListener("mousedown", handlePointerDown);
     }, []);
-
-    useEffect(() => {
-        setActiveIndex(0);
-    }, [deferredQuery]);
 
     function handleNavigate(result: AppSearchResult) {
         startTransition(() => {
@@ -154,6 +144,7 @@ export default function FeatureSearch({
                         onChange={(event) => {
                             setQuery(event.target.value);
                             setOpen(true);
+                            setActiveIndex(0);
                         }}
                         onFocus={() => setOpen(true)}
                         onKeyDown={handleKeyDown}
@@ -175,6 +166,7 @@ export default function FeatureSearch({
                             onClick={() => {
                                 setQuery("");
                                 setOpen(true);
+                                setActiveIndex(0);
                                 inputRef.current?.focus();
                             }}
                             className="app-button-ghost rounded-full px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.16em]"

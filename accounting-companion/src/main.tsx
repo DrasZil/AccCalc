@@ -2,8 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-
-const APP_VERSION = "1.5.0";
+import { APP_VERSION } from "./utils/appRelease";
 const SW_URL = `${import.meta.env.BASE_URL}sw.js`;
 
 if (typeof window !== "undefined" && !window.location.hash.startsWith("#/")) {

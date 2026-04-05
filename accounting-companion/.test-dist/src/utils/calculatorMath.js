@@ -281,7 +281,7 @@ export function computePaybackPeriod(initialInvestment, cashFlows) {
         if (paybackPeriod === null &&
             beginningUnrecovered > 0 &&
             unrecoveredBalance <= 0 &&
-            cashFlow !== 0) {
+            cashFlow > 0) {
             fractionOfPeriod = beginningUnrecovered / cashFlow;
             paybackPeriod = index + fractionOfPeriod;
         }
@@ -332,5 +332,115 @@ export function computeTrialBalance(totalDebits, totalCredits) {
         isBalanced,
         shortSide: isBalanced ? "balanced" : difference > 0 ? "credits" : "debits",
         amountToCorrect: Math.abs(difference),
+    };
+}
+function inventoryLayersFromInputs({ beginningUnits, beginningCost, purchase1Units, purchase1Cost, purchase2Units, purchase2Cost, }) {
+    return [
+        { label: "Beginning Inventory", units: beginningUnits, unitCost: beginningCost },
+        { label: "Purchase 1", units: purchase1Units, unitCost: purchase1Cost },
+        { label: "Purchase 2", units: purchase2Units, unitCost: purchase2Cost },
+    ];
+}
+export function computeInventoryMethodComparison({ beginningUnits, beginningCost, purchase1Units, purchase1Cost, purchase2Units, purchase2Cost, unitsSold, }) {
+    const layers = inventoryLayersFromInputs({
+        beginningUnits,
+        beginningCost,
+        purchase1Units,
+        purchase1Cost,
+        purchase2Units,
+        purchase2Cost,
+    });
+    const totalUnitsAvailable = layers.reduce((sum, layer) => sum + layer.units, 0);
+    const totalCostAvailable = layers.reduce((sum, layer) => sum + layer.units * layer.unitCost, 0);
+    let unitsToIssue = unitsSold;
+    let fifoCostOfGoodsSold = 0;
+    const fifoIssueLines = [];
+    const remainingLayers = layers.map((layer) => ({ ...layer }));
+    for (const layer of remainingLayers) {
+        if (unitsToIssue <= 0)
+            break;
+        const unitsIssued = Math.min(layer.units, unitsToIssue);
+        const amount = unitsIssued * layer.unitCost;
+        if (unitsIssued > 0) {
+            fifoIssueLines.push({
+                label: layer.label,
+                units: unitsIssued,
+                unitCost: layer.unitCost,
+                amount,
+            });
+        }
+        fifoCostOfGoodsSold += amount;
+        layer.units -= unitsIssued;
+        unitsToIssue -= unitsIssued;
+    }
+    const fifoEndingInventory = remainingLayers.reduce((sum, layer) => sum + layer.units * layer.unitCost, 0);
+    const weightedAverageUnitCost = totalUnitsAvailable === 0 ? 0 : totalCostAvailable / totalUnitsAvailable;
+    const weightedAverageCostOfGoodsSold = unitsSold * weightedAverageUnitCost;
+    const weightedAverageEndingInventory = (totalUnitsAvailable - unitsSold) * weightedAverageUnitCost;
+    const costTrendDirection = purchase2Cost > purchase1Cost && purchase1Cost >= beginningCost
+        ? "rising"
+        : purchase2Cost < purchase1Cost && purchase1Cost <= beginningCost
+            ? "falling"
+            : "mixed";
+    return {
+        totalUnitsAvailable,
+        totalCostAvailable,
+        weightedAverageUnitCost,
+        fifo: {
+            costOfGoodsSold: fifoCostOfGoodsSold,
+            endingInventory: fifoEndingInventory,
+            issueLines: fifoIssueLines,
+        },
+        weightedAverage: {
+            costOfGoodsSold: weightedAverageCostOfGoodsSold,
+            endingInventory: weightedAverageEndingInventory,
+        },
+        deltas: {
+            costOfGoodsSold: fifoCostOfGoodsSold - weightedAverageCostOfGoodsSold,
+            endingInventory: fifoEndingInventory - weightedAverageEndingInventory,
+        },
+        costTrendDirection,
+    };
+}
+export function computeDepreciationComparisonSchedule({ cost, salvageValue, usefulLifeYears, }) {
+    const straightLineAmount = (cost - salvageValue) / usefulLifeYears;
+    const ddbRate = 2 / usefulLifeYears;
+    let ddbBookValue = cost;
+    let straightLineBookValue = cost;
+    const schedule = Array.from({ length: usefulLifeYears }, (_, index) => {
+        const year = index + 1;
+        const straightLineExpense = straightLineAmount;
+        straightLineBookValue -= straightLineExpense;
+        const ddbExpense = Math.min(ddbBookValue * ddbRate, ddbBookValue - salvageValue);
+        ddbBookValue -= ddbExpense;
+        return {
+            year,
+            straightLineExpense,
+            straightLineBookValue: Math.max(straightLineBookValue, salvageValue),
+            ddbExpense,
+            ddbBookValue: Math.max(ddbBookValue, salvageValue),
+        };
+    });
+    return {
+        straightLineAmount,
+        ddbRate,
+        schedule,
+        totalDepreciation: cost - salvageValue,
+    };
+}
+export function computeCashConversionCycle({ receivablesDays, inventoryDays, payablesDays, }) {
+    const operatingCycle = receivablesDays + inventoryDays;
+    const cashConversionCycle = operatingCycle - payablesDays;
+    return {
+        operatingCycle,
+        cashConversionCycle,
+        workingCapitalDays: Math.max(cashConversionCycle, 0),
+        pressureLevel: cashConversionCycle <= 0
+            ? "low"
+            : cashConversionCycle <= 30
+                ? "moderate"
+                : cashConversionCycle <= 60
+                    ? "elevated"
+                    : "high",
     };
 }
