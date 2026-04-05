@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
 import {
+    getMostUsedRoutes,
     getPinnedRoutes,
     getRecentRoutes,
     getRecommendedRoutes,
@@ -18,6 +20,7 @@ import {
     APP_VERSION,
 } from "../../utils/appRelease";
 import { useAppSettings } from "../../utils/appSettings";
+import { useNetworkStatus } from "../../utils/networkStatus";
 
 const SMART_PROMPT_EXAMPLES = [
     "Find the quick ratio if cash is 50,000, marketable securities are 25,000, receivables are 40,000, and current liabilities are 100,000.",
@@ -35,11 +38,46 @@ const FEATURED_PATHS = [
     "/accounting/depreciation-schedule-comparison",
 ];
 
+const WORKFLOW_COLLECTIONS = [
+    {
+        title: "Liquidity and working capital",
+        description: "Follow short-term financial health from ratio check to cash-cycle interpretation.",
+        paths: [
+            "/accounting/current-ratio",
+            "/accounting/quick-ratio",
+            "/accounting/cash-ratio",
+            "/accounting/cash-conversion-cycle",
+        ],
+    },
+    {
+        title: "Inventory and cost flow",
+        description: "Compare inventory valuation methods and move into interpretation-oriented reporting.",
+        paths: [
+            "/accounting/fifo-inventory",
+            "/accounting/weighted-average-inventory",
+            "/accounting/inventory-method-comparison",
+            "/accounting/gross-profit-method",
+        ],
+    },
+    {
+        title: "Borrowing and capital planning",
+        description: "Move from loan repayment planning into discounted cash flow decision tools.",
+        paths: [
+            "/finance/loan-amortization",
+            "/finance/payback-period",
+            "/finance/npv",
+            "/finance/profitability-index",
+        ],
+    },
+];
+
 export default function HomePage() {
     const activity = useAppActivity();
     const settings = useAppSettings();
+    const network = useNetworkStatus();
     const [showWhatsNew, setShowWhatsNew] = useState(true);
     const pinnedRoutes = getPinnedRoutes(activity);
+    const mostUsedRoutes = getMostUsedRoutes(activity, 4);
     const recentRoutes = getRecentRoutes(activity, 6);
     const recommended = getRecommendedRoutes(activity, "/");
 
@@ -69,6 +107,16 @@ export default function HomePage() {
             })),
         []
     );
+    const workflowCollections = useMemo(
+        () =>
+            WORKFLOW_COLLECTIONS.map((collection) => ({
+                ...collection,
+                routes: collection.paths
+                    .map((path) => APP_ROUTE_META_MAP.get(path))
+                    .filter((item): item is NonNullable<typeof item> => Boolean(item)),
+            })),
+        []
+    );
 
     const topMetrics = [
         { label: "Pinned", value: pinnedRoutes.length, helper: "Personal quick access" },
@@ -82,6 +130,7 @@ export default function HomePage() {
             <section className="app-panel-elevated app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-7 xl:p-8">
                 <div className="grid gap-6 xl:grid-cols-[1.22fr_0.78fr] xl:items-end">
                     <div className="max-w-3xl">
+                        <AppBrandMark className="mb-4" />
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
                                 Release {APP_VERSION}
@@ -195,7 +244,7 @@ export default function HomePage() {
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="app-kicker text-xs">What’s new</p>
+                            <p className="app-kicker text-xs">What's new</p>
                             <h2 className="app-section-title mt-3 text-2xl">Major release improvements</h2>
                             <p className="app-body-md mt-2 text-sm">
                                 Better layout, stronger discovery, smarter routing, and new accounting comparison tools are now live.
@@ -248,6 +297,38 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {mostUsedRoutes.length > 0 ? (
+                <section className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p className="app-kicker text-xs">Momentum</p>
+                            <h2 className="app-section-title mt-3 text-2xl">Most-used tools on this device</h2>
+                            <p className="app-body-md mt-2 text-sm">
+                                These tools are surfaced from your actual usage so repeat workflows stay fast as the app grows.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {mostUsedRoutes.map((route) => (
+                            <Link
+                                key={route.path}
+                                to={route.path}
+                                className="app-link-card rounded-[1.3rem] p-4"
+                            >
+                                <span className="app-chip rounded-full px-3 py-1 text-xs">
+                                    {route.category}
+                                </span>
+                                <h3 className="mt-3 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                    {route.label}
+                                </h3>
+                                <p className="app-body-md mt-2 text-sm">{route.description}</p>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            ) : null}
+
             <section className="space-y-4">
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                     <div>
@@ -285,6 +366,43 @@ export default function HomePage() {
                 </div>
             </section>
 
+            <section className="space-y-4">
+                <div>
+                    <h2 className="app-section-title text-2xl">Guided workflow collections</h2>
+                    <p className="app-body-md mt-1 text-sm">
+                        These grouped routes make the growing tool set easier to understand for both classwork and practical review.
+                    </p>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-3">
+                    {workflowCollections.map((collection) => (
+                        <div key={collection.title} className="app-panel rounded-[var(--app-radius-xl)] p-5">
+                            <p className="app-kicker text-xs">Collection</p>
+                            <h3 className="mt-3 text-xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                {collection.title}
+                            </h3>
+                            <p className="app-body-md mt-2 text-sm">{collection.description}</p>
+                            <div className="mt-4 space-y-2">
+                                {collection.routes.map((route) => (
+                                    <Link
+                                        key={route.path}
+                                        to={route.path}
+                                        className="app-list-link flex items-center justify-between rounded-[1.15rem] px-4 py-3 text-sm font-medium"
+                                    >
+                                        <span className="truncate pr-3 text-[color:var(--app-text)]">
+                                            {route.label}
+                                        </span>
+                                        <span className="app-helper text-xs uppercase tracking-[0.14em]">
+                                            Open
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
             <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <p className="app-kicker text-xs">Smart Solver starter prompts</p>
@@ -315,6 +433,43 @@ export default function HomePage() {
                         {APP_RELEASE_NOTES.map((note) => (
                             <div key={note} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
                                 <p className="app-body-md text-sm">{note}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                    <p className="app-kicker text-xs">Offline readiness</p>
+                    <h2 className="app-section-title mt-3 text-2xl">
+                        {network.online ? "Offline-safe core tools are ready" : "You are offline now"}
+                    </h2>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        {[
+                            "All local calculators",
+                            "Smart Solver local routing",
+                            "Pinned tools and recent history",
+                            "Theme, settings, and saved drafts",
+                        ].map((item) => (
+                            <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">{item}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                    <p className="app-kicker text-xs">Online-only surfaces</p>
+                    <h2 className="app-section-title mt-3 text-2xl">Handled safely when internet is missing</h2>
+                    <div className="mt-4 space-y-3">
+                        {[
+                            "Feedback form and embedded Google Form",
+                            "External share/link destinations",
+                            "Embedded or externally hosted web content",
+                        ].map((item) => (
+                            <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                                <p className="app-body-md text-sm">{item}</p>
                             </div>
                         ))}
                     </div>
@@ -364,3 +519,4 @@ export default function HomePage() {
         </div>
     );
 }
+

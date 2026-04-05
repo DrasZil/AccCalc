@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Component } from "react";
+import AppBrandMark from "./AppBrandMark";
 
 type AppErrorBoundaryProps = {
     children: ReactNode;
@@ -35,9 +36,7 @@ export default class AppErrorBoundary extends Component<
             return (
                 <div className="min-h-screen px-4 py-10 text-[color:var(--app-text)]">
                     <div className="app-panel-elevated mx-auto max-w-2xl rounded-[var(--app-radius-xl)] p-6">
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--app-accent)]">
-                            AccCalc
-                        </p>
+                        <AppBrandMark compact className="mb-4" />
                         <h1 className="mt-3 text-3xl font-bold tracking-tight">
                             The app hit a rendering error.
                         </h1>

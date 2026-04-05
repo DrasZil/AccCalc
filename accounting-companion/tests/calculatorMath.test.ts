@@ -14,6 +14,7 @@ import {
     computeGrossProfitRate,
     computeInventoryMethodComparison,
     computeLoanAmortization,
+    computeLoanAmortizationSchedule,
     computeMarkupMargin,
     computeNetPresentValue,
     computePartnershipAdmissionBonus,
@@ -37,6 +38,7 @@ import {
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
+import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
 
 function assertClose(actual: number, expected: number, precision = 1e-6) {
     assert.ok(
@@ -99,6 +101,18 @@ runTest("loan amortization handles zero-interest loans", () => {
     assertClose(result.monthlyPayment, 2000);
     assertClose(result.totalPaid, 120000);
     assertClose(result.totalInterest, 0);
+});
+
+runTest("loan amortization schedule rolls balances down to zero", () => {
+    const schedule = computeLoanAmortizationSchedule({
+        principal: 120000,
+        annualRatePercent: 6,
+        termYears: 5,
+    });
+
+    assert.equal(schedule.yearlySummary.length, 5);
+    assertClose(schedule.yearlySummary.at(-1)?.endingBalance ?? 0, 0, 1e-4);
+    assertClose(schedule.totalPrincipal, 120000, 1e-3);
 });
 
 runTest("break-even and target profit compute practical whole units", () => {
@@ -355,6 +369,12 @@ runTest("account reference search finds aliases and abbreviations", () => {
 
     assert.equal(adaResults[0]?.name, "Allowance for Doubtful Accounts");
     assert.equal(payableResults.some((entry) => entry.name === "Accounts Payable"), true);
+});
+
+runTest("network status snapshots stay referentially stable", () => {
+    assert.equal(getNetworkStatusSnapshot(true), getNetworkStatusSnapshot(true));
+    assert.equal(getNetworkStatusSnapshot(false), getNetworkStatusSnapshot(false));
+    assert.notEqual(getNetworkStatusSnapshot(true), getNetworkStatusSnapshot(false));
 });
 
 process.stdout.write("All calculator math tests passed.\n");

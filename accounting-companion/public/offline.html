@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1118" />
+    <title>AccCalc Offline</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #0b1118;
+        color: #eff5fb;
+        font-family: "Segoe UI", "Inter", sans-serif;
+      }
+
+      .card {
+        width: min(100%, 34rem);
+        border-radius: 24px;
+        padding: 24px;
+        background: rgba(22, 33, 49, 0.95);
+        border: 1px solid rgba(73, 138, 255, 0.2);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+      }
+
+      .kicker {
+        color: #dc9247;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 12px 0 0;
+        font-size: clamp(1.8rem, 1.3rem + 1.5vw, 2.4rem);
+      }
+
+      p,
+      li {
+        color: #c3d0de;
+        line-height: 1.7;
+      }
+
+      ul {
+        margin: 16px 0 0;
+        padding-left: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="kicker">Offline fallback</div>
+      <h1>AccCalc is offline</h1>
+      <p>
+        The full app shell was not available from cache yet. When the main app is cached,
+        core calculators, Smart Solver local routing, drafts, history, and settings can still
+        work offline safely.
+      </p>
+      <ul>
+        <li>Reconnect once to refresh the latest app shell and logic.</li>
+        <li>Feedback forms and external web content require internet access.</li>
+        <li>After reconnecting, reopen the app and the offline-ready workspace will be available.</li>
+      </ul>
+    </main>
+  </body>
+</html>

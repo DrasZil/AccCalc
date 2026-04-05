@@ -377,7 +377,7 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories.`}
+            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories, and its matching logic continues to work offline because it runs locally in the app.`}
             prioritizeResultSection={hasAnyInput}
             inputSection={
                 <div className="space-y-4">

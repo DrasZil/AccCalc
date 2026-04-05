@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import AppBrandMark from "../../components/AppBrandMark";
 import { dismissFeedbackReminder } from "../../utils/appActivity";
 
 export type Notice = {
@@ -272,15 +273,9 @@ export function LaunchScreen({ visible }: { visible: boolean }) {
         >
             <div className="w-full max-w-md text-center">
                 <div
-                    className="mx-auto inline-flex h-18 w-18 items-center justify-center rounded-[2rem]"
-                    style={{
-                        border: "1px solid var(--app-border-strong)",
-                        background: "var(--app-accent-soft)",
-                        boxShadow: "var(--app-shadow-lg)",
-                        color: "var(--app-accent)",
-                    }}
+                    className="mx-auto"
                 >
-                    <ShellIcon kind="spark" className="h-8 w-8" />
+                    <AppBrandMark compact showWordmark={false} className="justify-center" />
                 </div>
                 <p className="app-kicker mt-6 text-[0.68rem]">
                     Accounting workspace

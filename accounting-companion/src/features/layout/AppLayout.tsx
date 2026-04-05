@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
 import InstallPrompt from "../../components/InstallPrompt";
 import ToolPinButton from "../../components/ToolPinButton";
 import {
+    getMostUsedRoutes,
     getPinnedRoutes,
     getRecentRoutes,
     markPathSeen,
@@ -21,6 +23,7 @@ import {
 } from "../../utils/appCatalog";
 import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
+import { useNetworkStatus } from "../../utils/networkStatus";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import {
     FeedbackReminder,
@@ -153,6 +156,7 @@ type SidebarContentProps = {
     seenNewPaths: string[];
     pinnedRoutes: ReturnType<typeof getPinnedRoutes>;
     recentRoutes: ReturnType<typeof getRecentRoutes>;
+    mostUsedRoutes: ReturnType<typeof getMostUsedRoutes>;
 };
 
 function SidebarContent({
@@ -164,6 +168,7 @@ function SidebarContent({
     seenNewPaths,
     pinnedRoutes,
     recentRoutes,
+    mostUsedRoutes,
 }: SidebarContentProps) {
     return (
         <div
@@ -179,9 +184,12 @@ function SidebarContent({
                             <div className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                 Release {APP_VERSION}
                             </div>
-                            <h1 className="mt-2 truncate text-[1.55rem] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-sidebar-text)]">
-                                AccCalc
-                            </h1>
+                            <div className="mt-3">
+                                <AppBrandMark
+                                    compact
+                                    labelClassName="text-[color:var(--app-sidebar-text)]"
+                                />
+                            </div>
                         </Link>
 
                         <p className="mt-1.5 max-w-xs text-[0.8rem] leading-5 app-sidebar-group-hint">
@@ -223,6 +231,27 @@ function SidebarContent({
                                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
                                         Pin
                                     </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
+
+                {mostUsedRoutes.length > 0 ? (
+                    <div className="mb-4 space-y-2">
+                        <p className="app-section-kicker px-2 text-[0.68rem]">Most used</p>
+                        <div className="grid gap-2">
+                            {mostUsedRoutes.map((route) => (
+                                <Link
+                                    key={route.path}
+                                    to={route.path}
+                                    onClick={closeMobileSidebar}
+                                    className="app-list-link rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium"
+                                >
+                                    <span className="block truncate text-[color:var(--app-text)]">
+                                        {route.label}
+                                    </span>
+                                    <span className="app-helper text-xs">{route.category}</span>
                                 </Link>
                             ))}
                         </div>
@@ -426,12 +455,19 @@ export default function AppLayout() {
     const location = useLocation();
     const settings = useAppSettings();
     const activity = useAppActivity();
+    const network = useNetworkStatus();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
     const mainRef = useRef<HTMLElement | null>(null);
 
     const [mobileSidebarRoute, setMobileSidebarRoute] = useState<string | null>(null);
     const [mobileSearchRoute, setMobileSearchRoute] = useState<string | null>(null);
+    const [desktopSidebarWidth, setDesktopSidebarWidth] = useState<number>(() => {
+        if (typeof window === "undefined") return 304;
+        const saved = window.localStorage.getItem("accalc-desktop-sidebar-width");
+        const parsed = saved ? Number(saved) : 304;
+        return Number.isFinite(parsed) ? Math.min(420, Math.max(272, parsed)) : 304;
+    });
     const [desktopSidebarVisible, setDesktopSidebarVisible] = useState<boolean>(() => {
         if (typeof window === "undefined") return true;
         const saved = window.localStorage.getItem("accalc-desktop-sidebar-visible");
@@ -461,9 +497,11 @@ export default function AppLayout() {
     });
     const [bootVisible, setBootVisible] = useState<boolean>(() => settings.showOpeningAnimation);
     const [feedbackVisible, setFeedbackVisible] = useState<boolean>(false);
+    const [sidebarResizeActive, setSidebarResizeActive] = useState<boolean>(false);
 
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
+    const previousOnlineRef = useRef<boolean>(network.online);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
     const mobileSearchOpen = mobileSearchRoute === location.pathname;
@@ -478,6 +516,7 @@ export default function AppLayout() {
                 : "light"
             : settings.themePreference;
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
+    const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
     const isPinEligible = Boolean(
         currentMeta && currentMeta.path !== "/" && currentMeta.path !== "/history"
@@ -546,6 +585,14 @@ export default function AppLayout() {
             String(desktopSidebarVisible)
         );
     }, [desktopSidebarVisible, settings.rememberDesktopSidebarVisibility]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        window.localStorage.setItem(
+            "accalc-desktop-sidebar-width",
+            String(desktopSidebarWidth)
+        );
+    }, [desktopSidebarWidth]);
 
     useEffect(() => {
         if (typeof document === "undefined") return;
@@ -642,6 +689,48 @@ export default function AppLayout() {
         if (!NEW_FEATURE_PATHS.has(location.pathname)) return;
         markPathSeen(location.pathname);
     }, [location.pathname, settings.showNewFeatureIndicators]);
+
+    useEffect(() => {
+        if (previousOnlineRef.current === network.online) return;
+        previousOnlineRef.current = network.online;
+
+        const timer = window.setTimeout(() => {
+            if (network.online) {
+                pushNotice(
+                    "Back online",
+                    "Full app functionality is available again, including feedback and external links.",
+                    "success"
+                );
+                return;
+            }
+
+            pushNotice(
+                "Offline mode",
+                "Calculators, Smart Solver routing, settings, and saved history still work. Feedback and external web content are unavailable offline.",
+                "warning"
+            );
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, [network.online]);
+
+    useEffect(() => {
+        if (!sidebarResizeActive) return;
+
+        const handlePointerMove = (event: PointerEvent) => {
+            setDesktopSidebarWidth(Math.min(420, Math.max(272, event.clientX)));
+        };
+
+        const handlePointerUp = () => setSidebarResizeActive(false);
+
+        window.addEventListener("pointermove", handlePointerMove);
+        window.addEventListener("pointerup", handlePointerUp);
+
+        return () => {
+            window.removeEventListener("pointermove", handlePointerMove);
+            window.removeEventListener("pointerup", handlePointerUp);
+        };
+    }, [sidebarResizeActive]);
 
     useEffect(() => {
         if (!shouldShowFeedbackReminder(activity, settings.showFeedbackReminders)) return;
@@ -788,8 +877,8 @@ export default function AppLayout() {
             <div className="flex min-h-screen items-start">
                 {effectiveDesktopSidebarVisible ? (
                     <aside
-                        className="sticky top-0 hidden h-screen w-[19rem] shrink-0 border-r app-divider backdrop-blur-xl xl:block"
-                        style={{ background: "var(--app-sidebar-bg)" }}
+                        className="sticky top-0 hidden h-screen shrink-0 border-r app-divider backdrop-blur-xl xl:block"
+                        style={{ background: "var(--app-sidebar-bg)", width: `${desktopSidebarWidth}px` }}
                     >
                         <SidebarContent
                             locationPathname={location.pathname}
@@ -800,8 +889,23 @@ export default function AppLayout() {
                             seenNewPaths={activity.seenNewPaths}
                             pinnedRoutes={pinnedRoutes}
                             recentRoutes={recentRoutes}
+                            mostUsedRoutes={mostUsedRoutes}
                         />
                     </aside>
+                ) : null}
+
+                {effectiveDesktopSidebarVisible ? (
+                    <button
+                        type="button"
+                        aria-label="Resize sidebar"
+                        onPointerDown={() => setSidebarResizeActive(true)}
+                        className={[
+                            "relative hidden h-screen w-2 shrink-0 cursor-col-resize xl:block",
+                            sidebarResizeActive ? "bg-[var(--app-accent-soft)]" : "",
+                        ].join(" ")}
+                    >
+                        <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[color:var(--app-border-subtle)]" />
+                    </button>
                 ) : null}
 
                 <aside
@@ -820,6 +924,7 @@ export default function AppLayout() {
                         seenNewPaths={activity.seenNewPaths}
                         pinnedRoutes={pinnedRoutes}
                         recentRoutes={recentRoutes}
+                        mostUsedRoutes={mostUsedRoutes}
                     />
                 </aside>
 
@@ -958,6 +1063,14 @@ export default function AppLayout() {
                             </div>
                         </div>
                     </header>
+
+                    {!network.online ? (
+                        <div className="border-b app-divider px-4 py-2.5 md:px-5">
+                            <div className="app-tone-warning rounded-[1.2rem] px-4 py-3 text-sm leading-6">
+                                Offline mode is active. Calculators, Smart Solver routing, history, and settings still work. Feedback, embedded forms, and external links need internet access.
+                            </div>
+                        </div>
+                    ) : null}
 
                     <main ref={mainRef} className="px-4 pb-24 pt-4 md:px-5 md:pb-6 md:pt-6">
                         <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">

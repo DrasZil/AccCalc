@@ -3,6 +3,7 @@ import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
 import {
     formatRelativeTime,
+    getMostUsedRoutes,
     getPinnedRoutes,
     getRecommendedRoutes,
     useAppActivity,
@@ -14,6 +15,7 @@ export default function HistoryPage() {
     const activity = useAppActivity();
     const recommendations = getRecommendedRoutes(activity, location.pathname);
     const pinnedRoutes = getPinnedRoutes(activity);
+    const mostUsedRoutes = getMostUsedRoutes(activity);
 
     return (
         <div className="app-page-stack">
@@ -57,6 +59,30 @@ export default function HistoryPage() {
                                     Pinned
                                 </p>
                                 <h3 className="mt-3 text-lg font-semibold text-[color:var(--app-text)]">
+                                    {route.label}
+                                </h3>
+                                <p className="app-body-md mt-2 text-sm">{route.description}</p>
+                            </Link>
+                        ))}
+                    </div>
+                </SectionCard>
+            ) : null}
+
+            {mostUsedRoutes.length > 0 ? (
+                <SectionCard>
+                    <h2 className="app-section-title text-xl">Most used tools</h2>
+                    <p className="app-body-md mt-2 text-sm">
+                        Usage-weighted shortcuts help keep your most repeated accounting and finance workflows close.
+                    </p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {mostUsedRoutes.map((route) => (
+                            <Link
+                                key={route.path}
+                                to={route.path}
+                                className="app-link-card rounded-[1.3rem] p-4"
+                            >
+                                <p className="app-chip rounded-full px-3 py-1 text-xs">{route.category}</p>
+                                <h3 className="mt-3 text-base font-semibold text-[color:var(--app-text)]">
                                     {route.label}
                                 </h3>
                                 <p className="app-body-md mt-2 text-sm">{route.description}</p>

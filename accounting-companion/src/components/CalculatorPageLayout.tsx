@@ -1,5 +1,8 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import PageHeader from "./PageHeader";
+import ToolPinButton from "./ToolPinButton";
+import { APP_ROUTE_META, getRouteMeta } from "../utils/appCatalog";
 
 type CalculatorPageLayoutProps = {
     badge?: string;
@@ -45,9 +48,49 @@ export default function CalculatorPageLayout({
     headerActions,
     headerMeta,
 }: CalculatorPageLayoutProps) {
+    const location = useLocation();
+    const currentMeta = getRouteMeta(location.pathname);
     const [activeSection, setActiveSection] = useState<SectionKey>(
         prioritizeResultSection ? "results" : "inputs"
     );
+    const relatedRoutes = useMemo(() => {
+        if (!currentMeta) return [];
+
+        const currentTags = new Set(currentMeta.tags);
+        const currentKeywords = new Set(currentMeta.keywords);
+
+        return APP_ROUTE_META.filter(
+            (route) => route.path !== currentMeta.path && route.path !== "/"
+        )
+            .map((route) => {
+                let score = 0;
+
+                if (route.category === currentMeta.category) score += 5;
+                score += route.tags.filter((tag) => currentTags.has(tag)).length * 4;
+                score += route.keywords.filter((keyword) => currentKeywords.has(keyword)).length * 2;
+
+                if (route.isNew) score += 0.5;
+
+                return { route, score };
+            })
+            .filter((entry) => entry.score > 0)
+            .sort((left, right) => right.score - left.score)
+            .slice(0, 4)
+            .map((entry) => entry.route);
+    }, [currentMeta]);
+
+    const combinedHeaderActions = useMemo(() => {
+        if (!currentMeta || currentMeta.path === "/" || currentMeta.path.startsWith("/settings")) {
+            return headerActions ?? null;
+        }
+
+        return (
+            <>
+                <ToolPinButton path={currentMeta.path} label={currentMeta.label} />
+                {headerActions}
+            </>
+        );
+    }, [currentMeta, headerActions]);
 
     const sections = useMemo(
         () =>
@@ -89,7 +132,7 @@ export default function CalculatorPageLayout({
                 badge={badge}
                 title={title}
                 description={description}
-                actions={headerActions}
+                actions={combinedHeaderActions}
                 meta={headerMeta}
             />
 
@@ -147,6 +190,28 @@ export default function CalculatorPageLayout({
                     ) : null
                 )}
             </div>
+
+            {relatedRoutes.length > 0 ? (
+                <section className="space-y-3">
+                    <div className="px-1">
+                        <p className="app-section-kicker text-xs">Related tools</p>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {relatedRoutes.map((route) => (
+                            <Link
+                                key={route.path}
+                                to={route.path}
+                                className="app-list-link rounded-[1.2rem] px-4 py-3.5"
+                            >
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {route.label}
+                                </p>
+                                <p className="app-helper mt-1 text-xs">{route.description}</p>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            ) : null}
         </div>
     );
 }

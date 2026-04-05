@@ -1,34 +1,36 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 export type SmartSolverPrefill = Record<
     string,
     string | number | undefined | null
-    >;
+>;
 
-    export type SmartSolverRouteState = {
+export type SmartSolverRouteState = {
     from?: string;
     query?: string;
     prefill?: SmartSolverPrefill;
-    };
+};
 
-    export type SmartSolverSetterMap = Record<
+export type SmartSolverSetterMap = Record<
     string,
     (value: string) => void
-    >;
+>;
 
-    type UseSmartSolverConnectorOptions = {
+type UseSmartSolverConnectorOptions = {
     onlyFromSmartSolver?: boolean;
     applyOnce?: boolean;
     normalizeValue?: (key: string, value: string) => string;
-    };
+};
 
-    export function useSmartSolverConnector(
+export function useSmartSolverConnector(
     setters: SmartSolverSetterMap,
     options: UseSmartSolverConnectorOptions = {}
-    ) {
+) {
     const location = useLocation();
-    const hasAppliedRef = useRef(false);
+    const settersRef = useRef(setters);
+    const normalizeValueRef = useRef(options.normalizeValue);
+    const appliedSignatureRef = useRef<string | null>(null);
 
     const {
         onlyFromSmartSolver = true,
@@ -37,34 +39,50 @@ export type SmartSolverPrefill = Record<
     } = options;
 
     useEffect(() => {
+        settersRef.current = setters;
+        normalizeValueRef.current = normalizeValue;
+    }, [setters, normalizeValue]);
+
+    const prefillSignature = useMemo(() => {
+        const routeState = location.state as SmartSolverRouteState | null;
+        if (!routeState?.prefill) return null;
+
+        return JSON.stringify({
+            path: location.pathname,
+            from: routeState.from ?? "",
+            prefill: routeState.prefill,
+        });
+    }, [location.pathname, location.state]);
+
+    useEffect(() => {
         const routeState = location.state as SmartSolverRouteState | null;
 
         if (!routeState?.prefill) return;
 
         if (onlyFromSmartSolver && routeState.from !== "smart-solver") {
-        return;
+            return;
         }
 
-        if (applyOnce && hasAppliedRef.current) {
-        return;
+        if (applyOnce && appliedSignatureRef.current === prefillSignature) {
+            return;
         }
 
         Object.entries(routeState.prefill).forEach(([key, value]) => {
-        if (value === undefined || value === null) return;
+            if (value === undefined || value === null) return;
 
-        const setter = setters[key];
-        if (!setter) return;
+            const setter = settersRef.current[key];
+            if (!setter) return;
 
-        const stringValue = String(value);
-        const finalValue = normalizeValue
-            ? normalizeValue(key, stringValue)
-            : stringValue;
+            const stringValue = String(value);
+            const finalValue = normalizeValueRef.current
+                ? normalizeValueRef.current(key, stringValue)
+                : stringValue;
 
-        setter(finalValue);
+            setter(finalValue);
         });
 
-        hasAppliedRef.current = true;
-    }, [location.state, setters, onlyFromSmartSolver, applyOnce, normalizeValue]);
+        appliedSignatureRef.current = prefillSignature;
+    }, [location.state, location.pathname, onlyFromSmartSolver, applyOnce, prefillSignature]);
 
     return location.state as SmartSolverRouteState | null;
 }

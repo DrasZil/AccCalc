@@ -1,19 +1,23 @@
-const APP_VERSION = "1.5.0";
+const APP_VERSION = "2.1.0";
 const CACHE_VERSION = `acccalc-v${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const APP_SCOPE_URL = new URL(self.registration.scope);
-const APP_SHELL_URLS = ["", "manifest.webmanifest", "icon-192.png", "icon-512.png"].map(
-    (path) => new URL(path, APP_SCOPE_URL).toString()
-);
+const SHELL_URL = new URL("", APP_SCOPE_URL).toString();
+const OFFLINE_URL = new URL("offline.html", APP_SCOPE_URL).toString();
+const APP_SHELL_URLS = [
+    SHELL_URL,
+    new URL("offline.html", APP_SCOPE_URL).toString(),
+    new URL("manifest.webmanifest", APP_SCOPE_URL).toString(),
+    new URL("icon-192.png", APP_SCOPE_URL).toString(),
+    new URL("icon-512.png", APP_SCOPE_URL).toString(),
+].map((url) => url.toString());
 
 self.addEventListener("install", (event) => {
     self.skipWaiting();
 
     event.waitUntil(
-        caches.open(APP_SHELL_CACHE).then((cache) => {
-            return cache.addAll(APP_SHELL_URLS);
-        })
+        caches.open(APP_SHELL_CACHE).then((cache) => cache.addAll(APP_SHELL_URLS))
     );
 });
 
@@ -43,16 +47,14 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("fetch", (event) => {
     const { request } = event;
-
     if (request.method !== "GET") return;
 
     const requestUrl = new URL(request.url);
     const isSameOrigin = requestUrl.origin === self.location.origin;
-
     if (!isSameOrigin) return;
 
     if (request.mode === "navigate") {
-        event.respondWith(networkFirst(request, APP_SHELL_CACHE, APP_SHELL_URLS[0]));
+        event.respondWith(handleNavigationRequest(request));
         return;
     }
 
@@ -66,23 +68,27 @@ self.addEventListener("fetch", (event) => {
     }
 });
 
-async function networkFirst(request, cacheName, fallbackUrl) {
+async function handleNavigationRequest(request) {
     try {
         const networkResponse = await fetch(request, { cache: "no-store" });
-        if (!networkResponse.ok && request.mode === "navigate") {
-            throw new Error(`Navigation request failed with status ${networkResponse.status}.`);
+        if (networkResponse.ok) {
+            const cache = await caches.open(APP_SHELL_CACHE);
+            cache.put(SHELL_URL, networkResponse.clone());
+            return networkResponse;
         }
-        const cache = await caches.open(cacheName);
-        cache.put(request, networkResponse.clone());
-        return networkResponse;
+        throw new Error(`Navigation failed with status ${networkResponse.status}.`);
     } catch {
-        const cachedResponse = await caches.match(request);
-        if (cachedResponse) return cachedResponse;
+        const cachedShell = await caches.match(SHELL_URL);
+        if (cachedShell) return cachedShell;
 
-        const fallbackResponse = await caches.match(fallbackUrl);
-        if (fallbackResponse) return fallbackResponse;
+        const offlinePage = await caches.match(OFFLINE_URL);
+        if (offlinePage) return offlinePage;
 
-        throw new Error("Offline and no cached response available.");
+        return new Response("Offline", {
+            status: 503,
+            statusText: "Offline",
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
     }
 }
 
@@ -92,7 +98,9 @@ async function staleWhileRevalidate(request, cacheName) {
 
     const networkPromise = fetch(request)
         .then((networkResponse) => {
-            cache.put(request, networkResponse.clone());
+            if (networkResponse.ok) {
+                cache.put(request, networkResponse.clone());
+            }
             return networkResponse;
         })
         .catch(() => cachedResponse);

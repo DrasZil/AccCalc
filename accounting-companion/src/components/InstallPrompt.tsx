@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAppSettings } from "../utils/appSettings";
+import AppBrandMark from "./AppBrandMark";
 
 type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;
@@ -99,9 +100,7 @@ export default function InstallPrompt() {
             <div className="app-panel-elevated rounded-[var(--app-radius-lg)] p-4">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                            Install or Share AccCalc
-                        </p>
+                        <AppBrandMark compact className="pr-4" />
                         <p className="mt-2 text-sm leading-6 text-[color:var(--app-text-secondary)]">
                             Save AccCalc to your device for faster access, or share it with
                             classmates and friends.

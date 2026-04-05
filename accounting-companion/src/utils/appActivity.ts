@@ -314,6 +314,17 @@ export function getRecentRoutes(activity: AppActivityState, limit = 4) {
         .slice(0, limit);
 }
 
+export function getMostUsedRoutes(activity: AppActivityState, limit = 4) {
+    return Object.entries(activity.toolUsage)
+        .sort((left, right) => right[1] - left[1])
+        .map(([path]) => resolveMeta(path))
+        .filter((route, index, routes): route is RouteMeta => {
+            if (!route) return false;
+            return routes.findIndex((candidate) => candidate?.path === route.path) === index;
+        })
+        .slice(0, limit);
+}
+
 export function shouldShowFeedbackReminder(
     activity: AppActivityState,
     enabled: boolean

@@ -197,6 +197,64 @@ export function computeLoanAmortization({
     };
 }
 
+export function computeLoanAmortizationSchedule({
+    principal,
+    annualRatePercent,
+    termYears,
+}: LoanAmortizationParams) {
+    const monthlyRate = annualRatePercent / 100 / 12;
+    const { monthlyPayment } = computeLoanAmortization({
+        principal,
+        annualRatePercent,
+        termYears,
+    });
+
+    let remainingBalance = principal;
+    const yearlySummary = Array.from({ length: termYears }, (_, index) => {
+        const year = index + 1;
+        let interestPaid = 0;
+        let principalPaid = 0;
+
+        for (let month = 0; month < 12; month += 1) {
+            const interestPortion = remainingBalance * monthlyRate;
+            const scheduledPrincipal = monthlyPayment - interestPortion;
+            const principalPortion = Math.min(
+                remainingBalance,
+                monthlyRate === 0 ? monthlyPayment : Math.max(scheduledPrincipal, 0)
+            );
+            const paymentForMonth = interestPortion + principalPortion;
+
+            interestPaid += interestPortion;
+            principalPaid += principalPortion;
+            remainingBalance = Math.max(remainingBalance - principalPortion, 0);
+
+            if (remainingBalance === 0) {
+                interestPaid += (12 - month - 1) * 0;
+                principalPaid += (12 - month - 1) * 0;
+                break;
+            }
+
+            if (paymentForMonth <= 0) {
+                break;
+            }
+        }
+
+        return {
+            year,
+            interestPaid,
+            principalPaid,
+            endingBalance: remainingBalance,
+        };
+    });
+
+    return {
+        monthlyPayment,
+        yearlySummary,
+        totalInterest: yearlySummary.reduce((sum, year) => sum + year.interestPaid, 0),
+        totalPrincipal: yearlySummary.reduce((sum, year) => sum + year.principalPaid, 0),
+    };
+}
+
 export function computeBreakEven({
     fixedCosts,
     sellingPricePerUnit,
