@@ -935,9 +935,9 @@ export function computeCashConversionCycle({
             cashConversionCycle <= 0
                 ? "low"
                 : cashConversionCycle <= 30
-                  ? "moderate"
-                  : cashConversionCycle <= 60
-                    ? "elevated"
-                    : "high",
-    };
-}
+                    ? "moderate"
+                    : cashConversionCycle <= 60
+                        ? "elevated"
+                        : "high",
+        };
+    }

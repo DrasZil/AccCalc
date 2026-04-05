@@ -2,6 +2,8 @@
 
 :root {
     --app-header-height: 5.75rem;
+    --app-mobile-nav-height: 0px;
+    --app-keyboard-inset: 0px;
     --app-page-max-width: 86rem;
     --app-page-gap: clamp(0.9rem, 1.55vw, 1.25rem);
     --app-page-gap-lg: clamp(1.1rem, 2.1vw, 1.85rem);

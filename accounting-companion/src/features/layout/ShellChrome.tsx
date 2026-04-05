@@ -77,6 +77,16 @@ export function ShellIcon({
         );
     }
 
+    if (kind === "share") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M12 15.5V5" />
+                <path d="M8.5 8.5L12 5l3.5 3.5" />
+                <path d="M5 13.5v3A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-3" />
+            </svg>
+        );
+    }
+
     if (kind === "close") {
         return (
             <svg {...sharedProps}>

@@ -1,5 +1,5 @@
-export const APP_VERSION = "2.2.0";
-export const APP_RELEASE_DATE = "2026-04-05";
+export const APP_VERSION = "2.3.0";
+export const APP_RELEASE_DATE = "2026-04-06";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
@@ -34,6 +34,10 @@ export const APP_RELEASE_HIGHLIGHTS = [
         title: "Smarter production update lifecycle",
         body: "Deployed builds now check for new versions intentionally, auto-apply only when safe, and prompt active users instead of forcing blind reloads.",
     },
+    {
+        title: "Prompt-safe mobile install and share UX",
+        body: "Install and update cards now use one bottom-nav-aware dock, while sharing works from the header, dashboard, install guide, and settings with native and copy-link fallbacks.",
+    },
 ];
 
 export const APP_RELEASE_NOTES = [
@@ -46,6 +50,8 @@ export const APP_RELEASE_NOTES = [
     "Expanded partnership and equity coverage with retirement bonus, statement of partners' capital, equity multiplier analysis, and stronger methodology consistency across connected tools.",
     "Added a platform-aware install and offline guide that distinguishes Android native prompts, iOS Safari Add to Home Screen, browser-only fallbacks, and safe offline limits without fake parity.",
     "Rebuilt the deployed update lifecycle so new versions are detected more reliably, safe auto-activation happens only when appropriate, and active users receive a contextual update prompt instead of a blind reload.",
+    "Fixed mobile prompt overlap by moving install and update cards into one safe-area-aware dock that measures the real bottom navigation height and keyboard inset.",
+    "Added a reusable app-sharing flow with native share support where available and copy-link fallback when native sharing is unavailable.",
     "Improved validation, edge-case handling, and reusable accounting math helpers for more trustworthy outputs.",
     "Expanded Smart Solver matching, examples, and result organization to feel more assistant-like and less rigid.",
 ];

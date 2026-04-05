@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
+import ShareAppButton from "../../components/ShareAppButton";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -175,6 +176,11 @@ export default function HomePage() {
                             >
                                 Review recent work
                             </Link>
+                            <ShareAppButton
+                                className="rounded-xl px-5 py-3"
+                                label="Share app"
+                                shareText="Try AccCalc for accounting, finance, and business calculations with guided install and offline-safe browser use."
+                            />
                         </div>
 
                         <FeatureSearch

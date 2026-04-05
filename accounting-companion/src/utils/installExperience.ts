@@ -249,7 +249,7 @@ export function getInstallGuidance(snapshot: InstallExperienceSnapshot) {
                 steps: [
                     "Open AccCalc in Safari.",
                     "Tap Share in the browser toolbar.",
-                    "Choose Add to Home Screen.",
+                    "Choose Add to Home Screen. If you do not see it, open Edit Actions and enable it there.",
                     "Launch from the new home-screen icon for the standalone web-app view.",
                 ],
             };
@@ -260,7 +260,7 @@ export function getInstallGuidance(snapshot: InstallExperienceSnapshot) {
                     "This browser can browse AccCalc, but iOS home-screen installation is handled through Safari.",
                 steps: [
                     "Open the same AccCalc link in Safari.",
-                    "Tap Share, then Add to Home Screen.",
+                    "Tap Share, then Add to Home Screen. If that entry is missing, check Edit Actions first.",
                     "Return to the new icon to launch the standalone experience.",
                 ],
             };

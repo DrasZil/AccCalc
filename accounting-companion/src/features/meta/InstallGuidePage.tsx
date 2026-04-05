@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
+import ShareAppButton from "../../components/ShareAppButton";
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import {
@@ -91,6 +92,13 @@ export default function InstallGuidePage() {
                         <p className="app-helper mt-3 text-xs">
                             Current context: {install.browserLabel}
                         </p>
+                        {install.platform === "ios-other" ? (
+                            <p className="app-tone-warning mt-4 rounded-[1.2rem] px-4 py-3 text-sm leading-6">
+                                Installation on iPhone and iPad still needs <strong>Safari</strong>.
+                                Open the same AccCalc link there, then use{" "}
+                                <strong>Share &gt; Add to Home Screen</strong>.
+                            </p>
+                        ) : null}
                     </div>
 
                     <div className="w-full max-w-sm space-y-3">
@@ -103,6 +111,12 @@ export default function InstallGuidePage() {
                                 Install app
                             </button>
                         ) : null}
+
+                        <ShareAppButton
+                            className="w-full justify-center"
+                            label="Share app link"
+                            shareText="Share the live AccCalc app so others can open the calculators, install guide, and offline-safe browser experience."
+                        />
 
                         <button
                             type="button"

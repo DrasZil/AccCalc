@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ShareAppButton from "../../components/ShareAppButton";
 import SectionCard from "../../components/SectionCard";
 import { clearStoredActivity } from "../../utils/appActivity";
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
@@ -265,6 +266,22 @@ export default function SettingsContent({
                         value={settings.saveOfflineHistory}
                         onChange={(value) => setSetting("saveOfflineHistory", value)}
                     />
+                    <div className="app-subtle-surface rounded-[var(--app-radius-lg)] p-4 md:p-5">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div className="max-w-2xl">
+                                <h3 className="app-card-title text-base">Share the live app</h3>
+                                <p className="app-body-md mt-1 text-sm">
+                                    Open the native share sheet when the browser supports it, or
+                                    fall back to copying the live app link.
+                                </p>
+                            </div>
+
+                            <ShareAppButton
+                                label="Share AccCalc"
+                                shareText="Share AccCalc's live app link for accounting, finance, and business calculations."
+                            />
+                        </div>
+                    </div>
                 </div>
             </SectionCard>
 

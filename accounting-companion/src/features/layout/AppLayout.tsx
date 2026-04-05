@@ -3,7 +3,9 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import AppUpdatePrompt from "../../components/AppUpdatePrompt";
 import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
+import FloatingPromptDock from "../../components/FloatingPromptDock";
 import InstallPrompt from "../../components/InstallPrompt";
+import ShareAppButton from "../../components/ShareAppButton";
 import ToolPinButton from "../../components/ToolPinButton";
 import {
     getMostUsedRoutes,
@@ -25,6 +27,7 @@ import {
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
+import { useInstallExperience } from "../../utils/installExperience";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import {
@@ -457,11 +460,13 @@ export default function AppLayout() {
     const location = useLocation();
     const settings = useAppSettings();
     const activity = useAppActivity();
+    const install = useInstallExperience();
     const network = useNetworkStatus();
     const update = useAppUpdateState();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
     const mainRef = useRef<HTMLElement | null>(null);
+    const mobileNavRef = useRef<HTMLDivElement | null>(null);
 
     const [mobileSidebarRoute, setMobileSidebarRoute] = useState<string | null>(null);
     const [mobileSearchRoute, setMobileSearchRoute] = useState<string | null>(null);
@@ -516,6 +521,7 @@ export default function AppLayout() {
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
     const previousOnlineRef = useRef<boolean>(network.online);
+    const previousStandaloneRef = useRef<boolean>(install.isStandalone);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
     const mobileSearchOpen = mobileSearchRoute === location.pathname;
@@ -660,6 +666,78 @@ export default function AppLayout() {
     }, []);
 
     useEffect(() => {
+        if (typeof document === "undefined") return;
+
+        const rootStyle = document.documentElement.style;
+        const syncMobileNavHeight = () => {
+            const navHeight = Math.ceil(
+                mobileNavRef.current?.getBoundingClientRect().height ?? 0
+            );
+            rootStyle.setProperty("--app-mobile-nav-height", `${navHeight}px`);
+        };
+
+        syncMobileNavHeight();
+
+        if (typeof ResizeObserver === "undefined" || !mobileNavRef.current) {
+            window.addEventListener("resize", syncMobileNavHeight);
+            return () => {
+                rootStyle.setProperty("--app-mobile-nav-height", "0px");
+                window.removeEventListener("resize", syncMobileNavHeight);
+            };
+        }
+
+        const resizeObserver = new ResizeObserver(syncMobileNavHeight);
+        resizeObserver.observe(mobileNavRef.current);
+        window.addEventListener("resize", syncMobileNavHeight);
+
+        return () => {
+            rootStyle.setProperty("--app-mobile-nav-height", "0px");
+            resizeObserver.disconnect();
+            window.removeEventListener("resize", syncMobileNavHeight);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+
+        const rootStyle = document.documentElement.style;
+        const syncViewportInsets = () => {
+            if (typeof window === "undefined" || !window.visualViewport) {
+                rootStyle.setProperty("--app-keyboard-inset", "0px");
+                return;
+            }
+
+            const viewport = window.visualViewport;
+            const nextInset = Math.max(
+                0,
+                Math.round(window.innerHeight - (viewport.height + viewport.offsetTop))
+            );
+            rootStyle.setProperty("--app-keyboard-inset", `${nextInset}px`);
+        };
+
+        syncViewportInsets();
+
+        if (!window.visualViewport) {
+            window.addEventListener("resize", syncViewportInsets);
+            return () => {
+                rootStyle.setProperty("--app-keyboard-inset", "0px");
+                window.removeEventListener("resize", syncViewportInsets);
+            };
+        }
+
+        window.visualViewport.addEventListener("resize", syncViewportInsets);
+        window.visualViewport.addEventListener("scroll", syncViewportInsets);
+        window.addEventListener("resize", syncViewportInsets);
+
+        return () => {
+            rootStyle.setProperty("--app-keyboard-inset", "0px");
+            window.visualViewport?.removeEventListener("resize", syncViewportInsets);
+            window.visualViewport?.removeEventListener("scroll", syncViewportInsets);
+            window.removeEventListener("resize", syncViewportInsets);
+        };
+    }, []);
+
+    useEffect(() => {
         if (!settings.showOpeningAnimation) return;
 
         const standalone =
@@ -728,6 +806,23 @@ export default function AppLayout() {
 
         return () => window.clearTimeout(timer);
     }, [network.online]);
+
+    useEffect(() => {
+        if (previousStandaloneRef.current === install.isStandalone) return;
+        previousStandaloneRef.current = install.isStandalone;
+
+        if (!install.isStandalone) return;
+
+        const timer = window.setTimeout(() => {
+            pushNotice(
+                "Installed",
+                "AccCalc is ready from your home screen or app launcher on this device.",
+                "success"
+            );
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, [install.isStandalone]);
 
     useEffect(() => {
         if (!sidebarResizeActive) return;
@@ -877,6 +972,7 @@ export default function AppLayout() {
     ].join(" ");
     const themeButtonLabel =
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+    const promptDockHidden = mobileSearchOpen || mobileSidebarOpen;
 
     return (
         <div className="min-h-screen bg-transparent text-[color:var(--app-text)]">
@@ -887,7 +983,10 @@ export default function AppLayout() {
                     setNotices((current) => current.filter((notice) => notice.id !== id))
                 }
             />
-            <AppUpdatePrompt update={update} />
+            <FloatingPromptDock hidden={promptDockHidden}>
+                <AppUpdatePrompt update={update} />
+                <InstallPrompt blocked={update.updateReady} />
+            </FloatingPromptDock>
             <FeedbackReminder visible={feedbackVisible} onClose={() => setFeedbackVisible(false)} />
 
             <div className="flex min-h-screen items-start">
@@ -1007,6 +1106,40 @@ export default function AppLayout() {
                                     <ShellIcon kind="history" />
                                 </Link>
 
+                                <ShareAppButton
+                                    iconOnly
+                                    label="Share AccCalc"
+                                    title="Share AccCalc"
+                                    variant="icon"
+                                    onResult={(result) => {
+                                        if (result === "copied") {
+                                            pushNotice(
+                                                "Link copied",
+                                                "AccCalc's live link is ready to paste or send.",
+                                                "success"
+                                            );
+                                            return;
+                                        }
+
+                                        if (result === "shared") {
+                                            pushNotice(
+                                                "Share sheet opened",
+                                                "Use your device's share flow to send the current live AccCalc link.",
+                                                "info"
+                                            );
+                                            return;
+                                        }
+
+                                        if (result === "unsupported" || result === "failed") {
+                                            pushNotice(
+                                                "Share unavailable",
+                                                "This browser could not open a share flow or copy the link automatically.",
+                                                "warning"
+                                            );
+                                        }
+                                    }}
+                                />
+
                                 <button
                                     type="button"
                                     onClick={() => setDesktopSidebarVisible((current) => !current)}
@@ -1088,19 +1221,18 @@ export default function AppLayout() {
                         </div>
                     ) : null}
 
-                    <main ref={mainRef} className="px-4 pb-24 pt-4 md:px-5 md:pb-6 md:pt-6">
+                    <main
+                        ref={mainRef}
+                        className="px-4 pt-4 md:px-5 md:pb-6 md:pt-6"
+                        style={{
+                            paddingBottom:
+                                "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 1.35rem)",
+                        }}
+                    >
                         <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">
                             <Outlet />
                         </div>
                     </main>
-
-                    {settings.showInstallPrompt ? (
-                        <div className="px-4 pb-24 md:px-5 md:pb-6">
-                            <div className="app-page-shell">
-                                <InstallPrompt />
-                            </div>
-                        </div>
-                    ) : null}
                 </div>
 
                 <div
@@ -1129,6 +1261,7 @@ export default function AppLayout() {
             </div>
 
             <div
+                ref={mobileNavRef}
                 className={[
                     "fixed inset-x-3 bottom-3 z-[95] xl:hidden",
                     mobileSearchOpen ? "pointer-events-none opacity-0" : "",
