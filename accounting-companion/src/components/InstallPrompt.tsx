@@ -1,73 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAppSettings } from "../utils/appSettings";
+import {
+    dismissInstallPrompt,
+    getInstallGuidance,
+    isInstallPromptDismissed,
+    triggerNativeInstallPrompt,
+    useInstallExperience,
+} from "../utils/installExperience";
 import AppBrandMark from "./AppBrandMark";
-
-type BeforeInstallPromptEvent = Event & {
-    prompt: () => Promise<void>;
-    userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
-
-type NavigatorWithStandalone = Navigator & {
-    standalone?: boolean;
-};
 
 export default function InstallPrompt() {
     const location = useLocation();
-    const [deferredPrompt, setDeferredPrompt] =
-        useState<BeforeInstallPromptEvent | null>(null);
-    const [showInstallCard, setShowInstallCard] = useState(true);
+    const install = useInstallExperience();
+    const [dismissedThisSession, setDismissedThisSession] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [installStatus, setInstallStatus] = useState("");
     const settings = useAppSettings();
 
     const isHomePage = location.pathname === "/";
-
-    const isIOS = useMemo(() => /iphone|ipad|ipod/i.test(window.navigator.userAgent), []);
-
-    const isStandalone = useMemo(() => {
-        const navigatorWithStandalone = window.navigator as NavigatorWithStandalone;
-
-        return (
-            window.matchMedia("(display-mode: standalone)").matches ||
-            navigatorWithStandalone.standalone === true
-        );
-    }, []);
-
-    useEffect(() => {
-        const handleBeforeInstallPrompt = (event: Event) => {
-            event.preventDefault();
-            setDeferredPrompt(event as BeforeInstallPromptEvent);
-        };
-
-        const handleAppInstalled = () => {
-            setDeferredPrompt(null);
-            setShowInstallCard(false);
-        };
-
-        window.addEventListener(
-            "beforeinstallprompt",
-            handleBeforeInstallPrompt as EventListener
-        );
-        window.addEventListener("appinstalled", handleAppInstalled);
-
-        return () => {
-            window.removeEventListener(
-                "beforeinstallprompt",
-                handleBeforeInstallPrompt as EventListener
-            );
-            window.removeEventListener("appinstalled", handleAppInstalled);
-        };
-    }, []);
+    const guidance = getInstallGuidance(install);
+    const showInstallCard = !dismissedThisSession && !isInstallPromptDismissed();
 
     async function handleInstall() {
-        if (!deferredPrompt) return;
+        const outcome = await triggerNativeInstallPrompt();
 
-        await deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-
-        if (choice.outcome === "accepted" || choice.outcome === "dismissed") {
-            setDeferredPrompt(null);
+        if (outcome === "accepted") {
+            setInstallStatus("Install prompt accepted.");
+            return;
         }
+
+        if (outcome === "dismissed") {
+            setInstallStatus("Install prompt dismissed.");
+            return;
+        }
+
+        setInstallStatus("Native install is not available in this browser right now.");
     }
 
     async function handleShare() {
@@ -91,7 +59,17 @@ export default function InstallPrompt() {
         }
     }
 
-    if (!settings.showInstallPrompt || !isHomePage || isStandalone || !showInstallCard) {
+    function handleDismiss() {
+        dismissInstallPrompt();
+        setDismissedThisSession(true);
+    }
+
+    if (
+        !settings.showInstallPrompt ||
+        !isHomePage ||
+        install.isStandalone ||
+        !showInstallCard
+    ) {
         return null;
     }
 
@@ -102,32 +80,40 @@ export default function InstallPrompt() {
                     <div>
                         <AppBrandMark compact className="pr-4" />
                         <p className="mt-2 text-sm leading-6 text-[color:var(--app-text-secondary)]">
-                            Save AccCalc to your device for faster access, or share it with
-                            classmates and friends.
+                            {guidance.summary}
                         </p>
 
-                        {isIOS ? (
+                        {install.platform === "ios-safari" ? (
                             <p className="mt-3 text-sm leading-6 text-[color:var(--app-text-secondary)]">
-                                On iPhone or iPad, tap <strong>Share</strong> then choose{" "}
-                                <strong>Add to Home Screen</strong>.
+                                Install on iPhone or iPad through <strong>Safari</strong> using{" "}
+                                <strong>Share &gt; Add to Home Screen</strong>.
                             </p>
-                        ) : deferredPrompt ? (
+                        ) : install.platform === "ios-other" ? (
                             <p className="mt-3 text-sm leading-6 text-[color:var(--app-text-secondary)]">
-                                Your browser supports installation. Tap <strong>Install</strong>{" "}
-                                below.
+                                Installation on iOS needs <strong>Safari</strong>. Use the guide
+                                below for the exact steps.
+                            </p>
+                        ) : install.canNativePrompt ? (
+                            <p className="mt-3 text-sm leading-6 text-[color:var(--app-text-secondary)]">
+                                Your browser is ready to show the native install prompt.
                             </p>
                         ) : (
                             <p className="mt-3 text-sm leading-6 text-[color:var(--app-text-secondary)]">
-                                If install is not shown automatically, use your browser menu and
-                                look for <strong>Install app</strong> or{" "}
-                                <strong>Add to Home Screen</strong>.
+                                If no native prompt appears, keep using the browser version or open
+                                the install guide for the platform-specific path.
                             </p>
                         )}
+
+                        {installStatus ? (
+                            <p className="mt-3 text-xs leading-5 text-[color:var(--app-text-muted)]">
+                                {installStatus}
+                            </p>
+                        ) : null}
                     </div>
 
                     <button
                         type="button"
-                        onClick={() => setShowInstallCard(false)}
+                        onClick={handleDismiss}
                         className="app-icon-button rounded-xl p-2.5"
                         aria-label="Close install prompt"
                     >
@@ -136,7 +122,7 @@ export default function InstallPrompt() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-3">
-                    {!isIOS && deferredPrompt ? (
+                    {install.canNativePrompt ? (
                         <button
                             type="button"
                             onClick={handleInstall}
@@ -144,7 +130,14 @@ export default function InstallPrompt() {
                         >
                             Install
                         </button>
-                    ) : null}
+                    ) : (
+                        <Link
+                            to="/settings/install"
+                            className="app-button-primary rounded-xl px-4 py-2 text-sm font-medium"
+                        >
+                            Open install guide
+                        </Link>
+                    )}
 
                     <button
                         type="button"
@@ -156,7 +149,7 @@ export default function InstallPrompt() {
 
                     <button
                         type="button"
-                        onClick={() => setShowInstallCard(false)}
+                        onClick={handleDismiss}
                         className="app-button-ghost rounded-xl px-4 py-2 text-sm"
                     >
                         Dismiss

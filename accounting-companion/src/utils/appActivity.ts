@@ -345,7 +345,13 @@ export function getRecommendedRoutes(activity: AppActivityState, currentPath?: s
     const currentMeta = currentPath ? resolveMeta(currentPath) : null;
 
     const ranked = APP_ROUTE_META
-        .filter((route) => route.path !== currentPath && route.path !== "/settings/about" && route.path !== "/settings/feedback")
+        .filter(
+            (route) =>
+                route.path !== currentPath &&
+                route.path !== "/settings/about" &&
+                route.path !== "/settings/install" &&
+                route.path !== "/settings/feedback"
+        )
         .map((route) => {
             let score = activity.toolUsage[route.path] ?? 0;
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import AppUpdatePrompt from "../../components/AppUpdatePrompt";
 import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
 import InstallPrompt from "../../components/InstallPrompt";
@@ -21,6 +22,7 @@ import {
     getRouteMeta,
     type AppNavGroupTitle,
 } from "../../utils/appCatalog";
+import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
 import { useNetworkStatus } from "../../utils/networkStatus";
@@ -456,6 +458,7 @@ export default function AppLayout() {
     const settings = useAppSettings();
     const activity = useAppActivity();
     const network = useNetworkStatus();
+    const update = useAppUpdateState();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
     const mainRef = useRef<HTMLElement | null>(null);
@@ -486,11 +489,22 @@ export default function AppLayout() {
         if (!rawUpdateFlag) return [];
 
         window.sessionStorage.removeItem("accalc-update-banner");
+        let activatedVersion = APP_VERSION;
+
+        try {
+            const parsed = JSON.parse(rawUpdateFlag) as { version?: string };
+            if (typeof parsed.version === "string" && parsed.version.trim() !== "") {
+                activatedVersion = parsed.version;
+            }
+        } catch {
+            // Ignore malformed update banner payloads.
+        }
+
         return [
             {
                 id: `app-updated-${Date.now()}`,
                 title: "App updated",
-                message: `AccCalc ${APP_VERSION} is now active with the latest calculator and interface improvements.`,
+                message: `AccCalc ${activatedVersion} is now active with the latest calculator and interface improvements.`,
                 tone: "success",
             },
         ];
@@ -696,6 +710,7 @@ export default function AppLayout() {
 
         const timer = window.setTimeout(() => {
             if (network.online) {
+                void checkForAppUpdates();
                 pushNotice(
                     "Back online",
                     "Full app functionality is available again, including feedback and external links.",
@@ -872,6 +887,7 @@ export default function AppLayout() {
                     setNotices((current) => current.filter((notice) => notice.id !== id))
                 }
             />
+            <AppUpdatePrompt update={update} />
             <FeedbackReminder visible={feedbackVisible} onClose={() => setFeedbackVisible(false)} />
 
             <div className="flex min-h-screen items-start">
@@ -1067,7 +1083,7 @@ export default function AppLayout() {
                     {!network.online ? (
                         <div className="border-b app-divider px-4 py-2.5 md:px-5">
                             <div className="app-tone-warning rounded-[1.2rem] px-4 py-3 text-sm leading-6">
-                                Offline mode is active. Calculators, Smart Solver routing, history, and settings still work. Feedback, embedded forms, and external links need internet access.
+                                Offline mode is active. Previously cached calculators, local Smart Solver routing, drafts, history, and settings still work. Feedback, embedded forms, external links, and never-visited route chunks still need internet access.
                             </div>
                         </div>
                     ) : null}

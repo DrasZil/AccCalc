@@ -245,6 +245,48 @@ export function computePartnershipAdmissionGoodwill(totalOldCapital, partnerInve
         goodwill,
     };
 }
+export function computePartnershipSalaryInterestAllocation({ partnershipAmount, partnerASalary, partnerBSalary, partnerAAverageCapital, partnerBAverageCapital, interestRatePercent, partnerARemainderRatio, partnerBRemainderRatio, }) {
+    const ratioTotal = partnerARemainderRatio + partnerBRemainderRatio;
+    const interestShareA = partnerAAverageCapital * (interestRatePercent / 100);
+    const interestShareB = partnerBAverageCapital * (interestRatePercent / 100);
+    const totalAppropriation = partnerASalary + partnerBSalary + interestShareA + interestShareB;
+    const remainder = partnershipAmount - totalAppropriation;
+    const remainderShareA = remainder * (partnerARemainderRatio / ratioTotal);
+    const remainderShareB = remainder * (partnerBRemainderRatio / ratioTotal);
+    return {
+        ratioTotal,
+        interestShareA,
+        interestShareB,
+        totalAppropriation,
+        remainder,
+        remainderShareA,
+        remainderShareB,
+        finalShareA: partnerASalary + interestShareA + remainderShareA,
+        finalShareB: partnerBSalary + interestShareB + remainderShareB,
+    };
+}
+export function computePartnershipRetirementBonus({ totalPartnershipCapital, retiringPartnerCapital, settlementPaid, }) {
+    const settlementDifference = settlementPaid - retiringPartnerCapital;
+    const remainingCapitalAfterSettlement = totalPartnershipCapital - settlementPaid;
+    return {
+        settlementDifference,
+        remainingCapitalAfterSettlement,
+        direction: settlementDifference > 0
+            ? "bonus-to-retiring-partner"
+            : settlementDifference < 0
+                ? "bonus-to-remaining-partners"
+                : "no-bonus",
+    };
+}
+export function computePartnerCapitalEndingBalance({ beginningCapital, additionalInvestment, drawings, incomeShare, }) {
+    return beginningCapital + additionalInvestment + incomeShare - drawings;
+}
+export function computeEquityMultiplier(averageTotalAssets, averageTotalEquity) {
+    return {
+        equityMultiplier: averageTotalAssets / averageTotalEquity,
+        financedByDebtPortion: (averageTotalAssets - averageTotalEquity) / averageTotalAssets,
+    };
+}
 export function computeEffectiveAnnualRate(nominalRatePercent, compoundsPerYear) {
     const nominalRateDecimal = nominalRatePercent / 100;
     const effectiveRate = (Math.pow(1 + nominalRateDecimal / compoundsPerYear, compoundsPerYear) - 1) * 100;

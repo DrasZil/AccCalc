@@ -181,7 +181,12 @@ export function searchAppRoutes(query: string, limit = 8): AppSearchResult[] {
 }
 
 export function getSuggestedRoutes(limit = 8): AppSearchResult[] {
-    return APP_ROUTE_META.filter((route) => route.path !== "/settings/about" && route.path !== "/settings/feedback")
+    return APP_ROUTE_META.filter(
+        (route) =>
+            route.path !== "/settings/about" &&
+            route.path !== "/settings/install" &&
+            route.path !== "/settings/feedback"
+    )
         .map((route) => ({
             ...route,
             score: route.isNew ? 120 : route.category === "Accounting" ? 90 : 70,

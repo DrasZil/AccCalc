@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computePartnershipAdmissionGoodwill } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -25,13 +26,19 @@ export default function PartnershipAdmissionGoodwillPage() {
             totalOldCapital.trim() === "" ||
             partnerInvestment.trim() === "" ||
             ownershipPercentage.trim() === ""
-        ) return null;
+        ) {
+            return null;
+        }
 
         const parsedTotalOldCapital = Number(totalOldCapital);
         const parsedPartnerInvestment = Number(partnerInvestment);
         const parsedOwnershipPercentage = Number(ownershipPercentage);
 
-        if ([parsedTotalOldCapital, parsedPartnerInvestment, parsedOwnershipPercentage].some((value) => Number.isNaN(value))) {
+        if (
+            [parsedTotalOldCapital, parsedPartnerInvestment, parsedOwnershipPercentage].some(
+                (value) => Number.isNaN(value)
+            )
+        ) {
             return { error: "All inputs must be valid numbers." };
         }
 
@@ -43,44 +50,77 @@ export default function PartnershipAdmissionGoodwillPage() {
             return { error: "Ownership percentage must be greater than 0 and less than 100." };
         }
 
-        const ownershipDecimal = parsedOwnershipPercentage / 100;
-        const impliedTotalCapital = parsedPartnerInvestment / ownershipDecimal;
-        const actualCapitalAfterInvestment = parsedTotalOldCapital + parsedPartnerInvestment;
-        const goodwill = impliedTotalCapital - actualCapitalAfterInvestment;
+        const admission = computePartnershipAdmissionGoodwill(
+            parsedTotalOldCapital,
+            parsedPartnerInvestment,
+            parsedOwnershipPercentage
+        );
 
         return {
-            impliedTotalCapital,
-            actualCapitalAfterInvestment,
-            goodwill,
-            formula: "Goodwill = (Investment / Ownership Percentage) - (Old Capital + Investment)",
+            ...admission,
+            formula:
+                "Goodwill = (Investment / Ownership percentage) - (Old capital + Investment)",
             steps: [
-                `Implied total capital = ${formatPHP(parsedPartnerInvestment)} / ${ownershipDecimal.toFixed(4)} = ${formatPHP(impliedTotalCapital)}`,
-                `Actual capital after investment = ${formatPHP(parsedTotalOldCapital)} + ${formatPHP(parsedPartnerInvestment)} = ${formatPHP(actualCapitalAfterInvestment)}`,
-                `Goodwill = ${formatPHP(impliedTotalCapital)} - ${formatPHP(actualCapitalAfterInvestment)} = ${formatPHP(goodwill)}`,
+                `Implied total capital = ${formatPHP(parsedPartnerInvestment)} / ${admission.ownershipDecimal.toFixed(4)} = ${formatPHP(admission.impliedTotalCapital)}`,
+                `Recorded capital after investment = ${formatPHP(parsedTotalOldCapital)} + ${formatPHP(parsedPartnerInvestment)} = ${formatPHP(admission.actualCapitalAfterInvestment)}`,
+                `Implied goodwill = ${formatPHP(admission.impliedTotalCapital)} - ${formatPHP(admission.actualCapitalAfterInvestment)} = ${formatPHP(admission.goodwill)}`,
             ],
             glossary: [
-                { term: "Goodwill Method", meaning: "A partnership admission method that recognizes implied goodwill before or upon admission." },
-                { term: "Implied Total Capital", meaning: "The total partnership capital suggested by the amount invested and the ownership percentage acquired." },
-                { term: "Goodwill", meaning: "An intangible value recognized when implied capital exceeds recorded capital." },
+                {
+                    term: "Goodwill method",
+                    meaning: "A partnership admission approach that recognizes implied goodwill when the agreed ownership interest suggests a total capital larger than recorded book capital.",
+                },
+                {
+                    term: "Implied total capital",
+                    meaning: "The total partnership value inferred from the incoming partner's investment and agreed ownership percentage.",
+                },
+                {
+                    term: "Goodwill",
+                    meaning: "An unrecorded intangible value recognized so capital balances reflect the implied partnership value.",
+                },
             ],
             interpretation:
-                goodwill > 0
-                    ? `The admission implies unrecorded goodwill of ${formatPHP(goodwill)} before recording the new partner's capital interest.`
-                    : `There is no positive implied goodwill under these figures; if this is a classroom problem, the bonus method may fit better than the goodwill method.`,
+                admission.goodwill > 0
+                    ? `The agreed ownership percentage implies ${formatPHP(admission.goodwill)} of unrecorded goodwill before finalizing capital balances.`
+                    : admission.goodwill < 0
+                      ? `The agreed ownership percentage implies recorded capital already exceeds the implied partnership value by ${formatPHP(Math.abs(admission.goodwill))}. Review whether the problem really calls for goodwill recognition.`
+                      : "The incoming investment supports the recorded capital amount exactly, so no goodwill is implied.",
+            assumptions: [
+                "Ownership percentage is treated as the incoming partner's agreed capital interest after admission.",
+                "This calculator follows the goodwill-method classroom treatment and focuses on implied capital, not later bonus reallocations.",
+            ],
+            warnings: [
+                "If the problem states the difference should be treated as bonus instead of goodwill, use the bonus-method calculator instead.",
+            ],
         };
     }, [ownershipPercentage, partnerInvestment, totalOldCapital]);
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Partnership"
+            badge="Accounting | Partnership"
             title="Partnership Admission Goodwill"
-            description="Compute implied total capital and goodwill when admitting a new partner under the goodwill method."
+            description="Estimate implied partnership capital and goodwill when the incoming partner's agreed ownership percentage points to a higher total value."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>
-                        <InputCard label="Total Old Partners' Capital" value={totalOldCapital} onChange={setTotalOldCapital} placeholder="300000" />
-                        <InputCard label="Incoming Partner Investment" value={partnerInvestment} onChange={setPartnerInvestment} placeholder="120000" />
-                        <InputCard label="Ownership Percentage (%)" value={ownershipPercentage} onChange={setOwnershipPercentage} placeholder="25" />
+                        <InputCard
+                            label="Total Old Partners' Capital"
+                            value={totalOldCapital}
+                            onChange={setTotalOldCapital}
+                            placeholder="300000"
+                        />
+                        <InputCard
+                            label="Incoming Partner Investment"
+                            value={partnerInvestment}
+                            onChange={setPartnerInvestment}
+                            placeholder="120000"
+                        />
+                        <InputCard
+                            label="Ownership Percentage (%)"
+                            value={ownershipPercentage}
+                            onChange={setOwnershipPercentage}
+                            placeholder="25"
+                        />
                     </InputGrid>
                 </SectionCard>
             }
@@ -92,15 +132,28 @@ export default function PartnershipAdmissionGoodwillPage() {
                     </SectionCard>
                 ) : result ? (
                     <ResultGrid columns={3}>
-                        <ResultCard title="Implied Total Capital" value={formatPHP(result.impliedTotalCapital)} />
-                        <ResultCard title="Actual Capital After Investment" value={formatPHP(result.actualCapitalAfterInvestment)} />
-                        <ResultCard title="Goodwill" value={formatPHP(result.goodwill)} />
+                        <ResultCard
+                            title="Implied Total Capital"
+                            value={formatPHP(result.impliedTotalCapital)}
+                        />
+                        <ResultCard
+                            title="Recorded Capital After Investment"
+                            value={formatPHP(result.actualCapitalAfterInvestment)}
+                        />
+                        <ResultCard title="Implied Goodwill" value={formatPHP(result.goodwill)} />
                     </ResultGrid>
                 ) : null
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard formula={result.formula} steps={result.steps} glossary={result.glossary} interpretation={result.interpretation} />
+                    <FormulaCard
+                        formula={result.formula}
+                        steps={result.steps}
+                        glossary={result.glossary}
+                        interpretation={result.interpretation}
+                        assumptions={result.assumptions}
+                        warnings={result.warnings}
+                    />
                 ) : null
             }
         />

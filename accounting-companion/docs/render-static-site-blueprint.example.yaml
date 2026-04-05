@@ -1,0 +1,32 @@
+services:
+  - type: web
+    runtime: static
+    name: replace-with-your-render-service-name
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /manifest.webmanifest
+        name: Cache-Control
+        value: no-cache
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /icon-192.png
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /icon-512.png
+        name: Cache-Control
+        value: public, max-age=86400
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

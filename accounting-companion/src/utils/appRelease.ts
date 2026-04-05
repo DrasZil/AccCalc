@@ -1,4 +1,4 @@
-export const APP_VERSION = "2.1.0";
+export const APP_VERSION = "2.2.0";
 export const APP_RELEASE_DATE = "2026-04-05";
 
 export const APP_RELEASE_HIGHLIGHTS = [
@@ -26,6 +26,14 @@ export const APP_RELEASE_HIGHLIGHTS = [
         title: "Render-loop hardening and practical schedules",
         body: "The app now guards network-state subscriptions and Smart Solver prefill sync more safely, while key tools such as loan amortization show more practical payoff detail.",
     },
+    {
+        title: "Partnership, equity, and install-depth upgrade",
+        body: "Partnership retirement, partner-capital rollforwards, equity multiplier analysis, and a platform-aware install and offline guide now strengthen both trust and product completeness.",
+    },
+    {
+        title: "Smarter production update lifecycle",
+        body: "Deployed builds now check for new versions intentionally, auto-apply only when safe, and prompt active users instead of forcing blind reloads.",
+    },
 ];
 
 export const APP_RELEASE_NOTES = [
@@ -35,6 +43,9 @@ export const APP_RELEASE_NOTES = [
     "Added most-used tool surfacing, guided workflow collections, and deeper app-icon integration across the shell and install/error states.",
     "Upgraded calculator page layout with section tabs, compact cards, clearer formula panels, and better mobile reachability.",
     "Added inventory comparison, depreciation schedule comparison, and cash conversion cycle tools with contextual charts and interpretations, then expanded loan amortization with payoff trend and yearly schedule insight.",
+    "Expanded partnership and equity coverage with retirement bonus, statement of partners' capital, equity multiplier analysis, and stronger methodology consistency across connected tools.",
+    "Added a platform-aware install and offline guide that distinguishes Android native prompts, iOS Safari Add to Home Screen, browser-only fallbacks, and safe offline limits without fake parity.",
+    "Rebuilt the deployed update lifecycle so new versions are detected more reliably, safe auto-activation happens only when appropriate, and active users receive a contextual update prompt instead of a blind reload.",
     "Improved validation, edge-case handling, and reusable accounting math helpers for more trustworthy outputs.",
     "Expanded Smart Solver matching, examples, and result organization to feel more assistant-like and less rigid.",
 ];

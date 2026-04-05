@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeCashDiscount, computeCashConversionCycle, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeInventoryMethodComparison, computeLoanAmortization, computeLoanAmortizationSchedule, computeMarkupMargin, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnershipProfitSharing, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeCashDiscount, computeCashConversionCycle, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquityMultiplier, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeInventoryMethodComparison, computeLoanAmortization, computeLoanAmortizationSchedule, computeMarkupMargin, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
@@ -156,6 +156,45 @@ runTest("partnership admission methods stay mathematically consistent", () => {
     assertClose(goodwill.impliedTotalCapital, 480000);
     assertClose(goodwill.goodwill, 60000);
 });
+runTest("partnership salary-interest allocation respects remainder mechanics", () => {
+    const result = computePartnershipSalaryInterestAllocation({
+        partnershipAmount: 150000,
+        partnerASalary: 30000,
+        partnerBSalary: 25000,
+        partnerAAverageCapital: 200000,
+        partnerBAverageCapital: 180000,
+        interestRatePercent: 10,
+        partnerARemainderRatio: 3,
+        partnerBRemainderRatio: 2,
+    });
+    assertClose(result.interestShareA, 20000);
+    assertClose(result.interestShareB, 18000);
+    assertClose(result.remainder, 57000);
+    assertClose(result.finalShareA, 84200);
+    assertClose(result.finalShareB, 65800);
+});
+runTest("partnership retirement bonus identifies the direction of the settlement gap", () => {
+    const result = computePartnershipRetirementBonus({
+        totalPartnershipCapital: 500000,
+        retiringPartnerCapital: 120000,
+        settlementPaid: 130000,
+    });
+    assertClose(result.settlementDifference, 10000);
+    assertClose(result.remainingCapitalAfterSettlement, 370000);
+    assert.equal(result.direction, "bonus-to-retiring-partner");
+});
+runTest("partner capital rollforward and equity multiplier stay internally consistent", () => {
+    const endingCapital = computePartnerCapitalEndingBalance({
+        beginningCapital: 200000,
+        additionalInvestment: 30000,
+        drawings: 25000,
+        incomeShare: 45000,
+    });
+    const multiplier = computeEquityMultiplier(800000, 320000);
+    assertClose(endingCapital, 250000);
+    assertClose(multiplier.equityMultiplier, 2.5);
+    assertClose(multiplier.financedByDebtPortion, 0.6);
+});
 runTest("time value helpers handle zero periodic rate edge cases", () => {
     const futureAnnuity = computeFutureValueOfOrdinaryAnnuity(5000, 0, 12);
     const presentAnnuity = computePresentValueOfOrdinaryAnnuity(5000, 0, 12);
@@ -269,10 +308,14 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const typoResults = searchAppRoutes("trial balnce");
     const aliasResults = searchAppRoutes("benefit cost ratio");
     const cycleResults = searchAppRoutes("cash cycle");
+    const leverageResults = searchAppRoutes("financial leverage");
+    const retirementResults = searchAppRoutes("retiring partner settlement");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
     assert.equal(cycleResults[0]?.path, "/accounting/cash-conversion-cycle");
+    assert.equal(leverageResults[0]?.path, "/accounting/equity-multiplier");
+    assert.equal(retirementResults[0]?.path, "/accounting/partnership-retirement-bonus");
 });
 runTest("account reference search finds aliases and abbreviations", () => {
     const adaResults = searchAccountReferences("ada");

@@ -1,4 +1,4 @@
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.2.0";
 const CACHE_VERSION = `acccalc-v${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
@@ -14,10 +14,11 @@ const APP_SHELL_URLS = [
 ].map((url) => url.toString());
 
 self.addEventListener("install", (event) => {
-    self.skipWaiting();
-
     event.waitUntil(
-        caches.open(APP_SHELL_CACHE).then((cache) => cache.addAll(APP_SHELL_URLS))
+        caches
+            .open(APP_SHELL_CACHE)
+            .then((cache) => cache.addAll(APP_SHELL_URLS))
+            .then(() => broadcastMessage({ type: "SW_UPDATE_READY", version: APP_VERSION }))
     );
 });
 
@@ -36,6 +37,7 @@ self.addEventListener("activate", (event) => {
                 )
             )
             .then(() => self.clients.claim())
+            .then(() => broadcastMessage({ type: "SW_ACTIVATED", version: APP_VERSION }))
     );
 });
 
@@ -106,4 +108,15 @@ async function staleWhileRevalidate(request, cacheName) {
         .catch(() => cachedResponse);
 
     return cachedResponse || networkPromise;
+}
+
+async function broadcastMessage(message) {
+    const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+    });
+
+    clients.forEach((client) => {
+        client.postMessage(message);
+    });
 }

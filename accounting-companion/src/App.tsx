@@ -64,6 +64,12 @@ const PartnershipAdmissionBonusPage = lazy(
 const PartnershipAdmissionGoodwillPage = lazy(
     () => import("./features/accounting/PartnershipAdmissionGoodwillPage")
 );
+const PartnershipRetirementBonusPage = lazy(
+    () => import("./features/accounting/PartnershipRetirementBonusPage")
+);
+const PartnersCapitalStatementPage = lazy(
+    () => import("./features/accounting/PartnersCapitalStatementPage")
+);
 const PhilippineVATPage = lazy(() => import("./features/accounting/PhilippineVATPage"));
 const PrimeConversionCostPage = lazy(
     () => import("./features/accounting/PrimeConversionCostPage")
@@ -74,6 +80,9 @@ const ReceivablesTurnoverPage = lazy(
 );
 const ReturnOnAssetsPage = lazy(() => import("./features/accounting/ReturnOnAssetsPage"));
 const ReturnOnEquityPage = lazy(() => import("./features/accounting/ReturnOnEquityPage"));
+const EquityMultiplierPage = lazy(
+    () => import("./features/accounting/EquityMultiplierPage")
+);
 const StraightLineDepreciationPage = lazy(
     () => import("./features/accounting/StraightLineDepreciationPage")
 );
@@ -137,6 +146,7 @@ const HomePage = lazy(() => import("./features/home/HomePage"));
 const AboutPage = lazy(() => import("./features/meta/AboutPage"));
 const FeedbackPage = lazy(() => import("./features/meta/FeedBackPage"));
 const HistoryPage = lazy(() => import("./features/meta/HistoryPage"));
+const InstallGuidePage = lazy(() => import("./features/meta/InstallGuidePage"));
 const ProfitabilityIndexPage = lazy(
     () => import("./features/finance/ProfitabilityIndexPage")
 );
@@ -235,6 +245,8 @@ export default function App() {
                         <Route path="accounting/partnership-salary-interest" element={<RouteShell><PartnershipSalaryInterestPage /></RouteShell>} />
                         <Route path="accounting/partnership-admission-bonus" element={<RouteShell><PartnershipAdmissionBonusPage /></RouteShell>} />
                         <Route path="accounting/partnership-admission-goodwill" element={<RouteShell><PartnershipAdmissionGoodwillPage /></RouteShell>} />
+                        <Route path="accounting/partnership-retirement-bonus" element={<RouteShell><PartnershipRetirementBonusPage /></RouteShell>} />
+                        <Route path="accounting/partners-capital-statement" element={<RouteShell><PartnersCapitalStatementPage /></RouteShell>} />
                         <Route path="accounting/philippine-vat" element={<RouteShell><PhilippineVATPage /></RouteShell>} />
                         <Route path="accounting/cost-of-goods-manufactured" element={<RouteShell><CostOfGoodsManufacturedPage /></RouteShell>} />
                         <Route path="accounting/prime-conversion-cost" element={<RouteShell><PrimeConversionCostPage /></RouteShell>} />
@@ -253,6 +265,7 @@ export default function App() {
                         <Route path="accounting/debt-ratio" element={<RouteShell><DebtRatioPage /></RouteShell>} />
                         <Route path="accounting/earnings-per-share" element={<RouteShell><EarningsPerSharePage /></RouteShell>} />
                         <Route path="accounting/book-value-per-share" element={<RouteShell><BookValuePerSharePage /></RouteShell>} />
+                        <Route path="accounting/equity-multiplier" element={<RouteShell><EquityMultiplierPage /></RouteShell>} />
                         <Route path="accounting/horizontal-analysis" element={<RouteShell><HorizontalAnalysisPage /></RouteShell>} />
                         <Route path="accounting/vertical-analysis" element={<RouteShell><VerticalAnalysisPage /></RouteShell>} />
                         <Route path="accounting/asset-turnover" element={<RouteShell><AssetTurnoverPage /></RouteShell>} />
@@ -264,6 +277,7 @@ export default function App() {
 
                         <Route path="settings" element={<RouteShell><SettingsPage /></RouteShell>} />
                         <Route path="settings/about" element={<RouteShell><AboutPage /></RouteShell>} />
+                        <Route path="settings/install" element={<RouteShell><InstallGuidePage /></RouteShell>} />
                         <Route path="settings/feedback" element={<RouteShell><FeedbackPage /></RouteShell>} />
                     </Route>
                 </Routes>

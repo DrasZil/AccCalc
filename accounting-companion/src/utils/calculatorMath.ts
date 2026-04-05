@@ -83,6 +83,30 @@ type PartnershipSharingParams = {
     ratioC?: number;
 };
 
+type PartnershipSalaryInterestParams = {
+    partnershipAmount: number;
+    partnerASalary: number;
+    partnerBSalary: number;
+    partnerAAverageCapital: number;
+    partnerBAverageCapital: number;
+    interestRatePercent: number;
+    partnerARemainderRatio: number;
+    partnerBRemainderRatio: number;
+};
+
+type PartnershipRetirementBonusParams = {
+    totalPartnershipCapital: number;
+    retiringPartnerCapital: number;
+    settlementPaid: number;
+};
+
+type PartnerCapitalRollforwardParams = {
+    beginningCapital: number;
+    additionalInvestment: number;
+    drawings: number;
+    incomeShare: number;
+};
+
 type InventoryLayerInput = {
     label: string;
     units: number;
@@ -484,6 +508,78 @@ export function computePartnershipAdmissionGoodwill(
         impliedTotalCapital,
         actualCapitalAfterInvestment,
         goodwill,
+    };
+}
+
+export function computePartnershipSalaryInterestAllocation({
+    partnershipAmount,
+    partnerASalary,
+    partnerBSalary,
+    partnerAAverageCapital,
+    partnerBAverageCapital,
+    interestRatePercent,
+    partnerARemainderRatio,
+    partnerBRemainderRatio,
+}: PartnershipSalaryInterestParams) {
+    const ratioTotal = partnerARemainderRatio + partnerBRemainderRatio;
+    const interestShareA = partnerAAverageCapital * (interestRatePercent / 100);
+    const interestShareB = partnerBAverageCapital * (interestRatePercent / 100);
+    const totalAppropriation =
+        partnerASalary + partnerBSalary + interestShareA + interestShareB;
+    const remainder = partnershipAmount - totalAppropriation;
+    const remainderShareA = remainder * (partnerARemainderRatio / ratioTotal);
+    const remainderShareB = remainder * (partnerBRemainderRatio / ratioTotal);
+
+    return {
+        ratioTotal,
+        interestShareA,
+        interestShareB,
+        totalAppropriation,
+        remainder,
+        remainderShareA,
+        remainderShareB,
+        finalShareA: partnerASalary + interestShareA + remainderShareA,
+        finalShareB: partnerBSalary + interestShareB + remainderShareB,
+    };
+}
+
+export function computePartnershipRetirementBonus({
+    totalPartnershipCapital,
+    retiringPartnerCapital,
+    settlementPaid,
+}: PartnershipRetirementBonusParams) {
+    const settlementDifference = settlementPaid - retiringPartnerCapital;
+    const remainingCapitalAfterSettlement = totalPartnershipCapital - settlementPaid;
+
+    return {
+        settlementDifference,
+        remainingCapitalAfterSettlement,
+        direction:
+            settlementDifference > 0
+                ? "bonus-to-retiring-partner"
+                : settlementDifference < 0
+                  ? "bonus-to-remaining-partners"
+                  : "no-bonus",
+    };
+}
+
+export function computePartnerCapitalEndingBalance({
+    beginningCapital,
+    additionalInvestment,
+    drawings,
+    incomeShare,
+}: PartnerCapitalRollforwardParams) {
+    return beginningCapital + additionalInvestment + incomeShare - drawings;
+}
+
+export function computeEquityMultiplier(
+    averageTotalAssets: number,
+    averageTotalEquity: number
+) {
+    return {
+        equityMultiplier: averageTotalAssets / averageTotalEquity,
+        financedByDebtPortion:
+            (averageTotalAssets - averageTotalEquity) / averageTotalAssets,
     };
 }
 

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SectionCard from "../../components/SectionCard";
 import { clearStoredActivity } from "../../utils/appActivity";
+import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import {
     DEFAULT_APP_SETTINGS,
     type AppSettings,
@@ -177,6 +178,7 @@ export default function SettingsContent({
     onNavigate,
 }: SettingsContentProps) {
     const settings = useAppSettings();
+    const update = useAppUpdateState();
 
     function setSetting<Key extends keyof AppSettings>(key: Key, value: AppSettings[Key]) {
         updateAppSettings({ [key]: value } as Partial<AppSettings>);
@@ -249,6 +251,24 @@ export default function SettingsContent({
             </SectionCard>
 
             <SectionCard>
+                <h2 className="app-section-title text-lg">Install and offline access</h2>
+                <div className="mt-4 space-y-4">
+                    <ToggleRow
+                        title="Show install prompt on the home page"
+                        description="Allow the home screen to surface the platform-aware install card when this browser or device is a good candidate."
+                        value={settings.showInstallPrompt}
+                        onChange={(value) => setSetting("showInstallPrompt", value)}
+                    />
+                    <ToggleRow
+                        title="Save history offline on this device"
+                        description="Keep recent activity, recommendations, Smart Solver saves, and calculator history locally for browser-based offline reuse."
+                        value={settings.saveOfflineHistory}
+                        onChange={(value) => setSetting("saveOfflineHistory", value)}
+                    />
+                </div>
+            </SectionCard>
+
+            <SectionCard>
                 <h2 className="app-section-title text-lg">Smart Solver</h2>
                 <div className="mt-4 space-y-4">
                     <ToggleRow
@@ -276,18 +296,6 @@ export default function SettingsContent({
             <SectionCard>
                 <h2 className="text-lg font-semibold text-[color:var(--app-text)]">Home experience</h2>
                 <div className="mt-4 space-y-4">
-                    <ToggleRow
-                        title="Show install and share prompt on the home page"
-                        description="Display the install or share panel on the home page when appropriate."
-                        value={settings.showInstallPrompt}
-                        onChange={(value) => setSetting("showInstallPrompt", value)}
-                    />
-                    <ToggleRow
-                        title="Save history offline on this device"
-                        description="Keep recent activity, recommendations, Smart Solver saves, and calculator history on this device."
-                        value={settings.saveOfflineHistory}
-                        onChange={(value) => setSetting("saveOfflineHistory", value)}
-                    />
                     <ToggleRow
                         title="Show feedback reminders"
                         description="Allow the app to occasionally remind active users to send feedback."
@@ -347,6 +355,12 @@ export default function SettingsContent({
                         onNavigate={onNavigate}
                     />
                     <LinkTile
+                        title="Install and Offline Guide"
+                        description="See Android and iOS install steps, browser limits, and what remains safely available offline."
+                        to="/settings/install"
+                        onNavigate={onNavigate}
+                    />
+                    <LinkTile
                         title="Feedback"
                         description="Open the feedback form and send bugs, requests, or suggestions."
                         to="/settings/feedback"
@@ -386,6 +400,34 @@ export default function SettingsContent({
                     <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
                         Major upgrade
                     </span>
+                </div>
+                <div className="app-subtle-surface mt-4 rounded-[var(--app-radius-lg)] p-4 md:p-5">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="max-w-2xl">
+                            <h3 className="text-base font-semibold text-[color:var(--app-text)]">
+                                Update status
+                            </h3>
+                            <p className="mt-1 text-sm leading-6 text-[color:var(--app-text-secondary)]">
+                                {update.updateReady
+                                    ? update.waitingForReload
+                                        ? `Version ${update.availableVersion ?? "latest"} is active in the background and this tab can refresh when you are ready.`
+                                        : `Version ${update.availableVersion ?? "latest"} is downloaded and ready to activate.`
+                                    : update.lastCheckedAt > 0
+                                      ? `You are on version ${APP_VERSION}. The app last checked for updates on this device during the current session.`
+                                      : `You are on version ${APP_VERSION}. The app will keep checking for safe production updates while you use it.`}
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                void checkForAppUpdates();
+                            }}
+                            className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
+                        >
+                            Check now
+                        </button>
+                    </div>
                 </div>
                 <div className="mt-4 space-y-3">
                     {APP_RELEASE_NOTES.slice(0, 4).map((note) => (

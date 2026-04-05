@@ -602,6 +602,46 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         aliases: ["ownership percentage", "ownership interest", "capital interest percentage"],
     },
 
+    totalPartnershipCapital: {
+        label: "Total Partnership Capital",
+        placeholder: "500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "total partnership capital",
+            "partnership capital before retirement",
+            "capital before retirement",
+        ],
+    },
+
+    retiringPartnerCapital: {
+        label: "Retiring Partner Capital",
+        placeholder: "120000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "retiring partner capital",
+            "capital of retiring partner",
+            "withdrawn partner capital",
+        ],
+    },
+
+    settlementPaid: {
+        label: "Settlement Paid",
+        placeholder: "130000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+            "settlement paid",
+            "payment to retiring partner",
+            "amount paid to retiring partner",
+            "retirement settlement",
+        ],
+    },
+
     partnerARatio: {
         label: "Partner A Ratio",
         placeholder: "3",
@@ -1772,6 +1812,30 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "partnership-retirement-bonus",
+        name: "Partnership Retirement Bonus",
+        route: "/accounting/partnership-retirement-bonus",
+        description:
+            "Review a retiring partner settlement under the partnership bonus method.",
+        required: [
+            "totalPartnershipCapital",
+            "retiringPartnerCapital",
+            "settlementPaid",
+        ],
+        aliases: [
+            "retirement bonus",
+            "partner withdrawal bonus",
+            "retiring partner settlement",
+        ],
+        keywords: [
+            /retiring partner/i,
+            /partnership retirement/i,
+            /partner withdrawal/i,
+            /settlement paid/i,
+            /bonus on retirement/i,
+        ],
+    },
+    {
         id: "philippine-vat",
         name: "Philippine VAT",
         route: "/accounting/philippine-vat",
@@ -2044,6 +2108,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /owners'? equity/i,
             /shareholders'? equity/i,
             /stockholders'? equity/i,
+            /average equity/i,
+        ],
+    },
+    {
+        id: "equity-multiplier",
+        name: "Equity Multiplier",
+        route: "/accounting/equity-multiplier",
+        description:
+            "Measure financial leverage using average total assets and average equity.",
+        required: ["averageTotalAssets", "averageEquity"],
+        aliases: ["financial leverage", "dupont leverage", "equity leverage"],
+        keywords: [
+            /equity multiplier/i,
+            /financial leverage/i,
+            /dupont leverage/i,
+            /average total assets/i,
             /average equity/i,
         ],
     },
@@ -2409,12 +2489,16 @@ export function normalizeText(text: string = ""): string {
     [/\bdepreciation based on output\b/g, "units of production depreciation"],
     [/\bbonus on admission\b/g, "partnership admission bonus"],
     [/\bgoodwill on admission\b/g, "partnership admission goodwill"],
+    [/\bretiring partner\b/g, "partnership retirement bonus"],
+    [/\bpartner withdrawal\b/g, "partnership retirement bonus"],
     [/\bpay suppliers\b/g, "accounts payable turnover"],
     [/\bhow fast we pay creditors\b/g, "accounts payable turnover"],
     [/\binterest coverage\b/g, "times interest earned"],
     [/\bearnings cover interest\b/g, "times interest earned"],
     [/\bbook value of share\b/g, "book value per share"],
     [/\bequity per share\b/g, "book value per share"],
+    [/\bfinancial leverage\b/g, "equity multiplier"],
+    [/\bdupont leverage\b/g, "equity multiplier"],
     ];
 
     export function extractTime(text: string): {
@@ -2691,6 +2775,15 @@ export function normalizeText(text: string = ""): string {
     const ownershipPercentage = extractNumberByAliases(text, FIELD_META.ownershipPercentage.aliases ?? [], {
         percent: true,
     });
+    const totalPartnershipCapital = extractNumberByAliases(
+        text,
+        FIELD_META.totalPartnershipCapital.aliases ?? []
+    );
+    const retiringPartnerCapital = extractNumberByAliases(
+        text,
+        FIELD_META.retiringPartnerCapital.aliases ?? []
+    );
+    const settlementPaid = extractNumberByAliases(text, FIELD_META.settlementPaid.aliases ?? []);
     const partnerARatio = extractNumberByAliases(text, FIELD_META.partnerARatio.aliases ?? [], {
         allowCurrency: false,
     });
@@ -2927,6 +3020,9 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "totalOldCapital", totalOldCapital);
     setFact(facts, "partnerInvestment", partnerInvestment);
     setFact(facts, "ownershipPercentage", ownershipPercentage);
+    setFact(facts, "totalPartnershipCapital", totalPartnershipCapital);
+    setFact(facts, "retiringPartnerCapital", retiringPartnerCapital);
+    setFact(facts, "settlementPaid", settlementPaid);
     setFact(facts, "partnerARatio", partnerARatio);
     setFact(facts, "partnerBRatio", partnerBRatio);
     setFact(facts, "partnerCRatio", partnerCRatio);

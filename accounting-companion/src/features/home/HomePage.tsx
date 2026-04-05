@@ -27,6 +27,7 @@ const SMART_PROMPT_EXAMPLES = [
     "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
     "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
     "Compute depreciation and compare straight-line with double declining for cost 500,000, salvage 50,000, and useful life 5 years.",
+    "A retiring partner has capital of 120,000 and is paid 130,000 out of total partnership capital of 500,000. Show the retirement bonus effect.",
 ];
 
 const FEATURED_PATHS = [
@@ -36,6 +37,8 @@ const FEATURED_PATHS = [
     "/finance/loan-amortization",
     "/accounting/inventory-method-comparison",
     "/accounting/depreciation-schedule-comparison",
+    "/accounting/partners-capital-statement",
+    "/accounting/equity-multiplier",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -67,6 +70,18 @@ const WORKFLOW_COLLECTIONS = [
             "/finance/payback-period",
             "/finance/npv",
             "/finance/profitability-index",
+        ],
+    },
+    {
+        title: "Partnership and equity changes",
+        description: "Move from profit allocation into partner admission, retirement, and capital statement analysis.",
+        paths: [
+            "/accounting/partnership-profit-sharing",
+            "/accounting/partnership-salary-interest",
+            "/accounting/partnership-admission-bonus",
+            "/accounting/partnership-retirement-bonus",
+            "/accounting/partners-capital-statement",
+            "/accounting/equity-multiplier",
         ],
     },
 ];
@@ -445,6 +460,9 @@ export default function HomePage() {
                     <h2 className="app-section-title mt-3 text-2xl">
                         {network.online ? "Offline-safe core tools are ready" : "You are offline now"}
                     </h2>
+                    <p className="app-body-md mt-2 text-sm">
+                        Installation helps with launch convenience, but the browser version can also work offline after the needed assets have been cached once successfully online.
+                    </p>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         {[
                             "All local calculators",
@@ -457,6 +475,12 @@ export default function HomePage() {
                             </div>
                         ))}
                     </div>
+                    <Link
+                        to="/settings/install"
+                        className="app-link-accent mt-4 inline-flex text-sm font-medium"
+                    >
+                        Open install and offline guide
+                    </Link>
                 </div>
 
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">

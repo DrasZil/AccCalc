@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computePartnershipProfitSharing } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
@@ -37,66 +38,70 @@ export default function PartnershipProfitSharingPage() {
         const ratioC = partnerCRatio.trim() === "" ? 0 : Number(partnerCRatio);
 
         if ([totalAmount, ratioA, ratioB, ratioC].some((value) => Number.isNaN(value))) {
-            return {
-                error: "All entered values must be valid numbers.",
-            };
+            return { error: "All entered values must be valid numbers." };
         }
 
         if (ratioA < 0 || ratioB < 0 || ratioC < 0) {
-            return {
-                error: "Profit-and-loss ratios cannot be negative.",
-            };
+            return { error: "Profit-and-loss ratios cannot be negative." };
         }
 
         const totalRatio = ratioA + ratioB + ratioC;
-
         if (totalRatio <= 0) {
-            return {
-                error: "Total ratio must be greater than zero.",
-            };
+            return { error: "Total ratio must be greater than zero." };
         }
 
-        const shareA = totalAmount * (ratioA / totalRatio);
-        const shareB = totalAmount * (ratioB / totalRatio);
-        const shareC = totalAmount * (ratioC / totalRatio);
-
-        return {
-            totalAmount,
+        const sharing = computePartnershipProfitSharing({
+            partnershipAmount: totalAmount,
             ratioA,
             ratioB,
             ratioC,
-            totalRatio,
-            shareA,
-            shareB,
-            shareC,
-            formula: (
-                <>
-                    Partner Share = Total Partnership Profit or Loss × Individual Ratio / Total Ratio
-                </>
-            ),
+        });
+
+        return {
+            shareA: sharing.shareA,
+            shareB: sharing.shareB,
+            shareC: sharing.shareC,
+            totalRatio: sharing.totalRatio,
+            formula: "Partner share = Total partnership profit or loss x Individual ratio / Total ratio",
             steps: [
-                `Total ratio = ${ratioA} + ${ratioB} + ${ratioC} = ${totalRatio}`,
-                `Partner A share = ${formatPHP(totalAmount)} x ${ratioA}/${totalRatio} = ${formatPHP(shareA)}`,
-                `Partner B share = ${formatPHP(totalAmount)} x ${ratioB}/${totalRatio} = ${formatPHP(shareB)}`,
-                `Partner C share = ${formatPHP(totalAmount)} x ${ratioC}/${totalRatio} = ${formatPHP(shareC)}`,
+                `Total ratio = ${ratioA} + ${ratioB} + ${ratioC} = ${sharing.totalRatio}`,
+                `Partner A share = ${formatPHP(totalAmount)} x ${ratioA}/${sharing.totalRatio} = ${formatPHP(sharing.shareA)}`,
+                `Partner B share = ${formatPHP(totalAmount)} x ${ratioB}/${sharing.totalRatio} = ${formatPHP(sharing.shareB)}`,
+                `Partner C share = ${formatPHP(totalAmount)} x ${ratioC}/${sharing.totalRatio} = ${formatPHP(sharing.shareC)}`,
             ],
             glossary: [
-                { term: "Profit-and-Loss Ratio", meaning: "The agreed basis used to divide partnership income or loss among partners." },
-                { term: "Net Income", meaning: "The partnership's excess of revenues over expenses for the period." },
-                { term: "Net Loss", meaning: "The partnership's excess of expenses over revenues for the period." },
+                {
+                    term: "Profit-and-loss ratio",
+                    meaning: "The agreed basis used to divide partnership income or loss among partners.",
+                },
+                {
+                    term: "Net income",
+                    meaning: "The partnership's excess of revenues over expenses for the period.",
+                },
+                {
+                    term: "Net loss",
+                    meaning: "The partnership's excess of expenses over revenues for the period.",
+                },
             ],
             interpretation:
                 totalAmount >= 0
                     ? `Using the agreed ratio, the partnership income of ${formatPHP(totalAmount)} is allocated proportionately to each partner.`
                     : `Using the agreed ratio, the partnership loss of ${formatPHP(Math.abs(totalAmount))} is absorbed proportionately by each partner.`,
+            assumptions: [
+                "This page assumes the amount to be distributed is already final after closing adjustments.",
+                "If salary or interest allowances apply, compute those before using the remaining distributable amount here.",
+            ],
+            warnings: [
+                "Do not assume capital ratios and profit-and-loss ratios are automatically the same unless the partnership agreement says so.",
+            ],
         };
     }, [partnershipAmount, partnerARatio, partnerBRatio, partnerCRatio]);
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Partnership"
+            badge="Accounting | Partnership"
             title="Partnership Profit Sharing"
-            description="Allocate partnership net income or net loss using an agreed profit-and-loss ratio, a common topic in Philippine partnership accounting classes."
+            description="Allocate partnership net income or net loss using the agreed profit-and-loss ratio."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>
@@ -149,6 +154,8 @@ export default function PartnershipProfitSharingPage() {
                         steps={result.steps}
                         glossary={result.glossary}
                         interpretation={result.interpretation}
+                        assumptions={result.assumptions}
+                        warnings={result.warnings}
                     />
                 ) : null
             }

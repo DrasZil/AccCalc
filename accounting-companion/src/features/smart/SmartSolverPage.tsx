@@ -37,6 +37,8 @@ const SMART_PROMPT_EXAMPLES = [
     "Compute VAT payable if vatable sales are 150,000 and vatable purchases are 80,000.",
     "Find the cash ratio if cash is 50,000, marketable securities are 25,000, and current liabilities are 100,000.",
     "Split partnership profit of 120,000 in the ratio 3:2:1.",
+    "A retiring partner has capital of 120,000, receives 130,000, and total partnership capital before retirement is 500,000.",
+    "Find the equity multiplier if average total assets are 800,000 and average equity is 320,000.",
     "Compute gross profit rate if net sales are 150,000 and cost of goods sold is 90,000.",
     "Apply a 20% trade discount to a list price of 10,000.",
     "What is the true annual rate if the nominal rate is 12% compounded monthly?",

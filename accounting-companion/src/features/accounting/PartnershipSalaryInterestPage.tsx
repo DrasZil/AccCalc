@@ -6,7 +6,9 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { computePartnershipSalaryInterestAllocation } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function PartnershipSalaryInterestPage() {
     const [partnershipAmount, setPartnershipAmount] = useState("");
@@ -14,114 +16,122 @@ export default function PartnershipSalaryInterestPage() {
     const [partnerBSalary, setPartnerBSalary] = useState("");
     const [partnerAAverageCapital, setPartnerAAverageCapital] = useState("");
     const [partnerBAverageCapital, setPartnerBAverageCapital] = useState("");
-    const [interestRate, setInterestRate] = useState("");
+    const [interestRatePercent, setInterestRatePercent] = useState("");
     const [partnerARemainderRatio, setPartnerARemainderRatio] = useState("");
     const [partnerBRemainderRatio, setPartnerBRemainderRatio] = useState("");
 
+    useSmartSolverConnector({
+        partnershipAmount: setPartnershipAmount,
+        partnerASalary: setPartnerASalary,
+        partnerBSalary: setPartnerBSalary,
+        partnerAAverageCapital: setPartnerAAverageCapital,
+        partnerBAverageCapital: setPartnerBAverageCapital,
+        interestRatePercent: setInterestRatePercent,
+        partnerARemainderRatio: setPartnerARemainderRatio,
+        partnerBRemainderRatio: setPartnerBRemainderRatio,
+    });
+
     const result = useMemo(() => {
-        const required = [
-            partnershipAmount,
-            partnerASalary,
-            partnerBSalary,
-            partnerAAverageCapital,
-            partnerBAverageCapital,
-            interestRate,
-            partnerARemainderRatio,
-            partnerBRemainderRatio,
+        if (
+            partnershipAmount.trim() === "" ||
+            partnerASalary.trim() === "" ||
+            partnerBSalary.trim() === "" ||
+            partnerAAverageCapital.trim() === "" ||
+            partnerBAverageCapital.trim() === "" ||
+            interestRatePercent.trim() === "" ||
+            partnerARemainderRatio.trim() === "" ||
+            partnerBRemainderRatio.trim() === ""
+        ) {
+            return null;
+        }
+
+        const parsedValues = [
+            Number(partnershipAmount),
+            Number(partnerASalary),
+            Number(partnerBSalary),
+            Number(partnerAAverageCapital),
+            Number(partnerBAverageCapital),
+            Number(interestRatePercent),
+            Number(partnerARemainderRatio),
+            Number(partnerBRemainderRatio),
         ];
 
-        if (required.some((value) => value.trim() === "")) return null;
-
-        const values = required.map(Number);
-        if (values.some((value) => Number.isNaN(value))) {
-            return { error: "All fields must contain valid numbers." };
+        if (parsedValues.some((value) => Number.isNaN(value))) {
+            return { error: "All inputs must be valid numbers." };
         }
 
         const [
-            parsedPartnershipAmount,
-            parsedPartnerASalary,
-            parsedPartnerBSalary,
-            parsedPartnerAAverageCapital,
-            parsedPartnerBAverageCapital,
-            parsedInterestRate,
-            parsedPartnerARemainderRatio,
-            parsedPartnerBRemainderRatio,
-        ] = values;
+            totalAmount,
+            salaryA,
+            salaryB,
+            averageCapitalA,
+            averageCapitalB,
+            interestRate,
+            ratioA,
+            ratioB,
+        ] = parsedValues;
 
-        if (
-            parsedPartnerASalary < 0 ||
-            parsedPartnerBSalary < 0 ||
-            parsedPartnerAAverageCapital < 0 ||
-            parsedPartnerBAverageCapital < 0 ||
-            parsedInterestRate < 0 ||
-            parsedPartnerARemainderRatio < 0 ||
-            parsedPartnerBRemainderRatio < 0
-        ) {
-            return {
-                error: "Salary allowances, average capital, interest rate, and remainder ratios cannot be negative.",
-            };
+        if ([salaryA, salaryB, averageCapitalA, averageCapitalB, interestRate].some((value) => value < 0)) {
+            return { error: "Salary allowances, average capitals, and interest rate cannot be negative." };
         }
 
-        const ratioTotal = parsedPartnerARemainderRatio + parsedPartnerBRemainderRatio;
-        if (ratioTotal <= 0) {
+        if (ratioA < 0 || ratioB < 0) {
+            return { error: "Remainder ratios cannot be negative." };
+        }
+
+        if (ratioA + ratioB <= 0) {
             return { error: "The remainder ratio total must be greater than zero." };
         }
 
-        const interestShareA = parsedPartnerAAverageCapital * (parsedInterestRate / 100);
-        const interestShareB = parsedPartnerBAverageCapital * (parsedInterestRate / 100);
-        const totalAppropriation =
-            parsedPartnerASalary +
-            parsedPartnerBSalary +
-            interestShareA +
-            interestShareB;
-        const remainder = parsedPartnershipAmount - totalAppropriation;
-        const remainderShareA = remainder * (parsedPartnerARemainderRatio / ratioTotal);
-        const remainderShareB = remainder * (parsedPartnerBRemainderRatio / ratioTotal);
-        const finalShareA = parsedPartnerASalary + interestShareA + remainderShareA;
-        const finalShareB = parsedPartnerBSalary + interestShareB + remainderShareB;
+        const allocation = computePartnershipSalaryInterestAllocation({
+            partnershipAmount: totalAmount,
+            partnerASalary: salaryA,
+            partnerBSalary: salaryB,
+            partnerAAverageCapital: averageCapitalA,
+            partnerBAverageCapital: averageCapitalB,
+            interestRatePercent: interestRate,
+            partnerARemainderRatio: ratioA,
+            partnerBRemainderRatio: ratioB,
+        });
 
         return {
-            interestShareA,
-            interestShareB,
-            totalAppropriation,
-            remainder,
-            finalShareA,
-            finalShareB,
-            formula:
-                "Final Share = Salary Allowance + Interest Allowance + Share in Remainder",
+            ...allocation,
+            formula: "Final share = Salary allowance + Interest allowance + Share in remainder",
             steps: [
-                `Partner A interest allowance = ${formatPHP(parsedPartnerAAverageCapital)} x ${parsedInterestRate}% = ${formatPHP(interestShareA)}`,
-                `Partner B interest allowance = ${formatPHP(parsedPartnerBAverageCapital)} x ${parsedInterestRate}% = ${formatPHP(interestShareB)}`,
-                `Total salary and interest allowances = ${formatPHP(totalAppropriation)}`,
-                `Remainder = ${formatPHP(parsedPartnershipAmount)} - ${formatPHP(totalAppropriation)} = ${formatPHP(remainder)}`,
-                `Partner A remainder share = ${formatPHP(remainder)} x ${parsedPartnerARemainderRatio}/${ratioTotal} = ${formatPHP(remainderShareA)}`,
-                `Partner B remainder share = ${formatPHP(remainder)} x ${parsedPartnerBRemainderRatio}/${ratioTotal} = ${formatPHP(remainderShareB)}`,
+                `Partner A interest allowance = ${formatPHP(averageCapitalA)} x ${(interestRate / 100).toFixed(4)} = ${formatPHP(allocation.interestShareA)}`,
+                `Partner B interest allowance = ${formatPHP(averageCapitalB)} x ${(interestRate / 100).toFixed(4)} = ${formatPHP(allocation.interestShareB)}`,
+                `Remainder = ${formatPHP(totalAmount)} - ${formatPHP(allocation.totalAppropriation)} = ${formatPHP(allocation.remainder)}`,
+                `Partner A final share = ${formatPHP(salaryA)} + ${formatPHP(allocation.interestShareA)} + ${formatPHP(allocation.remainderShareA)} = ${formatPHP(allocation.finalShareA)}`,
+                `Partner B final share = ${formatPHP(salaryB)} + ${formatPHP(allocation.interestShareB)} + ${formatPHP(allocation.remainderShareB)} = ${formatPHP(allocation.finalShareB)}`,
             ],
             glossary: [
                 {
                     term: "Salary allowance",
-                    meaning: "An agreed internal allocation to a partner before dividing the remaining profit or loss. It is not an expense of the partnership.",
+                    meaning: "An agreed allocation used in dividing partnership income, not an operating expense of the partnership.",
                 },
                 {
                     term: "Interest allowance",
-                    meaning: "An allocation based on partners' capital balances to recognize differing investment amounts.",
+                    meaning: "An agreed allocation based on capital balances before the remainder is divided.",
                 },
                 {
                     term: "Remainder",
-                    meaning: "The balance of partnership profit or loss left after salary and interest allowances are assigned.",
+                    meaning: "The balance of partnership income or loss left after salary and interest allowances.",
                 },
             ],
             interpretation:
-                remainder >= 0
-                    ? "The partnership profit was enough to cover the salary and interest allowances, so the remaining profit was shared using the stated remainder ratio."
-                    : "The allowances exceeded partnership profit, so the deficit reduced each partner's final share through the remainder allocation.",
+                allocation.remainder >= 0
+                    ? `After allowances, the partnership still has ${formatPHP(allocation.remainder)} left to divide using the remainder ratio.`
+                    : `Allowances exceed the partnership amount by ${formatPHP(Math.abs(allocation.remainder))}, so the negative remainder reduces the partners' final shares using the remainder ratio.`,
             assumptions: [
-                "Salary and interest allowances are appropriations of partnership income, not operating expenses.",
-                "A negative partnership amount represents a partnership loss and reduces the remainder available to partners.",
+                "Salary and interest are partnership income allocations, not expenses deducted before computing net income.",
+                "Average capital balances are treated as already adjusted for the period required by the problem.",
+            ],
+            warnings: [
+                "If the problem requires weighted-time capital computations or multiple partners beyond A and B, prepare those schedules first before using this simplified allocation page.",
             ],
         };
     }, [
-        interestRate,
+        interestRatePercent,
         partnerAAverageCapital,
         partnerARemainderRatio,
         partnerASalary,
@@ -134,16 +144,22 @@ export default function PartnershipSalaryInterestPage() {
     return (
         <CalculatorPageLayout
             badge="Accounting | Partnership"
-            title="Partnership Salary and Interest Distribution"
-            description="Allocate partnership income after salary allowances, interest on capital, and the remainder ratio."
+            title="Partnership Salary and Interest"
+            description="Allocate partnership income or loss when salary allowances, capital interest, and a remainder ratio all apply."
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>
                         <InputCard
-                            label="Partnership Net Income or Loss"
+                            label="Partnership Profit or Loss"
                             value={partnershipAmount}
                             onChange={setPartnershipAmount}
-                            placeholder="150000"
+                            placeholder="150000 or -40000"
+                        />
+                        <InputCard
+                            label="Interest Rate (%)"
+                            value={interestRatePercent}
+                            onChange={setInterestRatePercent}
+                            placeholder="10"
                         />
                         <InputCard
                             label="Partner A Salary Allowance"
@@ -155,7 +171,7 @@ export default function PartnershipSalaryInterestPage() {
                             label="Partner B Salary Allowance"
                             value={partnerBSalary}
                             onChange={setPartnerBSalary}
-                            placeholder="25000"
+                            placeholder="20000"
                         />
                         <InputCard
                             label="Partner A Average Capital"
@@ -167,13 +183,7 @@ export default function PartnershipSalaryInterestPage() {
                             label="Partner B Average Capital"
                             value={partnerBAverageCapital}
                             onChange={setPartnerBAverageCapital}
-                            placeholder="180000"
-                        />
-                        <InputCard
-                            label="Interest Rate (%)"
-                            value={interestRate}
-                            onChange={setInterestRate}
-                            placeholder="10"
+                            placeholder="150000"
                         />
                         <InputCard
                             label="Partner A Remainder Ratio"
@@ -200,19 +210,10 @@ export default function PartnershipSalaryInterestPage() {
                     <ResultGrid columns={3}>
                         <ResultCard title="Partner A Final Share" value={formatPHP(result.finalShareA)} />
                         <ResultCard title="Partner B Final Share" value={formatPHP(result.finalShareB)} />
-                        <ResultCard title="Remainder" value={formatPHP(result.remainder)} />
-                        <ResultCard
-                            title="Partner A Interest Allowance"
-                            value={formatPHP(result.interestShareA)}
-                        />
-                        <ResultCard
-                            title="Partner B Interest Allowance"
-                            value={formatPHP(result.interestShareB)}
-                        />
-                        <ResultCard
-                            title="Total Appropriation"
-                            value={formatPHP(result.totalAppropriation)}
-                        />
+                        <ResultCard title="Remainder After Allowances" value={formatPHP(result.remainder)} />
+                        <ResultCard title="Partner A Interest" value={formatPHP(result.interestShareA)} />
+                        <ResultCard title="Partner B Interest" value={formatPHP(result.interestShareB)} />
+                        <ResultCard title="Total Allowances" value={formatPHP(result.totalAppropriation)} />
                     </ResultGrid>
                 ) : null
             }
@@ -224,6 +225,7 @@ export default function PartnershipSalaryInterestPage() {
                         glossary={result.glossary}
                         interpretation={result.interpretation}
                         assumptions={result.assumptions}
+                        warnings={result.warnings}
                     />
                 ) : null
             }
