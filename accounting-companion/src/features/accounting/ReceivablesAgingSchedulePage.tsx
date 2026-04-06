@@ -218,6 +218,29 @@ export default function ReceivablesAgingSchedulePage() {
                             />
                         </ResultGrid>
 
+                        {result.allowanceJournalEffect ? (
+                            <SectionCard>
+                                <p className="app-card-title text-sm">Adjustment guidance</p>
+                                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                                    <div className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5">
+                                        <p className="app-label">Debit</p>
+                                        <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {result.allowanceJournalEffect.debit}
+                                        </p>
+                                    </div>
+                                    <div className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5">
+                                        <p className="app-label">Credit</p>
+                                        <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {result.allowanceJournalEffect.credit}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="app-body-md mt-3 text-sm">
+                                    Record {formatPHP(result.allowanceJournalEffect.amount)} to align the allowance account with the required ending balance from the aging schedule.
+                                </p>
+                            </SectionCard>
+                        ) : null}
+
                         <SectionCard>
                             <div className="space-y-3">
                                 {result.rows.map((row) => (
@@ -287,6 +310,9 @@ export default function ReceivablesAgingSchedulePage() {
                         assumptions={[
                             "Enter an existing credit allowance balance as a positive amount. Enter a debit balance as a negative amount.",
                             "This page applies the aging-of-receivables approach, which targets the required ending allowance rather than applying one flat percentage to total receivables.",
+                        ]}
+                        notes={[
+                            "The summary cards show the headline answer, while the bucket list acts like the supporting working paper behind the estimate.",
                         ]}
                         warnings={[
                             "Do not add the required ending allowance directly to receivables. The allowance remains a contra asset and reduces receivables to net realizable value.",

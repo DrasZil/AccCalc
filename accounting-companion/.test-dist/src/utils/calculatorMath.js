@@ -325,15 +325,72 @@ export function computeSinkingFundDeposit(futureValueTarget, periodicRatePercent
         requiredDeposit,
     };
 }
-export function computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows) {
+function buildTimedCashSchedule({ periods, pattern, beginningCarryover = 0, beginningCarryoverLabel, }) {
+    const normalizedPattern = [...pattern].sort((left, right) => left.lagPeriods - right.lagPeriods);
+    const scheduledPercent = normalizedPattern.reduce((sum, entry) => sum + entry.percent, 0);
+    const rows = periods.map((period, periodIndex) => {
+        const contributions = normalizedPattern
+            .map((entry) => {
+            const sourceIndex = periodIndex - entry.lagPeriods;
+            if (sourceIndex < 0)
+                return null;
+            const sourcePeriod = periods[sourceIndex];
+            const amount = sourcePeriod.amount * (entry.percent / 100);
+            return amount === 0
+                ? null
+                : {
+                    sourceLabel: sourcePeriod.label,
+                    lagPeriods: entry.lagPeriods,
+                    percent: entry.percent,
+                    amount,
+                };
+        })
+            .filter((entry) => Boolean(entry));
+        if (periodIndex === 0 && beginningCarryover !== 0) {
+            contributions.unshift({
+                sourceLabel: beginningCarryoverLabel,
+                lagPeriods: -1,
+                percent: 100,
+                amount: beginningCarryover,
+            });
+        }
+        const totalScheduled = contributions.reduce((sum, entry) => sum + entry.amount, 0);
+        return {
+            label: period.label,
+            amount: period.amount,
+            contributions,
+            totalScheduled,
+        };
+    });
+    const endingBalance = periods.reduce((sum, period, sourceIndex) => {
+        const scheduledInsideWindow = normalizedPattern.reduce((scheduled, entry) => {
+            const targetIndex = sourceIndex + entry.lagPeriods;
+            if (targetIndex >= periods.length)
+                return scheduled;
+            return scheduled + period.amount * (entry.percent / 100);
+        }, 0);
+        return sum + (period.amount - scheduledInsideWindow);
+    }, 0);
+    return {
+        rows,
+        scheduledPercent,
+        endingBalance,
+    };
+}
+export function computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows, terminalValue = 0) {
     const rateDecimal = discountRatePercent / 100;
+    const terminalPeriod = cashFlows.length;
     const discountedCashFlows = cashFlows.map((cashFlow, index) => {
         const period = index + 1;
+        const terminalCashFlow = terminalValue !== 0 && period === terminalPeriod ? terminalValue : 0;
+        const totalCashFlow = cashFlow + terminalCashFlow;
         const discountFactor = 1 / Math.pow(1 + rateDecimal, period);
-        const presentValue = cashFlow * discountFactor;
+        const presentValue = totalCashFlow * discountFactor;
         return {
             period,
-            cashFlow,
+            operatingCashFlow: cashFlow,
+            terminalCashFlow,
+            cashFlow: totalCashFlow,
             discountFactor,
             presentValue,
         };
@@ -343,14 +400,131 @@ export function computeNetPresentValue(initialInvestment, discountRatePercent, c
         rateDecimal,
         discountedCashFlows,
         totalPresentValue,
+        terminalValue,
         netPresentValue: totalPresentValue - initialInvestment,
     };
 }
-export function computeProfitabilityIndex(initialInvestment, discountRatePercent, cashFlows) {
-    const npv = computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows);
+export function computeProfitabilityIndex(initialInvestment, discountRatePercent, cashFlows, terminalValue = 0) {
+    const npv = computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows, terminalValue);
     return {
         ...npv,
         profitabilityIndex: npv.totalPresentValue / initialInvestment,
+    };
+}
+export function computeInternalRateOfReturn(initialInvestment, cashFlows, terminalValue = 0) {
+    const totalPeriods = cashFlows.length;
+    const resolvedCashFlows = cashFlows.map((cashFlow, index) => index === totalPeriods - 1 ? cashFlow + terminalValue : cashFlow);
+    const signSeries = [-initialInvestment, ...resolvedCashFlows].filter((value) => Math.abs(value) >= 0.0000001);
+    const signChanges = signSeries.reduce((count, value, index, series) => {
+        if (index === 0)
+            return count;
+        return Math.sign(value) !== Math.sign(series[index - 1]) ? count + 1 : count;
+    }, 0);
+    const multipleIrRisk = signChanges > 1;
+    const sampledRates = [
+        -99.9,
+        -90,
+        -75,
+        -50,
+        -25,
+        -10,
+        0,
+        5,
+        10,
+        15,
+        20,
+        30,
+        40,
+        50,
+        75,
+        100,
+        150,
+        200,
+        300,
+        500,
+        800,
+        1000,
+    ];
+    const evaluated = sampledRates.map((ratePercent) => ({
+        ratePercent,
+        npv: computeNetPresentValue(initialInvestment, ratePercent, cashFlows, terminalValue).netPresentValue,
+    }));
+    let lowerBound = evaluated[0];
+    let upperBound = evaluated[1];
+    let foundBracket = false;
+    for (let index = 0; index < evaluated.length - 1; index += 1) {
+        const current = evaluated[index];
+        const next = evaluated[index + 1];
+        if (Math.abs(current.npv) < 0.000001) {
+            lowerBound = current;
+            upperBound = current;
+            foundBracket = true;
+            break;
+        }
+        if (current.npv === 0 || next.npv === 0 || current.npv * next.npv < 0) {
+            lowerBound = current;
+            upperBound = next;
+            foundBracket = true;
+            break;
+        }
+    }
+    if (!foundBracket) {
+        return {
+            hasSolution: false,
+            irrPercent: null,
+            signChanges,
+            multipleIrRisk,
+            sampledRates: evaluated,
+            reason: "A single IRR could not be isolated across the tested discount-rate range. The project may never recover on a discounted basis or may have multiple valid IRRs.",
+        };
+    }
+    if (Math.abs(lowerBound.npv) < 0.000001 && lowerBound.ratePercent === upperBound.ratePercent) {
+        const exact = computeNetPresentValue(initialInvestment, lowerBound.ratePercent, cashFlows, terminalValue);
+        return {
+            hasSolution: true,
+            irrPercent: lowerBound.ratePercent,
+            signChanges,
+            multipleIrRisk,
+            iterations: 0,
+            bracket: [lowerBound.ratePercent, upperBound.ratePercent],
+            ...exact,
+        };
+    }
+    let leftRate = lowerBound.ratePercent;
+    let rightRate = upperBound.ratePercent;
+    let leftNpv = lowerBound.npv;
+    let rightNpv = upperBound.npv;
+    let midRate = leftRate;
+    let midNpv = leftNpv;
+    let iterations = 0;
+    while (iterations < 120) {
+        iterations += 1;
+        midRate = (leftRate + rightRate) / 2;
+        midNpv = computeNetPresentValue(initialInvestment, midRate, cashFlows, terminalValue).netPresentValue;
+        if (Math.abs(midNpv) < 0.000001 || Math.abs(rightRate - leftRate) < 0.0000001) {
+            break;
+        }
+        if (leftNpv * midNpv <= 0) {
+            rightRate = midRate;
+            rightNpv = midNpv;
+        }
+        else {
+            leftRate = midRate;
+            leftNpv = midNpv;
+        }
+    }
+    const exact = computeNetPresentValue(initialInvestment, midRate, cashFlows, terminalValue);
+    return {
+        hasSolution: true,
+        irrPercent: midRate,
+        signChanges,
+        multipleIrRisk,
+        iterations,
+        bracket: [leftRate, rightRate],
+        residualNpv: midNpv,
+        lowerBoundNpv: leftNpv,
+        upperBoundNpv: rightNpv,
+        ...exact,
     };
 }
 export function computePaybackPeriod(initialInvestment, cashFlows) {
@@ -553,6 +727,74 @@ export function computeReceivablesAgingSchedule({ buckets, existingAllowanceBala
             : requiredAdjustment < 0
                 ? "decrease"
                 : "none",
+        allowanceJournalEffect: requiredAdjustment > 0
+            ? {
+                debit: "Bad Debt Expense",
+                credit: "Allowance for Doubtful Accounts",
+                amount: requiredAdjustment,
+            }
+            : requiredAdjustment < 0
+                ? {
+                    debit: "Allowance for Doubtful Accounts",
+                    credit: "Bad Debt Expense",
+                    amount: Math.abs(requiredAdjustment),
+                }
+                : null,
+    };
+}
+export function computeBankReconciliation({ bankBalance, bookBalance, depositsInTransit, outstandingChecks, bankCharges, nsfChecks, interestIncome, notesCollectedByBank, bankError, bookError, }) {
+    const bankAdjustments = [
+        { label: "Balance per bank", amount: bankBalance },
+        { label: "Add: Deposits in transit", amount: depositsInTransit },
+        { label: "Less: Outstanding checks", amount: -outstandingChecks },
+        { label: "Bank error adjustment", amount: bankError },
+    ];
+    const bookAdjustments = [
+        { label: "Balance per books", amount: bookBalance },
+        { label: "Less: Bank charges", amount: -bankCharges },
+        { label: "Less: NSF checks", amount: -nsfChecks },
+        { label: "Add: Interest income", amount: interestIncome },
+        { label: "Add: Note collected by bank", amount: notesCollectedByBank },
+        { label: "Book error adjustment", amount: bookError },
+    ];
+    const adjustedBank = bankAdjustments.reduce((sum, entry) => sum + entry.amount, 0);
+    const adjustedBook = bookAdjustments.reduce((sum, entry) => sum + entry.amount, 0);
+    const difference = adjustedBank - adjustedBook;
+    return {
+        adjustedBank,
+        adjustedBook,
+        difference,
+        isBalanced: Math.abs(difference) < 0.005,
+        bankAdjustments,
+        bookAdjustments,
+    };
+}
+export function computeCashCollectionsSchedule({ periods, collectionPattern, beginningReceivables = 0, }) {
+    const schedule = buildTimedCashSchedule({
+        periods,
+        pattern: collectionPattern,
+        beginningCarryover: beginningReceivables,
+        beginningCarryoverLabel: "Prior-period receivables",
+    });
+    return {
+        ...schedule,
+        totalSales: periods.reduce((sum, period) => sum + period.amount, 0),
+        totalCollections: schedule.rows.reduce((sum, row) => sum + row.totalScheduled, 0),
+        endingReceivables: schedule.endingBalance,
+    };
+}
+export function computeCashDisbursementsSchedule({ periods, paymentPattern, beginningPayables = 0, }) {
+    const schedule = buildTimedCashSchedule({
+        periods,
+        pattern: paymentPattern,
+        beginningCarryover: beginningPayables,
+        beginningCarryoverLabel: "Prior-period payables",
+    });
+    return {
+        ...schedule,
+        totalPurchases: periods.reduce((sum, period) => sum + period.amount, 0),
+        totalDisbursements: schedule.rows.reduce((sum, row) => sum + row.totalScheduled, 0),
+        endingPayables: schedule.endingBalance,
     };
 }
 export function computeSalesMixBreakEven({ fixedCosts, products, }) {
@@ -696,6 +938,32 @@ export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, 
         staticBudgetVariance,
     };
 }
+export function computeFactoryOverheadVariances({ actualVariableOverhead, actualFixedOverhead, actualHours, standardHoursAllowed, standardVariableOverheadRate, budgetedFixedOverhead, denominatorHours, }) {
+    const standardVariableOverheadForActualHours = actualHours * standardVariableOverheadRate;
+    const appliedVariableOverhead = standardHoursAllowed * standardVariableOverheadRate;
+    const variableOverheadSpendingVariance = actualVariableOverhead - standardVariableOverheadForActualHours;
+    const variableOverheadEfficiencyVariance = standardVariableOverheadForActualHours - appliedVariableOverhead;
+    const standardFixedOverheadRate = denominatorHours === 0 ? 0 : budgetedFixedOverhead / denominatorHours;
+    const appliedFixedOverhead = standardHoursAllowed * standardFixedOverheadRate;
+    const fixedOverheadBudgetVariance = actualFixedOverhead - budgetedFixedOverhead;
+    const fixedOverheadVolumeVariance = budgetedFixedOverhead - appliedFixedOverhead;
+    const totalActualOverhead = actualVariableOverhead + actualFixedOverhead;
+    const totalAppliedOverhead = appliedVariableOverhead + appliedFixedOverhead;
+    const totalOverheadVariance = totalActualOverhead - totalAppliedOverhead;
+    return {
+        standardVariableOverheadForActualHours,
+        appliedVariableOverhead,
+        standardFixedOverheadRate,
+        appliedFixedOverhead,
+        variableOverheadSpendingVariance,
+        variableOverheadEfficiencyVariance,
+        fixedOverheadBudgetVariance,
+        fixedOverheadVolumeVariance,
+        totalActualOverhead,
+        totalAppliedOverhead,
+        totalOverheadVariance,
+    };
+}
 export function computeEquivalentUnitsWeightedAverage({ beginningWorkInProcessUnits, unitsStarted, unitsCompletedAndTransferred, endingWorkInProcessUnits, endingMaterialsCompletionPercent, endingConversionCompletionPercent, totalMaterialsCosts, totalConversionCosts, }) {
     const totalUnitsToAccountFor = beginningWorkInProcessUnits + unitsStarted;
     const totalUnitsAccountedFor = unitsCompletedAndTransferred + endingWorkInProcessUnits;
@@ -777,5 +1045,36 @@ export function computeDiscountedPaybackPeriod(initialInvestment, discountRatePe
         fractionOfPeriod,
         cumulativeDiscountedCashFlow,
         unrecoveredDiscountedBalance,
+    };
+}
+export function computeRatioAnalysisWorkspace({ currentAssets, currentLiabilities, cash, marketableSecurities, netReceivables, netSales, netCreditSales, costOfGoodsSold, netIncome, averageInventory, averageAccountsReceivable, averageTotalAssets, averageEquity, dayBasis = 365, }) {
+    const currentRatio = currentLiabilities === 0 ? 0 : currentAssets / currentLiabilities;
+    const workingCapital = currentAssets - currentLiabilities;
+    const quickAssets = cash + marketableSecurities + netReceivables;
+    const quickRatio = currentLiabilities === 0 ? 0 : quickAssets / currentLiabilities;
+    const grossProfit = netSales - costOfGoodsSold;
+    const grossProfitRate = netSales === 0 ? 0 : grossProfit / netSales;
+    const inventoryTurnover = averageInventory === 0 ? 0 : costOfGoodsSold / averageInventory;
+    const inventoryDays = inventoryTurnover === 0 ? 0 : dayBasis / inventoryTurnover;
+    const receivablesTurnover = averageAccountsReceivable === 0
+        ? 0
+        : netCreditSales / averageAccountsReceivable;
+    const collectionDays = receivablesTurnover === 0 ? 0 : dayBasis / receivablesTurnover;
+    const returnOnAssets = averageTotalAssets === 0 ? 0 : netIncome / averageTotalAssets;
+    const returnOnEquity = averageEquity === 0 ? 0 : netIncome / averageEquity;
+    return {
+        currentRatio,
+        workingCapital,
+        quickAssets,
+        quickRatio,
+        grossProfit,
+        grossProfitRate,
+        inventoryTurnover,
+        inventoryDays,
+        receivablesTurnover,
+        collectionDays,
+        returnOnAssets,
+        returnOnEquity,
+        dayBasis,
     };
 }

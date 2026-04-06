@@ -6,6 +6,7 @@ type InputCardProps = {
     type?: "number" | "text";
     inputMode?: "decimal" | "numeric" | "text" | "search";
     helperText?: string;
+    step?: string;
 };
 
 export default function InputCard({
@@ -16,9 +17,10 @@ export default function InputCard({
     type = "number",
     inputMode = "decimal",
     helperText,
+    step = "any",
 }: InputCardProps) {
     return (
-        <div className="app-input-shell rounded-[var(--app-radius-md)] p-3 md:p-3.5">
+        <div className="app-input-shell rounded-[var(--app-radius-md)] p-3">
             <label className="app-label mb-2 block">
                 {label}
             </label>
@@ -28,8 +30,13 @@ export default function InputCard({
                 onChange={(event) => onChange(event.target.value)}
                 placeholder={placeholder}
                 inputMode={inputMode}
+                aria-label={label}
+                autoComplete="off"
+                enterKeyHint="done"
+                spellCheck={false}
+                step={type === "number" ? step : undefined}
                 className={[
-                    "app-field w-full rounded-[1rem] px-3.5 py-2.75 text-[0.95rem] outline-none",
+                    "app-field w-full rounded-[1rem] px-3.5 py-2.5 text-[0.95rem] outline-none",
                     type === "number" ? "app-numeric" : "",
                 ].join(" ")}
             />

@@ -1,5 +1,6 @@
 export const ALL_FIELD_KEYS = [
     "principal",
+    "initialInvestment",
     "rate",
     "time",
     "cost",
@@ -45,6 +46,8 @@ export const ALL_FIELD_KEYS = [
     "outstandingChecks",
     "serviceCharges",
     "nsfChecks",
+    "interestIncome",
+    "notesCollectedByBank",
     "bankError",
     "bookError",
     "accountsReceivable",

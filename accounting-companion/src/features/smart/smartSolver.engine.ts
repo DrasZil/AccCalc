@@ -34,6 +34,21 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
 
+    initialInvestment: {
+        label: "Initial Investment",
+        placeholder: "100000",
+        kind: "money",
+        group: "finance",
+        visibleInManualInputs: false,
+        aliases: [
+        "initial investment",
+        "initial outlay",
+        "project investment",
+        "investment cost",
+        "cash outflow at start",
+        ],
+    },
+
     rate: {
         label: "Rate (%)",
         placeholder: "5",
@@ -322,7 +337,15 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "percent",
         group: "accounting",
         visibleInManualInputs: false,
-        aliases: ["discount rate", "cash discount", "trade discount", "trade discount rate"],
+        aliases: [
+        "discount rate",
+        "required return",
+        "hurdle rate",
+        "cost of capital",
+        "cash discount",
+        "trade discount",
+        "trade discount rate",
+        ],
     },
 
     discountDays: {
@@ -605,6 +628,29 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         "non sufficient funds",
         "dishonored checks",
         "dishonored check",
+        ],
+    },
+
+    interestIncome: {
+        label: "Interest Income",
+        placeholder: "350",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["interest income", "interest earned", "bank interest"],
+    },
+
+    notesCollectedByBank: {
+        label: "Notes Collected by Bank",
+        placeholder: "5000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: [
+        "notes collected by bank",
+        "note collected by bank",
+        "collection by bank",
+        "bank collection",
         ],
     },
 
@@ -1467,6 +1513,54 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /payment per month/i,
         ],
     },
+    {
+        id: "net-present-value",
+        name: "Net Present Value",
+        route: "/finance/npv",
+        description:
+        "Best when the user wants discounted cash-flow analysis using an initial investment, a discount rate, and period cash flows.",
+        required: ["initialInvestment", "discountRate"],
+        aliases: ["npv", "discounted cash flow", "capital budgeting"],
+        keywords: [
+        /\bnpv\b/i,
+        /net present value/i,
+        /discounted cash flow/i,
+        /initial investment/i,
+        /required return/i,
+        /hurdle rate/i,
+        ],
+    },
+    {
+        id: "internal-rate-of-return",
+        name: "Internal Rate of Return",
+        route: "/finance/internal-rate-of-return",
+        description:
+        "Best when the user asks for IRR or the break-even rate of return for a project cash-flow stream.",
+        required: ["initialInvestment"],
+        aliases: ["irr", "internal rate", "project irr"],
+        keywords: [
+        /\birr\b/i,
+        /internal rate of return/i,
+        /internal rate/i,
+        /project rate of return/i,
+        /discount rate that makes npv zero/i,
+        ],
+    },
+    {
+        id: "profitability-index",
+        name: "Profitability Index",
+        route: "/finance/profitability-index",
+        description:
+        "Best when the user wants discounted inflows per peso invested or benefit-cost style screening under capital budgeting assumptions.",
+        required: ["initialInvestment", "discountRate"],
+        aliases: ["profitability index", "benefit cost ratio", "pi"],
+        keywords: [
+        /profitability index/i,
+        /benefit cost ratio/i,
+        /\bpi\b/i,
+        /discounted inflows per peso/i,
+        ],
+    },
 
     {
         id: "profit-loss",
@@ -1591,13 +1685,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         name: "Sales Mix Break-even",
         route: "/business/sales-mix-break-even",
         description:
-        "Best when the user is working on multi-product CVP, composite units, or sales-mix break-even planning.",
+        "Best when the user is working on multi-product CVP, composite units, target-profit planning, or sales-mix break-even analysis.",
         required: [],
         aliases: [
         "sales mix break even",
         "multi product break even",
         "composite unit break even",
         "weighted contribution margin",
+        "product mix analysis",
         ],
         keywords: [
         /sales mix/i,
@@ -1605,6 +1700,39 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /composite unit/i,
         /weighted contribution/i,
         /mix break[- ]even/i,
+        /product mix/i,
+        ],
+    },
+    {
+        id: "cash-collections-schedule",
+        name: "Cash Collections Schedule",
+        route: "/business/cash-collections-schedule",
+        description:
+        "Best when the user is laying out cash receipts from current and lagged collection percentages by month or period.",
+        required: [],
+        aliases: ["schedule of cash collections", "cash receipts schedule", "collections schedule"],
+        keywords: [
+        /cash collections schedule/i,
+        /schedule of cash collections/i,
+        /cash receipts schedule/i,
+        /collections schedule/i,
+        /collection pattern/i,
+        ],
+    },
+    {
+        id: "cash-disbursements-schedule",
+        name: "Cash Disbursements Schedule",
+        route: "/business/cash-disbursements-schedule",
+        description:
+        "Best when the user is laying out cash payments from current and lagged payment percentages by month or period.",
+        required: [],
+        aliases: ["schedule of cash disbursements", "cash payments schedule", "disbursements schedule"],
+        keywords: [
+        /cash disbursements schedule/i,
+        /schedule of cash disbursements/i,
+        /cash payments schedule/i,
+        /disbursements schedule/i,
+        /payment pattern/i,
         ],
     },
     {
@@ -1923,7 +2051,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         name: "Bank Reconciliation",
         route: "/accounting/bank-reconciliation",
         description:
-        "Reconcile bank and book balances using deposits in transit, outstanding checks, service charges, NSF checks, and errors.",
+        "Reconcile bank and book balances using deposits in transit, outstanding checks, bank charges, NSF checks, interest income, collections by bank, and errors.",
         required: ["bankBalance", "bookBalance"],
         keywords: [
         /bank reconciliation/i,
@@ -1932,7 +2060,10 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /deposits in transit/i,
         /outstanding checks?/i,
         /service charges?/i,
+        /bank charges?/i,
         /\bnsf\b/i,
+        /interest income/i,
+        /notes? collected by bank/i,
         /dishonored checks?/i,
         /balance per bank/i,
         /balance per books/i,
@@ -2136,6 +2267,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "factory-overhead-variance",
+        name: "Factory Overhead Variances",
+        route: "/accounting/factory-overhead-variance",
+        description:
+            "Best when the user needs variable and fixed overhead variances such as spending, efficiency, budget, or volume variance.",
+        required: [],
+        aliases: [
+            "factory overhead variance",
+            "variable overhead variance",
+            "fixed overhead variance",
+            "overhead variance",
+        ],
+        keywords: [
+            /factory overhead variance/i,
+            /variable overhead variance/i,
+            /fixed overhead variance/i,
+            /overhead spending variance/i,
+            /overhead efficiency variance/i,
+            /overhead volume variance/i,
+        ],
+    },
+    {
         id: "materials-quantity-variance",
         name: "Materials Quantity Variance",
         route: "/accounting/materials-quantity-variance",
@@ -2179,6 +2332,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /liquidity/i,
             /current assets/i,
             /current liabilities/i,
+        ],
+    },
+    {
+        id: "ratio-analysis-workspace",
+        name: "Ratio Analysis Workspace",
+        route: "/accounting/ratio-analysis-workspace",
+        description:
+            "Best when the user wants a compact ratio set covering liquidity, turnover, and profitability from one coordinated input base.",
+        required: [],
+        aliases: ["ratio analysis", "financial ratios", "ratio dashboard"],
+        keywords: [
+            /ratio analysis/i,
+            /financial ratios/i,
+            /ratio dashboard/i,
+            /liquidity ratios/i,
+            /profitability ratios/i,
+            /turnover ratios/i,
         ],
     },
     {
@@ -3011,6 +3181,10 @@ export function normalizeText(text: string = ""): string {
         /(?:sold|sell)\s*(?:for)?\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
     ]);
 
+    const initialInvestment = extractNumberByAliases(
+        text,
+        FIELD_META.initialInvestment.aliases ?? []
+    );
     const presentValue = extractNumberByAliases(text, FIELD_META.presentValue.aliases ?? []);
     const futureValue = extractNumberByAliases(text, FIELD_META.futureValue.aliases ?? []);
     const loanAmount = extractNumberByAliases(text, FIELD_META.loanAmount.aliases ?? []);
@@ -3264,6 +3438,14 @@ export function normalizeText(text: string = ""): string {
         FIELD_META.serviceCharges.aliases ?? []
     );
     const nsfChecks = extractNumberByAliases(text, FIELD_META.nsfChecks.aliases ?? []);
+    const interestIncome = extractNumberByAliases(
+        text,
+        FIELD_META.interestIncome.aliases ?? []
+    );
+    const notesCollectedByBank = extractNumberByAliases(
+        text,
+        FIELD_META.notesCollectedByBank.aliases ?? []
+    );
     const bankError = extractNumberByAliases(text, FIELD_META.bankError.aliases ?? []);
     const bookError = extractNumberByAliases(text, FIELD_META.bookError.aliases ?? []);
 
@@ -3271,6 +3453,7 @@ export function normalizeText(text: string = ""): string {
     const partnershipRatios = extractPartnershipRatios(text);
 
     setFact(facts, "principal", principal);
+    setFact(facts, "initialInvestment", initialInvestment);
     setFact(facts, "rate", rate);
     setFact(facts, "time", years);
     setFact(facts, "cost", cost);
@@ -3328,6 +3511,8 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "outstandingChecks", outstandingChecks);
     setFact(facts, "serviceCharges", serviceCharges);
     setFact(facts, "nsfChecks", nsfChecks);
+    setFact(facts, "interestIncome", interestIncome);
+    setFact(facts, "notesCollectedByBank", notesCollectedByBank);
     setFact(facts, "bankError", bankError);
     setFact(facts, "bookError", bookError);
 

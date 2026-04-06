@@ -1,35 +1,35 @@
-export const APP_VERSION = "2.6.0";
+export const APP_VERSION = "2.7.0";
 export const APP_RELEASE_DATE = "2026-04-06";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Accounting depth expansion",
-        body: "The release adds bond amortization, lower-of-cost-or-NRV valuation, weighted-average equivalent units, and more variance coverage to deepen intermediate and managerial accounting workflows.",
+        title: "Capital-budgeting coverage grows up",
+        body: "IRR joins NPV, profitability index, and discounted payback, while NPV and PI now support terminal cash flows and clearer decision support.",
     },
     {
-        title: "Budgeting and planning tools",
-        body: "Cash Budget, Flexible Budget, and Discounted Payback Period extend the app from formula lookup into more realistic planning and capital-budgeting support.",
+        title: "Working-paper schedules arrive",
+        body: "Cash collections and cash disbursements schedules now connect budgeting work to the cash-budget workflow instead of forcing one-number receipt and payment estimates.",
     },
     {
-        title: "Curriculum-shaped navigation",
-        body: "Sidebar groups now break into subtopics like Receivables and Cash, Inventory, Liabilities, Budgeting, and Variances so the larger catalog stays teachable and scannable.",
+        title: "Accounting workflows deepen",
+        body: "Bank reconciliation now covers interest income and notes collected by bank, receivables aging adds adjustment guidance, and factory overhead variances plus a ratio-analysis workspace broaden classroom and review use.",
     },
     {
-        title: "Smart Solver broader reach",
-        body: "Smart Solver now recognizes more budgeting, valuation, and bond-language prompts, with route metadata and search aligned to the larger tool system.",
+        title: "Smarter routing and clearer discovery",
+        body: "Smart Solver, search, home workflows, and sidebar metadata now understand IRR, schedule-based budgeting, overhead variance prompts, and ratio-analysis language more reliably.",
     },
     {
-        title: "Offline-safe feature growth",
-        body: "All newly added local tools stay inside the existing truthful offline/PWA model so the expansion increases coverage without weakening route reliability.",
+        title: "Release stays production-safe",
+        body: "The 2.7.0 tools use shared helpers, added regression coverage, and the existing truthful offline/PWA route model so feature growth does not weaken deployment reliability.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "Added Lower of Cost or NRV, Bond Amortization Schedule, Cash Budget, Flexible Budget, Equivalent Units (Weighted Average), Materials Quantity Variance, Labor Efficiency Variance, and Discounted Payback Period.",
-    "Expanded accounting coverage across inventory valuation, liabilities, process costing, budgeting, and standard-cost variance analysis without adding disconnected filler tools.",
-    "Reorganized sidebar groups into curriculum-aware subtopics so the growing catalog remains easier to scan on both desktop and mobile.",
-    "Broadened search coverage and Smart Solver vocabulary for bond, budgeting, valuation, and variance prompts.",
-    "Kept the calculator-first layout, compact mobile headers, resilient result-card system, and modular formula guides from the previous UI passes.",
-    "Preserved truthful offline route behavior for the new locally computed tools, including route availability checks and stale-deploy protection.",
-    "Added new shared math helpers and regression tests so the expanded feature set stays standardized across routes and future updates.",
+    "Added Internal Rate of Return, Cash Collections Schedule, Cash Disbursements Schedule, Factory Overhead Variances, and Ratio Analysis Workspace.",
+    "Upgraded Net Present Value and Profitability Index with optional terminal cash flow handling and stronger decision summaries.",
+    "Expanded Bank Reconciliation with bank charges, interest income, notes collected by bank, and clearer bank-side versus book-side breakdowns.",
+    "Added receivables-aging adjustment guidance and broadened sales-mix analysis into target-profit and margin-of-safety planning.",
+    "Extended Smart Solver and search metadata for IRR, ratio analysis, cash receipts and payments schedules, bank-reconciliation additions, and overhead-variance language.",
+    "Tightened shared mobile input density and accessibility with better numeric input defaults, textarea density, and safer form labeling across touched pages.",
+    "Added developer-facing architecture and extension documentation plus new regression tests for capital budgeting, schedules, overhead variances, ratio analysis, and route search.",
 ];

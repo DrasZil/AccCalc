@@ -28,14 +28,31 @@ function nextProductId() {
 
 export default function SalesMixBreakEvenPage() {
     const [fixedCosts, setFixedCosts] = useState("");
+    const [targetProfit, setTargetProfit] = useState("");
+    const [actualCompositeUnits, setActualCompositeUnits] = useState("");
     const [products, setProducts] = useState<ProductRow[]>(DEFAULT_PRODUCTS);
 
     const result = useMemo(() => {
         if (fixedCosts.trim() === "") return null;
 
         const parsedFixedCosts = Number(fixedCosts);
+        const parsedTargetProfit =
+            targetProfit.trim() === "" ? 0 : Number(targetProfit);
+        const parsedActualCompositeUnits =
+            actualCompositeUnits.trim() === "" ? null : Number(actualCompositeUnits);
         if (Number.isNaN(parsedFixedCosts)) {
             return { error: "Fixed costs must be a valid number." };
+        }
+
+        if (Number.isNaN(parsedTargetProfit)) {
+            return { error: "Target profit must be a valid number when provided." };
+        }
+
+        if (
+            parsedActualCompositeUnits !== null &&
+            Number.isNaN(parsedActualCompositeUnits)
+        ) {
+            return { error: "Actual composite units must be a valid number when provided." };
         }
 
         if (parsedFixedCosts <= 0) {
@@ -95,11 +112,28 @@ export default function SalesMixBreakEvenPage() {
             };
         }
 
-        return computeSalesMixBreakEven({
+        const analysis = computeSalesMixBreakEven({
             fixedCosts: parsedFixedCosts,
             products: parsedProducts,
         });
-    }, [fixedCosts, products]);
+        const targetCompositeUnits =
+            (parsedFixedCosts + parsedTargetProfit) / analysis.compositeUnitContribution;
+        const actualSales =
+            parsedActualCompositeUnits === null
+                ? null
+                : parsedActualCompositeUnits * analysis.compositeUnitSales;
+
+        return {
+            ...analysis,
+            targetProfit: parsedTargetProfit,
+            targetCompositeUnits,
+            targetSales: targetCompositeUnits * analysis.compositeUnitSales,
+            actualCompositeUnits: parsedActualCompositeUnits,
+            actualSales,
+            marginOfSafetySales:
+                actualSales === null ? null : actualSales - analysis.breakEvenSales,
+        };
+    }, [actualCompositeUnits, fixedCosts, products, targetProfit]);
 
     function updateProduct(id: string, patch: Partial<ProductRow>) {
         setProducts((current) =>
@@ -132,12 +166,26 @@ export default function SalesMixBreakEvenPage() {
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
-                        <InputGrid columns={1}>
+                        <InputGrid columns={2}>
                             <InputCard
                                 label="Fixed Costs"
                                 value={fixedCosts}
                                 onChange={setFixedCosts}
                                 placeholder="180000"
+                            />
+                            <InputCard
+                                label="Target Profit (optional)"
+                                value={targetProfit}
+                                onChange={setTargetProfit}
+                                placeholder="60000"
+                                helperText="Add a profit goal to extend the mix from break-even into planning."
+                            />
+                            <InputCard
+                                label="Actual Composite Units Sold (optional)"
+                                value={actualCompositeUnits}
+                                onChange={setActualCompositeUnits}
+                                placeholder="520"
+                                helperText="Use actual mix bundles sold to read the margin of safety."
                             />
                         </InputGrid>
                     </SectionCard>
@@ -251,6 +299,31 @@ export default function SalesMixBreakEvenPage() {
                             />
                         </ResultGrid>
 
+                        <ResultGrid columns={3}>
+                            <ResultCard
+                                title="Target-Profit Composite Units"
+                                value={result.targetCompositeUnits.toFixed(2)}
+                                supportingText={`Target profit: ${formatPHP(result.targetProfit)}`}
+                            />
+                            <ResultCard
+                                title="Target-Profit Sales"
+                                value={formatPHP(result.targetSales)}
+                            />
+                            <ResultCard
+                                title="Margin of Safety"
+                                value={
+                                    result.marginOfSafetySales === null
+                                        ? "Add actual units"
+                                        : formatPHP(result.marginOfSafetySales)
+                                }
+                                supportingText={
+                                    result.marginOfSafetySales === null
+                                        ? "Optional"
+                                        : "Actual sales minus break-even sales"
+                                }
+                            />
+                        </ResultGrid>
+
                         <SectionCard>
                             <div className="space-y-3">
                                 {result.breakEvenUnitsByProduct.map((product) => (
@@ -291,6 +364,7 @@ export default function SalesMixBreakEvenPage() {
                             `Weighted average contribution margin ratio = ${(result.weightedAverageContributionMarginRatio * 100).toFixed(2)}%.`,
                             `Break-even composite units = ${formatPHP(Number(fixedCosts || 0))} / ${formatPHP(result.compositeUnitContribution)} = ${result.breakEvenCompositeUnits.toFixed(2)}.`,
                             `Break-even sales = ${formatPHP(result.breakEvenSales)}.`,
+                            `Target-profit composite units = (${formatPHP(Number(fixedCosts || 0))} + ${formatPHP(result.targetProfit)}) / ${formatPHP(result.compositeUnitContribution)} = ${result.targetCompositeUnits.toFixed(2)}.`,
                         ]}
                         glossary={[
                             {
@@ -309,10 +383,13 @@ export default function SalesMixBreakEvenPage() {
                                     "The contribution margin ratio produced by the full composite sales mix rather than by one product alone.",
                             },
                         ]}
-                        interpretation={`At the current product mix, the business needs ${result.breakEvenCompositeUnits.toFixed(2)} composite units, or ${formatPHP(result.breakEvenSales)} in sales, to break even. If the sales mix shifts materially, the break-even point should be recalculated because the weighted contribution margin will also change.`}
+                        interpretation={`At the current product mix, the business needs ${result.breakEvenCompositeUnits.toFixed(2)} composite units, or ${formatPHP(result.breakEvenSales)} in sales, to break even. To earn ${formatPHP(result.targetProfit)} of target profit, it needs ${result.targetCompositeUnits.toFixed(2)} composite units. If the sales mix shifts materially, both the break-even point and the target-profit answer should be recalculated because the weighted contribution margin will also change.`}
                         assumptions={[
                             "This model assumes the sales mix stays reasonably stable across the relevant range.",
                             "Fixed costs are treated as constant and variable cost behavior is assumed linear within the analyzed range.",
+                        ]}
+                        notes={[
+                            "The optional actual composite-units field gives a margin-of-safety reading without forcing you into a separate page for the same product mix.",
                         ]}
                         warnings={[
                             "A sales-mix break-even is only as reliable as the assumed mix. If one product becomes dominant, the weighted contribution margin changes and the break-even answer moves with it.",

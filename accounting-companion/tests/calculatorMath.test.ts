@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import {
     computeBreakEven,
+    computeBankReconciliation,
     computeBondAmortizationSchedule,
     computeCashDiscount,
     computeCashBudget,
+    computeCashCollectionsSchedule,
     computeCashConversionCycle,
+    computeCashDisbursementsSchedule,
     computeCashRatio,
     computeCompoundInterest,
     computeCurrentRatio,
@@ -17,7 +20,9 @@ import {
     computeFlexibleBudget,
     computeFutureValue,
     computeFutureValueOfOrdinaryAnnuity,
+    computeFactoryOverheadVariances,
     computeGrossProfitRate,
+    computeInternalRateOfReturn,
     computeInventoryMethodComparison,
     computeLaborEfficiencyVariance,
     computeLoanAmortization,
@@ -37,6 +42,7 @@ import {
     computePresentValueOfOrdinaryAnnuity,
     computeProfitabilityIndex,
     computeQuickRatio,
+    computeRatioAnalysisWorkspace,
     computeReceivablesAgingSchedule,
     computeSalesMixBreakEven,
     computeSimpleInterest,
@@ -333,6 +339,28 @@ runTest("capital budgeting helpers compute consistent discounted values", () => 
     assertClose(profitabilityIndex.netPresentValue, npv.netPresentValue, 1e-9);
 });
 
+runTest("npv and profitability index include optional terminal cash flow", () => {
+    const npv = computeNetPresentValue(250000, 12, [70000, 80000, 90000, 85000], 30000);
+    const profitabilityIndex = computeProfitabilityIndex(
+        250000,
+        12,
+        [70000, 80000, 90000, 85000],
+        30000
+    );
+
+    assertClose(npv.totalPresentValue, 263420.3115, 1e-3);
+    assertClose(npv.netPresentValue, 13420.3115, 1e-3);
+    assertClose(profitabilityIndex.profitabilityIndex, 1.0536812461, 1e-6);
+});
+
+runTest("internal rate of return isolates a practical project rate", () => {
+    const result = computeInternalRateOfReturn(180000, [60000, 70000, 80000, 90000]);
+
+    assert.equal(result.hasSolution, true);
+    assertClose(result.irrPercent ?? 0, 22.249832, 1e-3);
+    assert.equal(result.multipleIrRisk, false);
+});
+
 runTest("discounted payback recognizes time-value-adjusted recovery", () => {
     const result = computeDiscountedPaybackPeriod(100000, 12, [
         30000,
@@ -454,6 +482,25 @@ runTest("cash conversion cycle summarizes working-capital timing", () => {
     assert.equal(result.pressureLevel, "elevated");
 });
 
+runTest("bank reconciliation handles book-side additions and deductions", () => {
+    const result = computeBankReconciliation({
+        bankBalance: 52000,
+        bookBalance: 49800,
+        depositsInTransit: 6000,
+        outstandingChecks: 4200,
+        bankCharges: 300,
+        nsfChecks: 700,
+        interestIncome: 450,
+        notesCollectedByBank: 1750,
+        bankError: 0,
+        bookError: 0,
+    });
+
+    assertClose(result.adjustedBank, 53800);
+    assertClose(result.adjustedBook, 51000);
+    assert.equal(result.isBalanced, false);
+});
+
 runTest("receivables aging schedule derives required ending allowance", () => {
     const result = computeReceivablesAgingSchedule({
         buckets: [
@@ -514,6 +561,43 @@ runTest("cash and flexible budgets separate financing and variance logic", () =>
     assertClose(flexibleBudget.spendingVariance, 8000);
 });
 
+runTest("collections and disbursements schedules respect lag patterns", () => {
+    const collections = computeCashCollectionsSchedule({
+        periods: [
+            { label: "January", amount: 100000 },
+            { label: "February", amount: 120000 },
+            { label: "March", amount: 90000 },
+        ],
+        collectionPattern: [
+            { lagPeriods: 0, percent: 40 },
+            { lagPeriods: 1, percent: 60 },
+        ],
+        beginningReceivables: 50000,
+    });
+    const disbursements = computeCashDisbursementsSchedule({
+        periods: [
+            { label: "January", amount: 80000 },
+            { label: "February", amount: 95000 },
+            { label: "March", amount: 110000 },
+        ],
+        paymentPattern: [
+            { lagPeriods: 0, percent: 50 },
+            { lagPeriods: 1, percent: 50 },
+        ],
+        beginningPayables: 30000,
+    });
+
+    assertClose(collections.rows[0].totalScheduled, 90000);
+    assertClose(collections.rows[1].totalScheduled, 108000);
+    assertClose(collections.totalCollections, 306000);
+    assertClose(collections.endingReceivables, 54000);
+
+    assertClose(disbursements.rows[0].totalScheduled, 70000);
+    assertClose(disbursements.rows[2].totalScheduled, 102500);
+    assertClose(disbursements.totalDisbursements, 260000);
+    assertClose(disbursements.endingPayables, 55000);
+});
+
 runTest("equivalent units and efficiency variances stay classroom-consistent", () => {
     const equivalentUnits = computeEquivalentUnitsWeightedAverage({
         beginningWorkInProcessUnits: 1200,
@@ -533,6 +617,50 @@ runTest("equivalent units and efficiency variances stay classroom-consistent", (
     assertClose(equivalentUnits.transferredOutCost, 291255.3191, 1e-3);
     assertClose(materialsQuantity.variance, 4000);
     assertClose(laborEfficiency.variance, 34000);
+});
+
+runTest("factory overhead variances separate variable and fixed overhead causes", () => {
+    const result = computeFactoryOverheadVariances({
+        actualVariableOverhead: 95500,
+        actualFixedOverhead: 81000,
+        actualHours: 4200,
+        standardHoursAllowed: 4000,
+        standardVariableOverheadRate: 22,
+        budgetedFixedOverhead: 80000,
+        denominatorHours: 5000,
+    });
+
+    assertClose(result.variableOverheadSpendingVariance, 3100);
+    assertClose(result.variableOverheadEfficiencyVariance, 4400);
+    assertClose(result.fixedOverheadBudgetVariance, 1000);
+    assertClose(result.fixedOverheadVolumeVariance, 16000);
+    assertClose(result.totalOverheadVariance, 24500);
+});
+
+runTest("ratio analysis workspace computes a coordinated ratio set", () => {
+    const result = computeRatioAnalysisWorkspace({
+        currentAssets: 420000,
+        currentLiabilities: 180000,
+        cash: 60000,
+        marketableSecurities: 15000,
+        netReceivables: 95000,
+        netSales: 950000,
+        netCreditSales: 900000,
+        costOfGoodsSold: 570000,
+        netIncome: 98000,
+        averageInventory: 150000,
+        averageAccountsReceivable: 110000,
+        averageTotalAssets: 760000,
+        averageEquity: 380000,
+    });
+
+    assertClose(result.currentRatio, 2.3333333333, 1e-6);
+    assertClose(result.quickRatio, 0.9444444444, 1e-6);
+    assertClose(result.grossProfitRate, 0.4, 1e-9);
+    assertClose(result.inventoryTurnover, 3.8, 1e-9);
+    assertClose(result.receivablesTurnover, 8.1818181818, 1e-6);
+    assertClose(result.returnOnAssets, 0.1289473684, 1e-6);
+    assertClose(result.returnOnEquity, 0.2578947368, 1e-6);
 });
 
 runTest("number list parser accepts mixed separators and rejects bad entries", () => {
@@ -555,6 +683,11 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const salesMixResults = searchAppRoutes("composite unit break even");
     const bondResults = searchAppRoutes("bond premium schedule");
     const budgetResults = searchAppRoutes("activity variance");
+    const irrResults = searchAppRoutes("irr");
+    const collectionsResults = searchAppRoutes("cash receipts schedule");
+    const disbursementsResults = searchAppRoutes("cash payments schedule");
+    const overheadResults = searchAppRoutes("overhead volume variance");
+    const ratioResults = searchAppRoutes("financial ratios");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -566,6 +699,11 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(salesMixResults[0]?.path, "/business/sales-mix-break-even");
     assert.equal(bondResults[0]?.path, "/accounting/bond-amortization-schedule");
     assert.equal(budgetResults[0]?.path, "/business/flexible-budget");
+    assert.equal(irrResults[0]?.path, "/finance/internal-rate-of-return");
+    assert.equal(collectionsResults[0]?.path, "/business/cash-collections-schedule");
+    assert.equal(disbursementsResults[0]?.path, "/business/cash-disbursements-schedule");
+    assert.equal(overheadResults[0]?.path, "/accounting/factory-overhead-variance");
+    assert.equal(ratioResults[0]?.path, "/accounting/ratio-analysis-workspace");
 });
 
 runTest("account reference search finds aliases and abbreviations", () => {

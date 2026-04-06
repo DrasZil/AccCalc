@@ -59,6 +59,12 @@ const SMART_PROMPT_EXAMPLES = [
     "Prepare a cash budget if beginning cash is 50,000, collections are 180,000, disbursements are 210,000, and minimum cash is 25,000.",
     "Make a flexible budget if budgeted units are 10,000, actual units are 12,000, fixed costs are 150,000, variable cost per unit is 22, and actual cost is 422,000.",
     "Prepare a bond amortization schedule for 1,000,000 face value bonds, 8% stated rate, 10% market rate, 5 years, semiannual.",
+    "Find NPV for an initial investment of 250,000 at a 12% discount rate with cash flows of 70,000, 80,000, 90,000, and 85,000 plus 30,000 salvage value.",
+    "Compute IRR for an initial investment of 180,000 with annual cash flows of 60,000, 70,000, 80,000, and 90,000.",
+    "Route me to the cash collections schedule for monthly sales collected 40% this month and 60% next month.",
+    "I need a bank reconciliation with deposits in transit, outstanding checks, bank charges, interest income, and a note collected by bank.",
+    "Open the factory overhead variance tool for spending, efficiency, budget, and volume variance.",
+    "Show a ratio analysis workspace for liquidity, turnover, and return ratios.",
     "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
     "Compare depreciation methods for cost 500,000, salvage 50,000, and useful life 5 years.",
 ];

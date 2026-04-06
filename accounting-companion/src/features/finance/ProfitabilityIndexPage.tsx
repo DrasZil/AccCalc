@@ -9,11 +9,18 @@ import TextAreaCard from "../../components/TextAreaCard";
 import { computeProfitabilityIndex } from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
 import { parseNumberList } from "../../utils/listParsers";
+import { useSmartSolverConnector } from "../smart/smartSolver.connector";
 
 export default function ProfitabilityIndexPage() {
     const [initialInvestment, setInitialInvestment] = useState("");
     const [discountRate, setDiscountRate] = useState("");
     const [cashFlows, setCashFlows] = useState("");
+    const [terminalCashFlow, setTerminalCashFlow] = useState("");
+
+    useSmartSolverConnector({
+        initialInvestment: setInitialInvestment,
+        discountRate: setDiscountRate,
+    });
 
     const result = useMemo(() => {
         if (
@@ -27,9 +34,11 @@ export default function ProfitabilityIndexPage() {
         const investment = Number(initialInvestment);
         const rate = Number(discountRate);
         const parsedCashFlows = parseNumberList(cashFlows);
+        const parsedTerminalCashFlow =
+            terminalCashFlow.trim() === "" ? 0 : Number(terminalCashFlow);
 
-        if (Number.isNaN(investment) || Number.isNaN(rate)) {
-            return { error: "Initial investment and discount rate must be valid numbers." };
+        if (Number.isNaN(investment) || Number.isNaN(rate) || Number.isNaN(parsedTerminalCashFlow)) {
+            return { error: "Initial investment, discount rate, and terminal cash flow must be valid numbers." };
         }
 
         if (investment <= 0) {
@@ -44,13 +53,23 @@ export default function ProfitabilityIndexPage() {
             return { error: parsedCashFlows.error };
         }
 
+        if (!parsedCashFlows.values.length) {
+            return { error: "Enter at least one operating cash flow period." };
+        }
+
         const { profitabilityIndex, totalPresentValue, netPresentValue } =
-            computeProfitabilityIndex(investment, rate, parsedCashFlows.values);
+            computeProfitabilityIndex(
+                investment,
+                rate,
+                parsedCashFlows.values,
+                parsedTerminalCashFlow
+            );
 
         return {
             profitabilityIndex,
             totalPresentValue,
             netPresentValue,
+            terminalCashFlow: parsedTerminalCashFlow,
             formula: "Profitability Index = Present value of future cash inflows / Initial investment",
             steps: [
                 `Present value of future cash inflows = ${formatPHP(totalPresentValue)}`,
@@ -90,6 +109,13 @@ export default function ProfitabilityIndexPage() {
                                 onChange={setDiscountRate}
                                 placeholder="12"
                             />
+                            <InputCard
+                                label="Terminal Cash Flow (optional)"
+                                value={terminalCashFlow}
+                                onChange={setTerminalCashFlow}
+                                placeholder="25000"
+                                helperText="Use this for salvage value or another final-period receipt."
+                            />
                         </div>
                     </SectionCard>
                     <TextAreaCard
@@ -110,7 +136,11 @@ export default function ProfitabilityIndexPage() {
                     <ResultGrid columns={3}>
                         <ResultCard title="Profitability Index" value={result.profitabilityIndex.toFixed(4)} />
                         <ResultCard title="Present Value of Inflows" value={formatPHP(result.totalPresentValue)} />
-                        <ResultCard title="Related NPV" value={formatPHP(result.netPresentValue)} />
+                        <ResultCard
+                            title="Decision"
+                            value={result.profitabilityIndex >= 1 ? "Accept" : "Reject"}
+                            supportingText={`Related NPV: ${formatPHP(result.netPresentValue)}`}
+                        />
                     </ResultGrid>
                 ) : null
             }
@@ -121,6 +151,10 @@ export default function ProfitabilityIndexPage() {
                         steps={result.steps}
                         glossary={result.glossary}
                         interpretation={result.interpretation}
+                        assumptions={[
+                            "The optional terminal cash flow is added to the final listed period only.",
+                            "A profitability index of at least 1.00 aligns with a non-negative NPV under the same assumptions.",
+                        ]}
                     />
                 ) : null
             }

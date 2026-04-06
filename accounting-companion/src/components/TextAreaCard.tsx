@@ -11,10 +11,10 @@ export default function TextAreaCard({
     value,
     onChange,
     placeholder,
-    rows = 5,
+    rows = 4,
 }: TextAreaCardProps) {
     return (
-        <div className="app-input-shell rounded-[var(--app-radius-md)] p-4">
+        <div className="app-input-shell rounded-[var(--app-radius-md)] p-3.5">
             <label className="app-label mb-2.5 block">
                 {label}
             </label>
@@ -23,7 +23,10 @@ export default function TextAreaCard({
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
                 placeholder={placeholder}
-                className="app-field w-full resize-y rounded-2xl px-4 py-3.5 text-[0.98rem] outline-none"
+                aria-label={label}
+                autoComplete="off"
+                spellCheck={false}
+                className="app-field w-full resize-y rounded-2xl px-4 py-3 text-[0.97rem] outline-none"
             />
         </div>
     );

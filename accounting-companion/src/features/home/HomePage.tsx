@@ -36,9 +36,11 @@ const SMART_PROMPT_EXAMPLES = [
 
 const FEATURED_PATHS = [
     "/smart/solver",
+    "/accounting/ratio-analysis-workspace",
     "/accounting/current-ratio",
     "/business/break-even",
     "/finance/loan-amortization",
+    "/finance/internal-rate-of-return",
     "/accounting/bond-amortization-schedule",
     "/accounting/receivables-aging-schedule",
     "/business/cash-budget",
@@ -79,9 +81,21 @@ const WORKFLOW_COLLECTIONS = [
         title: "Budgeting",
         description: "Move from operating cash planning into flexible-budget variance reading.",
         paths: [
+            "/business/cash-collections-schedule",
+            "/business/cash-disbursements-schedule",
             "/business/cash-budget",
             "/business/flexible-budget",
             "/business/margin-of-safety",
+        ],
+    },
+    {
+        title: "Capital budgeting",
+        description: "Compare discounted value, project rate, and recovery tools in one decision workflow.",
+        paths: [
+            "/finance/npv",
+            "/finance/internal-rate-of-return",
+            "/finance/profitability-index",
+            "/finance/discounted-payback-period",
         ],
     },
     {

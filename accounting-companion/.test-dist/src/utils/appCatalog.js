@@ -90,6 +90,8 @@ function inferSubtopic(category, path, tags, label) {
             return "Reporting & Analysis";
         case "Finance":
             if (haystack.includes("npv") ||
+                haystack.includes("internal-rate") ||
+                haystack.includes("irr") ||
                 haystack.includes("profitability-index") ||
                 haystack.includes("payback")) {
                 return "Capital Budgeting";
@@ -101,8 +103,13 @@ function inferSubtopic(category, path, tags, label) {
             }
             return "Interest & TVM";
         case "Managerial & Cost":
-            if (haystack.includes("budget"))
+            if (haystack.includes("budget") ||
+                haystack.includes("collection") ||
+                haystack.includes("disbursement") ||
+                haystack.includes("cash receipts") ||
+                haystack.includes("cash payments")) {
                 return "Budgeting";
+            }
             if (haystack.includes("variance"))
                 return "Variances";
             if (haystack.includes("depreciation"))
@@ -241,6 +248,7 @@ export const APP_ROUTE_META = [
     feature("/accounting/return-on-assets", "Return on Assets", "Accounting", "Profitability relative to average assets.", ["roa"], ["ratios", "profitability"]),
     feature("/accounting/asset-turnover", "Asset Turnover", "Accounting", "Net sales generated per peso of average assets.", ["sales to assets"], ["ratios", "efficiency"]),
     feature("/accounting/return-on-equity", "Return on Equity", "Accounting", "Profitability relative to average equity.", ["roe"], ["ratios", "profitability"]),
+    feature("/accounting/ratio-analysis-workspace", "Ratio Analysis Workspace", "Accounting", "Compute a compact set of liquidity, turnover, and return ratios from one coordinated input set.", ["ratio dashboard", "ratio analysis", "financial ratios workspace"], ["ratios", "analysis", "workspace"], "Ratios", true, ["ratio analysis", "liquidity", "turnover", "roa", "roe"]),
     feature("/accounting/times-interest-earned", "Times Interest Earned", "Accounting", "Interest coverage using EBIT.", ["interest coverage", "tie ratio"], ["ratios", "solvency"], undefined, true),
     feature("/accounting/earnings-per-share", "Earnings Per Share", "Accounting", "Basic EPS from net income, preferred dividends, and weighted shares.", ["eps"], ["ratios", "equity"]),
     feature("/accounting/book-value-per-share", "Book Value Per Share", "Accounting", "Book value represented by each common share.", ["bvps"], ["ratios", "equity"], undefined, true),
@@ -260,6 +268,7 @@ export const APP_ROUTE_META = [
     feature("/finance/sinking-fund-deposit", "Sinking Fund Deposit", "Finance", "Regular deposit needed to reach a target amount.", ["required deposit", "sinking fund"], ["annuity", "savings"]),
     feature("/finance/loan-amortization", "Loan Amortization", "Finance", "Monthly payment, total paid, and total interest.", ["monthly payment", "loan payment"], ["loan", "payment"]),
     feature("/finance/npv", "Net Present Value", "Finance", "Discount cash flows and compare them with the initial investment.", ["npv", "discounted cash flow"], ["capital budgeting"], "NPV", true),
+    feature("/finance/internal-rate-of-return", "Internal Rate of Return", "Finance", "Estimate the discount rate that makes NPV equal zero and flag multiple-IRR risk when applicable.", ["irr", "internal rate", "internal rate of return"], ["capital budgeting", "irr"], "IRR", true, ["irr", "internal rate of return", "project rate"]),
     feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
     feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
     feature("/finance/discounted-payback-period", "Discounted Payback Period", "Finance", "Discounted recovery period using the time value of money.", ["discounted payback", "discounted recovery period"], ["capital budgeting"], undefined, true, ["discounted payback", "discounted recovery"]),
@@ -273,9 +282,12 @@ export const APP_ROUTE_META = [
     feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
     feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
     feature("/business/sales-mix-break-even", "Sales Mix Break-even", "Managerial & Cost", "Break-even analysis for multi-product sales mixes.", ["multi product break even", "sales mix cvp", "composite unit break even"], ["cvp", "sales mix", "break-even"], undefined, true, ["sales mix", "composite unit", "weighted contribution margin"]),
+    feature("/business/cash-collections-schedule", "Cash Collections Schedule", "Managerial & Cost", "Build a month-based receipts schedule from sales and collection lag patterns.", ["schedule of cash collections", "cash receipts schedule"], ["budgeting", "collections", "cash"], undefined, true, ["cash collections", "collections schedule", "cash receipts"]),
+    feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
+    feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),
     feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),
     feature("/accounting/prime-conversion-cost", "Prime and Conversion Cost", "Managerial & Cost", "Prime cost and conversion cost.", ["prime cost", "conversion cost"], ["cost accounting"], undefined, true),
     feature("/accounting/materials-price-variance", "Materials Price Variance", "Managerial & Cost", "Direct materials price variance.", ["mpv", "material price variance"], ["variance"], undefined, true),
