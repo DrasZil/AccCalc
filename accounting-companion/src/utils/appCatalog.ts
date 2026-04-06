@@ -50,14 +50,14 @@ const GROUP_CONFIG: Record<
     AppNavGroupTitle,
     { hint: string; tone: string; order: number }
 > = {
-    General: { hint: "Home, settings, and saved activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
-    "Core Tools": { hint: "Daily utility calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
-    "Smart Tools": { hint: "Prompt-based routing", tone: "from-amber-300/15 to-transparent", order: 2 },
-    Accounting: { hint: "Financial accounting, statements, and review tools", tone: "from-green-400/20 to-transparent", order: 3 },
-    Finance: { hint: "Time value, loans, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
-    "Managerial & Cost": { hint: "CVP, costing, variances, and depreciation", tone: "from-orange-400/15 to-transparent", order: 5 },
-    "Business Math": { hint: "Commercial math, pricing, and applied percentages", tone: "from-fuchsia-400/15 to-transparent", order: 6 },
-    Statistics: { hint: "Foundational statistics and analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
+    General: { hint: "Home and activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
+    "Core Tools": { hint: "Everyday calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
+    "Smart Tools": { hint: "Prompt routing", tone: "from-amber-300/15 to-transparent", order: 2 },
+    Accounting: { hint: "Statements and review", tone: "from-green-400/20 to-transparent", order: 3 },
+    Finance: { hint: "Time value and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
+    "Managerial & Cost": { hint: "CVP, costing, and depreciation", tone: "from-orange-400/15 to-transparent", order: 5 },
+    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 6 },
+    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
 };
 
 function feature(

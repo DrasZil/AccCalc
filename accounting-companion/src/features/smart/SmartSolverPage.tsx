@@ -459,7 +459,7 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories. The matching logic runs locally offline, while opening the suggested route still depends on whether this release has already been cached.`}
+            description={`Describe the problem naturally. Smart Solver reads the prompt, prepares likely inputs, and routes you into one of ${totalCoveredTools} supported tools across ${solverCoverageGroups.length} categories. Matching runs locally, while opening the suggested page offline still depends on this release already being cached.`}
             prioritizeResultSection={hasAnyInput}
             inputSection={
                 <div className="space-y-4">
@@ -468,7 +468,7 @@ export default function SmartSolverPage() {
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="max-w-3xl">
                                     <p className="app-section-kicker text-xs">
-                                        Prompt Workspace
+                                        Prompt
                                     </p>
                                     <p className="app-body-md mt-2 text-sm">
                                         Paste the full problem first. Smart Solver reads normal wording,
@@ -583,7 +583,7 @@ export default function SmartSolverPage() {
 
                         <CollapsibleSection
                             title="Coverage"
-                            description="This list is generated from the app catalog so new calculator categories and tools can appear here as the app grows."
+                            description="This catalog-backed list shows which tool groups Smart Solver can currently route into."
                             open={showCoverage}
                             onToggle={() => setShowCoverage((prev) => !prev)}
                         >
@@ -650,7 +650,7 @@ export default function SmartSolverPage() {
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="max-w-3xl">
                                     <h3 className="app-section-kicker text-xs">
-                                        Match Summary
+                                        Match
                                     </h3>
                                     <p className="app-body-md mt-2 text-sm">
                                         This is the clean summary of what Smart Solver currently understands from the prompt.
@@ -714,7 +714,7 @@ export default function SmartSolverPage() {
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div>
                                     <h3 className="app-section-kicker text-xs">
-                                        Review Inputs
+                                        Prepared inputs
                                     </h3>
                                     <p className="app-body-md mt-1 text-sm">
                                         These inputs adapt to the active tool and should be your final check before continuing.
@@ -846,7 +846,7 @@ export default function SmartSolverPage() {
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div>
                                     <h3 className="app-section-kicker text-xs">
-                                        Matching Tools
+                                        Tool matches
                                     </h3>
                                     <p className="app-body-md mt-1 text-sm">
                                         The top matches are shown first. Switch tools if the current interpretation is slightly off.
@@ -895,8 +895,8 @@ export default function SmartSolverPage() {
 
                     {remainingSuggestions.length > 0 ? (
                         <CollapsibleSection
-                            title="More Matches"
-                            description="Lower-priority matches are hidden by default so the main routing view stays clean."
+                            title="More matches"
+                            description="Lower-priority matches stay collapsed so the main routing view stays clean."
                             open={showMoreMatches}
                             onToggle={() => setShowMoreMatches((prev) => !prev)}
                         >
@@ -926,8 +926,8 @@ export default function SmartSolverPage() {
                     ) : null}
 
                     <CollapsibleSection
-                        title="Detected Values And Notes"
-                        description="Open this if you want to inspect exactly what the parser extracted from the prompt."
+                        title="Detected values"
+                        description="Open this to inspect exactly what the parser extracted from the prompt."
                         open={showDetectedValues}
                         onToggle={() => setShowDetectedValues((prev) => !prev)}
                     >

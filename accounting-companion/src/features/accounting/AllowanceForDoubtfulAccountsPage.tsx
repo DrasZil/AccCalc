@@ -363,9 +363,9 @@ export default function AllowanceForDoubtfulAccountsPage() {
                                 {result.rows.map((row) => (
                                     <div
                                         key={row.label}
-                                        className="flex flex-col gap-2 rounded-[1.2rem] border app-divider px-4 py-3 md:flex-row md:items-center md:justify-between"
+                                        className="grid gap-2 rounded-[1.2rem] border app-divider px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
                                     >
-                                        <div>
+                                        <div className="min-w-0">
                                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                                 {row.label}
                                             </p>
@@ -374,7 +374,7 @@ export default function AllowanceForDoubtfulAccountsPage() {
                                                 {row.estimatedUncollectibleRatePercent.toFixed(2)}%
                                             </p>
                                         </div>
-                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)] md:text-right">
                                             Estimated loss: {formatPHP(row.estimatedLoss)}
                                         </p>
                                     </div>

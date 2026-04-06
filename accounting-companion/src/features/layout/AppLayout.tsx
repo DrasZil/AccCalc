@@ -12,8 +12,8 @@ import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
 import FloatingPromptDock from "../../components/FloatingPromptDock";
 import InstallPrompt from "../../components/InstallPrompt";
+import ReturnToTopButton from "../../components/ReturnToTopButton";
 import ShareAppButton from "../../components/ShareAppButton";
-import ToolPinButton from "../../components/ToolPinButton";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -93,6 +93,18 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
 
 function getDraftStorageKey(pathname: string) {
     return `${ROUTE_DRAFT_STORAGE_PREFIX}:${pathname}`;
+}
+
+function getNavLabel(route: { label: string; shortLabel?: string }) {
+    return route.shortLabel ?? route.label;
+}
+
+function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
+    if (groupTitle === "Core Tools") return "Core";
+    if (groupTitle === "Smart Tools") return "Smart";
+    if (groupTitle === "Managerial & Cost") return "Mgmt & Cost";
+    if (groupTitle === "Business Math") return "Business Math";
+    return groupTitle;
 }
 
 function getDraftFields(root: HTMLElement) {
@@ -229,7 +241,7 @@ function SidebarContent({
                 background: "linear-gradient(180deg, var(--app-surface), var(--app-elevated))",
             }}
         >
-            <div className="border-b app-divider px-4 py-4">
+            <div className="border-b app-divider px-4 py-3.5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                         <Link to="/" onClick={closeMobileSidebar} className="block">
@@ -244,8 +256,8 @@ function SidebarContent({
                             </div>
                         </Link>
 
-                        <p className="mt-1.5 max-w-xs text-[0.8rem] leading-5 app-sidebar-group-hint">
-                            Smarter accounting, finance, and business calculators built for classwork and real-world checking.
+                        <p className="mt-1.5 max-w-xs text-[0.76rem] leading-5 app-sidebar-group-hint">
+                            Accounting, finance, and business tools with calmer offline-aware navigation.
                         </p>
                     </div>
 
@@ -263,7 +275,7 @@ function SidebarContent({
             <div className="flex-1 overflow-y-auto px-2.5 py-3 scrollbar-premium">
                 {pinnedRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
-                        <p className="app-section-kicker px-2 text-[0.68rem]">Pinned tools</p>
+                        <p className="app-section-kicker px-2 text-[0.64rem]">Pins</p>
                         <div className="space-y-1.5">
                             {pinnedRoutes.map((route) => (
                                 (() => {
@@ -283,8 +295,8 @@ function SidebarContent({
                                     ].join(" ")}
                                     title={availability.reason}
                                 >
-                                    <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
-                                        {route.label}
+                                    <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
+                                        {getNavLabel(route)}
                                     </span>
                                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
                                         {availability.canOpen ? "Pin" : availability.label}
@@ -299,7 +311,7 @@ function SidebarContent({
 
                 {mostUsedRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
-                        <p className="app-section-kicker px-2 text-[0.68rem]">Most used</p>
+                        <p className="app-section-kicker px-2 text-[0.64rem]">Popular</p>
                         <div className="grid gap-2">
                             {mostUsedRoutes.map((route) => (
                                 (() => {
@@ -314,7 +326,7 @@ function SidebarContent({
                                     title={availability.reason}
                                 >
                                     <span className="block truncate text-[color:var(--app-text)]">
-                                        {route.label}
+                                        {getNavLabel(route)}
                                     </span>
                                     <span className="app-helper text-xs">
                                         {route.category} · {availability.label}
@@ -329,7 +341,7 @@ function SidebarContent({
 
                 {recentRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
-                        <p className="app-section-kicker px-2 text-[0.68rem]">Continue</p>
+                        <p className="app-section-kicker px-2 text-[0.64rem]">Recent</p>
                         <div className="grid gap-2">
                             {recentRoutes.map((route) => (
                                 (() => {
@@ -344,7 +356,7 @@ function SidebarContent({
                                     title={availability.reason}
                                 >
                                     <span className="block truncate text-[color:var(--app-text)]">
-                                        {route.label}
+                                        {getNavLabel(route)}
                                     </span>
                                     <span className="app-helper text-xs">
                                         {route.category} · {availability.label}
@@ -377,12 +389,12 @@ function SidebarContent({
                                     type="button"
                                     onClick={() => toggleGroup(group.title)}
                                     className={[
-                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1.2rem] px-3.5 py-3 text-left transition duration-300",
+                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1.1rem] px-3 py-2.5 text-left transition duration-300",
                                         groupHasActiveItem ? "app-sidebar-group-active" : "",
                                     ].join(" ")}
                                 >
                                     <div
-                                        className="app-sidebar-icon inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[1.05rem] text-[color:var(--app-sidebar-text)]"
+                                        className="app-sidebar-icon inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.95rem] text-[color:var(--app-sidebar-text)]"
                                         style={{ background: getSidebarTone(group.title) }}
                                     >
                                         <ShellIcon kind={group.title} className="h-[1rem] w-[1rem]" />
@@ -391,8 +403,8 @@ function SidebarContent({
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="flex min-w-0 items-center gap-2">
-                                                <p className="app-sidebar-group-title truncate text-[0.92rem] font-semibold tracking-[-0.02em]">
-                                                    {group.title}
+                                                <p className="app-sidebar-group-title truncate text-[0.9rem] font-semibold tracking-[-0.02em]">
+                                                    {getGroupDisplayLabel(group.title)}
                                                 </p>
                                                 {hasUnseenItem ? <NewBadge /> : null}
                                             </div>
@@ -400,7 +412,7 @@ function SidebarContent({
                                                 {group.items.length}
                                             </span>
                                         </div>
-                                        <p className="app-sidebar-group-hint mt-1 text-[0.76rem] leading-5">
+                                        <p className="app-sidebar-group-hint mt-0.5 text-[0.72rem] leading-5">
                                             {group.hint}
                                         </p>
                                     </div>
@@ -448,7 +460,7 @@ function SidebarContent({
                                                                 handleRouteIntent(event, item)
                                                             }
                                                             className={[
-                                                                "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium leading-5 transition duration-300",
+                                                                "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1rem] px-3 py-2.25 text-sm font-medium leading-5 transition duration-300",
                                                                 isActive
                                                                     ? "app-sidebar-link-active"
                                                                     : "",
@@ -458,8 +470,8 @@ function SidebarContent({
                                                             ].join(" ")}
                                                             title={availability.reason}
                                                         >
-                                                            <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
-                                                                {item.label}
+                                                            <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
+                                                                {getNavLabel(item)}
                                                             </span>
                                                             {isNew ? (
                                                                 <NewBadge />
@@ -495,7 +507,7 @@ function SidebarContent({
             <div className="border-t app-divider px-4 py-3">
                 <div className="flex items-center justify-between gap-3">
                     <div>
-                        <p className="app-helper text-xs">Current release</p>
+                        <p className="app-helper text-xs">Release</p>
                         <p className="text-sm font-semibold text-[color:var(--app-sidebar-text)]">
                             Version {APP_VERSION}
                         </p>
@@ -625,9 +637,6 @@ export default function AppLayout() {
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
     const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
-    const isPinEligible = Boolean(
-        currentMeta && currentMeta.path !== "/" && currentMeta.path !== "/history"
-    );
 
     const effectiveOpenGroups = useMemo(() => {
         if (!settings.autoExpandActiveNavGroup) {
@@ -1182,10 +1191,10 @@ export default function AppLayout() {
                         className="sticky top-0 z-[90] border-b app-divider backdrop-blur-xl"
                         style={{ background: "var(--app-header-bg)" }}
                     >
-                        <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5 md:py-3">
+                        <div className="flex items-center justify-between gap-3 px-4 py-2 md:px-5 md:py-2.5">
                             <div className="min-w-0 flex-1 pr-2">
                                 <div className="flex items-center gap-2">
-                                    <p className="app-kicker hidden text-[0.62rem] sm:block">
+                                    <p className="app-kicker hidden text-[0.58rem] sm:block">
                                         {currentMeta?.category ?? "Accounting companion"}
                                     </p>
                                     {unseenCount > 0 && location.pathname !== "/history" ? (
@@ -1197,26 +1206,19 @@ export default function AppLayout() {
                                         </Link>
                                     ) : null}
                                 </div>
-                                <h2 className="mt-1 truncate text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.12rem]">
-                                    {currentMeta?.label ??
-                                        "Learn faster. Calculate with confidence."}
+                                <h2 className="mt-0.5 truncate text-[0.98rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.08rem]">
+                                    {currentMeta?.shortLabel ?? currentMeta?.label ?? "AccCalc"}
                                 </h2>
-                                <p className="mt-0.5 hidden text-[0.76rem] leading-5 app-helper xl:block">
+                                <p className="app-clamp-1 mt-0.5 hidden text-[0.74rem] leading-5 app-helper xl:block">
                                     {currentMeta?.description ??
-                                        "Cleaner accounting, business, and finance tools for study and practical work."}
+                                        "Accounting, finance, and business tools with calmer utility-first navigation."}
                                 </p>
                             </div>
 
                             <div className="flex items-center gap-2">
                                 <div className="hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]">
-                                    <FeatureSearch key={location.pathname} className="w-full" placeholder="Search tools" />
+                                    <FeatureSearch key={location.pathname} className="w-full" placeholder="Search" />
                                 </div>
-
-                                {isPinEligible && currentMeta ? (
-                                    <div className="hidden md:block">
-                                        <ToolPinButton path={currentMeta.path} label={currentMeta.label} />
-                                    </div>
-                                ) : null}
 
                                 <Link
                                     to="/history"
@@ -1347,7 +1349,7 @@ export default function AppLayout() {
 
                     <main
                         ref={mainRef}
-                        className="px-4 pt-4 md:px-5 md:pb-6 md:pt-6"
+                        className="px-4 pt-2.5 md:px-5 md:pb-6 md:pt-4"
                         style={{
                             paddingBottom:
                                 "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 1.35rem)",
@@ -1436,7 +1438,7 @@ export default function AppLayout() {
                         <div>
                             <p className="app-kicker text-[0.68rem]">Mobile search</p>
                             <p className="app-helper mt-1 text-xs">
-                                Find calculators, helpers, categories, and recent additions quickly.
+                                Find tools quickly.
                             </p>
                         </div>
                         <button
@@ -1452,11 +1454,12 @@ export default function AppLayout() {
                         key={`mobile-${location.pathname}`}
                         variant="hero"
                         autoFocus
-                        placeholder="Search ratios, depreciation, inventory, Smart Solver..."
+                        placeholder="Search ratios, depreciation, inventory..."
                     />
                 </div>
             </div>
 
+            <ReturnToTopButton />
             <SettingsDrawer open={settingsPanelOpen} onClose={() => setSettingsPanelRoute(null)} />
         </div>
     );

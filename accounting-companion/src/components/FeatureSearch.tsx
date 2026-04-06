@@ -138,13 +138,13 @@ export default function FeatureSearch({
 
     const shellClass =
         variant === "hero"
-            ? "app-search-shell rounded-[1.6rem] px-4 py-3.5"
-            : "app-search-shell rounded-[1.25rem] px-3 py-2.5";
+            ? "app-search-shell rounded-[1.35rem] px-4 py-3"
+            : "app-search-shell rounded-[1.15rem] px-3 py-2.25";
 
     const panelClass =
         variant === "hero"
-            ? "app-search-panel mt-3 rounded-[1.6rem]"
-            : "app-search-panel mt-2 rounded-[1.3rem]";
+            ? "app-search-panel mt-2.5 rounded-[1.35rem]"
+            : "app-search-panel mt-2 rounded-[1.15rem]";
 
     return (
         <div
@@ -153,8 +153,8 @@ export default function FeatureSearch({
         >
             <div className={`${shellClass} hover:border-[color:var(--app-border-strong)]`}>
                 <div className="flex items-center gap-3">
-                    <div className="app-subtle-surface inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
-                        <SearchIcon className="h-5 w-5 text-[color:var(--app-text-muted)]" />
+                    <div className="app-subtle-surface inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[1rem]">
+                        <SearchIcon className="h-[1.125rem] w-[1.125rem] text-[color:var(--app-text-muted)]" />
                     </div>
                     <input
                         ref={inputRef}
@@ -205,8 +205,8 @@ export default function FeatureSearch({
                         </p>
                         <p className="app-helper mt-1 text-xs leading-5">
                             {deferredQuery.trim()
-                                ? "Matches title, aliases, abbreviations, tags, categories, and close misspellings."
-                                : "Start typing or open a suggested tool directly."}
+                                ? "Matches titles, aliases, tags, categories, and close misspellings."
+                                : "Start typing or open a suggested tool."}
                         </p>
                     </div>
 

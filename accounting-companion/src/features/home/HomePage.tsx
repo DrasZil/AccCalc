@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
+import DisclosurePanel from "../../components/DisclosurePanel";
 import FeatureSearch from "../../components/FeatureSearch";
 import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
@@ -31,7 +32,6 @@ const SMART_PROMPT_EXAMPLES = [
     "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
     "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
     "Compute depreciation and compare straight-line with double declining for cost 500,000, salvage 50,000, and useful life 5 years.",
-    "A retiring partner has capital of 120,000 and is paid 130,000 out of total partnership capital of 500,000. Show the retirement bonus effect.",
 ];
 
 const FEATURED_PATHS = [
@@ -40,16 +40,13 @@ const FEATURED_PATHS = [
     "/business/break-even",
     "/finance/loan-amortization",
     "/accounting/inventory-method-comparison",
-    "/accounting/depreciation-schedule-comparison",
-    "/accounting/partners-capital-statement",
-    "/accounting/equity-multiplier",
     "/accounting/receivables-aging-schedule",
 ];
 
 const WORKFLOW_COLLECTIONS = [
     {
-        title: "Liquidity and working capital",
-        description: "Follow short-term financial health from ratio check to cash-cycle interpretation.",
+        title: "Liquidity",
+        description: "Move from quick liquidity checks into working-capital interpretation.",
         paths: [
             "/accounting/current-ratio",
             "/accounting/quick-ratio",
@@ -58,18 +55,8 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
-        title: "Inventory and cost flow",
-        description: "Compare inventory valuation methods and move into interpretation-oriented reporting.",
-        paths: [
-            "/accounting/fifo-inventory",
-            "/accounting/weighted-average-inventory",
-            "/accounting/inventory-method-comparison",
-            "/accounting/gross-profit-method",
-        ],
-    },
-    {
-        title: "Receivables quality and collection risk",
-        description: "Move from quick allowance estimates into an aging-based required allowance and collection-quality interpretation.",
+        title: "Receivables",
+        description: "Estimate allowance quality from flat estimates through aging analysis.",
         paths: [
             "/accounting/allowance-doubtful-accounts",
             "/accounting/receivables-aging-schedule",
@@ -77,35 +64,13 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
-        title: "Borrowing and capital planning",
-        description: "Move from loan repayment planning into discounted cash flow decision tools.",
-        paths: [
-            "/finance/loan-amortization",
-            "/finance/payback-period",
-            "/finance/npv",
-            "/finance/profitability-index",
-        ],
-    },
-    {
-        title: "Multi-product CVP planning",
-        description: "Go beyond single-product break-even by testing contribution behavior and sales mix assumptions together.",
+        title: "CVP planning",
+        description: "Go from contribution margin to multi-product break-even and target profit.",
         paths: [
             "/business/contribution-margin",
             "/business/break-even",
             "/business/sales-mix-break-even",
             "/business/target-profit",
-        ],
-    },
-    {
-        title: "Partnership and equity changes",
-        description: "Move from profit allocation into partner admission, retirement, and capital statement analysis.",
-        paths: [
-            "/accounting/partnership-profit-sharing",
-            "/accounting/partnership-salary-interest",
-            "/accounting/partnership-admission-bonus",
-            "/accounting/partnership-retirement-bonus",
-            "/accounting/partners-capital-statement",
-            "/accounting/equity-multiplier",
         ],
     },
 ];
@@ -115,10 +80,9 @@ export default function HomePage() {
     const settings = useAppSettings();
     const network = useNetworkStatus();
     const offlineBundle = useOfflineBundleStatus();
-    const [showWhatsNew, setShowWhatsNew] = useState(true);
     const pinnedRoutes = getPinnedRoutes(activity);
     const mostUsedRoutes = getMostUsedRoutes(activity, 4);
-    const recentRoutes = getRecentRoutes(activity, 6);
+    const recentRoutes = getRecentRoutes(activity, 5);
     const recommended = getRecommendedRoutes(activity, "/");
 
     const unseenFeatures = useMemo(
@@ -139,15 +103,7 @@ export default function HomePage() {
         []
     );
 
-    const categoryShortcuts = useMemo(
-        () =>
-            APP_NAV_GROUPS.filter((group) => group.title !== "General").map((group) => ({
-                ...group,
-                featuredItems: group.items.slice(0, group.title === "Accounting" ? 5 : 4),
-            })),
-        []
-    );
-    const workflowCollections = useMemo(
+    const collections = useMemo(
         () =>
             WORKFLOW_COLLECTIONS.map((collection) => ({
                 ...collection,
@@ -157,6 +113,16 @@ export default function HomePage() {
             })),
         []
     );
+
+    const categoryShortcuts = useMemo(
+        () =>
+            APP_NAV_GROUPS.filter((group) => group.title !== "General").map((group) => ({
+                ...group,
+                featuredItems: group.items.slice(0, group.title === "Accounting" ? 5 : 4),
+            })),
+        []
+    );
+
     const offlineCapabilityGroups = useMemo(
         () => ({
             full: Array.from(APP_ROUTE_META_MAP.values()).filter(
@@ -169,158 +135,174 @@ export default function HomePage() {
         []
     );
 
-    const topMetrics = [
-        { label: "Pinned", value: pinnedRoutes.length, helper: "Personal quick access" },
-        { label: "Recent tools", value: recentRoutes.length, helper: "Fast resume points" },
-        { label: "Saved prompts", value: activity.savedRecords.length, helper: "Solver memory trail" },
-        { label: "Used tools", value: Object.keys(activity.toolUsage).length, helper: "Coverage you already explored" },
+    const quickStartRoutes = (pinnedRoutes.length > 0 ? pinnedRoutes : recommended).slice(0, 4);
+    const statusStats = [
+        { label: "Pins", value: pinnedRoutes.length, helper: "Quick access" },
+        { label: "Recent", value: recentRoutes.length, helper: "Resume faster" },
+        { label: "Saved", value: activity.savedRecords.length, helper: "Solver trail" },
     ];
 
     return (
         <div className="app-page-stack">
-            <section className="app-panel-elevated app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-7 xl:p-8">
-                <div className="grid gap-6 xl:grid-cols-[1.22fr_0.78fr] xl:items-end">
+            <section className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(19rem,0.92fr)] xl:items-start">
                     <div className="max-w-3xl">
-                        <AppBrandMark className="mb-4" />
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="app-chip-accent rounded-full px-3 py-1 text-xs">
-                                Release {APP_VERSION}
+                            <div className="shrink-0">
+                                <AppBrandMark compact />
+                            </div>
+                            <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
+                                v{APP_VERSION}
                             </span>
-                            <span className="app-chip rounded-full px-3 py-1 text-xs">
-                                Accounting-first workspace
+                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                Workspace
                             </span>
                         </div>
 
-                        <h1 className="mt-4 text-[clamp(2rem,1.3rem+3vw,4.35rem)] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Compact, smarter calculators for accounting classwork, analysis, and practical decisions.
+                        <h1 className="mt-4 max-w-2xl text-[clamp(1.7rem,1.25rem+1.6vw,2.55rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                            Faster accounting tools, less noise.
                         </h1>
-                        <p className="app-body-lg mt-4 max-w-2xl text-sm md:text-base">
-                            AccCalc now groups the strongest tools, recent work, pinned shortcuts, and Smart Solver entry points into one faster dashboard.
+                        <p className="app-body-md mt-3 max-w-2xl text-sm">
+                            Search, open a pinned tool, or start with Smart Solver. Deeper notes,
+                            release detail, and offline guidance stay available without crowding the first screen.
                         </p>
 
-                        <div className="mt-5 flex flex-wrap gap-3">
+                        <div className="mt-4 flex flex-wrap gap-3">
                             <Link
                                 to="/smart/solver"
-                                className="app-button-primary rounded-xl px-5 py-3 text-sm font-semibold"
+                                className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open Smart Solver
+                                Open solver
                             </Link>
                             <Link
                                 to="/history"
-                                className="app-button-secondary rounded-xl px-5 py-3 text-sm font-semibold"
+                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Review recent work
+                                Open history
                             </Link>
                             <ShareAppButton
-                                className="rounded-xl px-5 py-3"
-                                label="Share app"
-                                shareText="Try AccCalc for accounting, finance, and business calculations with guided install support and offline-safe local routes after caching."
+                                className="rounded-xl px-4 py-2.5"
+                                label="Share"
+                                shareText="Try AccCalc for accounting, finance, and business calculations with truthful offline support after caching."
                             />
                         </div>
 
                         <FeatureSearch
                             variant="hero"
                             className="mt-5 max-w-2xl"
-                            placeholder="Search ratios, inventory comparison, depreciation schedules, cash conversion cycle..."
+                            placeholder="Search ratios, inventory, depreciation, Smart Solver..."
                         />
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2">
-                        {topMetrics.map((metric) => (
-                            <div key={metric.label} className="app-metric-tile rounded-[1.35rem] p-4">
-                                <p className="app-metric-label">{metric.label}</p>
-                                <p className="app-metric-value mt-2">{metric.value}</p>
-                                <p className="app-helper mt-2 text-xs">{metric.helper}</p>
+                    <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                            {statusStats.map((stat) => (
+                                <div
+                                    key={stat.label}
+                                    className="app-subtle-surface rounded-[1.15rem] px-4 py-3.5"
+                                >
+                                    <p className="app-metric-label">{stat.label}</p>
+                                    <p className="app-metric-value mt-2">{stat.value}</p>
+                                    <p className="app-helper mt-1 text-xs">{stat.helper}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="app-subtle-surface rounded-[1.15rem] px-4 py-3.5">
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    Offline status
+                                </p>
+                                <OfflineCapabilityBadge
+                                    level={offlineBundle.ready ? "full" : "limited"}
+                                    className="px-2.5 py-1 text-[0.62rem]"
+                                    label={offlineBundle.ready ? "Cached" : "Preparing"}
+                                />
                             </div>
-                        ))}
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {network.online
+                                    ? offlineBundle.ready
+                                        ? `${offlineBundle.assetCount} assets cached for this release.`
+                                        : "Stay online once so this release can finish caching."
+                                    : offlineBundle.ready
+                                      ? "Offline-safe local routes can still open from cache."
+                                      : "This device is offline before the current release finished caching."}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="app-kicker text-xs">Quick start</p>
-                            <h2 className="app-section-title mt-3 text-2xl">Start where your workflow is now</h2>
-                            <p className="app-body-md mt-2 text-sm">
-                                Pinned tools stay in reach. Recent tools help you resume without digging through categories.
+                            <p className="app-section-kicker text-[0.68rem]">Start</p>
+                            <h2 className="app-section-title mt-2">Pick up your workflow</h2>
+                            <p className="app-helper mt-2 text-xs">
+                                Pinned and recommended tools stay close to the top.
                             </p>
                         </div>
-                        {pinnedRoutes.length > 0 ? (
+                        {recentRoutes.length > 0 ? (
                             <Link to="/history" className="app-link-accent text-sm font-medium">
-                                View all activity
+                                View all
                             </Link>
                         ) : null}
                     </div>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-2">
-                        {(pinnedRoutes.length > 0 ? pinnedRoutes : recommended).slice(0, 4).map((route) => (
-                            (() => {
-                                const routeMeta = APP_ROUTE_META_MAP.get(route.path);
-                                const availability = routeMeta
-                                    ? getRouteAvailability(routeMeta, {
-                                          online: network.online,
-                                          bundleReady: offlineBundle.ready,
-                                          currentPath: "/",
-                                      })
-                                    : {
-                                          label: "Available",
-                                          reason: route.description,
-                                      };
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {quickStartRoutes.map((route) => {
+                            const routeMeta = APP_ROUTE_META_MAP.get(route.path);
+                            const availability = routeMeta
+                                ? getRouteAvailability(routeMeta, {
+                                      online: network.online,
+                                      bundleReady: offlineBundle.ready,
+                                      currentPath: "/",
+                                  })
+                                : { label: "Available", reason: route.description };
 
-                                return (
-                            <Link
-                                key={route.path}
-                                to={route.path}
-                                className="app-link-card rounded-[1.35rem] p-4 transition duration-300 hover:-translate-y-0.5"
-                                title={availability.reason}
-                            >
-                                <div className="flex items-center justify-between gap-3">
-                                    <span className="app-chip rounded-full px-3 py-1 text-xs">
-                                        {pinnedRoutes.some((entry) => entry.path === route.path)
-                                            ? "Pinned"
-                                            : route.category}
-                                    </span>
-                                    {routeMeta ? (
-                                        <OfflineCapabilityBadge
-                                            level={routeMeta.offlineSupport}
-                                            className="px-2.5 py-1 text-[0.62rem]"
-                                            label={availability.label}
-                                        />
-                                    ) : (
+                            return (
+                                <Link
+                                    key={route.path}
+                                    to={route.path}
+                                    className="app-link-card rounded-[1.15rem] px-4 py-3.5"
+                                    title={availability.reason}
+                                >
+                                    <div className="flex items-center justify-between gap-3">
                                         <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                            {availability.label}
+                                            {pinnedRoutes.some((entry) => entry.path === route.path)
+                                                ? "Pinned"
+                                                : route.category}
                                         </span>
-                                    )}
-                                </div>
-                                <h3 className="mt-3 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                    {route.label}
-                                </h3>
-                                <p className="app-body-md mt-2 text-sm">{route.description}</p>
-                                <p className="app-helper mt-3 text-xs leading-5">
-                                    {availability.reason}
-                                </p>
-                            </Link>
-                                );
-                            })()
-                        ))}
+                                        {routeMeta ? (
+                                            <OfflineCapabilityBadge
+                                                level={routeMeta.offlineSupport}
+                                                className="px-2.5 py-1 text-[0.62rem]"
+                                                label={availability.label}
+                                            />
+                                        ) : null}
+                                    </div>
+                                    <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                        {route.shortLabel ?? route.label}
+                                    </h3>
+                                    <p className="app-helper mt-1 text-xs leading-5">
+                                        {route.description}
+                                    </p>
+                                </Link>
+                            );
+                        })}
                     </div>
 
                     {recentRoutes.length > 0 ? (
-                        <div className="mt-5">
-                            <p className="app-section-kicker text-xs">Continue where you left off</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {recentRoutes.map((route) => (
-                                    <Link
-                                        key={route.path}
-                                        to={route.path}
-                                        className="app-list-link rounded-full px-3 py-2 text-sm font-medium"
-                                    >
-                                        {route.label}
-                                    </Link>
-                                ))}
-                            </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {recentRoutes.map((route) => (
+                                <Link
+                                    key={route.path}
+                                    to={route.path}
+                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                >
+                                    {route.shortLabel ?? route.label}
+                                </Link>
+                            ))}
                         </div>
                     ) : null}
                 </div>
@@ -328,194 +310,136 @@ export default function HomePage() {
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="app-kicker text-xs">What's new</p>
-                            <h2 className="app-section-title mt-3 text-2xl">Major release improvements</h2>
-                            <p className="app-body-md mt-2 text-sm">
-                                Better layout, stronger discovery, smarter routing, and new accounting comparison tools are now live.
+                            <p className="app-section-kicker text-[0.68rem]">Release</p>
+                            <h2 className="app-section-title mt-2">What changed</h2>
+                            <p className="app-helper mt-2 text-xs">
+                                The highest-signal improvements from the current release.
                             </p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setShowWhatsNew((current) => !current)}
-                            className="app-button-ghost rounded-xl px-3 py-2 text-sm font-medium"
-                        >
-                            {showWhatsNew ? "Hide" : "Show"}
-                        </button>
+                        {unseenFeatures.length > 0 ? (
+                            <span className="app-badge-new rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
+                                {unseenFeatures.length} new
+                            </span>
+                        ) : null}
                     </div>
 
-                    {showWhatsNew ? (
-                        <div className="mt-5 space-y-3">
-                            {APP_RELEASE_HIGHLIGHTS.map((item) => (
-                                <div key={item.title} className="app-subtle-surface rounded-[1.25rem] p-4">
-                                    <p className="app-card-title text-sm">{item.title}</p>
-                                    <p className="app-body-md mt-2 text-sm">{item.body}</p>
-                                </div>
+                    <div className="mt-4 space-y-3">
+                        {APP_RELEASE_HIGHLIGHTS.slice(0, 3).map((item) => (
+                            <div
+                                key={item.title}
+                                className="app-subtle-surface rounded-[1.15rem] px-4 py-3.5"
+                            >
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {item.title}
+                                </p>
+                                <p className="app-helper mt-1.5 text-xs leading-5">{item.body}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {unseenFeatures.length > 0 ? (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {unseenFeatures.slice(0, 4).map((feature) => (
+                                <Link
+                                    key={feature.path}
+                                    to={feature.path}
+                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                >
+                                    {feature.shortLabel ?? feature.label}
+                                </Link>
                             ))}
                         </div>
                     ) : null}
-
-                    {unseenFeatures.length > 0 ? (
-                        <div className="mt-5">
-                            <p className="app-section-kicker text-xs">Unopened updates</p>
-                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                                {unseenFeatures.slice(0, 4).map((feature) => (
-                                    <Link
-                                        key={feature.path}
-                                        to={feature.path}
-                                        className="app-list-link rounded-[1.25rem] p-4"
-                                    >
-                                        <div className="flex items-center justify-between gap-3">
-                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                                {feature.label}
-                                            </p>
-                                            <span className="app-badge-new rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
-                                                New
-                                            </span>
-                                        </div>
-                                        <p className="app-helper mt-2 text-xs">{feature.category}</p>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
                 </div>
             </section>
 
-            {mostUsedRoutes.length > 0 ? (
-                <section className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p className="app-kicker text-xs">Momentum</p>
-                            <h2 className="app-section-title mt-3 text-2xl">Most-used tools on this device</h2>
-                            <p className="app-body-md mt-2 text-sm">
-                                These tools are surfaced from your actual usage so repeat workflows stay fast as the app grows.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        {mostUsedRoutes.map((route) => (
-                            <Link
-                                key={route.path}
-                                to={route.path}
-                                className="app-link-card rounded-[1.3rem] p-4"
-                            >
-                                <span className="app-chip rounded-full px-3 py-1 text-xs">
-                                    {route.category}
-                                </span>
-                                <h3 className="mt-3 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                    {route.label}
-                                </h3>
-                                <p className="app-body-md mt-2 text-sm">{route.description}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            ) : null}
-
-            <section className="space-y-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <section className="space-y-3">
+                <div className="flex items-end justify-between gap-3">
                     <div>
-                        <h2 className="app-section-title text-2xl">Featured accounting workflows</h2>
-                        <p className="app-body-md mt-1 text-sm">
-                            Stronger study and analysis routes across liquidity, depreciation, cost behavior, financing, and inventory.
-                        </p>
+                        <p className="app-section-kicker text-[0.68rem]">Featured</p>
+                        <h2 className="app-section-title mt-2">Strong starting tools</h2>
                     </div>
                     <Link to="/smart/solver" className="app-link-accent text-sm font-medium">
-                        Use natural-language solving
+                        Use solver
                     </Link>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {featuredRoutes.map((route) => (
-                        (() => {
-                            const availability = getRouteAvailability(route, {
-                                online: network.online,
-                                bundleReady: offlineBundle.ready,
-                                currentPath: "/",
-                            });
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {featuredRoutes.map((route) => {
+                        const availability = getRouteAvailability(route, {
+                            online: network.online,
+                            bundleReady: offlineBundle.ready,
+                            currentPath: "/",
+                        });
 
-                            return (
-                        <Link
-                            key={route.path}
-                            to={route.path}
-                            className="app-link-card rounded-[var(--app-radius-xl)] p-5 transition duration-300 hover:-translate-y-0.5"
-                            title={availability.reason}
-                        >
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="app-chip rounded-full px-3 py-1 text-xs">{route.category}</span>
-                                <div className="flex flex-wrap justify-end gap-2">
+                        return (
+                            <Link
+                                key={route.path}
+                                to={route.path}
+                                className="app-link-card rounded-[1.15rem] px-4 py-4"
+                                title={availability.reason}
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {route.category}
+                                    </span>
                                     <OfflineCapabilityBadge
                                         level={route.offlineSupport}
-                                        className="px-2 py-1 text-[0.62rem]"
+                                        className="px-2.5 py-1 text-[0.62rem]"
                                         label={availability.label}
                                     />
-                                    {NEW_FEATURE_PATHS.has(route.path) ? (
-                                        <span className="app-badge-new rounded-full px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
-                                            New
-                                        </span>
-                                    ) : null}
+                                </div>
+                                <h3 className="mt-3 text-[1.02rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                    {route.shortLabel ?? route.label}
+                                </h3>
+                                <p className="app-helper mt-1.5 text-xs leading-5">
+                                    {route.description}
+                                </p>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-2">
+                <DisclosurePanel
+                    title="Workflow collections"
+                    summary="Grouped paths for common study and practice sequences."
+                    badge={`${collections.length} sets`}
+                >
+                    <div className="grid gap-4">
+                        {collections.map((collection) => (
+                            <div key={collection.title} className="space-y-2">
+                                <div>
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {collection.title}
+                                    </p>
+                                    <p className="app-helper mt-1 text-xs leading-5">
+                                        {collection.description}
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {collection.routes.map((route) => (
+                                        <Link
+                                            key={route.path}
+                                            to={route.path}
+                                            className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                        >
+                                            {route.shortLabel ?? route.label}
+                                        </Link>
+                                    ))}
                                 </div>
                             </div>
-                            <h3 className="mt-4 text-xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                {route.label}
-                            </h3>
-                            <p className="app-body-md mt-2 text-sm">{route.description}</p>
-                            <p className="app-helper mt-3 text-xs leading-5">
-                                {availability.reason}
-                            </p>
-                        </Link>
-                            );
-                        })()
-                    ))}
-                </div>
-            </section>
+                        ))}
+                    </div>
+                </DisclosurePanel>
 
-            <section className="space-y-4">
-                <div>
-                    <h2 className="app-section-title text-2xl">Guided workflow collections</h2>
-                    <p className="app-body-md mt-1 text-sm">
-                        These grouped routes make the growing tool set easier to understand for both classwork and practical review.
-                    </p>
-                </div>
-
-                <div className="grid gap-4 xl:grid-cols-3">
-                    {workflowCollections.map((collection) => (
-                        <div key={collection.title} className="app-panel rounded-[var(--app-radius-xl)] p-5">
-                            <p className="app-kicker text-xs">Collection</p>
-                            <h3 className="mt-3 text-xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                {collection.title}
-                            </h3>
-                            <p className="app-body-md mt-2 text-sm">{collection.description}</p>
-                            <div className="mt-4 space-y-2">
-                                {collection.routes.map((route) => (
-                                    <Link
-                                        key={route.path}
-                                        to={route.path}
-                                        className="app-list-link flex items-center justify-between rounded-[1.15rem] px-4 py-3 text-sm font-medium"
-                                    >
-                                        <span className="truncate pr-3 text-[color:var(--app-text)]">
-                                            {route.label}
-                                        </span>
-                                        <span className="app-helper text-xs uppercase tracking-[0.14em]">
-                                            Open
-                                        </span>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <p className="app-kicker text-xs">Smart Solver starter prompts</p>
-                    <h2 className="app-section-title mt-3 text-2xl">Try the assistant-style workflow</h2>
-                    <p className="app-body-md mt-2 text-sm">
-                        Smart Solver works best when you write the problem the way a classmate or client would say it.
-                    </p>
-                    <div className="mt-5 grid gap-3">
+                <DisclosurePanel
+                    title="Smart Solver prompts"
+                    summary="Quick examples for the assistant-style workflow."
+                    badge="Examples"
+                >
+                    <div className="grid gap-2">
                         {(settings.smartSolverShowPromptExamples
                             ? SMART_PROMPT_EXAMPLES
                             : SMART_PROMPT_EXAMPLES.slice(0, 2)
@@ -523,148 +447,135 @@ export default function HomePage() {
                             <Link
                                 key={example}
                                 to="/smart/solver"
-                                className="app-list-link rounded-[1.25rem] p-4 text-sm leading-6"
+                                className="app-list-link rounded-[1rem] px-4 py-3 text-sm leading-6"
                             >
                                 {example}
                             </Link>
                         ))}
                     </div>
-                </div>
+                </DisclosurePanel>
 
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <p className="app-kicker text-xs">Release notes</p>
-                    <h2 className="app-section-title mt-3 text-2xl">AccCalc {APP_VERSION}</h2>
-                    <div className="mt-4 space-y-3">
-                        {APP_RELEASE_NOTES.map((note) => (
-                            <div key={note} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
-                                <p className="app-body-md text-sm">{note}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <p className="app-kicker text-xs">Offline readiness</p>
-                    <h2 className="app-section-title mt-3 text-2xl">
-                        {network.online
-                            ? offlineBundle.ready
-                                ? "This release is cached for offline-safe routes"
-                                : "Offline caching is still being prepared"
-                            : "You are offline now"}
-                    </h2>
-                    <p className="app-body-md mt-2 text-sm">
-                        {offlineBundle.ready
-                            ? "AccCalc can now open fully offline-safe routes from this cached release without requiring installation. Limited routes stay readable offline but still keep some actions online."
-                            : "Installation helps with launch convenience, but trustworthy offline use still depends on this release finishing its asset download once while you are online."}
-                    </p>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                <DisclosurePanel
+                    title="Offline details"
+                    summary="Truthful status for cached routes and still-online actions."
+                    badge={offlineBundle.ready ? "Cached" : "Preparing"}
+                >
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Fully offline-safe routes
+                                Fully offline-safe
                             </p>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                {offlineCapabilityGroups.full.length} routes, including local calculators,
-                                Smart Solver routing, settings, history, and bundled learning content.
+                            <p className="app-helper mt-1.5 text-xs leading-5">
+                                {offlineCapabilityGroups.full.length} local routes, including calculators,
+                                history, settings, and bundled learning content.
                             </p>
                         </div>
-                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Limited offline routes
+                                Limited offline
                             </p>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                {offlineCapabilityGroups.limited.length} routes open offline but keep
-                                some actions online, such as feedback submission, install checks, or
-                                fresh release retrieval.
+                            <p className="app-helper mt-1.5 text-xs leading-5">
+                                {offlineCapabilityGroups.limited.length} routes that still explain limits
+                                offline while keeping some actions online.
                             </p>
                         </div>
-                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Current cache status
+                                Current cache
                             </p>
-                            <p className="app-helper mt-2 text-xs leading-5">
+                            <p className="app-helper mt-1.5 text-xs leading-5">
                                 {offlineBundle.ready
-                                    ? `${offlineBundle.assetCount} route and app assets cached for this release.`
-                                    : "The current release is not fully cached yet on this device."}
+                                    ? `${offlineBundle.assetCount} assets cached for this release.`
+                                    : "The current release is not fully cached on this device yet."}
                             </p>
                         </div>
-                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Smart Solver status
+                                Still online-only
                             </p>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                Solver matching stays local, but opening the suggested route offline
-                                still depends on the current release already being cached.
+                            <p className="app-helper mt-1.5 text-xs leading-5">
+                                Feedback submission, external destinations, and first-time asset downloads.
                             </p>
                         </div>
                     </div>
-                    <Link
-                        to="/settings/install"
-                        className="app-link-accent mt-4 inline-flex text-sm font-medium"
-                    >
-                        Open install and offline guide
-                    </Link>
-                </div>
+                </DisclosurePanel>
 
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <p className="app-kicker text-xs">Online-only surfaces</p>
-                    <h2 className="app-section-title mt-3 text-2xl">Handled safely when internet is missing</h2>
-                    <div className="mt-4 space-y-3">
-                        {[
-                            "Feedback submission and the embedded Google Form remain online-only actions.",
-                            "External share targets and third-party destinations still depend on network access.",
-                            "Fresh release checks, asset downloads, and first-time caching still require an online session.",
-                        ].map((item) => (
-                            <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
-                                <p className="app-body-md text-sm">{item}</p>
+                <DisclosurePanel
+                    title="Browse categories"
+                    summary="Short entry lists instead of a long homepage dump."
+                    badge={`${categoryShortcuts.length} groups`}
+                >
+                    <div className="grid gap-4 xl:grid-cols-2">
+                        {categoryShortcuts.map((group) => (
+                            <div key={group.title} className="space-y-2">
+                                <div className="flex items-center justify-between gap-3">
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {group.title}
+                                    </p>
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {group.items.length}
+                                    </span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {group.featuredItems.map((item) => (
+                                        <Link
+                                            key={item.path}
+                                            to={item.path}
+                                            className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                        >
+                                            {item.shortLabel ?? item.label}
+                                        </Link>
+                                    ))}
+                                </div>
                             </div>
                         ))}
                     </div>
-                </div>
+                </DisclosurePanel>
             </section>
 
-            <section className="space-y-4">
-                <div>
-                    <h2 className="app-section-title text-2xl">Browse by category</h2>
-                    <p className="app-body-md mt-1 text-sm">
-                        Categories now prioritize strong entry points instead of overwhelming you with one long list.
-                    </p>
-                </div>
-
-                <div className="grid gap-4 xl:grid-cols-3">
-                    {categoryShortcuts.map((group) => (
-                        <div key={group.title} className="app-panel rounded-[var(--app-radius-xl)] p-5">
-                            <div className="flex items-center justify-between gap-3">
-                                <p className="app-kicker text-xs">{group.title}</p>
-                                <span className="app-chip rounded-full px-3 py-1 text-xs">
-                                    {group.items.length}
-                                </span>
-                            </div>
-                            <h3 className="mt-3 text-xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                {group.hint}
-                            </h3>
-                            <div className="mt-4 space-y-2">
-                                {group.featuredItems.map((item) => (
+            {mostUsedRoutes.length > 0 || APP_RELEASE_NOTES.length > 0 ? (
+                <section className="grid gap-4 xl:grid-cols-2">
+                    {mostUsedRoutes.length > 0 ? (
+                        <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                            <p className="app-section-kicker text-[0.68rem]">Momentum</p>
+                            <h2 className="app-section-title mt-2">Most used here</h2>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                {mostUsedRoutes.map((route) => (
                                     <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        className="app-list-link flex items-center justify-between rounded-[1.15rem] px-4 py-3 text-sm font-medium"
+                                        key={route.path}
+                                        to={route.path}
+                                        className="app-link-card rounded-[1.05rem] px-4 py-3.5"
                                     >
-                                        <span className="truncate pr-3 text-[color:var(--app-text)]">
-                                            {item.label}
-                                        </span>
-                                        <span className="app-helper text-xs uppercase tracking-[0.14em]">
-                                            Open
-                                        </span>
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {route.shortLabel ?? route.label}
+                                        </p>
+                                        <p className="app-helper mt-1 text-xs leading-5">
+                                            {route.description}
+                                        </p>
                                     </Link>
                                 ))}
                             </div>
                         </div>
-                    ))}
-                </div>
-            </section>
+                    ) : null}
+
+                    <DisclosurePanel
+                        title={`Release notes · ${APP_VERSION}`}
+                        summary="The detailed shipping log for this release."
+                        badge={`${APP_RELEASE_NOTES.length} notes`}
+                    >
+                        <div className="space-y-2">
+                            {APP_RELEASE_NOTES.map((note) => (
+                                <div
+                                    key={note}
+                                    className="app-subtle-surface rounded-[1rem] px-4 py-3 text-sm leading-6"
+                                >
+                                    {note}
+                                </div>
+                            ))}
+                        </div>
+                    </DisclosurePanel>
+                </section>
+            ) : null}
         </div>
     );
 }
-

@@ -45,6 +45,11 @@ import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
 import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
+import {
+    getResultValueTone,
+    isWideResultValue,
+    normalizeResultValue,
+} from "../src/utils/resultDisplay.js";
 
 function assertClose(actual: number, expected: number, precision = 1e-6) {
     assert.ok(
@@ -473,6 +478,40 @@ runTest("network status snapshots stay referentially stable", () => {
     assert.equal(getNetworkStatusSnapshot(true), getNetworkStatusSnapshot(true));
     assert.equal(getNetworkStatusSnapshot(false), getNetworkStatusSnapshot(false));
     assert.notEqual(getNetworkStatusSnapshot(true), getNetworkStatusSnapshot(false));
+});
+
+runTest("result display normalizes long plain numeric tokens", () => {
+    assert.equal(normalizeResultValue("1234567.8912"), "1,234,567.8912");
+    assert.equal(normalizeResultValue("$1234567.89"), "$1,234,567.89");
+    assert.equal(normalizeResultValue("Recovered"), "Recovered");
+});
+
+runTest("result display tone distinguishes numeric and sentence values", () => {
+    assert.equal(getResultValueTone("$1,234,567.89"), "numeric");
+    assert.equal(getResultValueTone("Not yet balanced"), "label");
+    assert.equal(
+        getResultValueTone(
+            "This route needs more values before the calculator can solve safely."
+        ),
+        "sentence"
+    );
+});
+
+runTest("wide result heuristics flag dense cards before layout collapses", () => {
+    assert.equal(
+        isWideResultValue({
+            title: "Required Ending Allowance",
+            value: "$1,234,567.89",
+        }),
+        true
+    );
+    assert.equal(
+        isWideResultValue({
+            title: "Status",
+            value: "Balanced",
+        }),
+        false
+    );
 });
 
 process.stdout.write("All calculator math tests passed.\n");

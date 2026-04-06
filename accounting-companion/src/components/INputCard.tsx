@@ -18,7 +18,7 @@ export default function InputCard({
     helperText,
 }: InputCardProps) {
     return (
-        <div className="app-input-shell rounded-[var(--app-radius-md)] p-3.5 md:p-4">
+        <div className="app-input-shell rounded-[var(--app-radius-md)] p-3 md:p-3.5">
             <label className="app-label mb-2 block">
                 {label}
             </label>
@@ -29,7 +29,7 @@ export default function InputCard({
                 placeholder={placeholder}
                 inputMode={inputMode}
                 className={[
-                    "app-field w-full rounded-2xl px-4 py-3 text-[0.96rem] outline-none",
+                    "app-field w-full rounded-[1rem] px-3.5 py-2.75 text-[0.95rem] outline-none",
                     type === "number" ? "app-numeric" : "",
                 ].join(" ")}
             />

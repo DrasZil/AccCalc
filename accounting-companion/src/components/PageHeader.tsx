@@ -6,6 +6,8 @@ type PageHeaderProps = {
     badge?: string;
     actions?: ReactNode;
     meta?: ReactNode;
+    mobileMeta?: ReactNode;
+    compactDescriptionOnMobile?: boolean;
 };
 
 export default function PageHeader({
@@ -14,29 +16,39 @@ export default function PageHeader({
     badge,
     actions,
     meta,
+    mobileMeta,
+    compactDescriptionOnMobile = false,
 }: PageHeaderProps) {
     return (
-        <div className="app-panel-elevated app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-7 lg:p-8">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0 max-w-4xl">
+        <div className="app-panel rounded-[var(--app-radius-xl)] p-3.5 md:p-5">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 max-w-3xl">
                     <div className="flex flex-wrap items-center gap-2">
                         {badge ? (
-                            <p className="app-chip-accent inline-flex items-center rounded-full px-3 py-1">
+                            <p className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                 {badge}
                             </p>
                         ) : null}
-                        {meta}
+                        <div className="md:hidden">{mobileMeta}</div>
+                        <div className="hidden flex-wrap items-center gap-2 md:flex">{meta}</div>
                     </div>
-                    <h1 className="mt-4 max-w-4xl text-[clamp(1.85rem,1.3rem+2vw,3.45rem)] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                    <h1 className="mt-2.5 max-w-3xl text-[clamp(1.2rem,1.04rem+1vw,2.15rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                         {title}
                     </h1>
-                    <p className="app-body-lg mt-3 max-w-3xl text-sm md:text-base">
+                    <p
+                        className={[
+                            "app-body-md max-w-2xl text-sm",
+                            compactDescriptionOnMobile
+                                ? "mt-1.5 hidden md:block"
+                                : "app-clamp-2 mt-2",
+                        ].join(" ")}
+                    >
                         {description}
                     </p>
                 </div>
 
                 {actions ? (
-                    <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">
+                    <div className="flex shrink-0 flex-wrap items-center gap-1.5 lg:justify-end">
                         {actions}
                     </div>
                 ) : null}

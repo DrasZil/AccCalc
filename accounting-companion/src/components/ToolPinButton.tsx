@@ -4,6 +4,7 @@ type ToolPinButtonProps = {
     path: string;
     label: string;
     className?: string;
+    variant?: "pill" | "icon";
 };
 
 function PinIcon({ filled }: { filled: boolean }) {
@@ -29,9 +30,31 @@ export default function ToolPinButton({
     path,
     label,
     className = "",
+    variant = "pill",
 }: ToolPinButtonProps) {
     const activity = useAppActivity();
     const isPinned = activity.pinnedPaths.includes(path);
+
+    if (variant === "icon") {
+        return (
+            <button
+                type="button"
+                onClick={() => togglePinnedPath(path)}
+                aria-pressed={isPinned}
+                aria-label={isPinned ? `Unpin ${label}` : `Pin ${label}`}
+                title={isPinned ? `Unpin ${label}` : `Pin ${label}`}
+                className={[
+                    "app-icon-button inline-flex items-center justify-center rounded-full p-2.5",
+                    isPinned
+                        ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] text-[color:var(--app-accent)]"
+                        : "",
+                    className,
+                ].join(" ")}
+            >
+                <PinIcon filled={isPinned} />
+            </button>
+        );
+    }
 
     return (
         <button

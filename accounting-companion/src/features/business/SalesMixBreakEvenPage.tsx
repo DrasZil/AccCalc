@@ -256,9 +256,9 @@ export default function SalesMixBreakEvenPage() {
                                 {result.breakEvenUnitsByProduct.map((product) => (
                                     <div
                                         key={product.label}
-                                        className="flex flex-col gap-2 rounded-[1.2rem] border app-divider px-4 py-3 md:flex-row md:items-center md:justify-between"
+                                        className="grid gap-2 rounded-[1.2rem] border app-divider px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
                                     >
-                                        <div>
+                                        <div className="min-w-0">
                                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                                 {product.label}
                                             </p>
@@ -266,7 +266,7 @@ export default function SalesMixBreakEvenPage() {
                                                 Mix share {product.mixShare.toFixed(2)}
                                             </p>
                                         </div>
-                                        <div className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        <div className="text-sm font-semibold text-[color:var(--app-text)] md:text-right">
                                             {product.breakEvenUnits.toFixed(2)} units ·{" "}
                                             {formatPHP(product.breakEvenSales)}
                                         </div>

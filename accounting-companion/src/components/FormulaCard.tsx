@@ -1,4 +1,13 @@
-import { useMemo, useState, type ReactNode } from "react";
+import {
+    Children,
+    cloneElement,
+    isValidElement,
+    useMemo,
+    useState,
+    type ReactElement,
+    type ReactNode,
+} from "react";
+import DisclosurePanel from "./DisclosurePanel";
 import SectionCard from "./SectionCard";
 
 type FormulaGlossaryItem = {
@@ -23,12 +32,59 @@ type FormulaSection = {
     content: ReactNode;
 };
 
-function SectionHeading({ label }: { label: string }) {
-    return (
-        <div className="text-center">
-            <p className="app-section-kicker mt-7">{label}</p>
-        </div>
-    );
+const SUPERSCRIPT_MAP: Record<string, string> = {
+    "0": "\u2070",
+    "1": "\u00b9",
+    "2": "\u00b2",
+    "3": "\u00b3",
+    "4": "\u2074",
+    "5": "\u2075",
+    "6": "\u2076",
+    "7": "\u2077",
+    "8": "\u2078",
+    "9": "\u2079",
+    "+": "\u207a",
+    "-": "\u207b",
+    "(": "\u207d",
+    ")": "\u207e",
+    n: "\u207f",
+};
+
+function prettifyText(value: string) {
+    return value
+        .replace(/ x /g, " \u00d7 ")
+        .replace(/ X /g, " \u00d7 ")
+        .replace(/ >= /g, " \u2265 ")
+        .replace(/ <= /g, " \u2264 ")
+        .replace(/ != /g, " \u2260 ")
+        .replace(/\+\/-/g, "\u00b1")
+        .replace(/\^([0-9n()+-]+)/g, (_, exponent: string) =>
+            exponent
+                .split("")
+                .map((character) => SUPERSCRIPT_MAP[character] ?? character)
+                .join("")
+        );
+}
+
+function polishNode(node: ReactNode): ReactNode {
+    if (typeof node === "string") {
+        return prettifyText(node);
+    }
+
+    if (Array.isArray(node)) {
+        return node.map((child, index) => <span key={index}>{polishNode(child)}</span>);
+    }
+
+    if (isValidElement(node)) {
+        const element = node as ReactElement<{ children?: ReactNode }>;
+        const nextChildren = element.props.children
+            ? Children.map(element.props.children, (child) => polishNode(child))
+            : element.props.children;
+
+        return cloneElement(element, undefined, nextChildren);
+    }
+
+    return node;
 }
 
 export default function FormulaCard({
@@ -45,40 +101,41 @@ export default function FormulaCard({
             const nextSections: FormulaSection[] = [
                 {
                     key: "formula",
-                    label: "Formula used",
+                    label: "Formula",
                     shortLabel: "Formula",
                     content: (
-                        <>
-                            <div className="app-subtle-surface app-formula-panel rounded-[var(--app-radius-md)] px-5 py-5 md:px-7 md:py-6">
-                                <div className="mx-auto max-w-3xl text-center">
-                                    <p className="app-formula-display text-center">{formula}</p>
+                        <div className="app-formula-panel app-subtle-surface rounded-[var(--app-radius-md)] px-5 py-5 text-left md:px-6">
+                            <div className="mx-auto max-w-3xl">
+                                <p className="app-label mb-3">Equation</p>
+                                <div className="app-formula-display text-left">
+                                    {polishNode(formula)}
                                 </div>
                             </div>
-                        </>
+                        </div>
                     ),
                 },
                 {
                     key: "steps",
-                    label: "Step-by-step solving",
+                    label: "Steps",
                     shortLabel: "Steps",
                     content: (
-                        <ul className="space-y-3 text-sm leading-7 text-[color:var(--app-text)]">
+                        <ol className="space-y-3 text-sm leading-7 text-[color:var(--app-text)]">
                             {steps.map((step, index) => (
                                 <li
                                     key={index}
-                                    className="app-subtle-surface rounded-2xl px-4 py-3.5 md:px-5"
+                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
                                     <div className="flex items-start gap-3">
                                         <span className="app-chip-accent mt-0.5 inline-flex min-w-[2rem] items-center justify-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                             {index + 1}
                                         </span>
                                         <div className="min-w-0 flex-1 text-[0.95rem] leading-7 tracking-[-0.01em]">
-                                            {step}
+                                            {polishNode(step)}
                                         </div>
                                     </div>
                                 </li>
                             ))}
-                        </ul>
+                        </ol>
                     ),
                 },
             ];
@@ -89,14 +146,16 @@ export default function FormulaCard({
                     label: "Variable meaning",
                     shortLabel: "Terms",
                     content: (
-                        <div className="space-y-3">
+                        <div className="grid gap-3 md:grid-cols-2">
                             {glossary.map((item) => (
                                 <div
                                     key={item.term}
-                                    className="app-subtle-surface rounded-2xl px-4 py-3.5 md:px-5"
+                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
                                     <p className="app-card-title text-sm">{item.term}</p>
-                                    <p className="app-body-md mt-1.5 text-sm">{item.meaning}</p>
+                                    <p className="app-body-md mt-1.5 text-sm">
+                                        {polishNode(item.meaning)}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -110,9 +169,10 @@ export default function FormulaCard({
                     label: "Interpretation",
                     shortLabel: "Meaning",
                     content: (
-                        <div className="app-tone-accent rounded-2xl px-5 py-4 md:px-6 md:py-5">
-                            <div className="mx-auto max-w-3xl text-center text-[0.96rem] leading-7 tracking-[-0.012em]">
-                                {interpretation}
+                        <div className="app-tone-accent rounded-[1.15rem] px-5 py-4 md:px-6 md:py-5">
+                            <p className="app-label mb-2">Key takeaway</p>
+                            <div className="max-w-3xl text-[0.96rem] leading-7 tracking-[-0.012em]">
+                                {polishNode(interpretation)}
                             </div>
                         </div>
                     ),
@@ -122,16 +182,16 @@ export default function FormulaCard({
             if (assumptions.length > 0) {
                 nextSections.push({
                     key: "assumptions",
-                    label: "Notes and assumptions",
+                    label: "Assumptions",
                     shortLabel: "Assumptions",
                     content: (
                         <div className="space-y-3">
                             {assumptions.map((assumption, index) => (
                                 <div
                                     key={`assumption-${index}`}
-                                    className="app-tone-info rounded-2xl px-4 py-3.5 text-sm leading-7 md:px-5"
+                                    className="app-tone-info rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 md:px-5"
                                 >
-                                    {assumption}
+                                    {polishNode(assumption)}
                                 </div>
                             ))}
                         </div>
@@ -149,9 +209,9 @@ export default function FormulaCard({
                             {notes.map((note, index) => (
                                 <div
                                     key={`note-${index}`}
-                                    className="app-subtle-surface rounded-2xl px-4 py-3.5 text-sm leading-7 text-[color:var(--app-text)] md:px-5"
+                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 text-[color:var(--app-text)] md:px-5"
                                 >
-                                    {note}
+                                    {polishNode(note)}
                                 </div>
                             ))}
                         </div>
@@ -169,9 +229,9 @@ export default function FormulaCard({
                             {warnings.map((warning, index) => (
                                 <div
                                     key={`warning-${index}`}
-                                    className="app-tone-warning rounded-2xl px-4 py-3.5 text-sm leading-7 md:px-5"
+                                    className="app-tone-warning rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 md:px-5"
                                 >
-                                    {warning}
+                                    {polishNode(warning)}
                                 </div>
                             ))}
                         </div>
@@ -193,20 +253,17 @@ export default function FormulaCard({
         sections.find((section) => section.key === resolvedActiveSectionKey) ?? sections[0];
 
     return (
-        <SectionCard>
+        <SectionCard className="overflow-hidden">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <p className="app-section-kicker">Interpretation workspace</p>
+                    <p className="app-section-kicker text-[0.68rem]">Formula guide</p>
                     <p className="app-body-md mt-2 text-sm">
-                        Review the formula, walkthrough, variable meaning, and practical reading without leaving the result flow.
+                        Keep the calculator in front. Open the deeper method only when needed.
                     </p>
                 </div>
-                <div className="hidden flex-wrap gap-2 md:flex">
+                <div className="hidden flex-wrap gap-2 lg:flex">
                     {sections.map((section) => (
-                        <span
-                            key={section.key}
-                            className="app-chip rounded-full px-3 py-1 text-xs"
-                        >
+                        <span key={section.key} className="app-chip rounded-full px-3 py-1 text-xs">
                             {section.shortLabel}
                         </span>
                     ))}
@@ -214,8 +271,8 @@ export default function FormulaCard({
             </div>
 
             {sections.length > 1 ? (
-                <div className="mt-5 xl:hidden">
-                    <div className="app-panel rounded-[1.25rem] p-2">
+                <div className="mt-5 lg:hidden">
+                    <div className="app-panel rounded-[1.1rem] p-1.5">
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                             {sections.map((section) => (
                                 <button
@@ -223,7 +280,7 @@ export default function FormulaCard({
                                     type="button"
                                     onClick={() => setActiveSection(section.key)}
                                     className={[
-                                        "rounded-xl px-3 py-2.5 text-sm font-semibold",
+                                        "rounded-xl px-3 py-2 text-sm font-semibold",
                                         resolvedActiveSectionKey === section.key
                                             ? "app-button-primary"
                                             : "app-button-ghost",
@@ -237,25 +294,46 @@ export default function FormulaCard({
                 </div>
             ) : null}
 
-            <div className="mt-5 hidden space-y-1 xl:block">
-                {sections.map((section, index) => (
-                    <div key={section.key}>
-                        {index === 0 ? (
-                            <div className="text-center">
-                                <p className="app-section-kicker">{section.label}</p>
-                            </div>
-                        ) : (
-                            <SectionHeading label={section.label} />
-                        )}
-                        <div className="mt-4">{section.content}</div>
+            <div className="mt-5 hidden space-y-4 lg:block">
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)]">
+                    <div className="space-y-4">
+                        {sections.find((section) => section.key === "formula")?.content}
+                        {sections.find((section) => section.key === "steps")?.content}
                     </div>
-                ))}
+                    <div className="space-y-4">
+                        {sections.find((section) => section.key === "interpretation")?.content ?? (
+                            <div className="app-subtle-surface rounded-[1.15rem] px-5 py-4">
+                                <p className="app-label mb-2">Reading</p>
+                                <p className="app-body-md text-sm">
+                                    Open the supporting sections below for variable meaning and cautions.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {sections
+                    .filter(
+                        (section) =>
+                            !["formula", "steps", "interpretation"].includes(section.key)
+                    )
+                    .map((section) => (
+                        <DisclosurePanel
+                            key={section.key}
+                            title={section.label}
+                            summary={`Open ${section.shortLabel.toLowerCase()} when you need more depth.`}
+                        >
+                            {section.content}
+                        </DisclosurePanel>
+                    ))}
             </div>
 
             {activeMobileSection ? (
-                <div className="mt-5 space-y-4 xl:hidden">
-                    <div className="text-center">
-                        <p className="app-section-kicker">{activeMobileSection.label}</p>
+                <div className="mt-5 space-y-4 lg:hidden">
+                    <div>
+                        <p className="app-section-kicker text-[0.68rem]">
+                            {activeMobileSection.label}
+                        </p>
                     </div>
                     {activeMobileSection.content}
                 </div>

@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
+import DisclosurePanel from "./DisclosurePanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageHeader from "./PageHeader";
 import ToolPinButton from "./ToolPinButton";
@@ -36,8 +37,8 @@ function LayoutSection({
 }) {
     return (
         <section id={id} className="space-y-3">
-            <div className="px-1">
-                <p className="app-section-kicker text-xs">{label}</p>
+            <div className="flex items-center justify-between gap-3 px-1">
+                <p className="app-section-kicker text-[0.68rem]">{label}</p>
             </div>
             {children}
         </section>
@@ -106,7 +107,11 @@ export default function CalculatorPageLayout({
 
         return (
             <>
-                <ToolPinButton path={currentMeta.path} label={currentMeta.label} />
+                <ToolPinButton
+                    path={currentMeta.path}
+                    label={currentMeta.label}
+                    variant="icon"
+                />
                 {headerActions}
             </>
         );
@@ -145,6 +150,31 @@ export default function CalculatorPageLayout({
             }>,
         [explanationSection, inputSection, resultSection]
     );
+    const mobileHeaderMeta = useMemo(() => {
+        if (!currentMeta) return headerMeta ?? null;
+
+        return (
+            <>
+                <OfflineCapabilityBadge
+                    level={currentMeta.offlineSupport}
+                    className="px-2.5 py-1 text-[0.62rem]"
+                />
+                {routeAvailability ? (
+                    <span className="app-chip inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
+                        {routeAvailability.label}
+                    </span>
+                ) : null}
+            </>
+        );
+    }, [currentMeta, headerMeta, routeAvailability]);
+
+    const mobileToolDetailsSummary = useMemo(() => {
+        if (routeAvailability) {
+            return `${routeAvailability.label}. Open for context, method, and limits.`;
+        }
+
+        return "Open for context, method, and notes.";
+    }, [routeAvailability]);
 
     return (
         <div className="app-page-stack">
@@ -153,6 +183,7 @@ export default function CalculatorPageLayout({
                 title={title}
                 description={description}
                 actions={combinedHeaderActions}
+                compactDescriptionOnMobile
                 meta={
                     <>
                         {currentMeta ? (
@@ -166,12 +197,41 @@ export default function CalculatorPageLayout({
                         {headerMeta}
                     </>
                 }
+                mobileMeta={mobileHeaderMeta}
             />
+
+            <div className="md:hidden">
+                <DisclosurePanel
+                    title="Tool details"
+                    summary={mobileToolDetailsSummary}
+                    badge="About"
+                    compact
+                >
+                    <div className="space-y-3">
+                        <p className="app-body-md max-w-none text-sm">{description}</p>
+                        {routeAvailability ? (
+                            <div
+                                className={[
+                                    "rounded-[1rem] px-3.5 py-3 text-sm leading-6",
+                                    routeAvailability.canOpen
+                                        ? "app-subtle-surface"
+                                        : "app-tone-warning",
+                                ].join(" ")}
+                            >
+                                {routeAvailability.reason}
+                            </div>
+                        ) : null}
+                        {headerMeta ? (
+                            <div className="flex flex-wrap gap-2">{headerMeta}</div>
+                        ) : null}
+                    </div>
+                </DisclosurePanel>
+            </div>
 
             {routeAvailability ? (
                 <div
                     className={[
-                        "rounded-[1.35rem] px-4 py-3.5 text-sm leading-6",
+                        "hidden rounded-[1.35rem] px-4 py-3.5 text-sm leading-6 md:block",
                         routeAvailability.canOpen ? "app-subtle-surface" : "app-tone-warning",
                     ].join(" ")}
                 >
@@ -180,8 +240,8 @@ export default function CalculatorPageLayout({
             ) : null}
 
             {sections.length > 1 ? (
-                <div className="sticky z-20 -mt-2 top-[calc(var(--app-header-height)+0.5rem)] xl:static xl:mt-0">
-                    <div className="app-panel rounded-[1.4rem] p-2 backdrop-blur-xl xl:hidden">
+                <div className="sticky z-20 -mt-1 top-[calc(var(--app-header-height)+0.35rem)] xl:static xl:mt-0">
+                    <div className="app-panel rounded-[1.05rem] p-1.25 backdrop-blur-xl xl:hidden">
                         <div className="grid grid-cols-3 gap-2">
                             {sections.map((section) => (
                                 <button
@@ -189,7 +249,7 @@ export default function CalculatorPageLayout({
                                     type="button"
                                     onClick={() => setActiveSection(section.key)}
                                     className={[
-                                        "rounded-xl px-3 py-2.5 text-sm font-semibold",
+                                        "rounded-[0.95rem] px-2.5 py-1.5 text-[0.82rem] font-semibold",
                                         activeSection === section.key
                                             ? "app-button-primary"
                                             : "app-button-ghost",
@@ -204,20 +264,70 @@ export default function CalculatorPageLayout({
             ) : null}
 
             <div className="hidden xl:grid xl:gap-[var(--app-page-gap-lg)]">
-                {(prioritizeResultSection
-                    ? sections.toSorted((left, right) =>
-                          left.key === "results" ? -1 : right.key === "results" ? 1 : 0
-                      )
-                    : sections
-                ).map((section) => (
-                    <LayoutSection
-                        key={section.key}
-                        label={section.label}
-                        id={`section-${section.key}`}
-                    >
-                        {section.content}
-                    </LayoutSection>
-                ))}
+                {resultSection ? (
+                    <div className="grid gap-[var(--app-page-gap-lg)] xl:grid-cols-[minmax(0,1.06fr)_minmax(22rem,0.94fr)]">
+                        {prioritizeResultSection ? (
+                            <>
+                                <div className="space-y-[var(--app-page-gap-lg)]">
+                                    <LayoutSection label="Results" id="section-results">
+                                        {resultSection}
+                                    </LayoutSection>
+                                    <LayoutSection label="Inputs" id="section-inputs">
+                                        {inputSection}
+                                    </LayoutSection>
+                                </div>
+                                <div className="space-y-[var(--app-page-gap-lg)]">
+                                    {explanationSection ? (
+                                        <DisclosurePanel
+                                            title="Formula and guide"
+                                            summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                            badge="Details"
+                                        >
+                                            {explanationSection}
+                                        </DisclosurePanel>
+                                    ) : null}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="space-y-[var(--app-page-gap-lg)]">
+                                    <LayoutSection label="Inputs" id="section-inputs">
+                                        {inputSection}
+                                    </LayoutSection>
+                                    {explanationSection ? (
+                                        <DisclosurePanel
+                                            title="Formula and guide"
+                                            summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                            badge="Details"
+                                        >
+                                            {explanationSection}
+                                        </DisclosurePanel>
+                                    ) : null}
+                                </div>
+                                <div className="space-y-[var(--app-page-gap)] xl:sticky xl:top-[calc(var(--app-header-height)+1rem)]">
+                                    <LayoutSection label="Results" id="section-results">
+                                        {resultSection}
+                                    </LayoutSection>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        <LayoutSection label="Inputs" id="section-inputs">
+                            {inputSection}
+                        </LayoutSection>
+                        {explanationSection ? (
+                            <DisclosurePanel
+                                title="Formula and guide"
+                                summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                badge="Details"
+                            >
+                                {explanationSection}
+                            </DisclosurePanel>
+                        ) : null}
+                    </>
+                )}
             </div>
 
             <div className="space-y-[var(--app-page-gap)] xl:hidden">
@@ -237,19 +347,21 @@ export default function CalculatorPageLayout({
             {relatedRoutes.length > 0 ? (
                 <section className="space-y-3">
                     <div className="px-1">
-                        <p className="app-section-kicker text-xs">Related tools</p>
+                        <p className="app-section-kicker text-[0.68rem]">Related tools</p>
                     </div>
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         {relatedRoutes.map((route) => (
                             <Link
                                 key={route.path}
                                 to={route.path}
-                                className="app-list-link rounded-[1.2rem] px-4 py-3.5"
+                                className="app-list-link rounded-[1.1rem] px-4 py-3"
                             >
                                 <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                    {route.label}
+                                    {route.shortLabel ?? route.label}
                                 </p>
-                                <p className="app-helper mt-1 text-xs">{route.description}</p>
+                                <p className="app-helper mt-1 hidden text-xs md:block">
+                                    {route.description}
+                                </p>
                             </Link>
                         ))}
                     </div>
