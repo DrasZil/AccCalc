@@ -46,6 +46,9 @@ const GrossProfitRatePage = lazy(() => import("./features/accounting/GrossProfit
 const HorizontalAnalysisPage = lazy(
     () => import("./features/accounting/HorizontalAnalysisPage")
 );
+const LowerOfCostOrNRVPage = lazy(
+    () => import("./features/accounting/LowerOfCostOrNRVPage")
+);
 const InventoryTurnoverPage = lazy(
     () => import("./features/accounting/InventoryTurnoverPage")
 );
@@ -55,7 +58,13 @@ const LaborRateVariancePage = lazy(
 const MaterialsPriceVariancePage = lazy(
     () => import("./features/accounting/MaterialsPriceVariancePage")
 );
+const MaterialsQuantityVariancePage = lazy(
+    () => import("./features/accounting/MaterialsQuantityVariancePage")
+);
 const NoteInterestPage = lazy(() => import("./features/accounting/NoteInterestPage"));
+const BondAmortizationSchedulePage = lazy(
+    () => import("./features/accounting/BondAmortizationSchedulePage")
+);
 const PartnershipProfitSharingPage = lazy(
     () => import("./features/accounting/PartnershipProfitSharingPage")
 );
@@ -77,6 +86,9 @@ const PartnersCapitalStatementPage = lazy(
 const PhilippineVATPage = lazy(() => import("./features/accounting/PhilippineVATPage"));
 const PrimeConversionCostPage = lazy(
     () => import("./features/accounting/PrimeConversionCostPage")
+);
+const EquivalentUnitsWeightedAveragePage = lazy(
+    () => import("./features/accounting/EquivalentUnitsWeightedAveragePage")
 );
 const QuickRatioPage = lazy(() => import("./features/accounting/QuickRatioPage"));
 const ReceivablesTurnoverPage = lazy(
@@ -129,8 +141,13 @@ const OperatingLeveragePage = lazy(
 const SalesMixBreakEvenPage = lazy(
     () => import("./features/business/SalesMixBreakEvenPage")
 );
+const CashBudgetPage = lazy(() => import("./features/business/CashBudgetPage"));
+const FlexibleBudgetPage = lazy(() => import("./features/business/FlexibleBudgetPage"));
 const ProfitLossPage = lazy(() => import("./features/business/ProfitLossPage"));
 const TargetProfitPage = lazy(() => import("./features/business/TargetProfitPage"));
+const LaborEfficiencyVariancePage = lazy(
+    () => import("./features/accounting/LaborEfficiencyVariancePage")
+);
 const EffectiveInterestRatePage = lazy(
     () => import("./features/finance/EffectiveInterestRatePage")
 );
@@ -152,6 +169,9 @@ const SinkingFundDepositPage = lazy(
 const CompoundInterestPage = lazy(() => import("./features/finance/CompoundInterestPage"));
 const NetPresentValuePage = lazy(() => import("./features/finance/NetPresentValuePage"));
 const PaybackPeriodPage = lazy(() => import("./features/finance/PaybackPeriodPage"));
+const DiscountedPaybackPeriodPage = lazy(
+    () => import("./features/finance/DiscountedPaybackPeriodPage")
+);
 const HomePage = lazy(() => import("./features/home/HomePage"));
 const AboutPage = lazy(() => import("./features/meta/AboutPage"));
 const FeedbackPage = lazy(() => import("./features/meta/FeedBackPage"));
@@ -246,6 +266,7 @@ export default function App() {
                         <Route path="finance/npv" element={renderRoute("/finance/npv", <NetPresentValuePage />)} />
                         <Route path="finance/profitability-index" element={renderRoute("/finance/profitability-index", <ProfitabilityIndexPage />)} />
                         <Route path="finance/payback-period" element={renderRoute("/finance/payback-period", <PaybackPeriodPage />)} />
+                        <Route path="finance/discounted-payback-period" element={renderRoute("/finance/discounted-payback-period", <DiscountedPaybackPeriodPage />)} />
 
                         <Route path="business/profit-loss" element={renderRoute("/business/profit-loss", <ProfitLossPage />)} />
                         <Route path="business/break-even" element={renderRoute("/business/break-even", <BreakEvenPage />)} />
@@ -256,6 +277,8 @@ export default function App() {
                         <Route path="business/net-profit-margin" element={renderRoute("/business/net-profit-margin", <NetProfitMarginPage />)} />
                         <Route path="business/operating-leverage" element={renderRoute("/business/operating-leverage", <OperatingLeveragePage />)} />
                         <Route path="business/sales-mix-break-even" element={renderRoute("/business/sales-mix-break-even", <SalesMixBreakEvenPage />)} />
+                        <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
+                        <Route path="business/flexible-budget" element={renderRoute("/business/flexible-budget", <FlexibleBudgetPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
@@ -271,9 +294,11 @@ export default function App() {
                         <Route path="accounting/weighted-average-inventory" element={renderRoute("/accounting/weighted-average-inventory", <WeightedAverageInventoryPage />)} />
                         <Route path="accounting/inventory-method-comparison" element={renderRoute("/accounting/inventory-method-comparison", <InventoryMethodComparisonPage />)} />
                         <Route path="accounting/gross-profit-method" element={renderRoute("/accounting/gross-profit-method", <GrossProfitMethodPage />)} />
+                        <Route path="accounting/lower-of-cost-or-nrv" element={renderRoute("/accounting/lower-of-cost-or-nrv", <LowerOfCostOrNRVPage />)} />
                         <Route path="accounting/gross-profit-rate" element={renderRoute("/accounting/gross-profit-rate", <GrossProfitRatePage />)} />
                         <Route path="accounting/bank-reconciliation" element={renderRoute("/accounting/bank-reconciliation", <BankReconciliationPage />)} />
                         <Route path="accounting/allowance-doubtful-accounts" element={renderRoute("/accounting/allowance-doubtful-accounts", <AllowanceForDoubtfulAccountsPage />)} />
+                        <Route path="accounting/bond-amortization-schedule" element={renderRoute("/accounting/bond-amortization-schedule", <BondAmortizationSchedulePage />)} />
                         <Route path="accounting/partnership-profit-sharing" element={renderRoute("/accounting/partnership-profit-sharing", <PartnershipProfitSharingPage />)} />
                         <Route path="accounting/partnership-salary-interest" element={renderRoute("/accounting/partnership-salary-interest", <PartnershipSalaryInterestPage />)} />
                         <Route path="accounting/partnership-admission-bonus" element={renderRoute("/accounting/partnership-admission-bonus", <PartnershipAdmissionBonusPage />)} />
@@ -282,9 +307,12 @@ export default function App() {
                         <Route path="accounting/partners-capital-statement" element={renderRoute("/accounting/partners-capital-statement", <PartnersCapitalStatementPage />)} />
                         <Route path="accounting/philippine-vat" element={renderRoute("/accounting/philippine-vat", <PhilippineVATPage />)} />
                         <Route path="accounting/cost-of-goods-manufactured" element={renderRoute("/accounting/cost-of-goods-manufactured", <CostOfGoodsManufacturedPage />)} />
+                        <Route path="accounting/equivalent-units-weighted-average" element={renderRoute("/accounting/equivalent-units-weighted-average", <EquivalentUnitsWeightedAveragePage />)} />
                         <Route path="accounting/prime-conversion-cost" element={renderRoute("/accounting/prime-conversion-cost", <PrimeConversionCostPage />)} />
                         <Route path="accounting/materials-price-variance" element={renderRoute("/accounting/materials-price-variance", <MaterialsPriceVariancePage />)} />
+                        <Route path="accounting/materials-quantity-variance" element={renderRoute("/accounting/materials-quantity-variance", <MaterialsQuantityVariancePage />)} />
                         <Route path="accounting/labor-rate-variance" element={renderRoute("/accounting/labor-rate-variance", <LaborRateVariancePage />)} />
+                        <Route path="accounting/labor-efficiency-variance" element={renderRoute("/accounting/labor-efficiency-variance", <LaborEfficiencyVariancePage />)} />
                         <Route path="accounting/current-ratio" element={renderRoute("/accounting/current-ratio", <CurrentRatioPage />)} />
                         <Route path="accounting/quick-ratio" element={renderRoute("/accounting/quick-ratio", <QuickRatioPage />)} />
                         <Route path="accounting/cash-ratio" element={renderRoute("/accounting/cash-ratio", <CashRatioPage />)} />

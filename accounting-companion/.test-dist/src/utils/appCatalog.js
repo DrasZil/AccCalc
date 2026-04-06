@@ -2,9 +2,9 @@ const GROUP_CONFIG = {
     General: { hint: "Home and activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
     "Core Tools": { hint: "Everyday calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
     "Smart Tools": { hint: "Prompt routing", tone: "from-amber-300/15 to-transparent", order: 2 },
-    Accounting: { hint: "Statements and review", tone: "from-green-400/20 to-transparent", order: 3 },
-    Finance: { hint: "Time value and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
-    "Managerial & Cost": { hint: "CVP, costing, and depreciation", tone: "from-orange-400/15 to-transparent", order: 5 },
+    Accounting: { hint: "Reporting, valuation, and review", tone: "from-green-400/20 to-transparent", order: 3 },
+    Finance: { hint: "Time value, lending, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
+    "Managerial & Cost": { hint: "CVP, budgets, costing, and variances", tone: "from-orange-400/15 to-transparent", order: 5 },
     "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 6 },
     Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
 };
@@ -13,6 +13,7 @@ function feature(path, label, category, description, aliases = [], tags = [], sh
         path,
         label,
         category,
+        subtopic: inferSubtopic(category, path, tags, label),
         description,
         aliases,
         tags,
@@ -21,6 +22,109 @@ function feature(path, label, category, description, aliases = [], tags = [], sh
         keywords,
         ...inferOfflineMeta(path),
     };
+}
+const SUBTOPIC_ORDER = {
+    General: ["Workspace", "Settings"],
+    "Core Tools": ["Calculator"],
+    "Smart Tools": ["Solver"],
+    Accounting: [
+        "Fundamentals",
+        "Receivables & Cash",
+        "Inventory",
+        "Liabilities",
+        "Reporting & Analysis",
+        "Partnership",
+        "Tax",
+    ],
+    Finance: ["Interest & TVM", "Loans & Annuities", "Capital Budgeting"],
+    "Managerial & Cost": [
+        "CVP & Decisions",
+        "Budgeting",
+        "Manufacturing Costs",
+        "Variances",
+        "Depreciation",
+    ],
+    "Business Math": ["Pricing & Profit", "Averages & Basics"],
+    Statistics: ["Descriptive Statistics"],
+};
+function inferSubtopic(category, path, tags, label) {
+    const haystack = `${path} ${label} ${tags.join(" ")}`.toLowerCase();
+    switch (category) {
+        case "General":
+            return path.startsWith("/settings") ? "Settings" : "Workspace";
+        case "Core Tools":
+            return "Calculator";
+        case "Smart Tools":
+            return "Solver";
+        case "Accounting":
+            if (haystack.includes("equation") ||
+                haystack.includes("classification") ||
+                haystack.includes("trial-balance") ||
+                haystack.includes("debit") ||
+                haystack.includes("fundamentals")) {
+                return "Fundamentals";
+            }
+            if (haystack.includes("receivable") ||
+                haystack.includes("allowance") ||
+                haystack.includes("aging") ||
+                haystack.includes("bank") ||
+                haystack.includes("discount") ||
+                haystack.includes("notes-interest") ||
+                haystack.includes("cash")) {
+                return "Receivables & Cash";
+            }
+            if (haystack.includes("inventory") ||
+                haystack.includes("gross-profit") ||
+                haystack.includes("nrv")) {
+                return "Inventory";
+            }
+            if (haystack.includes("bond") || haystack.includes("liabilities")) {
+                return "Liabilities";
+            }
+            if (haystack.includes("partnership") || haystack.includes("capital")) {
+                return "Partnership";
+            }
+            if (haystack.includes("vat") || haystack.includes("tax")) {
+                return "Tax";
+            }
+            return "Reporting & Analysis";
+        case "Finance":
+            if (haystack.includes("npv") ||
+                haystack.includes("profitability-index") ||
+                haystack.includes("payback")) {
+                return "Capital Budgeting";
+            }
+            if (haystack.includes("loan") ||
+                haystack.includes("annuity") ||
+                haystack.includes("sinking-fund")) {
+                return "Loans & Annuities";
+            }
+            return "Interest & TVM";
+        case "Managerial & Cost":
+            if (haystack.includes("budget"))
+                return "Budgeting";
+            if (haystack.includes("variance"))
+                return "Variances";
+            if (haystack.includes("depreciation"))
+                return "Depreciation";
+            if (haystack.includes("break-even") ||
+                haystack.includes("margin") ||
+                haystack.includes("profit")) {
+                return "CVP & Decisions";
+            }
+            return "Manufacturing Costs";
+        case "Business Math":
+            return haystack.includes("weighted") ? "Averages & Basics" : "Pricing & Profit";
+        case "Statistics":
+            return "Descriptive Statistics";
+        default:
+            return "Tools";
+    }
+}
+function getSubtopicSortIndex(category, subtopic) {
+    const preferred = SUBTOPIC_ORDER[category] ?? [];
+    const index = preferred.indexOf(subtopic);
+    return index === -1 ? preferred.length + 1 : index;
 }
 function inferOfflineMeta(path) {
     if (path === "/") {
@@ -113,9 +217,11 @@ export const APP_ROUTE_META = [
     feature("/accounting/weighted-average-inventory", "Weighted Average Inventory", "Accounting", "Weighted-average unit cost, COGS, and ending inventory.", ["average cost inventory"], ["inventory", "cogs"]),
     feature("/accounting/inventory-method-comparison", "Inventory Method Comparison", "Accounting", "Compare FIFO and weighted-average effects on COGS and ending inventory.", ["fifo vs weighted average", "inventory comparison"], ["inventory", "analysis"], undefined, true),
     feature("/accounting/gross-profit-method", "Gross Profit Method", "Accounting", "Estimate gross profit, COGS, and ending inventory.", ["gp method", "inventory estimate"], ["inventory", "estimate"]),
+    feature("/accounting/lower-of-cost-or-nrv", "Lower of Cost or NRV", "Accounting", "Compare inventory cost and net realizable value item by item or in aggregate.", ["lower of cost and net realizable value", "lcnrv", "lc nrv"], ["inventory", "valuation", "nrv"], undefined, true, ["lower of cost", "nrv", "inventory write-down"]),
     feature("/accounting/bank-reconciliation", "Bank Reconciliation", "Accounting", "Reconcile bank and book balances.", ["bank recon", "cash reconciliation"], ["cash", "reconciliation"]),
     feature("/accounting/allowance-doubtful-accounts", "Allowance for Doubtful Accounts", "Accounting", "Estimate bad debt allowance and NRV.", ["bad debts", "net realizable value", "ada"], ["receivables", "allowance"]),
     feature("/accounting/receivables-aging-schedule", "Receivables Aging Schedule", "Accounting", "Build an aging-based required allowance and adjustment entry.", ["aging of receivables", "ageing schedule", "aging schedule"], ["receivables", "allowance", "aging"], undefined, true, ["receivables", "aging", "allowance", "nrv"]),
+    feature("/accounting/bond-amortization-schedule", "Bond Amortization Schedule", "Accounting", "Build effective-interest or straight-line premium and discount bond schedules.", ["bond discount amortization", "bond premium schedule", "effective interest bond"], ["bonds", "liabilities", "amortization"], undefined, true, ["bond", "premium", "discount", "effective interest"]),
     feature("/accounting/partnership-profit-sharing", "Partnership Profit Sharing", "Accounting", "Allocate partnership profit or loss.", ["partnership ratio sharing"], ["partnership", "allocation"], undefined, false, ["partnership", "profit sharing", "allocation", "ratio"]),
     feature("/accounting/partnership-salary-interest", "Partnership Salary and Interest", "Accounting", "Use salary allowances, interest, and a remainder ratio.", ["salary allowance partnership", "interest on capital"], ["partnership", "allocation"], undefined, true, ["partnership", "salary", "interest", "capital", "allocation"]),
     feature("/accounting/partnership-admission-bonus", "Partnership Admission Bonus", "Accounting", "Incoming partner capital credit under the bonus method.", ["bonus method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "bonus", "capital"]),
@@ -156,6 +262,7 @@ export const APP_ROUTE_META = [
     feature("/finance/npv", "Net Present Value", "Finance", "Discount cash flows and compare them with the initial investment.", ["npv", "discounted cash flow"], ["capital budgeting"], "NPV", true),
     feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
     feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
+    feature("/finance/discounted-payback-period", "Discounted Payback Period", "Finance", "Discounted recovery period using the time value of money.", ["discounted payback", "discounted recovery period"], ["capital budgeting"], undefined, true, ["discounted payback", "discounted recovery"]),
     feature("/business/profit-loss", "Profit and Loss", "Business Math", "Compare revenue and cost.", ["profit or loss", "gain or loss"], ["commercial math"]),
     feature("/business/markup-margin", "Markup and Margin", "Business Math", "Compare markup on cost and margin on selling price.", ["gross margin", "markup percentage"], ["pricing"]),
     feature("/business/net-profit-margin", "Net Profit Margin", "Business Math", "Net income per peso of net sales.", ["net margin"], ["profitability"]),
@@ -166,10 +273,15 @@ export const APP_ROUTE_META = [
     feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
     feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
     feature("/business/sales-mix-break-even", "Sales Mix Break-even", "Managerial & Cost", "Break-even analysis for multi-product sales mixes.", ["multi product break even", "sales mix cvp", "composite unit break even"], ["cvp", "sales mix", "break-even"], undefined, true, ["sales mix", "composite unit", "weighted contribution margin"]),
+    feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash"]),
+    feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
+    feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),
     feature("/accounting/prime-conversion-cost", "Prime and Conversion Cost", "Managerial & Cost", "Prime cost and conversion cost.", ["prime cost", "conversion cost"], ["cost accounting"], undefined, true),
     feature("/accounting/materials-price-variance", "Materials Price Variance", "Managerial & Cost", "Direct materials price variance.", ["mpv", "material price variance"], ["variance"], undefined, true),
+    feature("/accounting/materials-quantity-variance", "Materials Quantity Variance", "Managerial & Cost", "Direct materials quantity variance.", ["materials usage variance", "mqv"], ["variance"], undefined, true, ["materials quantity variance", "usage variance", "standard quantity"]),
     feature("/accounting/labor-rate-variance", "Labor Rate Variance", "Managerial & Cost", "Direct labor rate variance.", ["labor wage variance"], ["variance"], undefined, true),
+    feature("/accounting/labor-efficiency-variance", "Labor Efficiency Variance", "Managerial & Cost", "Direct labor efficiency variance.", ["labor time variance", "lev"], ["variance"], undefined, true, ["labor efficiency variance", "standard hours"]),
     feature("/accounting/straight-line-depreciation", "Straight-line Depreciation", "Managerial & Cost", "Annual depreciation under the straight-line method.", ["straight line"], ["depreciation"]),
     feature("/accounting/declining-balance-depreciation", "Declining Balance Depreciation", "Managerial & Cost", "Double declining balance depreciation.", ["ddb", "double declining balance"], ["depreciation"]),
     feature("/accounting/units-of-production-depreciation", "Units of Production Depreciation", "Managerial & Cost", "Depreciation based on actual output.", ["units of activity depreciation"], ["depreciation"], undefined, true),
@@ -180,17 +292,35 @@ export const APP_ROUTE_META_MAP = new Map(APP_ROUTE_META.map((item) => [item.pat
 export const NEW_FEATURE_PATHS = new Set(APP_ROUTE_META.filter((item) => item.isNew).map((item) => item.path));
 export const APP_NAV_GROUPS = Object.entries(GROUP_CONFIG)
     .sort(([, left], [, right]) => left.order - right.order)
-    .map(([title, config]) => ({
-    title: title,
-    hint: config.hint,
-    tone: config.tone,
-    items: APP_ROUTE_META.filter((item) => item.category === title).map((item) => ({
+    .map(([title, config]) => {
+    const groupTitle = title;
+    const items = APP_ROUTE_META.filter((item) => item.category === title).map((item) => ({
         label: item.label,
         path: item.path,
         shortLabel: item.shortLabel,
         description: item.description,
-    })),
-}))
+        subtopic: item.subtopic,
+    }));
+    const sections = Array.from(items.reduce((map, item) => {
+        const key = item.subtopic ?? "Tools";
+        map.set(key, [...(map.get(key) ?? []), item]);
+        return map;
+    }, new Map()))
+        .sort(([left], [right]) => getSubtopicSortIndex(groupTitle, left) -
+        getSubtopicSortIndex(groupTitle, right) ||
+        left.localeCompare(right))
+        .map(([sectionTitle, sectionItems]) => ({
+        title: sectionTitle,
+        items: sectionItems,
+    }));
+    return {
+        title: groupTitle,
+        hint: config.hint,
+        tone: config.tone,
+        items,
+        sections,
+    };
+})
     .filter((group) => group.items.length > 0);
 export function getRouteMeta(path) {
     return APP_ROUTE_META_MAP.get(path) ?? null;

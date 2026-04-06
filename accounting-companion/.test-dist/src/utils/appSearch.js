@@ -51,6 +51,7 @@ function candidateTexts(route) {
         route.label,
         route.description,
         route.category,
+        route.subtopic,
         ...route.aliases,
         ...route.keywords,
         ...route.tags,

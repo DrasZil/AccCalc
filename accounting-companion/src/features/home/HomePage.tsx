@@ -39,8 +39,10 @@ const FEATURED_PATHS = [
     "/accounting/current-ratio",
     "/business/break-even",
     "/finance/loan-amortization",
-    "/accounting/inventory-method-comparison",
+    "/accounting/bond-amortization-schedule",
     "/accounting/receivables-aging-schedule",
+    "/business/cash-budget",
+    "/accounting/lower-of-cost-or-nrv",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -71,6 +73,24 @@ const WORKFLOW_COLLECTIONS = [
             "/business/break-even",
             "/business/sales-mix-break-even",
             "/business/target-profit",
+        ],
+    },
+    {
+        title: "Budgeting",
+        description: "Move from operating cash planning into flexible-budget variance reading.",
+        paths: [
+            "/business/cash-budget",
+            "/business/flexible-budget",
+            "/business/margin-of-safety",
+        ],
+    },
+    {
+        title: "Valuation",
+        description: "Handle inventory write-downs, bonds, and other valuation-heavy classroom cases.",
+        paths: [
+            "/accounting/lower-of-cost-or-nrv",
+            "/accounting/bond-amortization-schedule",
+            "/finance/discounted-payback-period",
         ],
     },
 ];

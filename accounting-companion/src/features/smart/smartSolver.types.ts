@@ -98,6 +98,18 @@ export const ALL_FIELD_KEYS = [
     "receivablesDays",
     "inventoryDays",
     "payablesDays",
+    "faceValue",
+    "statedRate",
+    "marketRate",
+    "beginningCashBalance",
+    "cashCollections",
+    "cashDisbursements",
+    "minimumCashBalance",
+    "budgetedUnits",
+    "actualUnits",
+    "actualCost",
+    "inventoryCost",
+    "netRealizableValue",
     ] as const;
 
     export type FieldKey = (typeof ALL_FIELD_KEYS)[number];

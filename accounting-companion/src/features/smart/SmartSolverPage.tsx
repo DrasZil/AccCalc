@@ -55,6 +55,10 @@ const SMART_PROMPT_EXAMPLES = [
     "A new partner invests 120,000 for a 25% interest and old partners' capital is 300,000. Use the bonus method.",
     "Find accounts payable turnover if net credit purchases are 420,000 and average accounts payable is 70,000.",
     "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
+    "Find lower of cost or NRV if inventory cost is 25,000 and net realizable value is 22,000.",
+    "Prepare a cash budget if beginning cash is 50,000, collections are 180,000, disbursements are 210,000, and minimum cash is 25,000.",
+    "Make a flexible budget if budgeted units are 10,000, actual units are 12,000, fixed costs are 150,000, variable cost per unit is 22, and actual cost is 422,000.",
+    "Prepare a bond amortization schedule for 1,000,000 face value bonds, 8% stated rate, 10% market rate, 5 years, semiannual.",
     "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
     "Compare depreciation methods for cost 500,000, salvage 50,000, and useful life 5 years.",
 ];

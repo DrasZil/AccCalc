@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeCashDiscount, computeCashConversionCycle, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquityMultiplier, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeInventoryMethodComparison, computeLoanAmortization, computeLoanAmortizationSchedule, computeMarkupMargin, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeReceivablesAgingSchedule, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashConversionCycle, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeGrossProfitRate, computeInventoryMethodComparison, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeReceivablesAgingSchedule, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
@@ -236,6 +236,16 @@ runTest("capital budgeting helpers compute consistent discounted values", () => 
     assertClose(profitabilityIndex.profitabilityIndex, 1.1175702344, 1e-6);
     assertClose(profitabilityIndex.netPresentValue, npv.netPresentValue, 1e-9);
 });
+runTest("discounted payback recognizes time-value-adjusted recovery", () => {
+    const result = computeDiscountedPaybackPeriod(100000, 12, [
+        30000,
+        35000,
+        40000,
+        45000,
+    ]);
+    assert.equal(result.recovered, true);
+    assertClose(result.paybackPeriod ?? 0, 3.5888910222, 1e-6);
+});
 runTest("payback period handles partial final period", () => {
     const result = computePaybackPeriod(100000, [30000, 25000, 28000, 35000]);
     assert.equal(result.recovered, true);
@@ -276,6 +286,38 @@ runTest("inventory comparison shows FIFO and weighted average differences", () =
     assertClose(result.weightedAverage.costOfGoodsSold, 8300, 1e-5);
     assertClose(result.fifo.endingInventory, 8850);
     assertClose(result.weightedAverage.endingInventory, 8300, 1e-5);
+});
+runTest("lower of cost or nrv supports item and aggregate views", () => {
+    const itemByItem = computeLowerOfCostOrNrv({
+        method: "item-by-item",
+        items: [
+            { label: "Item A", cost: 25000, netRealizableValue: 22000 },
+            { label: "Item B", cost: 18000, netRealizableValue: 19000 },
+        ],
+    });
+    const aggregate = computeLowerOfCostOrNrv({
+        method: "aggregate",
+        items: [
+            { label: "Item A", cost: 25000, netRealizableValue: 22000 },
+            { label: "Item B", cost: 18000, netRealizableValue: 19000 },
+        ],
+    });
+    assertClose(itemByItem.totalLowerValue, 40000);
+    assertClose(itemByItem.totalWriteDown, 3000);
+    assertClose(aggregate.totalLowerValue, 41000);
+    assertClose(aggregate.totalWriteDown, 2000);
+});
+runTest("bond amortization schedule converges back to face value", () => {
+    const result = computeBondAmortizationSchedule({
+        faceValue: 1000000,
+        statedRatePercent: 8,
+        marketRatePercent: 10,
+        termYears: 5,
+        paymentsPerYear: 2,
+        method: "effective-interest",
+    });
+    assert.equal(result.issueType, "discount");
+    assertClose(result.schedule.at(-1)?.endingCarryingValue ?? 0, 1000000, 1e-6);
 });
 runTest("depreciation comparison schedule respects salvage floor", () => {
     const result = computeDepreciationComparisonSchedule({
@@ -332,6 +374,44 @@ runTest("sales mix break-even handles composite-unit CVP", () => {
     assertClose(result.breakEvenCompositeUnits, 439.0243902, 1e-6);
     assertClose(result.breakEvenSales, 474146.3414, 1e-3);
 });
+runTest("cash and flexible budgets separate financing and variance logic", () => {
+    const cashBudget = computeCashBudget({
+        beginningCashBalance: 50000,
+        cashCollections: 180000,
+        cashDisbursements: 210000,
+        minimumCashBalance: 25000,
+    });
+    const flexibleBudget = computeFlexibleBudget({
+        budgetedUnits: 10000,
+        actualUnits: 12000,
+        fixedCosts: 150000,
+        variableCostPerUnit: 22,
+        actualCost: 422000,
+    });
+    assertClose(cashBudget.financingNeeded, 5000);
+    assertClose(cashBudget.endingCashAfterFinancing, 25000);
+    assertClose(flexibleBudget.flexibleBudget, 414000);
+    assertClose(flexibleBudget.spendingVariance, 8000);
+});
+runTest("equivalent units and efficiency variances stay classroom-consistent", () => {
+    const equivalentUnits = computeEquivalentUnitsWeightedAverage({
+        beginningWorkInProcessUnits: 1200,
+        unitsStarted: 8800,
+        unitsCompletedAndTransferred: 9000,
+        endingWorkInProcessUnits: 1000,
+        endingMaterialsCompletionPercent: 100,
+        endingConversionCompletionPercent: 40,
+        totalMaterialsCosts: 180000,
+        totalConversionCosts: 135000,
+    });
+    const materialsQuantity = computeMaterialsQuantityVariance(5200, 5000, 20);
+    const laborEfficiency = computeLaborEfficiencyVariance(2400, 2200, 170);
+    assertClose(equivalentUnits.materialsEquivalentUnits, 10000);
+    assertClose(equivalentUnits.conversionEquivalentUnits, 9400);
+    assertClose(equivalentUnits.transferredOutCost, 291255.3191, 1e-3);
+    assertClose(materialsQuantity.variance, 4000);
+    assertClose(laborEfficiency.variance, 34000);
+});
 runTest("number list parser accepts mixed separators and rejects bad entries", () => {
     const parsed = parseNumberList("10, 20\n30;40");
     const invalid = parseNumberList("10, nope, 30");
@@ -348,6 +428,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const retirementResults = searchAppRoutes("retiring partner settlement");
     const agingResults = searchAppRoutes("aging of receivables");
     const salesMixResults = searchAppRoutes("composite unit break even");
+    const bondResults = searchAppRoutes("bond premium schedule");
+    const budgetResults = searchAppRoutes("activity variance");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -356,6 +438,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(retirementResults[0]?.path, "/accounting/partnership-retirement-bonus");
     assert.equal(agingResults[0]?.path, "/accounting/receivables-aging-schedule");
     assert.equal(salesMixResults[0]?.path, "/business/sales-mix-break-even");
+    assert.equal(bondResults[0]?.path, "/accounting/bond-amortization-schedule");
+    assert.equal(budgetResults[0]?.path, "/business/flexible-budget");
 });
 runTest("account reference search finds aliases and abbreviations", () => {
     const adaResults = searchAccountReferences("ada");

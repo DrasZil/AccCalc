@@ -58,6 +58,22 @@ export default function AboutPage() {
                     </div>
                 </div>
             </SectionCard>
+
+            <SectionCard>
+                <h2 className="text-lg font-semibold text-white">Curriculum alignment</h2>
+                <div className="mt-4 space-y-3 text-sm leading-7 text-gray-300 md:text-base">
+                    <p>
+                        The app's accounting scope is shaped by standard accountancy and
+                        business-instruction practice plus public program signals from Philippine
+                        institutions such as PUP, Central Philippine University, and UP Visayas.
+                    </p>
+                    <p>
+                        That means the app aims to stay useful for classroom review, board-exam
+                        style preparation, and practical working-paper style tasks without inventing
+                        school-specific curriculum details that are not publicly documented.
+                    </p>
+                </div>
+            </SectionCard>
         </div>
     );
 }

@@ -254,7 +254,9 @@ export default function FeatureSearch({
                                                     {result.label}
                                                 </p>
                                                 <span className="app-chip rounded-full px-2 py-0.5 text-[0.62rem]">
-                                                    {result.category}
+                                                    {result.subtopic
+                                                        ? `${result.category} / ${result.subtopic}`
+                                                        : result.category}
                                                 </span>
                                                 <OfflineCapabilityBadge
                                                     level={result.offlineSupport}

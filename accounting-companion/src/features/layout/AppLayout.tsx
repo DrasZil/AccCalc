@@ -436,64 +436,75 @@ function SidebarContent({
                                 >
                                     <div className="min-h-0 overflow-hidden">
                                         <div className="ml-4 border-l app-divider pl-3 pt-1.5">
-                                            <div className="space-y-1.5">
-                                                {group.items.map((item) => {
-                                                    const isActive = isPathActive(
-                                                        locationPathname,
-                                                        item.path
-                                                    );
-                                                    const isNew =
-                                                        showNewIndicators &&
-                                                        NEW_FEATURE_PATHS.has(item.path) &&
-                                                        !seenNewPaths.includes(item.path);
+                                            <div className="space-y-3">
+                                                {group.sections.map((section) => (
+                                                    <div key={`${group.title}-${section.title}`}>
+                                                        {group.sections.length > 1 ? (
+                                                            <p className="app-helper px-3 pb-1 text-[0.62rem] uppercase tracking-[0.14em]">
+                                                                {section.title}
+                                                            </p>
+                                                        ) : null}
+                                                        <div className="space-y-1.5">
+                                                            {section.items.map((item) => {
+                                                                const isActive = isPathActive(
+                                                                    locationPathname,
+                                                                    item.path
+                                                                );
+                                                                const isNew =
+                                                                    showNewIndicators &&
+                                                                    NEW_FEATURE_PATHS.has(item.path) &&
+                                                                    !seenNewPaths.includes(item.path);
 
-                                                return (
-                                                    (() => {
-                                                        const availability =
-                                                            resolveRouteAvailability(item);
+                                                                return (
+                                                                    (() => {
+                                                                        const availability =
+                                                                            resolveRouteAvailability(item);
 
-                                                        return (
-                                                        <Link
-                                                            key={item.path}
-                                                            to={item.path}
-                                                            onClick={(event) =>
-                                                                handleRouteIntent(event, item)
-                                                            }
-                                                            className={[
-                                                                "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1rem] px-3 py-2.25 text-sm font-medium leading-5 transition duration-300",
-                                                                isActive
-                                                                    ? "app-sidebar-link-active"
-                                                                    : "",
-                                                                !availability.canOpen
-                                                                    ? "opacity-75"
-                                                                    : "",
-                                                            ].join(" ")}
-                                                            title={availability.reason}
-                                                        >
-                                                            <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
-                                                                {getNavLabel(item)}
-                                                            </span>
-                                                            {isNew ? (
-                                                                <NewBadge />
-                                                            ) : (
-                                                                <span
-                                                                    className={[
-                                                                        "app-sidebar-link-meta rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]",
-                                                                        isActive
-                                                                            ? "app-chip-accent"
-                                                                            : "",
-                                                                    ].join(" ")}
-                                                                >
-                                                                    {isActive
-                                                                        ? "Open"
-                                                                        : availability.label}
-                                                                </span>
-                                                            )}
-                                                        </Link>
-                                                        );
-                                                    })()
-                                                );
-                                            })}
+                                                                        return (
+                                                                            <Link
+                                                                                key={item.path}
+                                                                                to={item.path}
+                                                                                onClick={(event) =>
+                                                                                    handleRouteIntent(event, item)
+                                                                                }
+                                                                                className={[
+                                                                                    "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1rem] px-3 py-2.25 text-sm font-medium leading-5 transition duration-300",
+                                                                                    isActive
+                                                                                        ? "app-sidebar-link-active"
+                                                                                        : "",
+                                                                                    !availability.canOpen
+                                                                                        ? "opacity-75"
+                                                                                        : "",
+                                                                                ].join(" ")}
+                                                                                title={availability.reason}
+                                                                            >
+                                                                                <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
+                                                                                    {getNavLabel(item)}
+                                                                                </span>
+                                                                                {isNew ? (
+                                                                                    <NewBadge />
+                                                                                ) : (
+                                                                                    <span
+                                                                                        className={[
+                                                                                            "app-sidebar-link-meta rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]",
+                                                                                            isActive
+                                                                                                ? "app-chip-accent"
+                                                                                                : "",
+                                                                                        ].join(" ")}
+                                                                                    >
+                                                                                        {isActive
+                                                                                            ? "Open"
+                                                                                            : availability.label}
+                                                                                    </span>
+                                                                                )}
+                                                                            </Link>
+                                                                        );
+                                                                    })()
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                         </div>
                                         </div>
                                     </div>

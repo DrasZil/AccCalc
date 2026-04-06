@@ -158,6 +158,53 @@ type SalesMixBreakEvenParams = {
     products: SalesMixProductInput[];
 };
 
+type LowerOfCostOrNrvItemInput = {
+    label: string;
+    cost: number;
+    netRealizableValue: number;
+};
+
+type LowerOfCostOrNrvParams = {
+    items: LowerOfCostOrNrvItemInput[];
+    method: "item-by-item" | "aggregate";
+};
+
+type BondAmortizationParams = {
+    faceValue: number;
+    statedRatePercent: number;
+    marketRatePercent: number;
+    termYears: number;
+    paymentsPerYear: number;
+    method: "effective-interest" | "straight-line";
+    issuePrice?: number;
+};
+
+type CashBudgetParams = {
+    beginningCashBalance: number;
+    cashCollections: number;
+    cashDisbursements: number;
+    minimumCashBalance: number;
+};
+
+type FlexibleBudgetParams = {
+    budgetedUnits: number;
+    actualUnits: number;
+    fixedCosts: number;
+    variableCostPerUnit: number;
+    actualCost: number;
+};
+
+type EquivalentUnitsParams = {
+    beginningWorkInProcessUnits: number;
+    unitsStarted: number;
+    unitsCompletedAndTransferred: number;
+    endingWorkInProcessUnits: number;
+    endingMaterialsCompletionPercent: number;
+    endingConversionCompletionPercent: number;
+    totalMaterialsCosts: number;
+    totalConversionCosts: number;
+};
+
 export function computeSimpleInterest({
     principal,
     annualRatePercent,
@@ -1047,5 +1094,296 @@ export function computeSalesMixBreakEven({
             breakEvenUnits: breakEvenCompositeUnits * row.mixShare,
             breakEvenSales: breakEvenCompositeUnits * row.mixShare * row.sellingPrice,
         })),
+    };
+}
+
+export function computeLowerOfCostOrNrv({
+    items,
+    method,
+}: LowerOfCostOrNrvParams) {
+    const rows = items.map((item) => {
+        const lowerValue = Math.min(item.cost, item.netRealizableValue);
+        return {
+            ...item,
+            lowerValue,
+            writeDown: item.cost - lowerValue,
+        };
+    });
+
+    const totalCost = rows.reduce((sum, row) => sum + row.cost, 0);
+    const totalNetRealizableValue = rows.reduce(
+        (sum, row) => sum + row.netRealizableValue,
+        0
+    );
+    const aggregateLowerValue = Math.min(totalCost, totalNetRealizableValue);
+    const totalWriteDown =
+        method === "aggregate"
+            ? totalCost - aggregateLowerValue
+            : rows.reduce((sum, row) => sum + row.writeDown, 0);
+
+    return {
+        rows,
+        totalCost,
+        totalNetRealizableValue,
+        totalLowerValue:
+            method === "aggregate"
+                ? aggregateLowerValue
+                : rows.reduce((sum, row) => sum + row.lowerValue, 0),
+        totalWriteDown,
+        method,
+    };
+}
+
+export function computeBondAmortizationSchedule({
+    faceValue,
+    statedRatePercent,
+    marketRatePercent,
+    termYears,
+    paymentsPerYear,
+    method,
+    issuePrice,
+}: BondAmortizationParams) {
+    const totalPeriods = termYears * paymentsPerYear;
+    const periodicStatedRate = statedRatePercent / 100 / paymentsPerYear;
+    const periodicMarketRate = marketRatePercent / 100 / paymentsPerYear;
+    const cashInterest = faceValue * periodicStatedRate;
+    const derivedIssuePrice =
+        periodicMarketRate === 0
+            ? faceValue + cashInterest * totalPeriods
+            : cashInterest *
+                  ((1 - Math.pow(1 + periodicMarketRate, -totalPeriods)) /
+                      periodicMarketRate) +
+              faceValue / Math.pow(1 + periodicMarketRate, totalPeriods);
+    const resolvedIssuePrice = issuePrice ?? derivedIssuePrice;
+    const premiumOrDiscount = faceValue - resolvedIssuePrice;
+    const straightLineAmortizationPerPeriod =
+        premiumOrDiscount / totalPeriods;
+    let carryingValue = resolvedIssuePrice;
+
+    const schedule = Array.from({ length: totalPeriods }, (_, index) => {
+        const period = index + 1;
+        const beginningCarryingValue = carryingValue;
+        let interestExpense =
+            method === "effective-interest"
+                ? beginningCarryingValue * periodicMarketRate
+                : cashInterest + straightLineAmortizationPerPeriod;
+        let amortization = interestExpense - cashInterest;
+        let endingCarryingValue = beginningCarryingValue + amortization;
+
+        if (period === totalPeriods) {
+            amortization = faceValue - beginningCarryingValue;
+            interestExpense = cashInterest + amortization;
+            endingCarryingValue = faceValue;
+        }
+
+        carryingValue = endingCarryingValue;
+
+        return {
+            period,
+            beginningCarryingValue,
+            cashInterest,
+            interestExpense,
+            amortization,
+            endingCarryingValue,
+        };
+    });
+
+    return {
+        totalPeriods,
+        periodicStatedRate,
+        periodicMarketRate,
+        cashInterest,
+        issuePrice: resolvedIssuePrice,
+        premiumOrDiscount,
+        issueType:
+            Math.abs(premiumOrDiscount) < 0.005
+                ? "at par"
+                : premiumOrDiscount > 0
+                  ? "discount"
+                  : "premium",
+        straightLineAmortizationPerPeriod,
+        schedule,
+        totalInterestExpense: schedule.reduce(
+            (sum, row) => sum + row.interestExpense,
+            0
+        ),
+    };
+}
+
+export function computeCashBudget({
+    beginningCashBalance,
+    cashCollections,
+    cashDisbursements,
+    minimumCashBalance,
+}: CashBudgetParams) {
+    const totalCashAvailable = beginningCashBalance + cashCollections;
+    const excessOrDeficiencyBeforeFinancing =
+        totalCashAvailable - cashDisbursements;
+    const financingNeeded = Math.max(
+        minimumCashBalance - excessOrDeficiencyBeforeFinancing,
+        0
+    );
+    const endingCashAfterFinancing =
+        excessOrDeficiencyBeforeFinancing + financingNeeded;
+
+    return {
+        totalCashAvailable,
+        excessOrDeficiencyBeforeFinancing,
+        financingNeeded,
+        endingCashAfterFinancing,
+        excessCashAfterFinancing:
+            endingCashAfterFinancing - minimumCashBalance,
+    };
+}
+
+export function computeFlexibleBudget({
+    budgetedUnits,
+    actualUnits,
+    fixedCosts,
+    variableCostPerUnit,
+    actualCost,
+}: FlexibleBudgetParams) {
+    const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
+    const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;
+    const activityVariance = flexibleBudget - staticBudget;
+    const spendingVariance = actualCost - flexibleBudget;
+    const staticBudgetVariance = actualCost - staticBudget;
+
+    return {
+        staticBudget,
+        flexibleBudget,
+        activityVariance,
+        spendingVariance,
+        staticBudgetVariance,
+    };
+}
+
+export function computeEquivalentUnitsWeightedAverage({
+    beginningWorkInProcessUnits,
+    unitsStarted,
+    unitsCompletedAndTransferred,
+    endingWorkInProcessUnits,
+    endingMaterialsCompletionPercent,
+    endingConversionCompletionPercent,
+    totalMaterialsCosts,
+    totalConversionCosts,
+}: EquivalentUnitsParams) {
+    const totalUnitsToAccountFor =
+        beginningWorkInProcessUnits + unitsStarted;
+    const totalUnitsAccountedFor =
+        unitsCompletedAndTransferred + endingWorkInProcessUnits;
+    const materialsEquivalentUnits =
+        unitsCompletedAndTransferred +
+        endingWorkInProcessUnits * (endingMaterialsCompletionPercent / 100);
+    const conversionEquivalentUnits =
+        unitsCompletedAndTransferred +
+        endingWorkInProcessUnits * (endingConversionCompletionPercent / 100);
+    const materialsCostPerEquivalentUnit =
+        totalMaterialsCosts / materialsEquivalentUnits;
+    const conversionCostPerEquivalentUnit =
+        totalConversionCosts / conversionEquivalentUnits;
+    const transferredOutCost =
+        unitsCompletedAndTransferred *
+        (materialsCostPerEquivalentUnit + conversionCostPerEquivalentUnit);
+    const endingWorkInProcessCost =
+        endingWorkInProcessUnits *
+            (endingMaterialsCompletionPercent / 100) *
+            materialsCostPerEquivalentUnit +
+        endingWorkInProcessUnits *
+            (endingConversionCompletionPercent / 100) *
+            conversionCostPerEquivalentUnit;
+
+    return {
+        totalUnitsToAccountFor,
+        totalUnitsAccountedFor,
+        unitReconciliationDifference:
+            totalUnitsToAccountFor - totalUnitsAccountedFor,
+        materialsEquivalentUnits,
+        conversionEquivalentUnits,
+        materialsCostPerEquivalentUnit,
+        conversionCostPerEquivalentUnit,
+        transferredOutCost,
+        endingWorkInProcessCost,
+        totalCostAssigned: transferredOutCost + endingWorkInProcessCost,
+    };
+}
+
+export function computeMaterialsQuantityVariance(
+    actualQuantityUsed: number,
+    standardQuantityAllowed: number,
+    standardPrice: number
+) {
+    const variance =
+        (actualQuantityUsed - standardQuantityAllowed) * standardPrice;
+
+    return {
+        variance,
+        direction:
+            variance > 0 ? "Unfavorable" : variance < 0 ? "Favorable" : "None",
+    };
+}
+
+export function computeLaborEfficiencyVariance(
+    actualHours: number,
+    standardHoursAllowed: number,
+    standardRate: number
+) {
+    const variance = (actualHours - standardHoursAllowed) * standardRate;
+
+    return {
+        variance,
+        direction:
+            variance > 0 ? "Unfavorable" : variance < 0 ? "Favorable" : "None",
+    };
+}
+
+export function computeDiscountedPaybackPeriod(
+    initialInvestment: number,
+    discountRatePercent: number,
+    cashFlows: number[]
+) {
+    const rateDecimal = discountRatePercent / 100;
+    let cumulativeDiscountedCashFlow = 0;
+    let unrecoveredDiscountedBalance = initialInvestment;
+    let paybackPeriod: number | null = null;
+    let fractionOfPeriod: number | null = null;
+
+    const schedule = cashFlows.map((cashFlow, index) => {
+        const period = index + 1;
+        const discountFactor = 1 / Math.pow(1 + rateDecimal, period);
+        const discountedCashFlow = cashFlow * discountFactor;
+        const beginningUnrecovered = unrecoveredDiscountedBalance;
+
+        cumulativeDiscountedCashFlow += discountedCashFlow;
+        unrecoveredDiscountedBalance -= discountedCashFlow;
+
+        if (
+            paybackPeriod === null &&
+            beginningUnrecovered > 0 &&
+            unrecoveredDiscountedBalance <= 0 &&
+            discountedCashFlow > 0
+        ) {
+            fractionOfPeriod = beginningUnrecovered / discountedCashFlow;
+            paybackPeriod = index + fractionOfPeriod;
+        }
+
+        return {
+            period,
+            cashFlow,
+            discountFactor,
+            discountedCashFlow,
+            cumulativeDiscountedCashFlow,
+            unrecoveredDiscountedBalance,
+        };
+    });
+
+    return {
+        rateDecimal,
+        schedule,
+        recovered: paybackPeriod !== null,
+        paybackPeriod,
+        fractionOfPeriod,
+        cumulativeDiscountedCashFlow,
+        unrecoveredDiscountedBalance,
     };
 }

@@ -67,6 +67,7 @@ function candidateTexts(route: RouteMeta) {
         route.label,
         route.description,
         route.category,
+        route.subtopic,
         ...route.aliases,
         ...route.keywords,
         ...route.tags,

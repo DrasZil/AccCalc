@@ -145,6 +145,69 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         aliases: ["fixed cost", "fixed costs"],
     },
 
+    beginningCashBalance: {
+        label: "Beginning Cash Balance",
+        placeholder: "50000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["beginning cash", "beginning cash balance", "opening cash"],
+    },
+
+    cashCollections: {
+        label: "Cash Collections",
+        placeholder: "180000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["cash collections", "cash receipts", "collections"],
+    },
+
+    cashDisbursements: {
+        label: "Cash Disbursements",
+        placeholder: "210000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["cash disbursements", "cash payments", "disbursements"],
+    },
+
+    minimumCashBalance: {
+        label: "Minimum Cash Balance",
+        placeholder: "25000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["minimum cash balance", "required cash balance", "minimum cash"],
+    },
+
+    budgetedUnits: {
+        label: "Budgeted Units",
+        placeholder: "10000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted units", "planned units", "static budget units"],
+    },
+
+    actualUnits: {
+        label: "Actual Units",
+        placeholder: "12000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual units", "actual output", "units actually produced"],
+    },
+
+    actualCost: {
+        label: "Actual Cost",
+        placeholder: "422000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual cost", "actual total cost"],
+    },
+
     sellingPricePerUnit: {
         label: "Selling Price / Unit",
         placeholder: "120",
@@ -215,6 +278,33 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         group: "accounting",
         visibleInManualInputs: false,
         aliases: ["equity", "owner's equity", "owners equity", "owner claim", "residual interest"],
+    },
+
+    faceValue: {
+        label: "Face Value",
+        placeholder: "1000000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["face value", "bond face value", "maturity value of bond", "par value"],
+    },
+
+    statedRate: {
+        label: "Stated Rate (%)",
+        placeholder: "8",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["stated rate", "coupon rate", "contract rate", "bond rate"],
+    },
+
+    marketRate: {
+        label: "Market Rate (%)",
+        placeholder: "10",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["market rate", "effective rate", "yield rate", "investor yield"],
     },
 
     invoice: {
@@ -323,6 +413,24 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         group: "inventory",
         visibleInManualInputs: false,
         aliases: ["beginning cost", "beginning inventory cost"],
+    },
+
+    inventoryCost: {
+        label: "Inventory Cost",
+        placeholder: "25000",
+        kind: "money",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["inventory cost", "cost amount", "inventory amount at cost"],
+    },
+
+    netRealizableValue: {
+        label: "Net Realizable Value",
+        placeholder: "22000",
+        kind: "money",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["net realizable value", "nrv", "estimated selling value less costs"],
     },
 
     purchase1Units: {
@@ -1499,6 +1607,44 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /mix break[- ]even/i,
         ],
     },
+    {
+        id: "cash-budget",
+        name: "Cash Budget",
+        route: "/business/cash-budget",
+        description:
+        "Best when the user is planning cash receipts, cash payments, minimum cash, or financing need for a budget period.",
+        required: [
+        "beginningCashBalance",
+        "cashCollections",
+        "cashDisbursements",
+        "minimumCashBalance",
+        ],
+        aliases: ["cash budget", "cash planning", "cash receipts and disbursements budget"],
+        keywords: [
+        /cash budget/i,
+        /cash planning/i,
+        /cash receipts/i,
+        /cash disbursements/i,
+        /minimum cash/i,
+        /financing needed/i,
+        ],
+    },
+    {
+        id: "flexible-budget",
+        name: "Flexible Budget",
+        route: "/business/flexible-budget",
+        description:
+        "Best when the user wants a flexible budget, activity variance, or spending variance from budgeted versus actual output.",
+        required: ["budgetedUnits", "actualUnits", "fixedCosts", "variableCostPerUnit", "actualCost"],
+        aliases: ["static versus flexible budget", "activity variance", "spending variance"],
+        keywords: [
+        /flexible budget/i,
+        /static budget/i,
+        /activity variance/i,
+        /spending variance/i,
+        /budget variance/i,
+        ],
+    },
 
     {
         id: "markup-margin",
@@ -1554,6 +1700,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /ordinary interest/i,
         /exact interest/i,
         /promissory note/i,
+        ],
+    },
+    {
+        id: "bond-amortization-schedule",
+        name: "Bond Amortization Schedule",
+        route: "/accounting/bond-amortization-schedule",
+        description:
+        "Best when the user is working on bond premium or discount amortization with stated and market rates.",
+        required: ["faceValue", "statedRate", "marketRate", "years"],
+        aliases: ["bond amortization", "effective interest bond", "bond premium schedule", "bond discount schedule"],
+        keywords: [
+        /bond amortization/i,
+        /effective interest/i,
+        /bond premium/i,
+        /bond discount/i,
+        /coupon rate/i,
+        /market rate/i,
         ],
     },
 
@@ -1695,6 +1858,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /estimated inventory/i,
         /\bcogs\b/i,
         /merchandising/i,
+        ],
+    },
+    {
+        id: "lower-of-cost-or-nrv",
+        name: "Lower of Cost or NRV",
+        route: "/accounting/lower-of-cost-or-nrv",
+        description:
+        "Best when the user mentions lower of cost and NRV, inventory write-down, or inventory valuation below cost.",
+        required: ["inventoryCost", "netRealizableValue"],
+        aliases: ["lower of cost or nrv", "inventory write-down", "lower of cost and net realizable value"],
+        keywords: [
+        /lower of cost/i,
+        /net realizable value/i,
+        /\bnrv\b/i,
+        /inventory write[- ]down/i,
+        /inventory valuation/i,
         ],
     },
     {
@@ -1937,7 +2116,53 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /direct labor/i,
             /manufacturing overhead/i,
             /work in process/i,
-            /\bwip\b/i,
+        /\bwip\b/i,
+        ],
+    },
+    {
+        id: "equivalent-units-weighted-average",
+        name: "Equivalent Units (Weighted Average)",
+        route: "/accounting/equivalent-units-weighted-average",
+        description:
+            "Best when the user is solving weighted-average process costing or equivalent units of production.",
+        required: [],
+        aliases: ["equivalent units", "weighted average process costing", "equivalent units of production"],
+        keywords: [
+            /equivalent units/i,
+            /weighted average process/i,
+            /process costing/i,
+            /ending work in process/i,
+            /transferred out/i,
+        ],
+    },
+    {
+        id: "materials-quantity-variance",
+        name: "Materials Quantity Variance",
+        route: "/accounting/materials-quantity-variance",
+        description:
+            "Best when the user wants to compare actual material usage with the standard quantity allowed.",
+        required: [],
+        aliases: ["materials usage variance", "mqv"],
+        keywords: [
+            /materials quantity variance/i,
+            /materials usage variance/i,
+            /standard quantity allowed/i,
+            /actual quantity used/i,
+        ],
+    },
+    {
+        id: "labor-efficiency-variance",
+        name: "Labor Efficiency Variance",
+        route: "/accounting/labor-efficiency-variance",
+        description:
+            "Best when the user wants to compare actual labor hours with standard hours allowed.",
+        required: [],
+        aliases: ["labor time variance", "labor efficiency"],
+        keywords: [
+            /labor efficiency variance/i,
+            /labor time variance/i,
+            /standard hours allowed/i,
+            /actual hours/i,
         ],
     },
     {
@@ -2936,12 +3161,42 @@ export function normalizeText(text: string = ""): string {
     const payablesDays = extractNumberByAliases(text, FIELD_META.payablesDays.aliases ?? [], {
         allowCurrency: false,
     });
+    const beginningCashBalance = extractNumberByAliases(
+        text,
+        FIELD_META.beginningCashBalance.aliases ?? []
+    );
+    const cashCollections = extractNumberByAliases(
+        text,
+        FIELD_META.cashCollections.aliases ?? []
+    );
+    const cashDisbursements = extractNumberByAliases(
+        text,
+        FIELD_META.cashDisbursements.aliases ?? []
+    );
+    const minimumCashBalance = extractNumberByAliases(
+        text,
+        FIELD_META.minimumCashBalance.aliases ?? []
+    );
+    const budgetedUnits = extractNumberByAliases(text, FIELD_META.budgetedUnits.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const actualUnits = extractNumberByAliases(text, FIELD_META.actualUnits.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const actualCost = extractNumberByAliases(text, FIELD_META.actualCost.aliases ?? []);
     const sales = extractNumberByAliases(text, FIELD_META.sales.aliases ?? []);
     const variableCosts = extractNumberByAliases(text, FIELD_META.variableCosts.aliases ?? []);
     const sellingPrice = extractNumberByAliases(text, FIELD_META.sellingPrice.aliases ?? []);
     const assets = extractNumberByAliases(text, FIELD_META.assets.aliases ?? []);
     const liabilities = extractNumberByAliases(text, FIELD_META.liabilities.aliases ?? []);
     const equity = extractNumberByAliases(text, FIELD_META.equity.aliases ?? []);
+    const faceValue = extractNumberByAliases(text, FIELD_META.faceValue.aliases ?? []);
+    const statedRate = extractNumberByAliases(text, FIELD_META.statedRate.aliases ?? [], {
+        percent: true,
+    });
+    const marketRate = extractNumberByAliases(text, FIELD_META.marketRate.aliases ?? [], {
+        percent: true,
+    });
     const invoice = extractNumberByAliases(text, FIELD_META.invoice.aliases ?? []);
     const discountRate = extractNumberByAliases(text, FIELD_META.discountRate.aliases ?? [], {
         percent: true,
@@ -2977,6 +3232,11 @@ export function normalizeText(text: string = ""): string {
     const unitsSold = extractNumberByAliases(text, FIELD_META.unitsSold.aliases ?? [], {
         allowCurrency: false,
     });
+    const inventoryCost = extractNumberByAliases(text, FIELD_META.inventoryCost.aliases ?? []);
+    const netRealizableValue = extractNumberByAliases(
+        text,
+        FIELD_META.netRealizableValue.aliases ?? []
+    );
 
     const netSales = extractNumberByAliases(text, FIELD_META.netSales.aliases ?? []);
     const grossProfitRate = extractNumberByAliases(
@@ -3022,6 +3282,13 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "annualRate", annualRate);
     setFact(facts, "years", years);
     setFact(facts, "fixedCosts", fixedCosts);
+    setFact(facts, "beginningCashBalance", beginningCashBalance);
+    setFact(facts, "cashCollections", cashCollections);
+    setFact(facts, "cashDisbursements", cashDisbursements);
+    setFact(facts, "minimumCashBalance", minimumCashBalance);
+    setFact(facts, "budgetedUnits", budgetedUnits);
+    setFact(facts, "actualUnits", actualUnits);
+    setFact(facts, "actualCost", actualCost);
     setFact(facts, "sellingPricePerUnit", sellingPricePerUnit);
     setFact(facts, "variableCostPerUnit", variableCostPerUnit);
     setFact(facts, "sales", sales);
@@ -3030,6 +3297,9 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "assets", assets);
     setFact(facts, "liabilities", liabilities);
     setFact(facts, "equity", equity);
+    setFact(facts, "faceValue", faceValue);
+    setFact(facts, "statedRate", statedRate);
+    setFact(facts, "marketRate", marketRate);
     setFact(facts, "invoice", invoice);
     setFact(facts, "discountRate", discountRate);
     setFact(facts, "totalEstimatedUnits", totalEstimatedUnits);
@@ -3045,6 +3315,8 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "purchase2Units", purchase2Units);
     setFact(facts, "purchase2Cost", purchase2Cost);
     setFact(facts, "unitsSold", unitsSold);
+    setFact(facts, "inventoryCost", inventoryCost);
+    setFact(facts, "netRealizableValue", netRealizableValue);
 
     setFact(facts, "netSales", netSales);
     setFact(facts, "grossProfitRate", grossProfitRate);

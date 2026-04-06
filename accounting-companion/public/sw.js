@@ -1,4 +1,4 @@
-const APP_VERSION = "2.5.0";
+const APP_VERSION = "2.6.0";
 const CACHE_PREFIX = "acccalc-v";
 const CACHE_VERSION = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
