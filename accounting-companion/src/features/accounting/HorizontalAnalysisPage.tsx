@@ -1,94 +1,197 @@
 import { useMemo, useState } from "react";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
+import EditableRowsCard from "../../components/EditableRowsCard";
 import FormulaCard from "../../components/FormulaCard";
-import InputCard from "../../components/INputCard";
-import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import {
+    computeHorizontalAnalysisWorkspace,
+} from "../../utils/calculatorMath";
 import formatPHP from "../../utils/formatPHP";
-import { useSmartSolverConnector } from "../smart/smartSolver.connector";
+
+type HorizontalRow = {
+    id: string;
+    label: string;
+    baseAmount: string;
+    currentAmount: string;
+};
+
+function createHorizontalRow(
+    label = "",
+    baseAmount = "",
+    currentAmount = ""
+): HorizontalRow {
+    return {
+        id: Math.random().toString(36).slice(2, 10),
+        label,
+        baseAmount,
+        currentAmount,
+    };
+}
 
 export default function HorizontalAnalysisPage() {
-    const [basePeriodAmount, setBasePeriodAmount] = useState("");
-    const [currentPeriodAmount, setCurrentPeriodAmount] = useState("");
-
-    useSmartSolverConnector({
-        basePeriodAmount: setBasePeriodAmount,
-        currentPeriodAmount: setCurrentPeriodAmount,
-    });
+    const [rows, setRows] = useState<HorizontalRow[]>([
+        createHorizontalRow("Cash", "120000", "145000"),
+        createHorizontalRow("Receivables", "95000", "110000"),
+        createHorizontalRow("Inventory", "150000", "168000"),
+        createHorizontalRow("Net Sales", "680000", "742000"),
+    ]);
 
     const result = useMemo(() => {
-        if (basePeriodAmount.trim() === "" || currentPeriodAmount.trim() === "") return null;
+        const resolvedRows = rows
+            .map((row) => ({
+                label: row.label.trim(),
+                baseAmount: row.baseAmount.trim() === "" ? null : Number(row.baseAmount),
+                currentAmount:
+                    row.currentAmount.trim() === "" ? null : Number(row.currentAmount),
+            }))
+            .filter(
+                (row) =>
+                    row.label !== "" || row.baseAmount !== null || row.currentAmount !== null
+            );
 
-        const parsedBasePeriodAmount = Number(basePeriodAmount);
-        const parsedCurrentPeriodAmount = Number(currentPeriodAmount);
+        if (!resolvedRows.length) return null;
 
-        if (Number.isNaN(parsedBasePeriodAmount) || Number.isNaN(parsedCurrentPeriodAmount)) {
-            return { error: "All inputs must be valid numbers." };
+        if (
+            resolvedRows.some(
+                (row) =>
+                    row.label === "" ||
+                    row.baseAmount === null ||
+                    row.currentAmount === null ||
+                    Number.isNaN(row.baseAmount) ||
+                    Number.isNaN(row.currentAmount)
+            )
+        ) {
+            return { error: "Each visible line needs a label, a base amount, and a current amount." };
         }
 
-        if (parsedBasePeriodAmount === 0) {
-            return { error: "Base period amount cannot be zero when computing percentage change." };
-        }
-
-        const amountChange = parsedCurrentPeriodAmount - parsedBasePeriodAmount;
-        const percentageChange = (amountChange / parsedBasePeriodAmount) * 100;
+        const computed = computeHorizontalAnalysisWorkspace(
+            resolvedRows.map((row) => ({
+                label: row.label,
+                baseAmount: row.baseAmount as number,
+                currentAmount: row.currentAmount as number,
+            }))
+        );
+        const largestSwing = [...computed.rows].sort(
+            (left, right) =>
+                Math.abs(right.percentageChange ?? 0) - Math.abs(left.percentageChange ?? 0)
+        )[0];
 
         return {
-            amountChange,
-            percentageChange,
-            formula:
-                "Horizontal Analysis Percentage = (Current Period Amount - Base Period Amount) / Base Period Amount",
-            steps: [
-                `Amount change = ${formatPHP(parsedCurrentPeriodAmount)} - ${formatPHP(parsedBasePeriodAmount)} = ${formatPHP(amountChange)}`,
-                `Percentage change = ${formatPHP(amountChange)} / ${formatPHP(parsedBasePeriodAmount)} = ${percentageChange.toFixed(2)}%`,
-            ],
-            glossary: [
-                { term: "Base Period Amount", meaning: "The earlier period used as the comparison benchmark." },
-                { term: "Current Period Amount", meaning: "The more recent period amount being compared against the base period." },
-                { term: "Horizontal Analysis", meaning: "A comparison of financial statement changes from one period to another." },
-            ],
-            interpretation:
-                amountChange >= 0
-                    ? `The item increased by ${formatPHP(amountChange)}, which is ${percentageChange.toFixed(2)}% above the base period.`
-                    : `The item decreased by ${formatPHP(Math.abs(amountChange))}, which is ${Math.abs(percentageChange).toFixed(2)}% below the base period.`,
+            ...computed,
+            largestSwing,
         };
-    }, [basePeriodAmount, currentPeriodAmount]);
+    }, [rows]);
 
     return (
         <CalculatorPageLayout
-            badge="Accounting • Analysis"
-            title="Horizontal Analysis"
-            description="Compute amount change and percentage change between a base period and a current period."
+            badge="Accounting / Reporting & Analysis"
+            title="Horizontal Analysis Workspace"
+            description="Compare multiple line items at once, then read both peso change and percentage change from one worksheet-style analysis page."
             inputSection={
-                <SectionCard>
-                    <InputGrid columns={2}>
-                        <InputCard label="Base Period Amount" value={basePeriodAmount} onChange={setBasePeriodAmount} placeholder="120000" />
-                        <InputCard label="Current Period Amount" value={currentPeriodAmount} onChange={setCurrentPeriodAmount} placeholder="150000" />
-                    </InputGrid>
-                </SectionCard>
+                <EditableRowsCard
+                    title="Comparative Lines"
+                    description="Add each line you want to compare across two periods."
+                    rows={rows}
+                    columns={[
+                        { key: "label", label: "Line Label", placeholder: "Accounts Payable", inputMode: "text" },
+                        { key: "baseAmount", label: "Base Period", placeholder: "120000" },
+                        { key: "currentAmount", label: "Current Period", placeholder: "140000" },
+                    ]}
+                    addLabel="Add line"
+                    onAdd={() => setRows((current) => [...current, createHorizontalRow()])}
+                    onRemove={(id) =>
+                        setRows((current) => current.filter((row) => row.id !== id))
+                    }
+                    onChange={(id, key, value) =>
+                        setRows((current) =>
+                            current.map((row) =>
+                                row.id === id ? { ...row, [key]: value } : row
+                            )
+                        )
+                    }
+                />
             }
             resultSection={
                 result && "error" in result ? (
-                    <SectionCard className="border-yellow-400/20 bg-yellow-500/10">
-                        <p className="text-sm font-medium text-yellow-300">Input notice</p>
-                        <p className="mt-2 text-sm leading-6 text-yellow-200">{result.error}</p>
+                    <SectionCard className="app-tone-warning">
+                        <p className="app-card-title text-sm">Input notice</p>
+                        <p className="app-body-md mt-2 text-sm">{result.error}</p>
                     </SectionCard>
                 ) : result ? (
-                    <ResultGrid columns={2}>
-                        <ResultCard title="Amount Change" value={formatPHP(result.amountChange)} />
-                        <ResultCard title="Percentage Change" value={`${result.percentageChange.toFixed(2)}%`} />
-                    </ResultGrid>
-                ) : null
+                    <div className="space-y-4">
+                        <ResultGrid columns={4}>
+                            <ResultCard title="Base Total" value={formatPHP(result.baseTotal)} />
+                            <ResultCard title="Current Total" value={formatPHP(result.currentTotal)} />
+                            <ResultCard title="Total Change" value={formatPHP(result.totalChange)} />
+                            <ResultCard
+                                title="Largest Swing"
+                                value={
+                                    result.largestSwing.percentageChange === null
+                                        ? "N/A"
+                                        : `${result.largestSwing.percentageChange.toFixed(2)}%`
+                                }
+                                supportingText={result.largestSwing.label}
+                            />
+                        </ResultGrid>
+
+                        <SectionCard>
+                            <div className="space-y-3">
+                                {result.rows.map((row) => (
+                                    <div
+                                        key={row.label}
+                                        className="grid gap-2 rounded-[1.05rem] app-subtle-surface px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+                                    >
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {row.label}
+                                        </p>
+                                        <p className="text-sm text-[color:var(--app-text-muted)]">
+                                            {formatPHP(row.baseAmount)}
+                                        </p>
+                                        <p className="text-sm text-[color:var(--app-text-muted)]">
+                                            {formatPHP(row.currentAmount)}
+                                        </p>
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {formatPHP(row.amountChange)}
+                                            {row.percentageChange === null
+                                                ? " | N/A"
+                                                : ` | ${row.percentageChange.toFixed(2)}%`}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </SectionCard>
+                    </div>
+                ) : (
+                    <SectionCard>
+                        <p className="app-card-title text-sm">Horizontal analysis workspace</p>
+                        <p className="app-body-md mt-2 text-sm">
+                            Add at least one labeled line with base and current amounts to compare
+                            period changes.
+                        </p>
+                    </SectionCard>
+                )
             }
             explanationSection={
                 result && !("error" in result) ? (
                     <FormulaCard
-                        formula={result.formula}
-                        steps={result.steps}
-                        glossary={result.glossary}
-                        interpretation={result.interpretation}
+                        formula="Amount change = Current period amount - Base period amount; Percentage change = Amount change / Base period amount"
+                        steps={result.rows.map((row) => {
+                            const percentageText =
+                                row.percentageChange === null
+                                    ? "N/A because base period is zero"
+                                    : `${row.percentageChange.toFixed(2)}%`;
+
+                            return `${row.label}: ${formatPHP(row.currentAmount)} - ${formatPHP(row.baseAmount)} = ${formatPHP(row.amountChange)}; percentage change = ${percentageText}.`;
+                        })}
+                        interpretation={`The largest listed movement is ${result.largestSwing.label}, with a change of ${result.largestSwing.percentageChange === null ? "N/A" : `${result.largestSwing.percentageChange.toFixed(2)}%`}.`}
+                        assumptions={[
+                            "Percentage change is not shown when the base-period amount is zero because that comparison is mathematically unstable.",
+                        ]}
+                        notes={[
+                            "Use this page for comparative statements, review sheets, and quick multi-line period analysis without recalculating each line by hand.",
+                        ]}
                     />
                 ) : null
             }

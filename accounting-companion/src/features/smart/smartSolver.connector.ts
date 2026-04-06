@@ -10,6 +10,7 @@ export type SmartSolverRouteState = {
     from?: string;
     query?: string;
     prefill?: SmartSolverPrefill;
+    solveTarget?: string;
 };
 
 export type SmartSolverSetterMap = Record<

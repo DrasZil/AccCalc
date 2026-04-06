@@ -1,0 +1,1566 @@
+import formatPHP from "./formatPHP.js";
+import { computeBreakEven, computeCompoundInterest, computeCurrentRatio, computeFutureValue, computeGrossProfitRate, computeMarkupMargin, computePresentValue, computeQuickRatio, computeSimpleInterest, computeStraightLineDepreciation, computeTurnoverWithDayBasis, } from "./calculatorMath.js";
+function formatPercent(value, digits = 2) {
+    return `${value.toFixed(digits)}%`;
+}
+function formatPlain(value, digits = 2) {
+    return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(digits);
+}
+function formatRatio(value) {
+    return `${value.toFixed(2)} : 1`;
+}
+function formatTimes(value) {
+    return `${value.toFixed(2)} times`;
+}
+function formatDays(value) {
+    return `${value.toFixed(2)} days`;
+}
+function invalidNumberError() {
+    return { error: "All visible inputs must be valid numbers." };
+}
+export const simpleInterestSolveDefinition = {
+    id: "simple-interest-solve",
+    defaultTarget: "interest",
+    fields: {
+        principal: { key: "principal", label: "Principal", placeholder: "10000", kind: "money" },
+        rate: { key: "rate", label: "Rate (%)", placeholder: "5", kind: "percent" },
+        time: { key: "time", label: "Time (years)", placeholder: "2", kind: "time" },
+        interest: { key: "interest", label: "Interest", placeholder: "1000", kind: "money" },
+    },
+    targets: [
+        { key: "interest", label: "Interest", summary: "Use the standard simple-interest question: find the interest earned or charged." },
+        { key: "principal", label: "Principal", summary: "Back-solve the original amount when interest, rate, and time are known." },
+        { key: "rate", label: "Rate", summary: "Find the annual simple-interest rate required by the given principal, interest, and time." },
+        { key: "time", label: "Time", summary: "Back-solve the number of years implied by principal, interest, and annual rate." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "principal":
+                return ["interest", "rate", "time"];
+            case "rate":
+                return ["principal", "interest", "time"];
+            case "time":
+                return ["principal", "interest", "rate"];
+            default:
+                return ["principal", "rate", "time"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Ready to reverse-solve simple interest",
+            body: targetKey === "interest"
+                ? "Enter principal, rate, and time to compute simple interest and the total amount."
+                : `Enter the remaining simple-interest values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        const numericValues = Object.values(values);
+        if (numericValues.some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        let principal = values.principal;
+        let rate = values.rate;
+        let time = values.time;
+        let interest = values.interest;
+        if (targetKey === "interest") {
+            if (principal <= 0)
+                return { error: "Principal must be greater than zero." };
+            if (rate < 0 || time < 0)
+                return { error: "Rate and time cannot be negative." };
+            const result = computeSimpleInterest({
+                principal,
+                annualRatePercent: rate,
+                timeYears: time,
+            });
+            interest = result.interest;
+            return {
+                primaryResult: { title: "Interest", value: formatPHP(interest), tone: "accent" },
+                supportingResults: [
+                    { title: "Total Amount", value: formatPHP(result.totalAmount) },
+                    { title: "Rate (decimal)", value: result.rateDecimal.toFixed(4) },
+                ],
+                formula: "I = P × r × t",
+                steps: [
+                    `Rate in decimal = ${formatPercent(rate)} = ${result.rateDecimal.toFixed(4)}.`,
+                    `Interest = ${formatPHP(principal)} × ${result.rateDecimal.toFixed(4)} × ${formatPlain(time)} = ${formatPHP(interest)}.`,
+                    `Total amount = ${formatPHP(principal)} + ${formatPHP(interest)} = ${formatPHP(result.totalAmount)}.`,
+                ],
+                glossary: [
+                    { term: "Principal (P)", meaning: "The original amount borrowed or invested." },
+                    { term: "Rate (r)", meaning: "The annual simple-interest rate expressed as a decimal." },
+                    { term: "Time (t)", meaning: "The number of years the principal remains outstanding." },
+                ],
+                interpretation: interest === 0
+                    ? `The rate or the time is zero, so the principal stays at ${formatPHP(result.totalAmount)} with no simple interest added.`
+                    : `The principal earns ${formatPHP(interest)} in simple interest over ${formatPlain(time)} year(s), bringing the total amount to ${formatPHP(result.totalAmount)}.`,
+            };
+        }
+        if (targetKey === "principal") {
+            if (rate <= 0 || time <= 0) {
+                return { error: "Rate and time must both be greater than zero when solving for principal." };
+            }
+            principal = interest / ((rate / 100) * time);
+        }
+        else if (targetKey === "rate") {
+            if (principal <= 0 || time <= 0) {
+                return { error: "Principal and time must both be greater than zero when solving for rate." };
+            }
+            rate = (interest / (principal * time)) * 100;
+        }
+        else if (targetKey === "time") {
+            if (principal <= 0 || rate <= 0) {
+                return { error: "Principal and rate must both be greater than zero when solving for time." };
+            }
+            time = interest / (principal * (rate / 100));
+        }
+        if (![principal, rate, time].every((value) => Number.isFinite(value))) {
+            return { error: "The selected values do not produce a valid simple-interest solution." };
+        }
+        if (principal <= 0 || rate < 0 || time < 0) {
+            return { error: "The solved value falls outside the normal simple-interest domain." };
+        }
+        const recomputed = computeSimpleInterest({
+            principal,
+            annualRatePercent: rate,
+            timeYears: time,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "principal" ? "Principal" : targetKey === "rate" ? "Rate" : "Time",
+                value: targetKey === "principal"
+                    ? formatPHP(principal)
+                    : targetKey === "rate"
+                        ? formatPercent(rate)
+                        : `${formatPlain(time)} year(s)`,
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Interest", value: formatPHP(recomputed.interest) },
+                { title: "Total Amount", value: formatPHP(recomputed.totalAmount) },
+            ],
+            formula: targetKey === "principal"
+                ? "P = I / (r × t)"
+                : targetKey === "rate"
+                    ? "r = I / (P × t)"
+                    : "t = I / (P × r)",
+            steps: [
+                `Use the same simple-interest relationship I = P × r × t, but isolate ${targetKey}.`,
+                `Solved ${targetKey} = ${targetKey === "principal"
+                    ? formatPHP(principal)
+                    : targetKey === "rate"
+                        ? formatPercent(rate)
+                        : `${formatPlain(time)} year(s)`}.`,
+                `Check: ${formatPHP(principal)} at ${formatPercent(rate)} for ${formatPlain(time)} year(s) gives ${formatPHP(recomputed.interest)} in interest.`,
+            ],
+            interpretation: `The missing ${targetKey} is consistent with simple interest of ${formatPHP(recomputed.interest)} and a total amount of ${formatPHP(recomputed.totalAmount)}.`,
+            assumptions: [
+                "This page assumes simple interest only, so interest is computed on the original principal rather than on a compounding balance.",
+            ],
+        };
+    },
+};
+export const compoundInterestSolveDefinition = {
+    id: "compound-interest-solve",
+    defaultTarget: "totalAmount",
+    fields: {
+        principal: { key: "principal", label: "Principal", placeholder: "10000", kind: "money" },
+        rate: { key: "rate", label: "Rate (%)", placeholder: "5", kind: "percent" },
+        timesCompounded: {
+            key: "timesCompounded",
+            label: "Compounded / Year",
+            placeholder: "4",
+            kind: "number",
+        },
+        time: { key: "time", label: "Time (years)", placeholder: "2", kind: "time" },
+        totalAmount: { key: "totalAmount", label: "Total Amount", placeholder: "11025", kind: "money" },
+    },
+    targets: [
+        { key: "totalAmount", label: "Total Amount", summary: "Project the accumulated amount using principal, annual rate, compounding frequency, and time." },
+        { key: "principal", label: "Principal", summary: "Back-solve the original principal from the accumulated compound amount." },
+        { key: "rate", label: "Rate", summary: "Find the annual rate implied by principal, final amount, compounding frequency, and time." },
+        { key: "time", label: "Time", summary: "Find how long the compounding period lasts for the balance to reach the target amount." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "principal":
+                return ["totalAmount", "rate", "timesCompounded", "time"];
+            case "rate":
+                return ["principal", "totalAmount", "timesCompounded", "time"];
+            case "time":
+                return ["principal", "totalAmount", "rate", "timesCompounded"];
+            default:
+                return ["principal", "rate", "timesCompounded", "time"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Compound-interest solve mode",
+            body: `Enter the visible compound-interest inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let principal = values.principal;
+        let rate = values.rate;
+        let timesCompounded = values.timesCompounded;
+        let time = values.time;
+        let totalAmount = values.totalAmount;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (timesCompounded <= 0) {
+            return { error: "Compounds per year must be greater than zero." };
+        }
+        if (targetKey === "principal") {
+            if (totalAmount <= 0 || time < 0 || rate <= -100) {
+                return { error: "Total amount must be positive, time cannot be negative, and rate must stay above -100%." };
+            }
+            principal =
+                totalAmount / Math.pow(1 + rate / 100 / timesCompounded, timesCompounded * time);
+        }
+        else if (targetKey === "rate") {
+            if (principal <= 0 || totalAmount <= 0 || time <= 0) {
+                return { error: "Principal, total amount, and time must all be greater than zero when solving for rate." };
+            }
+            const ratio = totalAmount / principal;
+            if (ratio <= 0) {
+                return { error: "The accumulated amount must stay positive relative to principal." };
+            }
+            rate =
+                timesCompounded *
+                    (Math.pow(ratio, 1 / (timesCompounded * time)) - 1) *
+                    100;
+        }
+        else if (targetKey === "time") {
+            if (principal <= 0 || totalAmount <= 0) {
+                return { error: "Principal and total amount must both be greater than zero when solving for time." };
+            }
+            if (rate <= -100 || rate === 0) {
+                return { error: "Rate must be above -100% and not equal to zero when solving for time." };
+            }
+            const compoundFactor = 1 + rate / 100 / timesCompounded;
+            if (compoundFactor <= 0 || totalAmount / principal <= 0 || compoundFactor === 1) {
+                return { error: "The selected values do not produce a stable logarithmic compound-interest solution." };
+            }
+            time = Math.log(totalAmount / principal) / (timesCompounded * Math.log(compoundFactor));
+        }
+        if (![principal, rate, time].every((value) => Number.isFinite(value))) {
+            return { error: "The selected values do not produce a valid compound-interest answer." };
+        }
+        if (principal <= 0 || time < 0 || rate <= -100) {
+            return { error: "The solved compound-interest value falls outside the supported domain." };
+        }
+        const computed = computeCompoundInterest({
+            principal,
+            annualRatePercent: rate,
+            compoundsPerYear: timesCompounded,
+            timeYears: time,
+        });
+        totalAmount = computed.totalAmount;
+        return {
+            primaryResult: {
+                title: targetKey === "principal"
+                    ? "Principal"
+                    : targetKey === "rate"
+                        ? "Rate"
+                        : targetKey === "time"
+                            ? "Time"
+                            : "Total Amount",
+                value: targetKey === "principal"
+                    ? formatPHP(principal)
+                    : targetKey === "rate"
+                        ? formatPercent(rate)
+                        : targetKey === "time"
+                            ? `${formatPlain(time)} year(s)`
+                            : formatPHP(totalAmount),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Compound Interest", value: formatPHP(computed.compoundInterest) },
+                { title: "Compounded / Year", value: formatPlain(timesCompounded, 0) },
+            ],
+            formula: targetKey === "totalAmount"
+                ? "A = P × (1 + r / n)^(n × t)"
+                : targetKey === "principal"
+                    ? "P = A / (1 + r / n)^(n × t)"
+                    : targetKey === "rate"
+                        ? "r = n × ((A / P)^(1 / (n × t)) - 1)"
+                        : "t = ln(A / P) / (n × ln(1 + r / n))",
+            steps: [
+                `Compound amount check = ${formatPHP(principal)} × (1 + ${(computed.rateDecimal / timesCompounded).toFixed(6)})^(${formatPlain(timesCompounded, 0)} × ${formatPlain(time)}) = ${formatPHP(totalAmount)}.`,
+                `Compound interest = ${formatPHP(totalAmount)} - ${formatPHP(principal)} = ${formatPHP(computed.compoundInterest)}.`,
+            ],
+            interpretation: `The selected compound-interest inputs imply an accumulated amount of ${formatPHP(totalAmount)} and compound interest of ${formatPHP(computed.compoundInterest)}.`,
+            assumptions: [
+                "This reverse solve assumes a constant nominal annual rate and a constant compounding frequency.",
+            ],
+            warnings: targetKey === "time"
+                ? ["When the rate is zero, compound growth disappears, so time cannot be isolated with this logarithmic form."]
+                : undefined,
+        };
+    },
+};
+export const timeValueSolveDefinition = {
+    id: "time-value-solve",
+    defaultTarget: "futureValue",
+    fields: {
+        presentValue: {
+            key: "presentValue",
+            label: "Present Value",
+            placeholder: "10000",
+            kind: "money",
+        },
+        futureValue: {
+            key: "futureValue",
+            label: "Future Value",
+            placeholder: "11576.25",
+            kind: "money",
+        },
+        rate: { key: "rate", label: "Rate (%)", placeholder: "5", kind: "percent" },
+        time: { key: "time", label: "Time (years)", placeholder: "3", kind: "time" },
+    },
+    targets: [
+        { key: "futureValue", label: "Future Value", summary: "Grow a present amount forward in time." },
+        { key: "presentValue", label: "Present Value", summary: "Discount a future amount back to present worth." },
+        { key: "rate", label: "Rate", summary: "Find the annual growth or discount rate implied by present value, future value, and time." },
+        { key: "time", label: "Time", summary: "Find the number of years needed to move between present value and future value." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "presentValue":
+                return ["futureValue", "rate", "time"];
+            case "rate":
+                return ["presentValue", "futureValue", "time"];
+            case "time":
+                return ["presentValue", "futureValue", "rate"];
+            default:
+                return ["presentValue", "rate", "time"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Ready for time-value reverse solve",
+            body: `Enter the visible time-value inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let presentValue = values.presentValue;
+        let futureValue = values.futureValue;
+        let rate = values.rate;
+        let time = values.time;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "presentValue") {
+            if (futureValue <= 0 || time < 0 || rate <= -100) {
+                return { error: "Future value must be positive, time cannot be negative, and rate must stay above -100%." };
+            }
+            presentValue = computePresentValue({
+                amount: futureValue,
+                annualRatePercent: rate,
+                timeYears: time,
+            }).presentValue;
+        }
+        else if (targetKey === "futureValue") {
+            if (presentValue <= 0 || time < 0 || rate <= -100) {
+                return { error: "Present value must be positive, time cannot be negative, and rate must stay above -100%." };
+            }
+            futureValue = computeFutureValue({
+                amount: presentValue,
+                annualRatePercent: rate,
+                timeYears: time,
+            }).futureValue;
+        }
+        else if (targetKey === "rate") {
+            if (presentValue <= 0 || futureValue <= 0 || time <= 0) {
+                return { error: "Present value, future value, and time must all be greater than zero when solving for rate." };
+            }
+            rate = (Math.pow(futureValue / presentValue, 1 / time) - 1) * 100;
+        }
+        else if (targetKey === "time") {
+            if (presentValue <= 0 || futureValue <= 0) {
+                return { error: "Present value and future value must both be greater than zero when solving for time." };
+            }
+            if (rate <= -100 || rate === 0) {
+                return { error: "Rate must be above -100% and not equal to zero when solving for time." };
+            }
+            const growthFactor = 1 + rate / 100;
+            if (growthFactor <= 0 || growthFactor === 1) {
+                return { error: "The selected values do not produce a stable logarithmic time-value solution." };
+            }
+            time = Math.log(futureValue / presentValue) / Math.log(growthFactor);
+        }
+        if (![presentValue, futureValue, rate, time].every((value) => Number.isFinite(value))) {
+            return { error: "The time-value inputs do not resolve to a valid answer." };
+        }
+        if (presentValue <= 0 || futureValue <= 0 || rate <= -100 || time < 0) {
+            return { error: "The solved value falls outside the supported time-value domain." };
+        }
+        const recomputedFuture = computeFutureValue({
+            amount: presentValue,
+            annualRatePercent: rate,
+            timeYears: time,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "presentValue"
+                    ? "Present Value"
+                    : targetKey === "rate"
+                        ? "Rate"
+                        : targetKey === "time"
+                            ? "Time"
+                            : "Future Value",
+                value: targetKey === "rate"
+                    ? formatPercent(rate)
+                    : targetKey === "time"
+                        ? `${formatPlain(time)} year(s)`
+                        : formatPHP(targetKey === "presentValue" ? presentValue : futureValue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Present Value", value: formatPHP(presentValue) },
+                { title: "Future Value", value: formatPHP(futureValue) },
+                { title: "Rate (decimal)", value: recomputedFuture.rateDecimal.toFixed(4) },
+            ],
+            formula: targetKey === "futureValue"
+                ? "FV = PV × (1 + r)^t"
+                : targetKey === "presentValue"
+                    ? "PV = FV / (1 + r)^t"
+                    : targetKey === "rate"
+                        ? "r = (FV / PV)^(1 / t) - 1"
+                        : "t = ln(FV / PV) / ln(1 + r)",
+            steps: [
+                `Present value = ${formatPHP(presentValue)}.`,
+                `Future value = ${formatPHP(futureValue)}.`,
+                `Rate = ${formatPercent(rate)} and time = ${formatPlain(time)} year(s).`,
+                `Check: ${formatPHP(presentValue)} grows to ${formatPHP(recomputedFuture.futureValue)} under the solved inputs.`,
+            ],
+            interpretation: `The time-value relationship is internally consistent: ${formatPHP(presentValue)} and ${formatPHP(futureValue)} are linked by ${formatPercent(rate)} across ${formatPlain(time)} year(s).`,
+            assumptions: [
+                "This page assumes one compounding period per year. Use the compound-interest page when a separate compounding frequency matters.",
+            ],
+        };
+    },
+};
+export const profitLossSolveDefinition = {
+    id: "profit-loss-solve",
+    defaultTarget: "difference",
+    fields: {
+        cost: { key: "cost", label: "Cost", placeholder: "5000", kind: "money" },
+        revenue: { key: "revenue", label: "Revenue", placeholder: "8000", kind: "money" },
+        difference: {
+            key: "difference",
+            label: "Profit or Loss Amount",
+            placeholder: "3000",
+            kind: "money",
+            helperText: "Use a negative value here if you want to back-solve from a loss.",
+        },
+    },
+    targets: [
+        { key: "difference", label: "Profit / Loss", summary: "Compare revenue and cost to see whether the outcome is profit, loss, or break-even." },
+        { key: "revenue", label: "Revenue", summary: "Back-solve the revenue needed to produce the stated profit or loss amount." },
+        { key: "cost", label: "Cost", summary: "Back-solve the cost implied by the stated revenue and profit or loss amount." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "revenue":
+                return ["cost", "difference"];
+            case "cost":
+                return ["revenue", "difference"];
+            default:
+                return ["cost", "revenue"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Profit / loss solve mode",
+            body: `Enter the visible values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let cost = values.cost;
+        let revenue = values.revenue;
+        let difference = values.difference;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "revenue") {
+            revenue = cost + difference;
+        }
+        else if (targetKey === "cost") {
+            cost = revenue - difference;
+        }
+        else {
+            difference = revenue - cost;
+        }
+        if (![cost, revenue, difference].every((value) => Number.isFinite(value))) {
+            return { error: "The selected values do not produce a valid profit-or-loss answer." };
+        }
+        if (cost < 0 || revenue < 0) {
+            return { error: "The solved cost or revenue would be negative, which this page does not treat as a normal operating state." };
+        }
+        const status = difference > 0 ? "Profit" : difference < 0 ? "Loss" : "Break-even";
+        return {
+            primaryResult: {
+                title: targetKey === "revenue"
+                    ? "Revenue"
+                    : targetKey === "cost"
+                        ? "Cost"
+                        : "Profit / Loss Amount",
+                value: targetKey === "difference"
+                    ? formatPHP(Math.abs(difference))
+                    : formatPHP(targetKey === "revenue" ? revenue : cost),
+                supportingText: targetKey === "difference" ? `Classified as ${status}.` : undefined,
+                tone: difference > 0 ? "success" : difference < 0 ? "warning" : "accent",
+            },
+            supportingResults: [
+                { title: "Status", value: status },
+                { title: "Revenue", value: formatPHP(revenue) },
+                { title: "Cost", value: formatPHP(cost) },
+            ],
+            formula: targetKey === "difference"
+                ? "Profit or Loss = Revenue - Cost"
+                : targetKey === "revenue"
+                    ? "Revenue = Cost + Profit or Loss"
+                    : "Cost = Revenue - Profit or Loss",
+            steps: [
+                `Revenue = ${formatPHP(revenue)}.`,
+                `Cost = ${formatPHP(cost)}.`,
+                `Difference = ${formatPHP(revenue)} - ${formatPHP(cost)} = ${formatPHP(difference)}.`,
+            ],
+            interpretation: difference > 0
+                ? `Revenue exceeds cost by ${formatPHP(difference)}, so the activity produces a profit.`
+                : difference < 0
+                    ? `Cost exceeds revenue by ${formatPHP(Math.abs(difference))}, so the activity produces a loss.`
+                    : "Revenue and cost are equal, so the activity is exactly at break-even.",
+        };
+    },
+};
+export const priceCostMarginSolveDefinition = {
+    id: "price-cost-margin-solve",
+    defaultTarget: "profit",
+    fields: {
+        cost: { key: "cost", label: "Cost", placeholder: "500", kind: "money" },
+        sellingPrice: {
+            key: "sellingPrice",
+            label: "Selling Price",
+            placeholder: "800",
+            kind: "money",
+        },
+        marginPercent: {
+            key: "marginPercent",
+            label: "Margin (%)",
+            placeholder: "30",
+            kind: "percent",
+            helperText: "Margin is profit as a percentage of selling price.",
+        },
+        profit: { key: "profit", label: "Profit", placeholder: "300", kind: "money" },
+    },
+    targets: [
+        { key: "profit", label: "Profit", summary: "Use cost and selling price to measure peso profit, markup, and margin." },
+        { key: "sellingPrice", label: "Selling Price", summary: "Back-solve the selling price needed to hit a target margin on cost." },
+        { key: "cost", label: "Cost", summary: "Back-solve the allowable cost when selling price and target margin are known." },
+        { key: "marginPercent", label: "Margin %", summary: "Measure the margin percentage implied by cost and selling price." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "sellingPrice":
+                return ["cost", "marginPercent"];
+            case "cost":
+                return ["sellingPrice", "marginPercent"];
+            case "marginPercent":
+                return ["cost", "sellingPrice"];
+            default:
+                return ["cost", "sellingPrice"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Price, cost, and margin planner",
+            body: `Enter the visible pricing values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let cost = values.cost;
+        let sellingPrice = values.sellingPrice;
+        let marginPercent = values.marginPercent;
+        let profit = values.profit;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "sellingPrice") {
+            if (cost <= 0)
+                return { error: "Cost must be greater than zero when solving for selling price." };
+            if (marginPercent >= 100)
+                return { error: "Margin must stay below 100% when solving for selling price." };
+            sellingPrice = cost / (1 - marginPercent / 100);
+        }
+        else if (targetKey === "cost") {
+            if (sellingPrice <= 0)
+                return { error: "Selling price must be greater than zero when solving for cost." };
+            if (marginPercent >= 100)
+                return { error: "Margin must stay below 100% when solving for cost." };
+            cost = sellingPrice * (1 - marginPercent / 100);
+        }
+        else {
+            if (cost <= 0 || sellingPrice <= 0) {
+                return { error: "Cost and selling price must both be greater than zero." };
+            }
+            const solved = computeMarkupMargin({ cost, sellingPrice });
+            profit = solved.profit;
+            marginPercent = solved.margin;
+        }
+        if (![cost, sellingPrice].every((value) => Number.isFinite(value))) {
+            return { error: "The selected pricing values do not produce a valid solution." };
+        }
+        if (cost <= 0 || sellingPrice <= 0) {
+            return { error: "Cost and selling price must both remain greater than zero." };
+        }
+        const computed = computeMarkupMargin({ cost, sellingPrice });
+        profit = computed.profit;
+        marginPercent = computed.margin;
+        return {
+            primaryResult: {
+                title: targetKey === "sellingPrice"
+                    ? "Selling Price"
+                    : targetKey === "cost"
+                        ? "Cost"
+                        : targetKey === "marginPercent"
+                            ? "Margin %"
+                            : "Profit",
+                value: targetKey === "marginPercent"
+                    ? formatPercent(marginPercent)
+                    : formatPHP(targetKey === "cost" ? cost : targetKey === "sellingPrice" ? sellingPrice : profit),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Profit", value: formatPHP(profit) },
+                { title: "Markup %", value: formatPercent(computed.markup) },
+                { title: "Margin %", value: formatPercent(marginPercent) },
+            ],
+            formula: targetKey === "sellingPrice"
+                ? "Selling Price = Cost / (1 - Margin %)"
+                : targetKey === "cost"
+                    ? "Cost = Selling Price × (1 - Margin %)"
+                    : targetKey === "marginPercent"
+                        ? "Margin % = (Selling Price - Cost) / Selling Price"
+                        : "Profit = Selling Price - Cost",
+            steps: [
+                `Cost = ${formatPHP(cost)} and selling price = ${formatPHP(sellingPrice)}.`,
+                `Profit = ${formatPHP(sellingPrice)} - ${formatPHP(cost)} = ${formatPHP(profit)}.`,
+                `Markup = ${formatPHP(profit)} / ${formatPHP(cost)} = ${formatPercent(computed.markup)}.`,
+                `Margin = ${formatPHP(profit)} / ${formatPHP(sellingPrice)} = ${formatPercent(marginPercent)}.`,
+            ],
+            interpretation: `The pricing structure produces ${formatPHP(profit)} in profit, equal to a markup of ${formatPercent(computed.markup)} and a margin of ${formatPercent(marginPercent)}.`,
+            warnings: targetKey === "sellingPrice" || targetKey === "cost"
+                ? ["Margin-based reverse solve becomes unstable at or above 100%, so the planner blocks that input range."]
+                : undefined,
+        };
+    },
+};
+export const breakEvenSolveDefinition = {
+    id: "break-even-solve",
+    defaultTarget: "breakEvenUnits",
+    fields: {
+        fixedCosts: {
+            key: "fixedCosts",
+            label: "Fixed Costs",
+            placeholder: "10000",
+            kind: "money",
+        },
+        sellingPricePerUnit: {
+            key: "sellingPricePerUnit",
+            label: "Selling Price / Unit",
+            placeholder: "200",
+            kind: "money",
+        },
+        variableCostPerUnit: {
+            key: "variableCostPerUnit",
+            label: "Variable Cost / Unit",
+            placeholder: "120",
+            kind: "money",
+        },
+        breakEvenUnits: {
+            key: "breakEvenUnits",
+            label: "Break-even Units",
+            placeholder: "125",
+            kind: "number",
+        },
+    },
+    targets: [
+        { key: "breakEvenUnits", label: "Break-even Units", summary: "Find how many units must be sold to cover all fixed costs." },
+        { key: "fixedCosts", label: "Fixed Costs", summary: "Back-solve fixed costs when the break-even units and contribution margin are known." },
+        { key: "sellingPricePerUnit", label: "Selling Price / Unit", summary: "Back-solve the selling price required to break even at the stated unit volume." },
+        { key: "variableCostPerUnit", label: "Variable Cost / Unit", summary: "Back-solve the maximum variable cost allowed at the stated break-even volume." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "fixedCosts":
+                return ["breakEvenUnits", "sellingPricePerUnit", "variableCostPerUnit"];
+            case "sellingPricePerUnit":
+                return ["breakEvenUnits", "fixedCosts", "variableCostPerUnit"];
+            case "variableCostPerUnit":
+                return ["breakEvenUnits", "fixedCosts", "sellingPricePerUnit"];
+            default:
+                return ["fixedCosts", "sellingPricePerUnit", "variableCostPerUnit"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Break-even solve mode",
+            body: `Enter the remaining CVP values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let fixedCosts = values.fixedCosts;
+        let sellingPricePerUnit = values.sellingPricePerUnit;
+        let variableCostPerUnit = values.variableCostPerUnit;
+        let breakEvenUnits = values.breakEvenUnits;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "fixedCosts") {
+            fixedCosts = breakEvenUnits * (sellingPricePerUnit - variableCostPerUnit);
+        }
+        else if (targetKey === "sellingPricePerUnit") {
+            if (breakEvenUnits <= 0) {
+                return { error: "Break-even units must be greater than zero when solving for selling price." };
+            }
+            sellingPricePerUnit = fixedCosts / breakEvenUnits + variableCostPerUnit;
+        }
+        else if (targetKey === "variableCostPerUnit") {
+            if (breakEvenUnits <= 0) {
+                return { error: "Break-even units must be greater than zero when solving for variable cost." };
+            }
+            variableCostPerUnit = sellingPricePerUnit - fixedCosts / breakEvenUnits;
+        }
+        if (fixedCosts < 0 ||
+            sellingPricePerUnit <= 0 ||
+            variableCostPerUnit < 0 ||
+            sellingPricePerUnit <= variableCostPerUnit) {
+            return { error: "The selected values do not leave a positive contribution margin per unit." };
+        }
+        const computed = computeBreakEven({
+            fixedCosts,
+            sellingPricePerUnit,
+            variableCostPerUnit,
+        });
+        breakEvenUnits = computed.breakEvenUnits;
+        return {
+            primaryResult: {
+                title: targetKey === "fixedCosts"
+                    ? "Fixed Costs"
+                    : targetKey === "sellingPricePerUnit"
+                        ? "Selling Price / Unit"
+                        : targetKey === "variableCostPerUnit"
+                            ? "Variable Cost / Unit"
+                            : "Break-even Units",
+                value: targetKey === "breakEvenUnits"
+                    ? formatPlain(breakEvenUnits)
+                    : formatPHP(targetKey === "fixedCosts"
+                        ? fixedCosts
+                        : targetKey === "sellingPricePerUnit"
+                            ? sellingPricePerUnit
+                            : variableCostPerUnit),
+                tone: "accent",
+            },
+            supportingResults: [
+                {
+                    title: "Contribution Margin / Unit",
+                    value: formatPHP(sellingPricePerUnit - variableCostPerUnit),
+                },
+                { title: "Break-even Sales", value: formatPHP(computed.breakEvenSales) },
+                {
+                    title: "Practical Whole Units",
+                    value: computed.practicalUnits.toLocaleString(),
+                },
+            ],
+            formula: targetKey === "breakEvenUnits"
+                ? "Break-even Units = Fixed Costs / (Selling Price - Variable Cost)"
+                : targetKey === "fixedCosts"
+                    ? "Fixed Costs = Break-even Units × (Selling Price - Variable Cost)"
+                    : targetKey === "sellingPricePerUnit"
+                        ? "Selling Price = Variable Cost + (Fixed Costs / Break-even Units)"
+                        : "Variable Cost = Selling Price - (Fixed Costs / Break-even Units)",
+            steps: [
+                `Contribution margin per unit = ${formatPHP(sellingPricePerUnit)} - ${formatPHP(variableCostPerUnit)} = ${formatPHP(sellingPricePerUnit - variableCostPerUnit)}.`,
+                `Break-even units = ${computed.breakEvenUnits.toFixed(4)} and break-even sales = ${formatPHP(computed.breakEvenSales)}.`,
+                `Practical whole-unit target = ${computed.practicalUnits.toLocaleString()} units, or about ${formatPHP(computed.practicalSales)} in sales.`,
+            ],
+            interpretation: `The CVP structure is consistent with a mathematical break-even point of ${computed.breakEvenUnits.toFixed(2)} units and about ${formatPHP(computed.breakEvenSales)} in sales.`,
+        };
+    },
+};
+export const contributionMarginSolveDefinition = {
+    id: "contribution-margin-solve",
+    defaultTarget: "contributionMargin",
+    fields: {
+        sales: { key: "sales", label: "Sales", placeholder: "20000", kind: "money" },
+        variableCosts: {
+            key: "variableCosts",
+            label: "Variable Costs",
+            placeholder: "12000",
+            kind: "money",
+        },
+        contributionMargin: {
+            key: "contributionMargin",
+            label: "Contribution Margin",
+            placeholder: "8000",
+            kind: "money",
+        },
+    },
+    targets: [
+        { key: "contributionMargin", label: "Contribution Margin", summary: "Measure how much sales remain after variable costs." },
+        { key: "sales", label: "Sales", summary: "Back-solve sales when variable costs and contribution margin are known." },
+        { key: "variableCosts", label: "Variable Costs", summary: "Back-solve variable costs when sales and contribution margin are known." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "sales":
+                return ["variableCosts", "contributionMargin"];
+            case "variableCosts":
+                return ["sales", "contributionMargin"];
+            default:
+                return ["sales", "variableCosts"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Contribution-margin solve mode",
+            body: `Enter the visible CVP values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let sales = values.sales;
+        let variableCosts = values.variableCosts;
+        let contributionMargin = values.contributionMargin;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "sales") {
+            sales = contributionMargin + variableCosts;
+        }
+        else if (targetKey === "variableCosts") {
+            variableCosts = sales - contributionMargin;
+        }
+        else {
+            contributionMargin = sales - variableCosts;
+        }
+        if (![sales, variableCosts, contributionMargin].every((value) => Number.isFinite(value))) {
+            return { error: "The selected values do not produce a valid contribution-margin answer." };
+        }
+        if (sales < 0 || variableCosts < 0) {
+            return { error: "Sales and variable costs must remain non-negative." };
+        }
+        const ratio = sales === 0 ? null : (contributionMargin / sales) * 100;
+        return {
+            primaryResult: {
+                title: targetKey === "sales"
+                    ? "Sales"
+                    : targetKey === "variableCosts"
+                        ? "Variable Costs"
+                        : "Contribution Margin",
+                value: targetKey === "sales"
+                    ? formatPHP(sales)
+                    : targetKey === "variableCosts"
+                        ? formatPHP(variableCosts)
+                        : formatPHP(contributionMargin),
+                tone: "accent",
+            },
+            supportingResults: [
+                {
+                    title: "Contribution Margin Ratio",
+                    value: ratio === null ? "N/A" : formatPercent(ratio),
+                },
+            ],
+            formula: targetKey === "contributionMargin"
+                ? "Contribution Margin = Sales - Variable Costs"
+                : targetKey === "sales"
+                    ? "Sales = Variable Costs + Contribution Margin"
+                    : "Variable Costs = Sales - Contribution Margin",
+            steps: [
+                `Sales = ${formatPHP(sales)} and variable costs = ${formatPHP(variableCosts)}.`,
+                `Contribution margin = ${formatPHP(sales)} - ${formatPHP(variableCosts)} = ${formatPHP(contributionMargin)}.`,
+                ratio === null
+                    ? "The contribution-margin ratio is not defined when sales is zero."
+                    : `Contribution-margin ratio = ${formatPHP(contributionMargin)} / ${formatPHP(sales)} = ${formatPercent(ratio)}.`,
+            ],
+            interpretation: ratio === null
+                ? `Contribution margin totals ${formatPHP(contributionMargin)}, but the ratio is not defined because sales are zero.`
+                : `Each peso of sales contributes about ${formatPercent(ratio)} toward fixed costs and profit.`,
+        };
+    },
+};
+export const straightLineDepreciationSolveDefinition = {
+    id: "straight-line-depreciation-solve",
+    defaultTarget: "annualDepreciation",
+    fields: {
+        cost: { key: "cost", label: "Asset Cost", placeholder: "50000", kind: "money" },
+        salvageValue: {
+            key: "salvageValue",
+            label: "Salvage Value",
+            placeholder: "5000",
+            kind: "money",
+        },
+        usefulLife: {
+            key: "usefulLife",
+            label: "Useful Life (years)",
+            placeholder: "5",
+            kind: "time",
+        },
+        annualDepreciation: {
+            key: "annualDepreciation",
+            label: "Annual Depreciation",
+            placeholder: "9000",
+            kind: "money",
+        },
+    },
+    targets: [
+        { key: "annualDepreciation", label: "Annual Depreciation", summary: "Find the annual straight-line depreciation expense." },
+        { key: "cost", label: "Asset Cost", summary: "Back-solve the original asset cost from depreciation, salvage value, and useful life." },
+        { key: "salvageValue", label: "Salvage Value", summary: "Back-solve the salvage value implied by cost, useful life, and annual depreciation." },
+        { key: "usefulLife", label: "Useful Life", summary: "Back-solve useful life from cost, salvage value, and annual straight-line depreciation." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "cost":
+                return ["salvageValue", "usefulLife", "annualDepreciation"];
+            case "salvageValue":
+                return ["cost", "usefulLife", "annualDepreciation"];
+            case "usefulLife":
+                return ["cost", "salvageValue", "annualDepreciation"];
+            default:
+                return ["cost", "salvageValue", "usefulLife"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Straight-line reverse solve",
+            body: `Enter the remaining depreciation values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let cost = values.cost;
+        let salvageValue = values.salvageValue;
+        let usefulLife = values.usefulLife;
+        let annualDepreciation = values.annualDepreciation;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "cost") {
+            cost = annualDepreciation * usefulLife + salvageValue;
+        }
+        else if (targetKey === "salvageValue") {
+            salvageValue = cost - annualDepreciation * usefulLife;
+        }
+        else if (targetKey === "usefulLife") {
+            if (annualDepreciation <= 0) {
+                return { error: "Annual depreciation must be greater than zero when solving for useful life." };
+            }
+            usefulLife = (cost - salvageValue) / annualDepreciation;
+        }
+        if (cost < 0 || salvageValue < 0 || usefulLife <= 0) {
+            return { error: "The solved straight-line value falls outside the normal depreciation domain." };
+        }
+        if (salvageValue > cost) {
+            return { error: "Salvage value cannot exceed cost." };
+        }
+        const computed = computeStraightLineDepreciation({
+            cost,
+            salvageValue,
+            usefulLifeYears: usefulLife,
+        });
+        annualDepreciation = computed.annualDepreciation;
+        return {
+            primaryResult: {
+                title: targetKey === "cost"
+                    ? "Asset Cost"
+                    : targetKey === "salvageValue"
+                        ? "Salvage Value"
+                        : targetKey === "usefulLife"
+                            ? "Useful Life"
+                            : "Annual Depreciation",
+                value: targetKey === "usefulLife"
+                    ? `${formatPlain(usefulLife)} year(s)`
+                    : formatPHP(targetKey === "cost"
+                        ? cost
+                        : targetKey === "salvageValue"
+                            ? salvageValue
+                            : annualDepreciation),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Depreciable Cost", value: formatPHP(computed.depreciableCost) },
+            ],
+            formula: targetKey === "annualDepreciation"
+                ? "Annual Depreciation = (Cost - Salvage Value) / Useful Life"
+                : targetKey === "cost"
+                    ? "Cost = (Annual Depreciation × Useful Life) + Salvage Value"
+                    : targetKey === "salvageValue"
+                        ? "Salvage Value = Cost - (Annual Depreciation × Useful Life)"
+                        : "Useful Life = (Cost - Salvage Value) / Annual Depreciation",
+            steps: [
+                `Depreciable cost = ${formatPHP(cost)} - ${formatPHP(salvageValue)} = ${formatPHP(computed.depreciableCost)}.`,
+                `Annual straight-line depreciation = ${formatPHP(computed.depreciableCost)} / ${formatPlain(usefulLife)} = ${formatPHP(annualDepreciation)}.`,
+            ],
+            interpretation: `Under straight-line depreciation, the asset depreciates by ${formatPHP(annualDepreciation)} each year over ${formatPlain(usefulLife)} year(s).`,
+        };
+    },
+};
+export const currentRatioSolveDefinition = {
+    id: "current-ratio-solve",
+    defaultTarget: "currentRatio",
+    fields: {
+        currentAssets: {
+            key: "currentAssets",
+            label: "Current Assets",
+            placeholder: "250000",
+            kind: "money",
+        },
+        currentLiabilities: {
+            key: "currentLiabilities",
+            label: "Current Liabilities",
+            placeholder: "100000",
+            kind: "money",
+        },
+        currentRatio: {
+            key: "currentRatio",
+            label: "Current Ratio",
+            placeholder: "2.5",
+            kind: "ratio",
+        },
+    },
+    targets: [
+        { key: "currentRatio", label: "Current Ratio", summary: "Measure short-term liquidity from current assets and current liabilities." },
+        { key: "currentAssets", label: "Current Assets", summary: "Back-solve the current assets implied by a target current ratio and known current liabilities." },
+        { key: "currentLiabilities", label: "Current Liabilities", summary: "Back-solve the current liabilities implied by current assets and a target current ratio." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "currentAssets":
+                return ["currentRatio", "currentLiabilities"];
+            case "currentLiabilities":
+                return ["currentRatio", "currentAssets"];
+            default:
+                return ["currentAssets", "currentLiabilities"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Current-ratio solve mode",
+            body: `Enter the visible liquidity values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let currentAssets = values.currentAssets;
+        let currentLiabilities = values.currentLiabilities;
+        let currentRatio = values.currentRatio;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "currentAssets") {
+            currentAssets = currentRatio * currentLiabilities;
+        }
+        else if (targetKey === "currentLiabilities") {
+            if (currentRatio === 0) {
+                return { error: "Current ratio cannot be zero when solving for current liabilities." };
+            }
+            currentLiabilities = currentAssets / currentRatio;
+        }
+        if (currentAssets < 0 || currentLiabilities <= 0) {
+            return { error: "Current assets cannot be negative and current liabilities must remain greater than zero." };
+        }
+        const computed = computeCurrentRatio({ currentAssets, currentLiabilities });
+        currentRatio = computed.currentRatio;
+        return {
+            primaryResult: {
+                title: targetKey === "currentAssets"
+                    ? "Current Assets"
+                    : targetKey === "currentLiabilities"
+                        ? "Current Liabilities"
+                        : "Current Ratio",
+                value: targetKey === "currentRatio"
+                    ? formatRatio(currentRatio)
+                    : formatPHP(targetKey === "currentAssets"
+                        ? currentAssets
+                        : currentLiabilities),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Working Capital", value: formatPHP(computed.workingCapital) },
+            ],
+            formula: targetKey === "currentRatio"
+                ? "Current Ratio = Current Assets / Current Liabilities"
+                : targetKey === "currentAssets"
+                    ? "Current Assets = Current Ratio × Current Liabilities"
+                    : "Current Liabilities = Current Assets / Current Ratio",
+            steps: [
+                `Current ratio = ${formatPHP(currentAssets)} / ${formatPHP(currentLiabilities)} = ${formatRatio(currentRatio)}.`,
+                `Working capital = ${formatPHP(currentAssets)} - ${formatPHP(currentLiabilities)} = ${formatPHP(computed.workingCapital)}.`,
+            ],
+            interpretation: currentRatio >= 1
+                ? `A current ratio of ${formatRatio(currentRatio)} suggests current assets exceed current liabilities.`
+                : `A current ratio of ${formatRatio(currentRatio)} suggests current liabilities are heavy relative to current assets.`,
+        };
+    },
+};
+export const quickRatioSolveDefinition = {
+    id: "quick-ratio-solve",
+    defaultTarget: "quickRatio",
+    fields: {
+        cash: { key: "cash", label: "Cash", placeholder: "50000", kind: "money" },
+        marketableSecurities: {
+            key: "marketableSecurities",
+            label: "Marketable Securities",
+            placeholder: "25000",
+            kind: "money",
+        },
+        netReceivables: {
+            key: "netReceivables",
+            label: "Net Receivables",
+            placeholder: "40000",
+            kind: "money",
+        },
+        currentLiabilities: {
+            key: "currentLiabilities",
+            label: "Current Liabilities",
+            placeholder: "100000",
+            kind: "money",
+        },
+        quickRatio: { key: "quickRatio", label: "Quick Ratio", placeholder: "1.15", kind: "ratio" },
+    },
+    targets: [
+        { key: "quickRatio", label: "Quick Ratio", summary: "Measure immediate liquidity using quick assets and current liabilities." },
+        { key: "currentLiabilities", label: "Current Liabilities", summary: "Back-solve current liabilities from quick assets and a target quick ratio." },
+        { key: "cash", label: "Cash", summary: "Back-solve cash when the other quick-asset pieces and target quick ratio are known." },
+        { key: "marketableSecurities", label: "Marketable Securities", summary: "Back-solve marketable securities for the target quick ratio." },
+        { key: "netReceivables", label: "Net Receivables", summary: "Back-solve net receivables for the target quick ratio." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "currentLiabilities":
+                return ["quickRatio", "cash", "marketableSecurities", "netReceivables"];
+            case "cash":
+                return ["quickRatio", "currentLiabilities", "marketableSecurities", "netReceivables"];
+            case "marketableSecurities":
+                return ["quickRatio", "currentLiabilities", "cash", "netReceivables"];
+            case "netReceivables":
+                return ["quickRatio", "currentLiabilities", "cash", "marketableSecurities"];
+            default:
+                return ["cash", "marketableSecurities", "netReceivables", "currentLiabilities"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Quick-ratio solve mode",
+            body: `Enter the visible quick-ratio values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let cash = values.cash;
+        let marketableSecurities = values.marketableSecurities;
+        let netReceivables = values.netReceivables;
+        let currentLiabilities = values.currentLiabilities;
+        let quickRatio = values.quickRatio;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const quickAssetsTarget = quickRatio * currentLiabilities;
+        if (targetKey === "currentLiabilities") {
+            if (quickRatio === 0) {
+                return { error: "Quick ratio cannot be zero when solving for current liabilities." };
+            }
+            currentLiabilities =
+                (cash + marketableSecurities + netReceivables) / quickRatio;
+        }
+        else if (targetKey === "cash") {
+            cash = quickAssetsTarget - marketableSecurities - netReceivables;
+        }
+        else if (targetKey === "marketableSecurities") {
+            marketableSecurities = quickAssetsTarget - cash - netReceivables;
+        }
+        else if (targetKey === "netReceivables") {
+            netReceivables = quickAssetsTarget - cash - marketableSecurities;
+        }
+        if (cash < 0 ||
+            marketableSecurities < 0 ||
+            netReceivables < 0 ||
+            currentLiabilities <= 0) {
+            return { error: "The solved quick-ratio input would fall below zero or create non-positive current liabilities." };
+        }
+        const computed = computeQuickRatio({
+            cash,
+            marketableSecurities,
+            netReceivables,
+            currentLiabilities,
+        });
+        quickRatio = computed.quickRatio;
+        return {
+            primaryResult: {
+                title: targetKey === "quickRatio"
+                    ? "Quick Ratio"
+                    : targetKey === "currentLiabilities"
+                        ? "Current Liabilities"
+                        : targetKey === "cash"
+                            ? "Cash"
+                            : targetKey === "marketableSecurities"
+                                ? "Marketable Securities"
+                                : "Net Receivables",
+                value: targetKey === "quickRatio"
+                    ? formatRatio(quickRatio)
+                    : formatPHP(targetKey === "currentLiabilities"
+                        ? currentLiabilities
+                        : targetKey === "cash"
+                            ? cash
+                            : targetKey === "marketableSecurities"
+                                ? marketableSecurities
+                                : netReceivables),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Quick Assets", value: formatPHP(computed.quickAssets) },
+            ],
+            formula: targetKey === "quickRatio"
+                ? "Quick Ratio = (Cash + Marketable Securities + Net Receivables) / Current Liabilities"
+                : "Quick Assets = Quick Ratio × Current Liabilities",
+            steps: [
+                `Quick assets = ${formatPHP(cash)} + ${formatPHP(marketableSecurities)} + ${formatPHP(netReceivables)} = ${formatPHP(computed.quickAssets)}.`,
+                `Quick ratio = ${formatPHP(computed.quickAssets)} / ${formatPHP(currentLiabilities)} = ${formatRatio(quickRatio)}.`,
+            ],
+            interpretation: quickRatio >= 1
+                ? `A quick ratio of ${formatRatio(quickRatio)} suggests the entity can cover current liabilities using its most liquid assets.`
+                : `A quick ratio of ${formatRatio(quickRatio)} suggests liquid assets may not fully cover current liabilities.`,
+        };
+    },
+};
+export const grossProfitRateSolveDefinition = {
+    id: "gross-profit-rate-solve",
+    defaultTarget: "grossProfitRate",
+    fields: {
+        netSales: { key: "netSales", label: "Net Sales", placeholder: "150000", kind: "money" },
+        costOfGoodsSold: {
+            key: "costOfGoodsSold",
+            label: "Cost of Goods Sold",
+            placeholder: "90000",
+            kind: "money",
+        },
+        grossProfitRate: {
+            key: "grossProfitRate",
+            label: "Gross Profit Rate (%)",
+            placeholder: "40",
+            kind: "percent",
+        },
+    },
+    targets: [
+        { key: "grossProfitRate", label: "Gross Profit Rate", summary: "Measure how much of each sales peso remains after cost of goods sold." },
+        { key: "netSales", label: "Net Sales", summary: "Back-solve net sales using cost of goods sold and a target gross profit rate." },
+        { key: "costOfGoodsSold", label: "Cost of Goods Sold", summary: "Back-solve cost of goods sold using net sales and a target gross profit rate." },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "netSales":
+                return ["costOfGoodsSold", "grossProfitRate"];
+            case "costOfGoodsSold":
+                return ["netSales", "grossProfitRate"];
+            default:
+                return ["netSales", "costOfGoodsSold"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Gross-profit-rate solve mode",
+            body: `Enter the visible merchandising values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        let netSales = values.netSales;
+        let costOfGoodsSold = values.costOfGoodsSold;
+        let grossProfitRate = values.grossProfitRate;
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (targetKey === "netSales") {
+            if (grossProfitRate >= 100) {
+                return { error: "Gross profit rate must stay below 100% when solving for net sales." };
+            }
+            netSales = costOfGoodsSold / (1 - grossProfitRate / 100);
+        }
+        else if (targetKey === "costOfGoodsSold") {
+            costOfGoodsSold = netSales * (1 - grossProfitRate / 100);
+        }
+        if (netSales <= 0 || costOfGoodsSold < 0) {
+            return { error: "Net sales must be greater than zero and cost of goods sold cannot be negative." };
+        }
+        const computed = computeGrossProfitRate(netSales, costOfGoodsSold);
+        grossProfitRate = computed.grossProfitRate;
+        return {
+            primaryResult: {
+                title: targetKey === "netSales"
+                    ? "Net Sales"
+                    : targetKey === "costOfGoodsSold"
+                        ? "Cost of Goods Sold"
+                        : "Gross Profit Rate",
+                value: targetKey === "grossProfitRate"
+                    ? formatPercent(grossProfitRate)
+                    : formatPHP(targetKey === "netSales" ? netSales : costOfGoodsSold),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Gross Profit", value: formatPHP(computed.grossProfit) },
+            ],
+            formula: targetKey === "grossProfitRate"
+                ? "Gross Profit Rate = (Net Sales - Cost of Goods Sold) / Net Sales"
+                : targetKey === "netSales"
+                    ? "Net Sales = Cost of Goods Sold / (1 - Gross Profit Rate)"
+                    : "Cost of Goods Sold = Net Sales × (1 - Gross Profit Rate)",
+            steps: [
+                `Gross profit = ${formatPHP(netSales)} - ${formatPHP(costOfGoodsSold)} = ${formatPHP(computed.grossProfit)}.`,
+                `Gross profit rate = ${formatPHP(computed.grossProfit)} / ${formatPHP(netSales)} = ${formatPercent(grossProfitRate)}.`,
+            ],
+            interpretation: `The merchandising data leaves ${formatPercent(grossProfitRate)} of net sales as gross profit before operating expenses.`,
+        };
+    },
+};
+function createReturnDefinition(options) {
+    return {
+        id: options.id,
+        defaultTarget: options.ratioKey,
+        fields: {
+            netIncome: {
+                key: "netIncome",
+                label: "Net Income",
+                placeholder: "85000",
+                kind: "money",
+            },
+            [options.denominatorKey]: {
+                key: options.denominatorKey,
+                label: options.denominatorLabel,
+                placeholder: "500000",
+                kind: "money",
+            },
+            [options.ratioKey]: {
+                key: options.ratioKey,
+                label: `${options.ratioLabel} (%)`,
+                placeholder: "17",
+                kind: "percent",
+            },
+        },
+        targets: [
+            {
+                key: options.ratioKey,
+                label: options.ratioLabel,
+                summary: `Measure ${options.ratioLabel.toLowerCase()} from net income and ${options.denominatorLabel.toLowerCase()}.`,
+            },
+            {
+                key: "netIncome",
+                label: "Net Income",
+                summary: `Back-solve net income from ${options.denominatorLabel.toLowerCase()} and the target ${options.ratioLabel.toLowerCase()}.`,
+            },
+            {
+                key: options.denominatorKey,
+                label: options.denominatorLabel,
+                summary: `Back-solve ${options.denominatorLabel.toLowerCase()} from net income and the target ${options.ratioLabel.toLowerCase()}.`,
+            },
+        ],
+        getInputKeys(targetKey) {
+            if (targetKey === "netIncome")
+                return [options.denominatorKey, options.ratioKey];
+            if (targetKey === options.denominatorKey)
+                return ["netIncome", options.ratioKey];
+            return ["netIncome", options.denominatorKey];
+        },
+        getEmptyState(targetKey) {
+            return {
+                title: `${options.ratioLabel} solve mode`,
+                body: `Enter the visible profitability values to solve for ${targetKey}.`,
+            };
+        },
+        solve(targetKey, values) {
+            let netIncome = values.netIncome;
+            let denominator = values[options.denominatorKey];
+            let ratio = values[options.ratioKey];
+            if (Object.values(values).some((value) => Number.isNaN(value))) {
+                return invalidNumberError();
+            }
+            if (targetKey === "netIncome") {
+                netIncome = (ratio / 100) * denominator;
+            }
+            else if (targetKey === options.denominatorKey) {
+                if (ratio === 0) {
+                    return { error: `${options.ratioLabel} cannot be zero when solving for ${options.denominatorLabel.toLowerCase()}.` };
+                }
+                denominator = netIncome / (ratio / 100);
+            }
+            else {
+                if (denominator <= 0) {
+                    return { error: `${options.denominatorLabel} must be greater than zero.` };
+                }
+                ratio = (netIncome / denominator) * 100;
+            }
+            if (!Number.isFinite(netIncome) || !Number.isFinite(denominator) || denominator <= 0) {
+                return { error: `The selected values do not produce a valid ${options.ratioLabel.toLowerCase()} answer.` };
+            }
+            ratio = (netIncome / denominator) * 100;
+            return {
+                primaryResult: {
+                    title: targetKey === options.ratioKey
+                        ? options.ratioLabel
+                        : targetKey === "netIncome"
+                            ? "Net Income"
+                            : options.denominatorLabel,
+                    value: targetKey === options.ratioKey
+                        ? formatPercent(ratio)
+                        : formatPHP(targetKey === "netIncome" ? netIncome : denominator),
+                    tone: "accent",
+                },
+                supportingResults: [
+                    { title: "Net Income", value: formatPHP(netIncome) },
+                    { title: options.denominatorLabel, value: formatPHP(denominator) },
+                ],
+                formula: targetKey === options.ratioKey
+                    ? `${options.ratioLabel} = Net Income / ${options.denominatorLabel}`
+                    : targetKey === "netIncome"
+                        ? `Net Income = ${options.ratioLabel} × ${options.denominatorLabel}`
+                        : `${options.denominatorLabel} = Net Income / ${options.ratioLabel}`,
+                steps: [
+                    `${options.ratioLabel} = ${formatPHP(netIncome)} / ${formatPHP(denominator)} = ${formatPercent(ratio)}.`,
+                ],
+                interpretation: `${options.ratioLabel} is ${formatPercent(ratio)}, meaning the business earns ${formatPercent(ratio)} of ${options.denominatorLabel.toLowerCase()} as net income.`,
+            };
+        },
+    };
+}
+export const returnOnAssetsSolveDefinition = createReturnDefinition({
+    id: "return-on-assets-solve",
+    ratioKey: "returnOnAssets",
+    ratioLabel: "Return on Assets",
+    denominatorKey: "averageTotalAssets",
+    denominatorLabel: "Average Total Assets",
+});
+export const returnOnEquitySolveDefinition = createReturnDefinition({
+    id: "return-on-equity-solve",
+    ratioKey: "returnOnEquity",
+    ratioLabel: "Return on Equity",
+    denominatorKey: "averageEquity",
+    denominatorLabel: "Average Equity",
+});
+function createTurnoverDefinition(options) {
+    return {
+        id: options.id,
+        defaultTarget: options.ratioKey,
+        fields: {
+            [options.numeratorKey]: {
+                key: options.numeratorKey,
+                label: options.numeratorLabel,
+                placeholder: "300000",
+                kind: "money",
+            },
+            [options.denominatorKey]: {
+                key: options.denominatorKey,
+                label: options.denominatorLabel,
+                placeholder: "60000",
+                kind: "money",
+            },
+            [options.ratioKey]: {
+                key: options.ratioKey,
+                label: options.ratioLabel,
+                placeholder: "5",
+                kind: "number",
+            },
+        },
+        targets: [
+            {
+                key: options.ratioKey,
+                label: options.ratioLabel,
+                summary: `Compute ${options.ratioLabel.toLowerCase()} and its day-based reading.`,
+            },
+            {
+                key: options.numeratorKey,
+                label: options.numeratorLabel,
+                summary: `Back-solve ${options.numeratorLabel.toLowerCase()} from turnover and the average base.`,
+            },
+            {
+                key: options.denominatorKey,
+                label: options.denominatorLabel,
+                summary: `Back-solve ${options.denominatorLabel.toLowerCase()} from turnover and the numerator.`,
+            },
+        ],
+        getInputKeys(targetKey) {
+            if (targetKey === options.numeratorKey) {
+                return [options.denominatorKey, options.ratioKey];
+            }
+            if (targetKey === options.denominatorKey) {
+                return [options.numeratorKey, options.ratioKey];
+            }
+            return [options.numeratorKey, options.denominatorKey];
+        },
+        getEmptyState(targetKey) {
+            return {
+                title: `${options.ratioLabel} solve mode`,
+                body: `Enter the visible turnover values to solve for ${targetKey}.`,
+            };
+        },
+        solve(targetKey, values) {
+            let numerator = values[options.numeratorKey];
+            let denominator = values[options.denominatorKey];
+            let ratio = values[options.ratioKey];
+            if (Object.values(values).some((value) => Number.isNaN(value))) {
+                return invalidNumberError();
+            }
+            if (targetKey === options.numeratorKey) {
+                numerator = ratio * denominator;
+            }
+            else if (targetKey === options.denominatorKey) {
+                if (ratio === 0) {
+                    return { error: `${options.ratioLabel} cannot be zero when solving for ${options.denominatorLabel.toLowerCase()}.` };
+                }
+                denominator = numerator / ratio;
+            }
+            if (numerator < 0 || denominator <= 0) {
+                return { error: `The solved ${options.numeratorLabel.toLowerCase()} or ${options.denominatorLabel.toLowerCase()} falls outside the normal turnover domain.` };
+            }
+            const turnover = computeTurnoverWithDayBasis({
+                numerator,
+                denominator,
+            });
+            ratio = turnover.turnover;
+            return {
+                primaryResult: {
+                    title: targetKey === options.ratioKey
+                        ? options.ratioLabel
+                        : targetKey === options.numeratorKey
+                            ? options.numeratorLabel
+                            : options.denominatorLabel,
+                    value: targetKey === options.ratioKey
+                        ? formatTimes(ratio)
+                        : formatPHP(targetKey === options.numeratorKey
+                            ? numerator
+                            : denominator),
+                    tone: "accent",
+                },
+                supportingResults: [
+                    { title: options.dayLabel, value: formatDays(turnover.days) },
+                ],
+                formula: targetKey === options.ratioKey
+                    ? `${options.ratioLabel} = ${options.numeratorLabel} / ${options.denominatorLabel}`
+                    : targetKey === options.numeratorKey
+                        ? `${options.numeratorLabel} = ${options.ratioLabel} × ${options.denominatorLabel}`
+                        : `${options.denominatorLabel} = ${options.numeratorLabel} / ${options.ratioLabel}`,
+                steps: [
+                    `${options.ratioLabel} = ${formatPHP(numerator)} / ${formatPHP(denominator)} = ${formatTimes(ratio)}.`,
+                    `${options.dayLabel} = 365 / ${formatTimes(ratio)} = ${formatDays(turnover.days)}.`,
+                ],
+                interpretation: `${options.ratioLabel} is ${formatTimes(ratio)}, which implies ${options.dayLabel.toLowerCase()} of about ${formatDays(turnover.days)}.`,
+                assumptions: ["This turnover workspace uses a 365-day year for the day-based reading."],
+            };
+        },
+    };
+}
+export const inventoryTurnoverSolveDefinition = createTurnoverDefinition({
+    id: "inventory-turnover-solve",
+    numeratorKey: "costOfGoodsSold",
+    numeratorLabel: "Cost of Goods Sold",
+    denominatorKey: "averageInventory",
+    denominatorLabel: "Average Inventory",
+    ratioKey: "inventoryTurnover",
+    ratioLabel: "Inventory Turnover",
+    dayLabel: "Days in Inventory",
+});
+export const receivablesTurnoverSolveDefinition = createTurnoverDefinition({
+    id: "receivables-turnover-solve",
+    numeratorKey: "netCreditSales",
+    numeratorLabel: "Net Credit Sales",
+    denominatorKey: "averageAccountsReceivable",
+    denominatorLabel: "Average Accounts Receivable",
+    ratioKey: "receivablesTurnover",
+    ratioLabel: "Receivables Turnover",
+    dayLabel: "Average Collection Period",
+});

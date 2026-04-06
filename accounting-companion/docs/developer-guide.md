@@ -1,168 +1,216 @@
 # AccCalc Developer Guide
 
-## 1. App overview
-AccCalc is a React + Vite + TypeScript + Tailwind calculator platform focused on accounting, finance, managerial accounting, business math, and related study or workplace support. The app is route-based, offline-aware after caching, and centered on shared helpers so new tools stay consistent with the rest of the product.
+## 1. Release overview
+AccCalc `2.8.0` introduces a reusable formula-intelligence layer for safe solve-for-any-variable flows, expands statement-analysis workspaces, and keeps the app aligned with the current offline/PWA model.
 
-## 2. Architecture overview
-- `src/App.tsx`: lazy route registration and route shell/error handling
-- `src/features/*`: page-level tools grouped by domain
-- `src/components/*`: shared layout, result, formula, disclosure, and input surfaces
+Primary release themes:
+- shared forward and reverse solve support for formula-driven calculators
+- stronger accounting analysis workspaces
+- smarter Smart Solver target-intent routing
+- tighter mobile-safe form and result behavior
+- deeper regression coverage for math, routing, and reverse-solve safety
+
+## 2. App overview
+AccCalc is a React + Vite + TypeScript + Tailwind calculator platform for accounting, finance, managerial accounting, business math, and review support. The app is route-based, metadata-driven, and designed to stay truthful about offline support after the current release finishes caching.
+
+## 3. Architecture overview
+- `src/App.tsx`: lazy routes, app shell wiring, and route-level recovery
+- `src/features/*`: page-level calculators and workspaces
+- `src/components/*`: shared inputs, panels, result surfaces, formula surfaces, disclosures, and adaptive workspaces
 - `src/utils/calculatorMath.ts`: shared math and schedule logic
-- `src/utils/appCatalog.ts`: route metadata, sidebar structure, offline labels, and related-tool signals
-- `src/utils/appSearch.ts`: metadata search and ranking
-- `src/features/smart/*`: Smart Solver types, extraction, ranking, and UI
-- `public/sw.js`: service worker versioning and offline/update behavior
+- `src/utils/formulaIntelligence.ts`: solve-target contracts and reusable formula-definition types
+- `src/utils/formulaSolveDefinitions.ts`: supported formula catalogs with forward and reverse solve logic
+- `src/utils/appCatalog.ts`: route metadata, sidebar organization, offline labels, and related-tool signals
+- `src/utils/appSearch.ts`: route search and ranking
+- `src/features/smart/*`: Smart Solver extraction, ranking, target-intent parsing, and UI
+- `public/sw.js`: service worker versioning, cache lifecycle, and offline/update behavior
 
-## 3. Route and category structure
-The catalog is metadata-driven. Every tool route should exist in both `src/App.tsx` and `src/utils/appCatalog.ts`.
+## 4. Route and category structure
+Every first-class tool must exist in both:
+1. `src/App.tsx`
+2. `src/utils/appCatalog.ts`
 
-Current major groups:
-- General
-- Core Tools
-- Smart Tools
-- Accounting
-- Finance
-- Managerial & Cost
-- Business Math
-- Statistics
+Major groups stay metadata-driven so expansion does not require hand-built navigation chrome. Keep new tools inside existing academic or workflow clusters before creating a new subtopic.
 
-Subtopics are inferred in `appCatalog.ts` so large groups stay scannable in the sidebar and search. Keep new tools inside an existing subtopic when possible before inventing a new one.
+Common 2.8.0 clusters:
+- Accounting: fundamentals, reporting and analysis, receivables and cash, inventory, liabilities, long-lived assets, equity and partnership
+- Finance: time value, capital budgeting, lending and valuation
+- Managerial and Cost: CVP, budgeting, process costing, variances, decision support
+- Business Math / Statistics: foundational quantitative helpers
 
-## 4. Smart Solver logic and extension points
-Smart Solver works through:
-1. `smartSolver.types.ts` for field keys and config types
-2. `smartSolver.engine.ts` for field metadata, extraction aliases, calculator configs, ranking, and prefill generation
-3. `SmartSolverPage.tsx` for the user-facing prompt UI
-4. `smartSolver.connector.ts` for safe route-state prefill into calculators
+## 5. Formula-intelligence and solve-for system
+The `2.8.0` solve-for system is designed for calculators with a stable named formula and a safe reverse path.
 
-To extend Smart Solver for a new calculator:
-1. Add any needed field keys to `smartSolver.types.ts`
-2. Add field metadata and aliases in `smartSolver.engine.ts`
-3. Add extraction rules only for values that can be inferred safely
-4. Add a `CALCULATORS` entry with keywords, aliases, route, and required fields
-5. Connect the calculator page with `useSmartSolverConnector` if prefill is appropriate
-6. Add prompt examples and tests
+Core pieces:
+- `FormulaCalculatorDefinition`: declares fields, targets, default target, visible inputs, empty state, and solve behavior
+- `FormulaFieldDefinition`: defines label, placeholder, and display kind
+- `FormulaTargetDefinition`: defines solve-target label and summary
+- `FormulaSolveWorkspace`: renders target selection, adaptive inputs, validation, results, and formula explanation from the definition
 
-## 5. Shared math and helper utilities
-`calculatorMath.ts` is the main shared logic surface. Prefer adding reusable functions there when:
-- the math is used by more than one route
-- the logic is substantial enough to warrant direct test coverage
-- the result needs to stay standardized across tools
+Current strong-fit solve-for pages include:
+- simple interest
+- compound interest
+- future value
+- present value
+- profit and loss
+- markup and margin
+- break-even
+- contribution margin
+- straight-line depreciation
+- current ratio
+- quick ratio
+- gross profit rate
+- return on assets
+- return on equity
+- inventory turnover
+- receivables turnover
 
-Recent shared helpers cover:
-- capital budgeting: NPV, PI, IRR, payback, discounted payback
-- receivables: aging schedule, bank reconciliation
-- budgeting: cash budget, collections schedule, disbursements schedule, flexible budget
-- managerial and cost: sales mix, equivalent units, material/labor variances, factory overhead variances
-- reporting and ratios: liquidity, turnover, and profitability helpers
+## 6. How to add solve-for support to an existing calculator
+1. Confirm the formula has a stable forward path and a clear reverse path.
+2. Move shared math into `calculatorMath.ts` if it is not already there.
+3. Create or extend a definition in `formulaSolveDefinitions.ts`.
+4. Define:
+   - fields
+   - targets
+   - default target
+   - visible input keys per target
+   - empty-state text
+   - solve logic
+5. Replace the route page body with `FormulaSolveWorkspace` when the page is fully formula-driven.
+6. Add route metadata and Smart Solver support if discoverability is warranted.
+7. Add forward and reverse regression tests.
 
-## 6. Validation strategy
-Validation is primarily route-local and follows these rules:
-- blank required inputs should return `null` state, not fake results
-- invalid numeric input should produce a visible warning card
-- negative values are rejected when the academic method does not support them
-- divide-by-zero inputs should be blocked before calculation
-- optional fields should default safely, usually to zero or blank-driven omission
-- method-specific constraints should be stated in user-facing language
+## 7. How to define a safe reverse-solve path
+Reverse solve is allowed only when all of the following are true:
+- the missing variable can be isolated directly, or numerically with stable bounds
+- the result is singular or ambiguity is explicitly detected
+- domain constraints can be enforced in plain language
+- the interpretation stays understandable for student and practitioner use
 
-If the same validation rule appears in several pages, move it into a helper.
+Do not add reverse solve when the model is:
+- underdetermined
+- circular without stable convergence
+- likely to return multiple materially different answers
+- dependent on a full schedule or ledger state that the UI is not collecting
 
-## 7. Metadata and search system
-Every first-class route needs:
-- a `RouteMeta` entry in `appCatalog.ts`
-- category, description, tags, aliases, keywords, offline support details, and optional short label
-- reasonable `isNew` handling for the active release if the route is newly introduced
+If numerical solving is necessary:
+- use bounded search
+- enforce max iterations
+- use explicit tolerance
+- return a clear failure message when convergence does not occur
+- warn when multiple solutions may exist
 
-Search in `appSearch.ts` uses:
-- title matching
-- aliases
-- keywords
-- category and subtopic
-- typo-tolerant token matching
+## 8. Numerical-safety and validation rules
+Validation is route-local or definition-local, but the safety bar is shared:
+- blank required fields return an empty state, not fake zeros
+- invalid parses return visible errors
+- divide-by-zero paths are blocked before calculation
+- negative-value rules are enforced where the model requires non-negative inputs
+- non-positive denominators are rejected for ratio-style solves
+- logarithmic and root-based reverse solves must guard against invalid domains
+- numerical failure must surface as a plain-language error, not `NaN`
 
-If a route is hard to find, improve metadata before adding more UI chrome.
+When several pages repeat the same domain rule, move it into a shared helper.
 
-## 8. Result and formula rendering conventions
-Use the shared surfaces:
+## 9. Adaptive validation and result behavior
+Solve-for pages must adapt to the selected target:
+- hide the derived target from the input list
+- update validation text to reflect the current solve target
+- update empty-state guidance to describe the visible-input set
+- update the primary result title, formula, steps, and interpretation
+- keep supporting results contextual rather than duplicating the primary answer
+
+`FormulaSolveWorkspace` and shared result surfaces already handle most of this. Prefer extending those shared components over page-specific branching.
+
+## 10. Smart Solver logic and target-intent extension points
+Smart Solver now has two related extension surfaces:
+- `smartSolver.engine.ts`: topic routing, field extraction, and calculator ranking
+- `smartSolver.targets.ts`: solve-target intent detection for supported formula pages
+
+To add a new Smart Solver topic:
+1. Add calculator config and route metadata in `smartSolver.engine.ts`
+2. Add safe field aliases only for values the prompt can support reliably
+3. Add examples in `SmartSolverPage.tsx`
+4. Add routing tests
+
+To add solve-target intent:
+1. Add rules to `smartSolver.targets.ts`
+2. Keep rules narrow enough to avoid false forcing
+3. Return `null` when target confidence is weak
+4. Pass the target through route state instead of hardcoding page logic
+
+## 11. Metadata, search, and catalog implications
+Every new calculator or workspace needs:
+- a route registration
+- a `RouteMeta` entry
+- category, subtopic, tags, aliases, keywords, and offline-support metadata
+- related-tool links where the workflow connection matters
+
+If a tool is hard to discover:
+- improve aliases and keywords first
+- only then consider UI additions
+
+## 12. Shared math, result, and formula rendering conventions
+Use shared math in `calculatorMath.ts` when:
+- the logic is nontrivial
+- more than one page uses the same formula family
+- the result needs direct regression coverage
+
+Use shared UI surfaces whenever possible:
 - `CalculatorPageLayout`
+- `FormulaSolveWorkspace`
 - `ResultGrid`
 - `ResultCard`
 - `FormulaCard`
-- `SectionCard`
+- `EditableRowsCard`
 - `DisclosurePanel`
 
-Guidelines:
-- keep inputs first and guide content secondary
-- results should surface the main answer immediately
-- formulas should separate equation, steps, interpretation, assumptions, notes, and warnings
-- long text results should use shared result-card behavior instead of custom large typography
+Rendering rules:
+- primary answer first
+- compact supporting metrics second
+- formula and steps after the core answer
+- assumptions, notes, and warnings separated clearly
+- long text must use shared result-card behavior, not ad hoc typography
 
-## 9. Offline and PWA behavior
+## 13. Testing strategy for forward and reverse solve flows
+Current regression coverage centers on `tests/calculatorMath.test.ts`.
+
+At minimum, new formula-intelligence work should test:
+- forward solve
+- reverse solve
+- invalid combinations
+- denominator and domain guards
+- numerical edge cases
+- Smart Solver target intent when supported
+- search discoverability for new tools
+
+Prefer helper-level tests for numerical correctness, then add route-level interaction coverage only when behavior cannot be validated through shared logic alone.
+
+## 14. Offline, PWA, deployment, and versioning
 AccCalc uses a truthful offline model:
-- local routes can work offline after the current release finishes caching
-- route chunks are precached through the asset-manifest/service-worker flow
-- offline labels must reflect actual route behavior
-- online-only actions must say so clearly
+- local-browser calculators can work offline after the current release is cached
+- lazy route chunks join the precache pipeline through the asset-manifest build
+- online-only behavior must be labeled honestly
 
-Do not mark a route as offline-safe if it depends on network data or an uncached external destination.
+Release checklist:
+1. update `package.json`
+2. update `package-lock.json`
+3. update `src/utils/appRelease.ts`
+4. update `public/sw.js`
+5. verify route metadata for new tools
+6. run `tsc -b`
+7. run `npm test`
+8. run `npm run build`
 
-## 10. Testing strategy
-Main regression coverage currently lives in `tests/calculatorMath.test.ts`.
-
-Tests should cover:
-- shared helper math
-- route-search discoverability for important aliases
-- new schedule logic and rounding behavior
-- new Smart Solver vocabulary where appropriate
-- edge cases like zero rates, invalid horizons, or non-balanced states
-
-When a new page adds nontrivial math, add helper-level tests before relying on manual browser QA alone.
-
-## 11. How to add a new calculator
-1. Add or reuse shared math in `calculatorMath.ts`
-2. Create the route page in the appropriate `src/features/*` folder
-3. Register the lazy route in `src/App.tsx`
-4. Add route metadata to `src/utils/appCatalog.ts`
-5. Ensure search keywords, aliases, and tags are present
-6. Add home/workflow visibility only if the tool is high-signal
-7. Add tests
-8. Update release metadata if the tool is part of the active release
-
-## 12. How to add Smart Solver support for a new calculator
-1. Add only the fields you can extract safely
-2. Avoid pretending to infer multi-row schedules from ambiguous prompts
-3. Use keywords and aliases for route-level discovery even when prefill is intentionally limited
-4. Prefer safe partial prefill plus user review over aggressive guessing
-5. Add at least one search or routing regression test for the new tool
-
-## 13. Release and versioning process
-For each release:
-- update `package.json`
-- update `package-lock.json`
-- update `src/utils/appRelease.ts`
-- update `public/sw.js`
-- verify route metadata and new-feature flags
-- run `tsc -b`, `npm test`, and `npm run build`
-
-Keep release highlights short and user-facing. Keep deeper implementation detail in commit history or docs.
-
-## 14. Deployment notes
-The app is designed for static deployment, including Render static hosting.
-
-Deployment expectations:
-- route chunks must stay consistent with the service-worker cache model
-- stale deploys should fail gracefully through the existing route error boundaries
-- lazy route additions should automatically join the build manifest and caching model through the normal build
-- build verification matters because route-based code splitting is a core production behavior
-
-## 15. Known limitations and future enhancements
+## 15. Known limitations and future roadmap
 Current intentional limits:
-- Smart Solver does not fully auto-build complex multi-row schedules from raw prose when confidence is low
-- offline support still depends on the current release having been cached at least once online
-- tests are strongest at the shared-helper level and lighter on route-level interaction flows
+- solve-for mode is limited to calculators with safe reverse paths
+- Smart Solver does not auto-build arbitrary multi-row schedules from messy prose
+- route-level browser interaction tests remain lighter than helper-level regression tests
+- offline support still depends on the release being cached once online
 
 High-value future work:
-- fuller ratio-analysis benchmarking and trend comparison
-- more multi-period budgeting rollforwards
-- additional process-costing methods and overhead presentations
-- broader route-level UI tests beyond helper math regression
+- multi-period ratio trend analysis
+- broader safe reverse solve for selected schedule summaries
+- more route-level UI regression coverage for adaptive calculator states
+- deeper accounting statement and budgeting workpaper flows

@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeInternalRateOfReturn, computeInventoryMethodComparison, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCommonSizeStatement, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeInternalRateOfReturn, computeInventoryMethodComparison, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computeQuickRatio, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeWeightedMean, computeWorkingCapitalCycle, } from "../src/utils/calculatorMath.js";
+import { breakEvenSolveDefinition, currentRatioSolveDefinition, priceCostMarginSolveDefinition, simpleInterestSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
+import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
 import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
 import { getResultValueTone, isWideResultValue, normalizeResultValue, } from "../src/utils/resultDisplay.js";
@@ -516,6 +518,94 @@ runTest("ratio analysis workspace computes a coordinated ratio set", () => {
     assertClose(result.returnOnAssets, 0.1289473684, 1e-6);
     assertClose(result.returnOnEquity, 0.2578947368, 1e-6);
 });
+runTest("common-size statements convert lines into base percentages", () => {
+    const result = computeCommonSizeStatement([
+        { label: "Cost of Sales", amount: 320000 },
+        { label: "Gross Profit", amount: 180000 },
+    ], 500000);
+    assertClose(result.rows[0]?.percentage ?? 0, 64);
+    assertClose(result.rows[1]?.percentage ?? 0, 36);
+});
+runTest("horizontal-analysis workspace computes line and total movement", () => {
+    const result = computeHorizontalAnalysisWorkspace([
+        { label: "Cash", baseAmount: 120000, currentAmount: 145000 },
+        { label: "Receivables", baseAmount: 95000, currentAmount: 110000 },
+    ]);
+    assertClose(result.rows[0]?.amountChange ?? 0, 25000);
+    assertClose(result.rows[0]?.percentageChange ?? 0, 20.8333333333, 1e-6);
+    assertClose(result.totalChange, 40000);
+});
+runTest("working capital cycle combines balance and day measures", () => {
+    const result = computeWorkingCapitalCycle({
+        currentAssets: 420000,
+        currentLiabilities: 180000,
+        receivablesDays: 42,
+        inventoryDays: 58,
+        payablesDays: 35,
+    });
+    assertClose(result.workingCapital, 240000);
+    assertClose(result.operatingCycle, 100);
+    assertClose(result.cashConversionCycle, 65);
+});
+runTest("capital budgeting comparison combines project metrics", () => {
+    const result = computeCapitalBudgetingComparison(100000, 12, [30000, 35000, 40000, 45000], 25000);
+    assert.equal(result.decision, "Accept");
+    assertClose(result.npv.netPresentValue, 27644.9754, 1e-3);
+    assertClose(result.profitabilityIndex.profitabilityIndex, 1.276449754, 1e-6);
+});
+runTest("solve-for definitions reverse simple-interest targets safely", () => {
+    const result = simpleInterestSolveDefinition.solve("principal", {
+        interest: 2400,
+        rate: 12,
+        time: 2,
+    });
+    assert.equal("error" in result, false);
+    if ("error" in result)
+        return;
+    assert.equal(result.primaryResult.value, "₱10,000.00");
+});
+runTest("time-value solve mode can isolate rate", () => {
+    const result = timeValueSolveDefinition.solve("rate", {
+        presentValue: 10000,
+        futureValue: 11576.25,
+        time: 3,
+    });
+    assert.equal("error" in result, false);
+    if ("error" in result)
+        return;
+    assert.equal(result.primaryResult.value, "5.00%");
+});
+runTest("price and margin planner can solve target selling price", () => {
+    const result = priceCostMarginSolveDefinition.solve("sellingPrice", {
+        cost: 700,
+        marginPercent: 30,
+    });
+    assert.equal("error" in result, false);
+    if ("error" in result)
+        return;
+    assert.equal(result.primaryResult.value, "₱1,000.00");
+});
+runTest("current ratio solve mode can isolate current liabilities", () => {
+    const result = currentRatioSolveDefinition.solve("currentLiabilities", {
+        currentAssets: 250000,
+        currentRatio: 2.5,
+    });
+    assert.equal("error" in result, false);
+    if ("error" in result)
+        return;
+    assert.equal(result.primaryResult.value, "₱100,000.00");
+});
+runTest("break-even solve mode can isolate fixed costs", () => {
+    const result = breakEvenSolveDefinition.solve("fixedCosts", {
+        breakEvenUnits: 1000,
+        sellingPricePerUnit: 250,
+        variableCostPerUnit: 150,
+    });
+    assert.equal("error" in result, false);
+    if ("error" in result)
+        return;
+    assert.equal(result.primaryResult.value, "₱100,000.00");
+});
 runTest("number list parser accepts mixed separators and rejects bad entries", () => {
     const parsed = parseNumberList("10, 20\n30;40");
     const invalid = parseNumberList("10, nope, 30");
@@ -539,6 +629,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const disbursementsResults = searchAppRoutes("cash payments schedule");
     const overheadResults = searchAppRoutes("overhead volume variance");
     const ratioResults = searchAppRoutes("financial ratios");
+    const commonSizeResults = searchAppRoutes("common size income statement");
+    const capitalComparisonResults = searchAppRoutes("capital budgeting comparison");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -554,6 +646,13 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(disbursementsResults[0]?.path, "/business/cash-disbursements-schedule");
     assert.equal(overheadResults[0]?.path, "/accounting/factory-overhead-variance");
     assert.equal(ratioResults[0]?.path, "/accounting/ratio-analysis-workspace");
+    assert.equal(commonSizeResults[0]?.path, "/accounting/common-size-income-statement");
+    assert.equal(capitalComparisonResults[0]?.path, "/finance/capital-budgeting-comparison");
+});
+runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
+    assert.equal(suggestSolveTarget("simple-interest", "find the principal"), "principal");
+    assert.equal(suggestSolveTarget("markup-margin", "what selling price gives 30% margin"), "sellingPrice");
+    assert.equal(suggestSolveTarget("current-ratio", "solve for current liabilities using current ratio"), "currentLiabilities");
 });
 runTest("account reference search finds aliases and abbreviations", () => {
     const adaResults = searchAccountReferences("ada");

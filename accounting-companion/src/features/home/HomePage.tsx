@@ -29,9 +29,11 @@ import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 
 const SMART_PROMPT_EXAMPLES = [
     "Find the quick ratio if cash is 50,000, marketable securities are 25,000, receivables are 40,000, and current liabilities are 100,000.",
+    "What selling price gives a 30% margin if cost is 700?",
+    "Find the principal if simple interest is 4,800 at 12% for 2 years.",
     "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
-    "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
-    "Compute depreciation and compare straight-line with double declining for cost 500,000, salvage 50,000, and useful life 5 years.",
+    "Open the common-size income statement workspace.",
+    "Compare NPV, PI, IRR, and discounted payback for a 200,000 project at 11%.",
 ];
 
 const FEATURED_PATHS = [
@@ -41,10 +43,11 @@ const FEATURED_PATHS = [
     "/business/break-even",
     "/finance/loan-amortization",
     "/finance/internal-rate-of-return",
+    "/finance/capital-budgeting-comparison",
     "/accounting/bond-amortization-schedule",
-    "/accounting/receivables-aging-schedule",
+    "/accounting/common-size-income-statement",
+    "/accounting/working-capital-cycle",
     "/business/cash-budget",
-    "/accounting/lower-of-cost-or-nrv",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -54,7 +57,7 @@ const WORKFLOW_COLLECTIONS = [
         paths: [
             "/accounting/current-ratio",
             "/accounting/quick-ratio",
-            "/accounting/cash-ratio",
+            "/accounting/working-capital-cycle",
             "/accounting/cash-conversion-cycle",
         ],
     },
@@ -93,9 +96,20 @@ const WORKFLOW_COLLECTIONS = [
         description: "Compare discounted value, project rate, and recovery tools in one decision workflow.",
         paths: [
             "/finance/npv",
+            "/finance/capital-budgeting-comparison",
             "/finance/internal-rate-of-return",
             "/finance/profitability-index",
             "/finance/discounted-payback-period",
+        ],
+    },
+    {
+        title: "Statement analysis",
+        description: "Move from common-size views into horizontal and ratio-based interpretation.",
+        paths: [
+            "/accounting/common-size-income-statement",
+            "/accounting/common-size-balance-sheet",
+            "/accounting/horizontal-analysis",
+            "/accounting/ratio-analysis-workspace",
         ],
     },
     {

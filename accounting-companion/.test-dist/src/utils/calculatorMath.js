@@ -1078,3 +1078,62 @@ export function computeRatioAnalysisWorkspace({ currentAssets, currentLiabilitie
         dayBasis,
     };
 }
+export function computeCommonSizeStatement(lines, baseAmount) {
+    const resolvedBase = baseAmount ?? lines.reduce((sum, line) => sum + line.amount, 0);
+    const rows = lines.map((line) => ({
+        ...line,
+        percentage: resolvedBase === 0 ? 0 : (line.amount / resolvedBase) * 100,
+    }));
+    return {
+        baseAmount: resolvedBase,
+        rows,
+        totalAmount: lines.reduce((sum, line) => sum + line.amount, 0),
+    };
+}
+export function computeHorizontalAnalysisWorkspace(lines) {
+    const rows = lines.map((line) => {
+        const amountChange = line.currentAmount - line.baseAmount;
+        const percentageChange = line.baseAmount === 0 ? null : (amountChange / line.baseAmount) * 100;
+        return {
+            ...line,
+            amountChange,
+            percentageChange,
+        };
+    });
+    const baseTotal = rows.reduce((sum, row) => sum + row.baseAmount, 0);
+    const currentTotal = rows.reduce((sum, row) => sum + row.currentAmount, 0);
+    const totalChange = currentTotal - baseTotal;
+    return {
+        rows,
+        baseTotal,
+        currentTotal,
+        totalChange,
+        totalPercentageChange: baseTotal === 0 ? null : (totalChange / baseTotal) * 100,
+    };
+}
+export function computeWorkingCapitalCycle({ currentAssets, currentLiabilities, receivablesDays, inventoryDays, payablesDays, }) {
+    const workingCapital = currentAssets - currentLiabilities;
+    const operatingCycle = receivablesDays + inventoryDays;
+    const cashConversionCycle = operatingCycle - payablesDays;
+    return {
+        workingCapital,
+        operatingCycle,
+        cashConversionCycle,
+    };
+}
+export function computeCapitalBudgetingComparison(initialInvestment, discountRatePercent, cashFlows, terminalValue = 0) {
+    const npv = computeNetPresentValue(initialInvestment, discountRatePercent, cashFlows, terminalValue);
+    const profitabilityIndex = computeProfitabilityIndex(initialInvestment, discountRatePercent, cashFlows, terminalValue);
+    const internalRateOfReturn = computeInternalRateOfReturn(initialInvestment, cashFlows, terminalValue);
+    const discountedPayback = computeDiscountedPaybackPeriod(initialInvestment, discountRatePercent, cashFlows.map((cashFlow, index) => index === cashFlows.length - 1 ? cashFlow + terminalValue : cashFlow));
+    return {
+        npv,
+        profitabilityIndex,
+        internalRateOfReturn,
+        discountedPayback,
+        decision: npv.netPresentValue >= 0 &&
+            profitabilityIndex.profitabilityIndex >= 1
+            ? "Accept"
+            : "Review / Reject",
+    };
+}

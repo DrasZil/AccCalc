@@ -49,6 +49,12 @@ const GrossProfitRatePage = lazy(() => import("./features/accounting/GrossProfit
 const HorizontalAnalysisPage = lazy(
     () => import("./features/accounting/HorizontalAnalysisPage")
 );
+const CommonSizeIncomeStatementPage = lazy(
+    () => import("./features/accounting/CommonSizeIncomeStatementPage")
+);
+const CommonSizeBalanceSheetPage = lazy(
+    () => import("./features/accounting/CommonSizeBalanceSheetPage")
+);
 const RatioAnalysisWorkspacePage = lazy(
     () => import("./features/accounting/RatioAnalysisWorkspacePage")
 );
@@ -99,6 +105,9 @@ const EquivalentUnitsWeightedAveragePage = lazy(
 const QuickRatioPage = lazy(() => import("./features/accounting/QuickRatioPage"));
 const ReceivablesTurnoverPage = lazy(
     () => import("./features/accounting/ReceivablesTurnoverPage")
+);
+const WorkingCapitalCyclePage = lazy(
+    () => import("./features/accounting/WorkingCapitalCyclePage")
 );
 const ReturnOnAssetsPage = lazy(() => import("./features/accounting/ReturnOnAssetsPage"));
 const ReturnOnEquityPage = lazy(() => import("./features/accounting/ReturnOnEquityPage"));
@@ -180,6 +189,9 @@ const SinkingFundDepositPage = lazy(
 );
 const CompoundInterestPage = lazy(() => import("./features/finance/CompoundInterestPage"));
 const NetPresentValuePage = lazy(() => import("./features/finance/NetPresentValuePage"));
+const CapitalBudgetingComparisonPage = lazy(
+    () => import("./features/finance/CapitalBudgetingComparisonPage")
+);
 const InternalRateOfReturnPage = lazy(
     () => import("./features/finance/InternalRateOfReturnPage")
 );
@@ -279,6 +291,7 @@ export default function App() {
                         <Route path="finance/sinking-fund-deposit" element={renderRoute("/finance/sinking-fund-deposit", <SinkingFundDepositPage />)} />
                         <Route path="finance/loan-amortization" element={renderRoute("/finance/loan-amortization", <LoanAmortizationPage />)} />
                         <Route path="finance/npv" element={renderRoute("/finance/npv", <NetPresentValuePage />)} />
+                        <Route path="finance/capital-budgeting-comparison" element={renderRoute("/finance/capital-budgeting-comparison", <CapitalBudgetingComparisonPage />)} />
                         <Route path="finance/internal-rate-of-return" element={renderRoute("/finance/internal-rate-of-return", <InternalRateOfReturnPage />)} />
                         <Route path="finance/profitability-index" element={renderRoute("/finance/profitability-index", <ProfitabilityIndexPage />)} />
                         <Route path="finance/payback-period" element={renderRoute("/finance/payback-period", <PaybackPeriodPage />)} />
@@ -334,6 +347,7 @@ export default function App() {
                         <Route path="accounting/labor-efficiency-variance" element={renderRoute("/accounting/labor-efficiency-variance", <LaborEfficiencyVariancePage />)} />
                         <Route path="accounting/current-ratio" element={renderRoute("/accounting/current-ratio", <CurrentRatioPage />)} />
                         <Route path="accounting/quick-ratio" element={renderRoute("/accounting/quick-ratio", <QuickRatioPage />)} />
+                        <Route path="accounting/working-capital-cycle" element={renderRoute("/accounting/working-capital-cycle", <WorkingCapitalCyclePage />)} />
                         <Route path="accounting/cash-ratio" element={renderRoute("/accounting/cash-ratio", <CashRatioPage />)} />
                         <Route path="accounting/cash-conversion-cycle" element={renderRoute("/accounting/cash-conversion-cycle", <CashConversionCyclePage />)} />
                         <Route path="accounting/receivables-turnover" element={renderRoute("/accounting/receivables-turnover", <ReceivablesTurnoverPage />)} />
@@ -349,6 +363,8 @@ export default function App() {
                         <Route path="accounting/equity-multiplier" element={renderRoute("/accounting/equity-multiplier", <EquityMultiplierPage />)} />
                         <Route path="accounting/ratio-analysis-workspace" element={renderRoute("/accounting/ratio-analysis-workspace", <RatioAnalysisWorkspacePage />)} />
                         <Route path="accounting/horizontal-analysis" element={renderRoute("/accounting/horizontal-analysis", <HorizontalAnalysisPage />)} />
+                        <Route path="accounting/common-size-income-statement" element={renderRoute("/accounting/common-size-income-statement", <CommonSizeIncomeStatementPage />)} />
+                        <Route path="accounting/common-size-balance-sheet" element={renderRoute("/accounting/common-size-balance-sheet", <CommonSizeBalanceSheetPage />)} />
                         <Route path="accounting/vertical-analysis" element={renderRoute("/accounting/vertical-analysis", <VerticalAnalysisPage />)} />
                         <Route path="accounting/asset-turnover" element={renderRoute("/accounting/asset-turnover", <AssetTurnoverPage />)} />
                         <Route path="accounting/return-on-equity" element={renderRoute("/accounting/return-on-equity", <ReturnOnEquityPage />)} />

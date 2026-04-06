@@ -36,6 +36,7 @@ import {
     analyzeSmartInput,
     makePrefill,
 } from "./smartSolver.engine";
+import { suggestSolveTarget } from "./smartSolver.targets";
 
 const SMART_PROMPT_EXAMPLES = [
     "Customers still owe us 75,000 and we expect 4% to be uncollectible.",
@@ -67,6 +68,11 @@ const SMART_PROMPT_EXAMPLES = [
     "Show a ratio analysis workspace for liquidity, turnover, and return ratios.",
     "Show the cash conversion cycle if receivables days are 36, inventory days are 52, and payables days are 28.",
     "Compare depreciation methods for cost 500,000, salvage 50,000, and useful life 5 years.",
+    "Find the principal if simple interest is 4,800 at 12% for 2 years.",
+    "What selling price gives a 30% margin if cost is 700?",
+    "Solve for current liabilities if current assets are 250,000 and the current ratio should be 2.5.",
+    "Show the common-size income statement workspace.",
+    "Open the capital budgeting comparison tool for a 200,000 project at 11%.",
 ];
 
 type ActionTone = "success" | "warning" | "info";
@@ -259,6 +265,13 @@ export default function SmartSolverPage() {
             selectedCalculator.score >= 35 &&
             selectedCalculator.missing.length === 0
     );
+    const suggestedSolveTarget = useMemo(
+        () =>
+            selectedCalculator
+                ? suggestSolveTarget(selectedCalculator.id, smartInput)
+                : null,
+        [selectedCalculator, smartInput]
+    );
 
     const dynamicFieldKeys = useMemo(() => {
         if (!selectedCalculator) {
@@ -450,6 +463,7 @@ export default function SmartSolverPage() {
                 from: "smart-solver",
                 query: smartInput,
                 prefill: makePrefill(selectedCalculator, analysis.merged),
+                solveTarget: suggestedSolveTarget ?? undefined,
             },
         });
     };

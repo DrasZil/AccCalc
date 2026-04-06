@@ -1,35 +1,35 @@
-export const APP_VERSION = "2.7.0";
+export const APP_VERSION = "2.8.0";
 export const APP_RELEASE_DATE = "2026-04-06";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Capital-budgeting coverage grows up",
-        body: "IRR joins NPV, profitability index, and discounted payback, while NPV and PI now support terminal cash flows and clearer decision support.",
+        title: "Solve-for mode becomes a first-class system",
+        body: "Core finance, pricing, break-even, depreciation, liquidity, profitability, and turnover pages can now solve for the missing variable with adaptive validation, formulas, and interpretation.",
     },
     {
-        title: "Working-paper schedules arrive",
-        body: "Cash collections and cash disbursements schedules now connect budgeting work to the cash-budget workflow instead of forcing one-number receipt and payment estimates.",
+        title: "Statement analysis gets broader",
+        body: "Common-size income statement, common-size balance sheet, horizontal analysis, and working-capital-cycle tools turn AccCalc into a stronger worksheet and review companion for reporting analysis.",
     },
     {
-        title: "Accounting workflows deepen",
-        body: "Bank reconciliation now covers interest income and notes collected by bank, receivables aging adds adjustment guidance, and factory overhead variances plus a ratio-analysis workspace broaden classroom and review use.",
+        title: "Capital budgeting becomes a workspace",
+        body: "A comparison tool now places NPV, PI, IRR, and discounted payback side by side for one project so students and reviewers can compare methods without jumping between isolated pages.",
     },
     {
-        title: "Smarter routing and clearer discovery",
-        body: "Smart Solver, search, home workflows, and sidebar metadata now understand IRR, schedule-based budgeting, overhead variance prompts, and ratio-analysis language more reliably.",
+        title: "Smart Solver understands missing-variable intent",
+        body: "Queries like find the principal, solve for current liabilities, or what selling price gives a target margin can route to the right calculator and preselect a safe solve target.",
     },
     {
         title: "Release stays production-safe",
-        body: "The 2.7.0 tools use shared helpers, added regression coverage, and the existing truthful offline/PWA route model so feature growth does not weaken deployment reliability.",
+        body: "The new solve-for layer is shared, tested, mobile-aware, and aligned with the current truthful offline/PWA route model so capability growth does not weaken stability.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "Added Internal Rate of Return, Cash Collections Schedule, Cash Disbursements Schedule, Factory Overhead Variances, and Ratio Analysis Workspace.",
-    "Upgraded Net Present Value and Profitability Index with optional terminal cash flow handling and stronger decision summaries.",
-    "Expanded Bank Reconciliation with bank charges, interest income, notes collected by bank, and clearer bank-side versus book-side breakdowns.",
-    "Added receivables-aging adjustment guidance and broadened sales-mix analysis into target-profit and margin-of-safety planning.",
-    "Extended Smart Solver and search metadata for IRR, ratio analysis, cash receipts and payments schedules, bank-reconciliation additions, and overhead-variance language.",
-    "Tightened shared mobile input density and accessibility with better numeric input defaults, textarea density, and safer form labeling across touched pages.",
-    "Added developer-facing architecture and extension documentation plus new regression tests for capital budgeting, schedules, overhead variances, ratio analysis, and route search.",
+    "Added a reusable solve-for-any-variable system for safe formula-driven calculators, with adaptive targets, inputs, validation, formulas, and interpretation.",
+    "Upgraded simple interest, compound interest, future value, present value, profit and loss, markup and margin, break-even, contribution margin, straight-line depreciation, current ratio, quick ratio, gross profit rate, return on assets, return on equity, inventory turnover, and receivables turnover.",
+    "Added Common-Size Income Statement, Common-Size Balance Sheet, Working Capital and Cycle, and Capital Budgeting Comparison workspaces, plus a stronger multi-line Horizontal Analysis page.",
+    "Extended Smart Solver to detect missing-variable intent and route supported calculators with safe solve-target preselection when confidence is high.",
+    "Expanded home highlights, route metadata, and search coverage for solve-for workflows, statement analysis, and capital-budgeting comparison.",
+    "Added shared formula-intelligence utilities, adaptive result panels, editable analysis rows, and new regression coverage for forward and reverse solve paths.",
+    "Kept the existing offline/PWA model truthful and production-safe while updating release metadata, documentation, and route-chunk coverage for 2.8.0.",
 ];
