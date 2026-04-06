@@ -306,7 +306,7 @@ export function getInstallGuidance(snapshot: InstallExperienceSnapshot) {
                       ]
                     : [
                           "Check the address bar or browser menu for Install app.",
-                          "If no install entry appears, continue using the browser version. Offline-safe features still work after caching.",
+                          "If no install entry appears, continue using the browser version. Offline-safe local routes still work after the current release finishes caching.",
                       ],
             };
         default:
@@ -316,7 +316,7 @@ export function getInstallGuidance(snapshot: InstallExperienceSnapshot) {
                     "This browser may not provide a native install prompt, so AccCalc focuses on a consistent browser experience and honest offline guidance.",
                 steps: [
                     "Bookmark the app or pin the tab if install is unavailable.",
-                    "Load the calculators you use most while online so the browser can cache them for offline-safe reuse later.",
+                    "Keep the app online long enough for the current release to finish caching so offline-safe local routes stay available later.",
                 ],
             };
     }

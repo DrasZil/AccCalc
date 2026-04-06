@@ -29,6 +29,8 @@ import {
     computePresentValueOfOrdinaryAnnuity,
     computeProfitabilityIndex,
     computeQuickRatio,
+    computeReceivablesAgingSchedule,
+    computeSalesMixBreakEven,
     computeSimpleInterest,
     computeSinkingFundDeposit,
     computeStandardDeviation,
@@ -391,6 +393,45 @@ runTest("cash conversion cycle summarizes working-capital timing", () => {
     assert.equal(result.pressureLevel, "elevated");
 });
 
+runTest("receivables aging schedule derives required ending allowance", () => {
+    const result = computeReceivablesAgingSchedule({
+        buckets: [
+            {
+                label: "Current",
+                amount: 50000,
+                estimatedUncollectibleRatePercent: 2,
+            },
+            {
+                label: "31-60 days",
+                amount: 20000,
+                estimatedUncollectibleRatePercent: 10,
+            },
+        ],
+        existingAllowanceBalance: 1800,
+    });
+
+    assertClose(result.totalReceivables, 70000);
+    assertClose(result.requiredEndingAllowance, 3000);
+    assertClose(result.requiredAdjustment, 1200);
+    assertClose(result.netRealizableValue, 67000);
+    assert.equal(result.adjustmentDirection, "increase");
+});
+
+runTest("sales mix break-even handles composite-unit CVP", () => {
+    const result = computeSalesMixBreakEven({
+        fixedCosts: 180000,
+        products: [
+            { label: "A", sellingPrice: 240, variableCost: 150, mixShare: 3 },
+            { label: "B", sellingPrice: 180, variableCost: 110, mixShare: 2 },
+        ],
+    });
+
+    assertClose(result.compositeUnitContribution, 410);
+    assertClose(result.compositeUnitSales, 1080);
+    assertClose(result.breakEvenCompositeUnits, 439.0243902, 1e-6);
+    assertClose(result.breakEvenSales, 474146.3414, 1e-3);
+});
+
 runTest("number list parser accepts mixed separators and rejects bad entries", () => {
     const parsed = parseNumberList("10, 20\n30;40");
     const invalid = parseNumberList("10, nope, 30");
@@ -407,6 +448,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const cycleResults = searchAppRoutes("cash cycle");
     const leverageResults = searchAppRoutes("financial leverage");
     const retirementResults = searchAppRoutes("retiring partner settlement");
+    const agingResults = searchAppRoutes("aging of receivables");
+    const salesMixResults = searchAppRoutes("composite unit break even");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -414,6 +457,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(cycleResults[0]?.path, "/accounting/cash-conversion-cycle");
     assert.equal(leverageResults[0]?.path, "/accounting/equity-multiplier");
     assert.equal(retirementResults[0]?.path, "/accounting/partnership-retirement-bonus");
+    assert.equal(agingResults[0]?.path, "/accounting/receivables-aging-schedule");
+    assert.equal(salesMixResults[0]?.path, "/business/sales-mix-break-even");
 });
 
 runTest("account reference search finds aliases and abbreviations", () => {

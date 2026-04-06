@@ -9,7 +9,93 @@ const GROUP_CONFIG = {
     Statistics: { hint: "Foundational statistics and analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
 };
 function feature(path, label, category, description, aliases = [], tags = [], shortLabel, isNew = false, keywords = []) {
-    return { path, label, category, description, aliases, tags, shortLabel, isNew, keywords };
+    return {
+        path,
+        label,
+        category,
+        description,
+        aliases,
+        tags,
+        shortLabel,
+        isNew,
+        keywords,
+        ...inferOfflineMeta(path),
+    };
+}
+function inferOfflineMeta(path) {
+    if (path === "/") {
+        return {
+            offlineSupport: "limited",
+            offlineSummary: "Core dashboard content works offline once this version is cached.",
+            offlineDetail: "Pinned tools, recent activity, and local discovery still work offline, but fresh updates, install prompts, and external share destinations still depend on internet access.",
+        };
+    }
+    if (path === "/settings/install") {
+        return {
+            offlineSupport: "limited",
+            offlineSummary: "The guidance stays readable offline, but install and update checks need internet.",
+            offlineDetail: "Platform instructions remain available offline after caching, but native install prompts, version checks, and first-time asset downloads still require an online session.",
+        };
+    }
+    if (path === "/settings/feedback") {
+        return {
+            offlineSupport: "limited",
+            offlineSummary: "The page opens offline, but feedback submission stays online-only.",
+            offlineDetail: "The embedded Google Form and external feedback destination require internet access even though the route itself can still explain the limitation offline.",
+        };
+    }
+    return {
+        offlineSupport: "full",
+        offlineSummary: "This route is designed to keep working offline after the current version is cached.",
+        offlineDetail: "All calculations, formulas, and educational guidance on this route run locally in the browser after the current release finishes caching successfully.",
+    };
+}
+export function getOfflineSupportLabel(level) {
+    if (level === "full")
+        return "Offline ready";
+    if (level === "limited")
+        return "Limited offline";
+    return "Online required";
+}
+export function getRouteAvailability(route, options) {
+    if (options.online) {
+        return {
+            canOpen: true,
+            support: route.offlineSupport,
+            label: getOfflineSupportLabel(route.offlineSupport),
+            reason: route.offlineSummary,
+        };
+    }
+    if (options.currentPath === route.path) {
+        return {
+            canOpen: true,
+            support: route.offlineSupport,
+            label: getOfflineSupportLabel(route.offlineSupport),
+            reason: route.offlineDetail,
+        };
+    }
+    if (!options.bundleReady) {
+        return {
+            canOpen: false,
+            support: route.offlineSupport,
+            label: "Caching required",
+            reason: "This browser has not finished caching the current release yet. Reconnect once so AccCalc can download the route files safely.",
+        };
+    }
+    if (route.offlineSupport === "online-only") {
+        return {
+            canOpen: false,
+            support: route.offlineSupport,
+            label: getOfflineSupportLabel(route.offlineSupport),
+            reason: route.offlineDetail,
+        };
+    }
+    return {
+        canOpen: true,
+        support: route.offlineSupport,
+        label: getOfflineSupportLabel(route.offlineSupport),
+        reason: route.offlineDetail,
+    };
 }
 export const APP_ROUTE_META = [
     feature("/", "Home", "General", "Main workspace overview.", ["dashboard", "homepage"], ["home"], "Home"),
@@ -29,6 +115,7 @@ export const APP_ROUTE_META = [
     feature("/accounting/gross-profit-method", "Gross Profit Method", "Accounting", "Estimate gross profit, COGS, and ending inventory.", ["gp method", "inventory estimate"], ["inventory", "estimate"]),
     feature("/accounting/bank-reconciliation", "Bank Reconciliation", "Accounting", "Reconcile bank and book balances.", ["bank recon", "cash reconciliation"], ["cash", "reconciliation"]),
     feature("/accounting/allowance-doubtful-accounts", "Allowance for Doubtful Accounts", "Accounting", "Estimate bad debt allowance and NRV.", ["bad debts", "net realizable value", "ada"], ["receivables", "allowance"]),
+    feature("/accounting/receivables-aging-schedule", "Receivables Aging Schedule", "Accounting", "Build an aging-based required allowance and adjustment entry.", ["aging of receivables", "ageing schedule", "aging schedule"], ["receivables", "allowance", "aging"], undefined, true, ["receivables", "aging", "allowance", "nrv"]),
     feature("/accounting/partnership-profit-sharing", "Partnership Profit Sharing", "Accounting", "Allocate partnership profit or loss.", ["partnership ratio sharing"], ["partnership", "allocation"], undefined, false, ["partnership", "profit sharing", "allocation", "ratio"]),
     feature("/accounting/partnership-salary-interest", "Partnership Salary and Interest", "Accounting", "Use salary allowances, interest, and a remainder ratio.", ["salary allowance partnership", "interest on capital"], ["partnership", "allocation"], undefined, true, ["partnership", "salary", "interest", "capital", "allocation"]),
     feature("/accounting/partnership-admission-bonus", "Partnership Admission Bonus", "Accounting", "Incoming partner capital credit under the bonus method.", ["bonus method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "bonus", "capital"]),
@@ -78,6 +165,7 @@ export const APP_ROUTE_META = [
     feature("/business/target-profit", "Target Profit", "Managerial & Cost", "Required units and sales for a target profit.", ["target income"], ["cvp"]),
     feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
     feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
+    feature("/business/sales-mix-break-even", "Sales Mix Break-even", "Managerial & Cost", "Break-even analysis for multi-product sales mixes.", ["multi product break even", "sales mix cvp", "composite unit break even"], ["cvp", "sales mix", "break-even"], undefined, true, ["sales mix", "composite unit", "weighted contribution margin"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/prime-conversion-cost", "Prime and Conversion Cost", "Managerial & Cost", "Prime cost and conversion cost.", ["prime cost", "conversion cost"], ["cost accounting"], undefined, true),
     feature("/accounting/materials-price-variance", "Materials Price Variance", "Managerial & Cost", "Direct materials price variance.", ["mpv", "material price variance"], ["variance"], undefined, true),

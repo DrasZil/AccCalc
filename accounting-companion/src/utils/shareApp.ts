@@ -64,7 +64,7 @@ export function getAppShareData(options: ShareAppOptions = {}) {
         title: options.title ?? "AccCalc",
         text:
             options.text ??
-            "AccCalc helps with accounting, finance, and business calculations in a cleaner, offline-friendly workspace.",
+        "AccCalc helps with accounting, finance, and business calculations in a cleaner workspace with offline-safe local routes after caching.",
         url: options.url ?? getAppShareUrl(),
     };
 }

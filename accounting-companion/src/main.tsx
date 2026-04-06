@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { initializeAppUpdateLifecycle } from "./utils/appUpdate";
 import { APP_VERSION } from "./utils/appRelease";
+import { initializeOfflineStatusLifecycle } from "./utils/offlineStatus";
 const SW_URL = `${import.meta.env.BASE_URL}sw.js`;
 
 if (typeof window !== "undefined" && !window.location.hash.startsWith("#/")) {
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
 
 if (import.meta.env.PROD) {
     initializeAppUpdateLifecycle(SW_URL, APP_VERSION);
+    initializeOfflineStatusLifecycle();
 } else if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {

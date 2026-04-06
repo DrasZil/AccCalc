@@ -6,6 +6,7 @@ import SectionCard from "../../components/SectionCard";
 import ShareAppButton from "../../components/ShareAppButton";
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import { useNetworkStatus } from "../../utils/networkStatus";
+import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 import {
     clearInstallPromptDismissal,
     getInstallGuidance,
@@ -39,6 +40,7 @@ function StatusPill({
 export default function InstallGuidePage() {
     const install = useInstallExperience();
     const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const update = useAppUpdateState();
     const [installMessage, setInstallMessage] = useState("");
     const guidance = getInstallGuidance(install);
@@ -115,7 +117,7 @@ export default function InstallGuidePage() {
                         <ShareAppButton
                             className="w-full justify-center"
                             label="Share app link"
-                            shareText="Share the live AccCalc app so others can open the calculators, install guide, and offline-safe browser experience."
+                            shareText="Share the live AccCalc app so others can open the calculators, install guide, and offline-safe local routes after caching."
                         />
 
                         <button
@@ -205,10 +207,12 @@ export default function InstallGuidePage() {
 
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {[
-                            "Core local calculators and formula panels",
-                            "Smart Solver local routing and suggestion logic",
-                            "Pinned tools, recent history, and saved drafts on this device",
-                            "Static shell assets such as icons, manifest, and previously fetched UI chunks",
+                            offlineBundle.ready
+                                ? `${offlineBundle.assetCount} route and app assets are cached for this release on this device.`
+                                : "This release is not fully cached on this device yet, so offline-safe routes are not trustworthy until you reconnect once.",
+                            "Local calculator logic, formula panels, history, settings, and Smart Solver matching run entirely in the browser.",
+                            "Route chunks for offline-safe tools are now precached intentionally instead of relying only on previous visits.",
+                            "Limited routes can still explain their status offline even when an action inside them still needs internet.",
                         ].map((item) => (
                             <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
                                 <p className="text-sm font-semibold text-[color:var(--app-text)]">{item}</p>
@@ -223,11 +227,11 @@ export default function InstallGuidePage() {
                         What still needs internet
                     </h2>
                     <div className="mt-4 space-y-3">
-                        {[
+                        {[ 
                             "Feedback submission and the embedded Google Form",
                             "External links or third-party destinations opened from the app",
                             "Fresh deployment updates until the browser reconnects and downloads the new version",
-                            "Any route chunk that was never fetched before going offline",
+                            "Any route on a device that went offline before the current release finished caching",
                         ].map((item) => (
                             <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
                                 <p className="app-body-md text-sm">{item}</p>
@@ -244,10 +248,10 @@ export default function InstallGuidePage() {
                 </h2>
                 <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                     {[
-                        "Versioned cache names separate each release so old logic is not kept forever.",
-                        "Old caches are deleted during service-worker activation.",
-                        "Navigation requests use a network-first strategy, then fall back to cached shell content.",
-                        "Static assets use stale-while-revalidate so cached files still refresh once the browser reconnects.",
+                        "The build now emits an explicit asset manifest so the service worker can precache route chunks instead of guessing at runtime.",
+                        "Navigation requests always refresh the app shell from the root when possible, then fall back to the cached shell offline.",
+                        "The service worker keeps the latest asset cache plus one older asset cache to reduce stale-tab chunk failures after deploys.",
+                        "Chunk mismatches now trigger recovery messaging so users can refresh intentionally instead of seeing a silent module-fetch failure.",
                     ].map((item) => (
                         <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
                             <p className="app-body-md text-sm">{item}</p>

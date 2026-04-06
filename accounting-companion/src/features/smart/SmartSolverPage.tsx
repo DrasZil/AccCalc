@@ -13,9 +13,15 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
-import { APP_NAV_GROUPS } from "../../utils/appCatalog";
+import {
+    APP_NAV_GROUPS,
+    getRouteAvailability,
+    getRouteMeta,
+} from "../../utils/appCatalog";
 import { recordToolVisit, saveToolRecord } from "../../utils/appActivity";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
+import { useNetworkStatus } from "../../utils/networkStatus";
+import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 import type {
     CalculatorConfig,
     FieldKey,
@@ -121,6 +127,8 @@ function CollapsibleSection({
 export default function SmartSolverPage() {
     const navigate = useNavigate();
     const settings = useAppSettings();
+    const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
 
     const [smartInput, setSmartInput] = useState<string>("");
     const [fields, setFields] = useState<FieldsState>(() => ({ ...INITIAL_FIELDS }));
@@ -133,6 +141,8 @@ export default function SmartSolverPage() {
     const [showCoverage, setShowCoverage] = useState<boolean>(false);
     const [showDetectedValues, setShowDetectedValues] = useState<boolean>(false);
     const [showMoreMatches, setShowMoreMatches] = useState<boolean>(false);
+    const [expandedFieldKeys, setExpandedFieldKeys] = useState<FieldKey[]>([]);
+    const [guidanceMode, setGuidanceMode] = useState<"beginner" | "professional">("beginner");
 
     const deferredSmartInput = useDeferredValue(smartInput);
 
@@ -199,6 +209,10 @@ export default function SmartSolverPage() {
     }, [actionFeedback]);
 
     useEffect(() => {
+        setExpandedFieldKeys([]);
+    }, [selectedCalculatorId]);
+
+    useEffect(() => {
         if (!hasAnyInput) return;
         if (!analysis.best) return;
 
@@ -253,6 +267,64 @@ export default function SmartSolverPage() {
 
         return dedupeFieldKeys([...baseFields, ...detectedExtras]);
     }, [analysis.extractedEntries, selectedCalculator, visibleManualKeys]);
+    const reviewFieldKeys = useMemo(
+        () => dedupeFieldKeys([...dynamicFieldKeys, ...expandedFieldKeys]),
+        [dynamicFieldKeys, expandedFieldKeys]
+    );
+    const suggestedAdditionalFieldKeys = useMemo(() => {
+        if (!selectedCalculator) return [];
+
+        const baseGroup =
+            FIELD_META[selectedCalculator.required[0] ?? selectedCalculator.optional?.[0] ?? "principal"]
+                ?.group;
+        const visible = new Set(reviewFieldKeys);
+
+        return FIELD_KEYS.filter((field) => {
+            if (visible.has(field)) return false;
+            if (!baseGroup) return false;
+            return FIELD_META[field].group === baseGroup;
+        }).slice(0, 8);
+    }, [reviewFieldKeys, selectedCalculator]);
+    const selectedRouteMeta = useMemo(
+        () => (selectedCalculator ? getRouteMeta(selectedCalculator.route) : null),
+        [selectedCalculator]
+    );
+    const selectedRouteAvailability = useMemo(
+        () =>
+            selectedRouteMeta
+                ? getRouteAvailability(selectedRouteMeta, {
+                      online: network.online,
+                      bundleReady: offlineBundle.ready,
+                      currentPath: "/smart/solver",
+                  })
+                : null,
+        [selectedRouteMeta, network.online, offlineBundle.ready]
+    );
+    const solverInterpretation = useMemo(() => {
+        if (!selectedCalculator) return null;
+
+        const missingLabels = selectedCalculator.missing.map((field) => FIELD_META[field].label);
+        const relatedTools = analysis.ranked
+            .filter((calculator) => calculator.id !== selectedCalculator.id)
+            .slice(0, 3)
+            .map((calculator) => calculator.name);
+
+        return {
+            beginner:
+                missingLabels.length > 0
+                    ? `This looks most like ${selectedCalculator.name}, but it still needs ${missingLabels.join(
+                          ", "
+                      )} before the destination tool can solve the full problem safely.`
+                    : `${selectedCalculator.name} appears ready. Review the prepared values, then open the tool to see the full formula breakdown and interpretation.`,
+            professional:
+                missingLabels.length > 0
+                    ? `The current routing is materially consistent with ${selectedCalculator.name}, but the problem statement is still incomplete for a defensible result. Confirm ${missingLabels.join(
+                          ", "
+                      )} before relying on the output.`
+                    : `${selectedCalculator.name} is the strongest match and the required values appear present. The next step is to verify sign conventions, period assumptions, and method choice in the destination page.`,
+            relatedTools,
+        };
+    }, [analysis.ranked, selectedCalculator]);
 
     const primarySuggestions = useMemo(
         () => analysis.ranked.slice(0, Math.min(settings.smartSolverMaxSuggestions, 3)),
@@ -350,6 +422,14 @@ export default function SmartSolverPage() {
             return;
         }
 
+        if (selectedRouteAvailability && !selectedRouteAvailability.canOpen) {
+            setActionFeedback({
+                tone: "warning",
+                text: selectedRouteAvailability.reason,
+            });
+            return;
+        }
+
         recordToolVisit(selectedCalculator.route, {
             summary: `Opened from Smart Solver using the prompt: ${smartInput.trim() || "No prompt text saved."}`,
             kind: "smart",
@@ -379,7 +459,7 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories, and its matching logic continues to work offline because it runs locally in the app.`}
+            description={`Describe the problem naturally, then let Smart Solver detect values, prepare inputs, and route you into the right calculator. It currently supports ${totalCoveredTools} solver-ready tools across ${solverCoverageGroups.length} calculator categories. The matching logic runs locally offline, while opening the suggested route still depends on whether this release has already been cached.`}
             prioritizeResultSection={hasAnyInput}
             inputSection={
                 <div className="space-y-4">
@@ -613,6 +693,20 @@ export default function SmartSolverPage() {
                                 />
                                 <ResultCard title="Interpreter Feedback" value={analysis.followUp} />
                             </ResultGrid>
+
+                            {selectedRouteAvailability ? (
+                                <div
+                                    className={[
+                                        "rounded-2xl px-4 py-3 text-sm leading-6",
+                                        selectedRouteAvailability.canOpen
+                                            ? "app-subtle-surface"
+                                            : "app-tone-warning",
+                                    ].join(" ")}
+                                >
+                                    <strong>{selectedRouteAvailability.label}:</strong>{" "}
+                                    {selectedRouteAvailability.reason}
+                                </div>
+                            ) : null}
                         </div>
                     </SectionCard>
 
@@ -647,7 +741,7 @@ export default function SmartSolverPage() {
 
                         <div className="mt-4">
                             <InputGrid columns={3}>
-                                {dynamicFieldKeys.map((key) => {
+                                {reviewFieldKeys.map((key) => {
                                     const meta = FIELD_META[key];
 
                                     return (
@@ -662,7 +756,91 @@ export default function SmartSolverPage() {
                                 })}
                             </InputGrid>
                         </div>
+
+                        {suggestedAdditionalFieldKeys.length > 0 ? (
+                            <div className="mt-4">
+                                <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                    Need more fields?
+                                </p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {suggestedAdditionalFieldKeys.map((field) => (
+                                        <button
+                                            key={field}
+                                            type="button"
+                                            onClick={() =>
+                                                setExpandedFieldKeys((current) =>
+                                                    dedupeFieldKeys([...current, field])
+                                                )
+                                            }
+                                            className="app-button-ghost rounded-full px-3 py-2 text-xs font-medium"
+                                        >
+                                            Add {FIELD_META[field].label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
                     </SectionCard>
+
+                    {solverInterpretation ? (
+                        <CollapsibleSection
+                            title="Guidance"
+                            description="Switch between study-first and practice-first reading before opening the matched tool."
+                            open
+                            onToggle={() => undefined}
+                        >
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setGuidanceMode("beginner")}
+                                    className={[
+                                        "rounded-xl px-4 py-2 text-sm font-medium",
+                                        guidanceMode === "beginner"
+                                            ? "app-button-primary"
+                                            : "app-button-secondary",
+                                    ].join(" ")}
+                                >
+                                    Beginner mode
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setGuidanceMode("professional")}
+                                    className={[
+                                        "rounded-xl px-4 py-2 text-sm font-medium",
+                                        guidanceMode === "professional"
+                                            ? "app-button-primary"
+                                            : "app-button-secondary",
+                                    ].join(" ")}
+                                >
+                                    Professional mode
+                                </button>
+                            </div>
+
+                            <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-4 text-sm leading-6">
+                                {guidanceMode === "beginner"
+                                    ? solverInterpretation.beginner
+                                    : solverInterpretation.professional}
+                            </div>
+
+                            {solverInterpretation.relatedTools.length > 0 ? (
+                                <div className="mt-4">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Related next tools
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {solverInterpretation.relatedTools.map((toolName) => (
+                                            <span
+                                                key={toolName}
+                                                className="app-list-link rounded-full px-3 py-1 text-xs font-medium"
+                                            >
+                                                {toolName}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : null}
+                        </CollapsibleSection>
+                    ) : null}
 
                     <SectionCard>
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

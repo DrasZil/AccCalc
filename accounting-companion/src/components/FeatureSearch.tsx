@@ -8,7 +8,11 @@ import {
     useState,
     type KeyboardEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
+import { getRouteAvailability } from "../utils/appCatalog";
+import { useNetworkStatus } from "../utils/networkStatus";
+import { useOfflineBundleStatus } from "../utils/offlineStatus";
 import { getSuggestedRoutes, searchAppRoutes, type AppSearchResult } from "../utils/appSearch";
 
 type FeatureSearchProps = {
@@ -52,6 +56,9 @@ export default function FeatureSearch({
     autoFocus = false,
 }: FeatureSearchProps) {
     const navigate = useNavigate();
+    const location = useLocation();
+    const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const resultsId = useId();
     const rootRef = useRef<HTMLDivElement | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -80,6 +87,19 @@ export default function FeatureSearch({
     }, []);
 
     function handleNavigate(result: AppSearchResult) {
+        const availability = getRouteAvailability(result, {
+            online: network.online,
+            bundleReady: offlineBundle.ready,
+            currentPath: location.pathname,
+        });
+        if (!availability.canOpen) {
+            setOpen(true);
+            setActiveIndex(
+                suggestions.findIndex((entry) => entry.path === result.path)
+            );
+            return;
+        }
+
         startTransition(() => {
             navigate(result.path);
         });
@@ -194,6 +214,11 @@ export default function FeatureSearch({
                         <div className="max-h-[26rem] overflow-y-auto scrollbar-premium">
                             {suggestions.map((result, index) => {
                                 const isActive = index === activeIndex;
+                                const availability = getRouteAvailability(result, {
+                                    online: network.online,
+                                    bundleReady: offlineBundle.ready,
+                                    currentPath: location.pathname,
+                                });
 
                                 return (
                                     <button
@@ -204,11 +229,15 @@ export default function FeatureSearch({
                                         aria-selected={isActive}
                                         onMouseEnter={() => setActiveIndex(index)}
                                         onClick={() => handleNavigate(result)}
+                                        disabled={!availability.canOpen}
                                         className={[
                                             "flex w-full items-start justify-between gap-3 border-b app-divider px-4 py-3.5 text-left transition last:border-b-0",
                                             isActive
                                                 ? "bg-[var(--app-accent-soft)]"
                                                 : "hover:bg-[var(--app-accent-soft)]",
+                                            !availability.canOpen
+                                                ? "cursor-not-allowed opacity-70"
+                                                : "",
                                         ].join(" ")}
                                         style={
                                             isActive
@@ -227,9 +256,17 @@ export default function FeatureSearch({
                                                 <span className="app-chip rounded-full px-2 py-0.5 text-[0.62rem]">
                                                     {result.category}
                                                 </span>
+                                                <OfflineCapabilityBadge
+                                                    level={result.offlineSupport}
+                                                    className="px-2 py-0.5 text-[0.62rem]"
+                                                    label={availability.label}
+                                                />
                                             </div>
                                             <p className="app-body-md mt-1 text-sm">
                                                 {result.description}
+                                            </p>
+                                            <p className="app-helper mt-2 text-xs leading-5">
+                                                {availability.reason}
                                             </p>
                                             {result.tags.length > 0 ? (
                                                 <p className="app-helper mt-2 text-[0.68rem] uppercase tracking-[0.14em]">

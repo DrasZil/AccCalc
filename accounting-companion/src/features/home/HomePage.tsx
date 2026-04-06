@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
 import FeatureSearch from "../../components/FeatureSearch";
+import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
 import {
     getMostUsedRoutes,
@@ -14,6 +15,7 @@ import {
     APP_NAV_GROUPS,
     APP_ROUTE_META_MAP,
     NEW_FEATURE_PATHS,
+    getRouteAvailability,
 } from "../../utils/appCatalog";
 import {
     APP_RELEASE_HIGHLIGHTS,
@@ -22,6 +24,7 @@ import {
 } from "../../utils/appRelease";
 import { useAppSettings } from "../../utils/appSettings";
 import { useNetworkStatus } from "../../utils/networkStatus";
+import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 
 const SMART_PROMPT_EXAMPLES = [
     "Find the quick ratio if cash is 50,000, marketable securities are 25,000, receivables are 40,000, and current liabilities are 100,000.",
@@ -40,6 +43,7 @@ const FEATURED_PATHS = [
     "/accounting/depreciation-schedule-comparison",
     "/accounting/partners-capital-statement",
     "/accounting/equity-multiplier",
+    "/accounting/receivables-aging-schedule",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -64,6 +68,15 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
+        title: "Receivables quality and collection risk",
+        description: "Move from quick allowance estimates into an aging-based required allowance and collection-quality interpretation.",
+        paths: [
+            "/accounting/allowance-doubtful-accounts",
+            "/accounting/receivables-aging-schedule",
+            "/accounting/receivables-turnover",
+        ],
+    },
+    {
         title: "Borrowing and capital planning",
         description: "Move from loan repayment planning into discounted cash flow decision tools.",
         paths: [
@@ -71,6 +84,16 @@ const WORKFLOW_COLLECTIONS = [
             "/finance/payback-period",
             "/finance/npv",
             "/finance/profitability-index",
+        ],
+    },
+    {
+        title: "Multi-product CVP planning",
+        description: "Go beyond single-product break-even by testing contribution behavior and sales mix assumptions together.",
+        paths: [
+            "/business/contribution-margin",
+            "/business/break-even",
+            "/business/sales-mix-break-even",
+            "/business/target-profit",
         ],
     },
     {
@@ -91,6 +114,7 @@ export default function HomePage() {
     const activity = useAppActivity();
     const settings = useAppSettings();
     const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const [showWhatsNew, setShowWhatsNew] = useState(true);
     const pinnedRoutes = getPinnedRoutes(activity);
     const mostUsedRoutes = getMostUsedRoutes(activity, 4);
@@ -131,6 +155,17 @@ export default function HomePage() {
                     .map((path) => APP_ROUTE_META_MAP.get(path))
                     .filter((item): item is NonNullable<typeof item> => Boolean(item)),
             })),
+        []
+    );
+    const offlineCapabilityGroups = useMemo(
+        () => ({
+            full: Array.from(APP_ROUTE_META_MAP.values()).filter(
+                (route) => route.offlineSupport === "full"
+            ),
+            limited: Array.from(APP_ROUTE_META_MAP.values()).filter(
+                (route) => route.offlineSupport === "limited"
+            ),
+        }),
         []
     );
 
@@ -179,7 +214,7 @@ export default function HomePage() {
                             <ShareAppButton
                                 className="rounded-xl px-5 py-3"
                                 label="Share app"
-                                shareText="Try AccCalc for accounting, finance, and business calculations with guided install and offline-safe browser use."
+                                shareText="Try AccCalc for accounting, finance, and business calculations with guided install support and offline-safe local routes after caching."
                             />
                         </div>
 
@@ -221,10 +256,25 @@ export default function HomePage() {
 
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                         {(pinnedRoutes.length > 0 ? pinnedRoutes : recommended).slice(0, 4).map((route) => (
+                            (() => {
+                                const routeMeta = APP_ROUTE_META_MAP.get(route.path);
+                                const availability = routeMeta
+                                    ? getRouteAvailability(routeMeta, {
+                                          online: network.online,
+                                          bundleReady: offlineBundle.ready,
+                                          currentPath: "/",
+                                      })
+                                    : {
+                                          label: "Available",
+                                          reason: route.description,
+                                      };
+
+                                return (
                             <Link
                                 key={route.path}
                                 to={route.path}
                                 className="app-link-card rounded-[1.35rem] p-4 transition duration-300 hover:-translate-y-0.5"
+                                title={availability.reason}
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <span className="app-chip rounded-full px-3 py-1 text-xs">
@@ -232,15 +282,28 @@ export default function HomePage() {
                                             ? "Pinned"
                                             : route.category}
                                     </span>
-                                    <span className="app-helper text-xs uppercase tracking-[0.14em]">
-                                        Open
-                                    </span>
+                                    {routeMeta ? (
+                                        <OfflineCapabilityBadge
+                                            level={routeMeta.offlineSupport}
+                                            className="px-2.5 py-1 text-[0.62rem]"
+                                            label={availability.label}
+                                        />
+                                    ) : (
+                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            {availability.label}
+                                        </span>
+                                    )}
                                 </div>
                                 <h3 className="mt-3 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                     {route.label}
                                 </h3>
                                 <p className="app-body-md mt-2 text-sm">{route.description}</p>
+                                <p className="app-helper mt-3 text-xs leading-5">
+                                    {availability.reason}
+                                </p>
                             </Link>
+                                );
+                            })()
                         ))}
                     </div>
 
@@ -365,24 +428,45 @@ export default function HomePage() {
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {featuredRoutes.map((route) => (
+                        (() => {
+                            const availability = getRouteAvailability(route, {
+                                online: network.online,
+                                bundleReady: offlineBundle.ready,
+                                currentPath: "/",
+                            });
+
+                            return (
                         <Link
                             key={route.path}
                             to={route.path}
                             className="app-link-card rounded-[var(--app-radius-xl)] p-5 transition duration-300 hover:-translate-y-0.5"
+                            title={availability.reason}
                         >
                             <div className="flex items-center justify-between gap-3">
                                 <span className="app-chip rounded-full px-3 py-1 text-xs">{route.category}</span>
-                                {NEW_FEATURE_PATHS.has(route.path) ? (
-                                    <span className="app-badge-new rounded-full px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
-                                        New
-                                    </span>
-                                ) : null}
+                                <div className="flex flex-wrap justify-end gap-2">
+                                    <OfflineCapabilityBadge
+                                        level={route.offlineSupport}
+                                        className="px-2 py-1 text-[0.62rem]"
+                                        label={availability.label}
+                                    />
+                                    {NEW_FEATURE_PATHS.has(route.path) ? (
+                                        <span className="app-badge-new rounded-full px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
+                                            New
+                                        </span>
+                                    ) : null}
+                                </div>
                             </div>
                             <h3 className="mt-4 text-xl font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                                 {route.label}
                             </h3>
                             <p className="app-body-md mt-2 text-sm">{route.description}</p>
+                            <p className="app-helper mt-3 text-xs leading-5">
+                                {availability.reason}
+                            </p>
                         </Link>
+                            );
+                        })()
                     ))}
                 </div>
             </section>
@@ -464,22 +548,56 @@ export default function HomePage() {
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <p className="app-kicker text-xs">Offline readiness</p>
                     <h2 className="app-section-title mt-3 text-2xl">
-                        {network.online ? "Offline-safe core tools are ready" : "You are offline now"}
+                        {network.online
+                            ? offlineBundle.ready
+                                ? "This release is cached for offline-safe routes"
+                                : "Offline caching is still being prepared"
+                            : "You are offline now"}
                     </h2>
                     <p className="app-body-md mt-2 text-sm">
-                        Installation helps with launch convenience, but the browser version can also work offline after the needed assets have been cached once successfully online.
+                        {offlineBundle.ready
+                            ? "AccCalc can now open fully offline-safe routes from this cached release without requiring installation. Limited routes stay readable offline but still keep some actions online."
+                            : "Installation helps with launch convenience, but trustworthy offline use still depends on this release finishing its asset download once while you are online."}
                     </p>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        {[
-                            "All local calculators",
-                            "Smart Solver local routing",
-                            "Pinned tools and recent history",
-                            "Theme, settings, and saved drafts",
-                        ].map((item) => (
-                            <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
-                                <p className="text-sm font-semibold text-[color:var(--app-text)]">{item}</p>
-                            </div>
-                        ))}
+                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Fully offline-safe routes
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {offlineCapabilityGroups.full.length} routes, including local calculators,
+                                Smart Solver routing, settings, history, and bundled learning content.
+                            </p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Limited offline routes
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {offlineCapabilityGroups.limited.length} routes open offline but keep
+                                some actions online, such as feedback submission, install checks, or
+                                fresh release retrieval.
+                            </p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Current cache status
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {offlineBundle.ready
+                                    ? `${offlineBundle.assetCount} route and app assets cached for this release.`
+                                    : "The current release is not fully cached yet on this device."}
+                            </p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Smart Solver status
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                Solver matching stays local, but opening the suggested route offline
+                                still depends on the current release already being cached.
+                            </p>
+                        </div>
                     </div>
                     <Link
                         to="/settings/install"
@@ -494,9 +612,9 @@ export default function HomePage() {
                     <h2 className="app-section-title mt-3 text-2xl">Handled safely when internet is missing</h2>
                     <div className="mt-4 space-y-3">
                         {[
-                            "Feedback form and embedded Google Form",
-                            "External share/link destinations",
-                            "Embedded or externally hosted web content",
+                            "Feedback submission and the embedded Google Form remain online-only actions.",
+                            "External share targets and third-party destinations still depend on network access.",
+                            "Fresh release checks, asset downloads, and first-time caching still require an online session.",
                         ].map((item) => (
                             <div key={item} className="app-subtle-surface rounded-[1.2rem] px-4 py-3.5">
                                 <p className="app-body-md text-sm">{item}</p>

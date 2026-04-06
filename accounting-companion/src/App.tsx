@@ -1,7 +1,11 @@
 import { Suspense, lazy, type ReactNode } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import AppErrorBoundary from "./components/AppErrorBoundary";
+import RouteErrorBoundary from "./components/RouteErrorBoundary";
 import AppLayout from "./features/layout/AppLayout";
+import { getRouteMeta } from "./utils/appCatalog";
+import { useNetworkStatus } from "./utils/networkStatus";
+import { useOfflineBundleStatus } from "./utils/offlineStatus";
 
 const BasicCalculatorPage = lazy(() => import("./features/basic/BasicCalculatorPage"));
 const AccountingEquationPage = lazy(() => import("./features/accounting/AccountEquationPage"));
@@ -109,6 +113,9 @@ const InventoryMethodComparisonPage = lazy(
 const AccountsPayableTurnoverPage = lazy(
     () => import("./features/accounting/AccountsPayableTurnoverPage")
 );
+const ReceivablesAgingSchedulePage = lazy(
+    () => import("./features/accounting/ReceivablesAgingSchedulePage")
+);
 const BreakEvenPage = lazy(() => import("./features/business/BreakEvenPage"));
 const ContributionMarginPage = lazy(
     () => import("./features/business/ContributionMarginPage")
@@ -118,6 +125,9 @@ const MarkupMarginPage = lazy(() => import("./features/business/MarkupMarginPage
 const NetProfitMarginPage = lazy(() => import("./features/business/NetProfitMarginPage"));
 const OperatingLeveragePage = lazy(
     () => import("./features/business/OperatingLeveragePage")
+);
+const SalesMixBreakEvenPage = lazy(
+    () => import("./features/business/SalesMixBreakEvenPage")
 );
 const ProfitLossPage = lazy(() => import("./features/business/ProfitLossPage"));
 const TargetProfitPage = lazy(() => import("./features/business/TargetProfitPage"));
@@ -187,98 +197,122 @@ function RouteFallback() {
     );
 }
 
-function RouteShell({ children }: { children: ReactNode }) {
-    return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
+function RouteShell({
+    children,
+    routePath,
+}: {
+    children: ReactNode;
+    routePath: string;
+}) {
+    const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
+    const routeMeta = getRouteMeta(routePath);
+
+    return (
+        <RouteErrorBoundary
+            routeMeta={routeMeta}
+            online={network.online}
+            bundleReady={offlineBundle.ready}
+        >
+            <Suspense fallback={<RouteFallback />}>{children}</Suspense>
+        </RouteErrorBoundary>
+    );
 }
 
 export default function App() {
+    const renderRoute = (path: string, element: ReactNode) => (
+        <RouteShell routePath={path}>{element}</RouteShell>
+    );
+
     return (
         <AppErrorBoundary>
             <HashRouter>
                 <Routes>
                     <Route path="/" element={<AppLayout />}>
-                        <Route index element={<RouteShell><HomePage /></RouteShell>} />
-                        <Route path="history" element={<RouteShell><HistoryPage /></RouteShell>} />
-                        <Route path="basic" element={<RouteShell><BasicCalculatorPage /></RouteShell>} />
-                        <Route path="smart/solver" element={<RouteShell><SmartSolverPage /></RouteShell>} />
+                        <Route index element={renderRoute("/", <HomePage />)} />
+                        <Route path="history" element={renderRoute("/history", <HistoryPage />)} />
+                        <Route path="basic" element={renderRoute("/basic", <BasicCalculatorPage />)} />
+                        <Route path="smart/solver" element={renderRoute("/smart/solver", <SmartSolverPage />)} />
 
-                        <Route path="finance/simple-interest" element={<RouteShell><SimpleInterestPage /></RouteShell>} />
-                        <Route path="finance/compound-interest" element={<RouteShell><CompoundInterestPage /></RouteShell>} />
-                        <Route path="finance/future-value" element={<RouteShell><FutureValuePage /></RouteShell>} />
-                        <Route path="finance/present-value" element={<RouteShell><PresentValuePage /></RouteShell>} />
-                        <Route path="finance/future-value-annuity" element={<RouteShell><FutureValueAnnuityPage /></RouteShell>} />
-                        <Route path="finance/present-value-annuity" element={<RouteShell><PresentValueAnnuityPage /></RouteShell>} />
-                        <Route path="finance/effective-interest-rate" element={<RouteShell><EffectiveInterestRatePage /></RouteShell>} />
-                        <Route path="finance/sinking-fund-deposit" element={<RouteShell><SinkingFundDepositPage /></RouteShell>} />
-                        <Route path="finance/loan-amortization" element={<RouteShell><LoanAmortizationPage /></RouteShell>} />
-                        <Route path="finance/npv" element={<RouteShell><NetPresentValuePage /></RouteShell>} />
-                        <Route path="finance/profitability-index" element={<RouteShell><ProfitabilityIndexPage /></RouteShell>} />
-                        <Route path="finance/payback-period" element={<RouteShell><PaybackPeriodPage /></RouteShell>} />
+                        <Route path="finance/simple-interest" element={renderRoute("/finance/simple-interest", <SimpleInterestPage />)} />
+                        <Route path="finance/compound-interest" element={renderRoute("/finance/compound-interest", <CompoundInterestPage />)} />
+                        <Route path="finance/future-value" element={renderRoute("/finance/future-value", <FutureValuePage />)} />
+                        <Route path="finance/present-value" element={renderRoute("/finance/present-value", <PresentValuePage />)} />
+                        <Route path="finance/future-value-annuity" element={renderRoute("/finance/future-value-annuity", <FutureValueAnnuityPage />)} />
+                        <Route path="finance/present-value-annuity" element={renderRoute("/finance/present-value-annuity", <PresentValueAnnuityPage />)} />
+                        <Route path="finance/effective-interest-rate" element={renderRoute("/finance/effective-interest-rate", <EffectiveInterestRatePage />)} />
+                        <Route path="finance/sinking-fund-deposit" element={renderRoute("/finance/sinking-fund-deposit", <SinkingFundDepositPage />)} />
+                        <Route path="finance/loan-amortization" element={renderRoute("/finance/loan-amortization", <LoanAmortizationPage />)} />
+                        <Route path="finance/npv" element={renderRoute("/finance/npv", <NetPresentValuePage />)} />
+                        <Route path="finance/profitability-index" element={renderRoute("/finance/profitability-index", <ProfitabilityIndexPage />)} />
+                        <Route path="finance/payback-period" element={renderRoute("/finance/payback-period", <PaybackPeriodPage />)} />
 
-                        <Route path="business/profit-loss" element={<RouteShell><ProfitLossPage /></RouteShell>} />
-                        <Route path="business/break-even" element={<RouteShell><BreakEvenPage /></RouteShell>} />
-                        <Route path="business/contribution-margin" element={<RouteShell><ContributionMarginPage /></RouteShell>} />
-                        <Route path="business/markup-margin" element={<RouteShell><MarkupMarginPage /></RouteShell>} />
-                        <Route path="business/target-profit" element={<RouteShell><TargetProfitPage /></RouteShell>} />
-                        <Route path="business/margin-of-safety" element={<RouteShell><MarginOfSafetyPage /></RouteShell>} />
-                        <Route path="business/net-profit-margin" element={<RouteShell><NetProfitMarginPage /></RouteShell>} />
-                        <Route path="business/operating-leverage" element={<RouteShell><OperatingLeveragePage /></RouteShell>} />
-                        <Route path="business-math/weighted-mean" element={<RouteShell><WeightedMeanPage /></RouteShell>} />
+                        <Route path="business/profit-loss" element={renderRoute("/business/profit-loss", <ProfitLossPage />)} />
+                        <Route path="business/break-even" element={renderRoute("/business/break-even", <BreakEvenPage />)} />
+                        <Route path="business/contribution-margin" element={renderRoute("/business/contribution-margin", <ContributionMarginPage />)} />
+                        <Route path="business/markup-margin" element={renderRoute("/business/markup-margin", <MarkupMarginPage />)} />
+                        <Route path="business/target-profit" element={renderRoute("/business/target-profit", <TargetProfitPage />)} />
+                        <Route path="business/margin-of-safety" element={renderRoute("/business/margin-of-safety", <MarginOfSafetyPage />)} />
+                        <Route path="business/net-profit-margin" element={renderRoute("/business/net-profit-margin", <NetProfitMarginPage />)} />
+                        <Route path="business/operating-leverage" element={renderRoute("/business/operating-leverage", <OperatingLeveragePage />)} />
+                        <Route path="business/sales-mix-break-even" element={renderRoute("/business/sales-mix-break-even", <SalesMixBreakEvenPage />)} />
+                        <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
-                        <Route path="accounting/accounting-equation" element={<RouteShell><AccountingEquationPage /></RouteShell>} />
-                        <Route path="accounting/account-classification" element={<RouteShell><AccountClassificationPage /></RouteShell>} />
-                        <Route path="accounting/notes-interest" element={<RouteShell><NoteInterestPage /></RouteShell>} />
-                        <Route path="accounting/straight-line-depreciation" element={<RouteShell><StraightLineDepreciationPage /></RouteShell>} />
-                        <Route path="accounting/declining-balance-depreciation" element={<RouteShell><DecliningBalanceDepreciationPage /></RouteShell>} />
-                        <Route path="accounting/units-of-production-depreciation" element={<RouteShell><UnitsOfProductionDepreciationPage /></RouteShell>} />
-                        <Route path="accounting/depreciation-schedule-comparison" element={<RouteShell><DepreciationScheduleComparisonPage /></RouteShell>} />
-                        <Route path="accounting/cash-discount" element={<RouteShell><CashDiscountPage /></RouteShell>} />
-                        <Route path="accounting/debit-credit-trainer" element={<RouteShell><DebitCreditTrainerPage /></RouteShell>} />
-                        <Route path="accounting/fifo-inventory" element={<RouteShell><FIFOInventoryPage /></RouteShell>} />
-                        <Route path="accounting/weighted-average-inventory" element={<RouteShell><WeightedAverageInventoryPage /></RouteShell>} />
-                        <Route path="accounting/inventory-method-comparison" element={<RouteShell><InventoryMethodComparisonPage /></RouteShell>} />
-                        <Route path="accounting/gross-profit-method" element={<RouteShell><GrossProfitMethodPage /></RouteShell>} />
-                        <Route path="accounting/gross-profit-rate" element={<RouteShell><GrossProfitRatePage /></RouteShell>} />
-                        <Route path="accounting/bank-reconciliation" element={<RouteShell><BankReconciliationPage /></RouteShell>} />
-                        <Route path="accounting/allowance-doubtful-accounts" element={<RouteShell><AllowanceForDoubtfulAccountsPage /></RouteShell>} />
-                        <Route path="accounting/partnership-profit-sharing" element={<RouteShell><PartnershipProfitSharingPage /></RouteShell>} />
-                        <Route path="accounting/partnership-salary-interest" element={<RouteShell><PartnershipSalaryInterestPage /></RouteShell>} />
-                        <Route path="accounting/partnership-admission-bonus" element={<RouteShell><PartnershipAdmissionBonusPage /></RouteShell>} />
-                        <Route path="accounting/partnership-admission-goodwill" element={<RouteShell><PartnershipAdmissionGoodwillPage /></RouteShell>} />
-                        <Route path="accounting/partnership-retirement-bonus" element={<RouteShell><PartnershipRetirementBonusPage /></RouteShell>} />
-                        <Route path="accounting/partners-capital-statement" element={<RouteShell><PartnersCapitalStatementPage /></RouteShell>} />
-                        <Route path="accounting/philippine-vat" element={<RouteShell><PhilippineVATPage /></RouteShell>} />
-                        <Route path="accounting/cost-of-goods-manufactured" element={<RouteShell><CostOfGoodsManufacturedPage /></RouteShell>} />
-                        <Route path="accounting/prime-conversion-cost" element={<RouteShell><PrimeConversionCostPage /></RouteShell>} />
-                        <Route path="accounting/materials-price-variance" element={<RouteShell><MaterialsPriceVariancePage /></RouteShell>} />
-                        <Route path="accounting/labor-rate-variance" element={<RouteShell><LaborRateVariancePage /></RouteShell>} />
-                        <Route path="accounting/current-ratio" element={<RouteShell><CurrentRatioPage /></RouteShell>} />
-                        <Route path="accounting/quick-ratio" element={<RouteShell><QuickRatioPage /></RouteShell>} />
-                        <Route path="accounting/cash-ratio" element={<RouteShell><CashRatioPage /></RouteShell>} />
-                        <Route path="accounting/cash-conversion-cycle" element={<RouteShell><CashConversionCyclePage /></RouteShell>} />
-                        <Route path="accounting/receivables-turnover" element={<RouteShell><ReceivablesTurnoverPage /></RouteShell>} />
-                        <Route path="accounting/inventory-turnover" element={<RouteShell><InventoryTurnoverPage /></RouteShell>} />
-                        <Route path="accounting/accounts-payable-turnover" element={<RouteShell><AccountsPayableTurnoverPage /></RouteShell>} />
-                        <Route path="accounting/debt-to-equity" element={<RouteShell><DebtToEquityPage /></RouteShell>} />
-                        <Route path="accounting/return-on-assets" element={<RouteShell><ReturnOnAssetsPage /></RouteShell>} />
-                        <Route path="accounting/times-interest-earned" element={<RouteShell><TimesInterestEarnedPage /></RouteShell>} />
-                        <Route path="accounting/debt-ratio" element={<RouteShell><DebtRatioPage /></RouteShell>} />
-                        <Route path="accounting/earnings-per-share" element={<RouteShell><EarningsPerSharePage /></RouteShell>} />
-                        <Route path="accounting/book-value-per-share" element={<RouteShell><BookValuePerSharePage /></RouteShell>} />
-                        <Route path="accounting/equity-multiplier" element={<RouteShell><EquityMultiplierPage /></RouteShell>} />
-                        <Route path="accounting/horizontal-analysis" element={<RouteShell><HorizontalAnalysisPage /></RouteShell>} />
-                        <Route path="accounting/vertical-analysis" element={<RouteShell><VerticalAnalysisPage /></RouteShell>} />
-                        <Route path="accounting/asset-turnover" element={<RouteShell><AssetTurnoverPage /></RouteShell>} />
-                        <Route path="accounting/return-on-equity" element={<RouteShell><ReturnOnEquityPage /></RouteShell>} />
-                        <Route path="accounting/trade-discount" element={<RouteShell><TradeDiscountPage /></RouteShell>} />
-                        <Route path="accounting/trial-balance-checker" element={<RouteShell><TrialBalanceCheckerPage /></RouteShell>} />
+                        <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
+                        <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />
+                        <Route path="accounting/notes-interest" element={renderRoute("/accounting/notes-interest", <NoteInterestPage />)} />
+                        <Route path="accounting/straight-line-depreciation" element={renderRoute("/accounting/straight-line-depreciation", <StraightLineDepreciationPage />)} />
+                        <Route path="accounting/declining-balance-depreciation" element={renderRoute("/accounting/declining-balance-depreciation", <DecliningBalanceDepreciationPage />)} />
+                        <Route path="accounting/units-of-production-depreciation" element={renderRoute("/accounting/units-of-production-depreciation", <UnitsOfProductionDepreciationPage />)} />
+                        <Route path="accounting/depreciation-schedule-comparison" element={renderRoute("/accounting/depreciation-schedule-comparison", <DepreciationScheduleComparisonPage />)} />
+                        <Route path="accounting/cash-discount" element={renderRoute("/accounting/cash-discount", <CashDiscountPage />)} />
+                        <Route path="accounting/debit-credit-trainer" element={renderRoute("/accounting/debit-credit-trainer", <DebitCreditTrainerPage />)} />
+                        <Route path="accounting/fifo-inventory" element={renderRoute("/accounting/fifo-inventory", <FIFOInventoryPage />)} />
+                        <Route path="accounting/weighted-average-inventory" element={renderRoute("/accounting/weighted-average-inventory", <WeightedAverageInventoryPage />)} />
+                        <Route path="accounting/inventory-method-comparison" element={renderRoute("/accounting/inventory-method-comparison", <InventoryMethodComparisonPage />)} />
+                        <Route path="accounting/gross-profit-method" element={renderRoute("/accounting/gross-profit-method", <GrossProfitMethodPage />)} />
+                        <Route path="accounting/gross-profit-rate" element={renderRoute("/accounting/gross-profit-rate", <GrossProfitRatePage />)} />
+                        <Route path="accounting/bank-reconciliation" element={renderRoute("/accounting/bank-reconciliation", <BankReconciliationPage />)} />
+                        <Route path="accounting/allowance-doubtful-accounts" element={renderRoute("/accounting/allowance-doubtful-accounts", <AllowanceForDoubtfulAccountsPage />)} />
+                        <Route path="accounting/partnership-profit-sharing" element={renderRoute("/accounting/partnership-profit-sharing", <PartnershipProfitSharingPage />)} />
+                        <Route path="accounting/partnership-salary-interest" element={renderRoute("/accounting/partnership-salary-interest", <PartnershipSalaryInterestPage />)} />
+                        <Route path="accounting/partnership-admission-bonus" element={renderRoute("/accounting/partnership-admission-bonus", <PartnershipAdmissionBonusPage />)} />
+                        <Route path="accounting/partnership-admission-goodwill" element={renderRoute("/accounting/partnership-admission-goodwill", <PartnershipAdmissionGoodwillPage />)} />
+                        <Route path="accounting/partnership-retirement-bonus" element={renderRoute("/accounting/partnership-retirement-bonus", <PartnershipRetirementBonusPage />)} />
+                        <Route path="accounting/partners-capital-statement" element={renderRoute("/accounting/partners-capital-statement", <PartnersCapitalStatementPage />)} />
+                        <Route path="accounting/philippine-vat" element={renderRoute("/accounting/philippine-vat", <PhilippineVATPage />)} />
+                        <Route path="accounting/cost-of-goods-manufactured" element={renderRoute("/accounting/cost-of-goods-manufactured", <CostOfGoodsManufacturedPage />)} />
+                        <Route path="accounting/prime-conversion-cost" element={renderRoute("/accounting/prime-conversion-cost", <PrimeConversionCostPage />)} />
+                        <Route path="accounting/materials-price-variance" element={renderRoute("/accounting/materials-price-variance", <MaterialsPriceVariancePage />)} />
+                        <Route path="accounting/labor-rate-variance" element={renderRoute("/accounting/labor-rate-variance", <LaborRateVariancePage />)} />
+                        <Route path="accounting/current-ratio" element={renderRoute("/accounting/current-ratio", <CurrentRatioPage />)} />
+                        <Route path="accounting/quick-ratio" element={renderRoute("/accounting/quick-ratio", <QuickRatioPage />)} />
+                        <Route path="accounting/cash-ratio" element={renderRoute("/accounting/cash-ratio", <CashRatioPage />)} />
+                        <Route path="accounting/cash-conversion-cycle" element={renderRoute("/accounting/cash-conversion-cycle", <CashConversionCyclePage />)} />
+                        <Route path="accounting/receivables-turnover" element={renderRoute("/accounting/receivables-turnover", <ReceivablesTurnoverPage />)} />
+                        <Route path="accounting/inventory-turnover" element={renderRoute("/accounting/inventory-turnover", <InventoryTurnoverPage />)} />
+                        <Route path="accounting/accounts-payable-turnover" element={renderRoute("/accounting/accounts-payable-turnover", <AccountsPayableTurnoverPage />)} />
+                        <Route path="accounting/receivables-aging-schedule" element={renderRoute("/accounting/receivables-aging-schedule", <ReceivablesAgingSchedulePage />)} />
+                        <Route path="accounting/debt-to-equity" element={renderRoute("/accounting/debt-to-equity", <DebtToEquityPage />)} />
+                        <Route path="accounting/return-on-assets" element={renderRoute("/accounting/return-on-assets", <ReturnOnAssetsPage />)} />
+                        <Route path="accounting/times-interest-earned" element={renderRoute("/accounting/times-interest-earned", <TimesInterestEarnedPage />)} />
+                        <Route path="accounting/debt-ratio" element={renderRoute("/accounting/debt-ratio", <DebtRatioPage />)} />
+                        <Route path="accounting/earnings-per-share" element={renderRoute("/accounting/earnings-per-share", <EarningsPerSharePage />)} />
+                        <Route path="accounting/book-value-per-share" element={renderRoute("/accounting/book-value-per-share", <BookValuePerSharePage />)} />
+                        <Route path="accounting/equity-multiplier" element={renderRoute("/accounting/equity-multiplier", <EquityMultiplierPage />)} />
+                        <Route path="accounting/horizontal-analysis" element={renderRoute("/accounting/horizontal-analysis", <HorizontalAnalysisPage />)} />
+                        <Route path="accounting/vertical-analysis" element={renderRoute("/accounting/vertical-analysis", <VerticalAnalysisPage />)} />
+                        <Route path="accounting/asset-turnover" element={renderRoute("/accounting/asset-turnover", <AssetTurnoverPage />)} />
+                        <Route path="accounting/return-on-equity" element={renderRoute("/accounting/return-on-equity", <ReturnOnEquityPage />)} />
+                        <Route path="accounting/trade-discount" element={renderRoute("/accounting/trade-discount", <TradeDiscountPage />)} />
+                        <Route path="accounting/trial-balance-checker" element={renderRoute("/accounting/trial-balance-checker", <TrialBalanceCheckerPage />)} />
 
-                        <Route path="statistics/standard-deviation" element={<RouteShell><StandardDeviationPage /></RouteShell>} />
+                        <Route path="statistics/standard-deviation" element={renderRoute("/statistics/standard-deviation", <StandardDeviationPage />)} />
 
-                        <Route path="settings" element={<RouteShell><SettingsPage /></RouteShell>} />
-                        <Route path="settings/about" element={<RouteShell><AboutPage /></RouteShell>} />
-                        <Route path="settings/install" element={<RouteShell><InstallGuidePage /></RouteShell>} />
-                        <Route path="settings/feedback" element={<RouteShell><FeedbackPage /></RouteShell>} />
+                        <Route path="settings" element={renderRoute("/settings", <SettingsPage />)} />
+                        <Route path="settings/about" element={renderRoute("/settings/about", <AboutPage />)} />
+                        <Route path="settings/install" element={renderRoute("/settings/install", <InstallGuidePage />)} />
+                        <Route path="settings/feedback" element={renderRoute("/settings/feedback", <FeedbackPage />)} />
                     </Route>
                 </Routes>
             </HashRouter>

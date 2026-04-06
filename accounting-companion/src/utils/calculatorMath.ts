@@ -135,6 +135,29 @@ type CashConversionCycleParams = {
     payablesDays: number;
 };
 
+type ReceivablesAgingBucketInput = {
+    label: string;
+    amount: number;
+    estimatedUncollectibleRatePercent: number;
+};
+
+type ReceivablesAgingParams = {
+    buckets: ReceivablesAgingBucketInput[];
+    existingAllowanceBalance?: number;
+};
+
+type SalesMixProductInput = {
+    label: string;
+    sellingPrice: number;
+    variableCost: number;
+    mixShare: number;
+};
+
+type SalesMixBreakEvenParams = {
+    fixedCosts: number;
+    products: SalesMixProductInput[];
+};
+
 export function computeSimpleInterest({
     principal,
     annualRatePercent,
@@ -938,6 +961,91 @@ export function computeCashConversionCycle({
                     ? "moderate"
                     : cashConversionCycle <= 60
                         ? "elevated"
-                        : "high",
+                    : "high",
         };
     }
+
+export function computeReceivablesAgingSchedule({
+    buckets,
+    existingAllowanceBalance = 0,
+}: ReceivablesAgingParams) {
+    const rows = buckets.map((bucket) => {
+        const estimatedLoss =
+            bucket.amount * (bucket.estimatedUncollectibleRatePercent / 100);
+
+        return {
+            ...bucket,
+            estimatedLoss,
+        };
+    });
+
+    const totalReceivables = rows.reduce((sum, row) => sum + row.amount, 0);
+    const requiredEndingAllowance = rows.reduce(
+        (sum, row) => sum + row.estimatedLoss,
+        0
+    );
+    const netRealizableValue = totalReceivables - requiredEndingAllowance;
+    const requiredAdjustment = requiredEndingAllowance - existingAllowanceBalance;
+
+    return {
+        rows,
+        totalReceivables,
+        requiredEndingAllowance,
+        existingAllowanceBalance,
+        netRealizableValue,
+        requiredAdjustment,
+        adjustmentDirection:
+            requiredAdjustment > 0
+                ? "increase"
+                : requiredAdjustment < 0
+                  ? "decrease"
+                  : "none",
+    };
+}
+
+export function computeSalesMixBreakEven({
+    fixedCosts,
+    products,
+}: SalesMixBreakEvenParams) {
+    const totalMixShare = products.reduce((sum, product) => sum + product.mixShare, 0);
+    const rows = products.map((product) => {
+        const contributionMarginPerUnit = product.sellingPrice - product.variableCost;
+        return {
+            ...product,
+            contributionMarginPerUnit,
+            contributionMarginRatio:
+                product.sellingPrice === 0
+                    ? 0
+                    : contributionMarginPerUnit / product.sellingPrice,
+        };
+    });
+
+    const compositeUnitSales = rows.reduce(
+        (sum, row) => sum + row.sellingPrice * row.mixShare,
+        0
+    );
+    const compositeUnitContribution = rows.reduce(
+        (sum, row) => sum + row.contributionMarginPerUnit * row.mixShare,
+        0
+    );
+    const weightedAverageContributionMarginRatio =
+        compositeUnitSales === 0 ? 0 : compositeUnitContribution / compositeUnitSales;
+    const breakEvenCompositeUnits = fixedCosts / compositeUnitContribution;
+    const breakEvenSales = fixedCosts / weightedAverageContributionMarginRatio;
+
+    return {
+        rows,
+        totalMixShare,
+        compositeUnitSales,
+        compositeUnitContribution,
+        weightedAverageContributionMarginRatio,
+        breakEvenCompositeUnits,
+        breakEvenSales,
+        breakEvenUnitsByProduct: rows.map((row) => ({
+            label: row.label,
+            mixShare: row.mixShare,
+            breakEvenUnits: breakEvenCompositeUnits * row.mixShare,
+            breakEvenSales: breakEvenCompositeUnits * row.mixShare * row.sellingPrice,
+        })),
+    };
+}

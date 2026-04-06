@@ -129,7 +129,7 @@ export default function InstallPrompt({ blocked = false }: { blocked?: boolean }
 
                 <ShareAppButton
                     label="Share app"
-                    shareText="Try AccCalc for accounting, finance, and business calculations with an installable, offline-friendly app shell."
+                    shareText="Try AccCalc for accounting, finance, and business calculations with guided installation and offline-safe local routes after caching."
                 />
 
                 {!install.canNativePrompt ? (

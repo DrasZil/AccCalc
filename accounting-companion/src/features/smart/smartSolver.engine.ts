@@ -1479,6 +1479,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
     },
 
     {
+        id: "sales-mix-break-even",
+        name: "Sales Mix Break-even",
+        route: "/business/sales-mix-break-even",
+        description:
+        "Best when the user is working on multi-product CVP, composite units, or sales-mix break-even planning.",
+        required: [],
+        aliases: [
+        "sales mix break even",
+        "multi product break even",
+        "composite unit break even",
+        "weighted contribution margin",
+        ],
+        keywords: [
+        /sales mix/i,
+        /multi[- ]product/i,
+        /composite unit/i,
+        /weighted contribution/i,
+        /mix break[- ]even/i,
+        ],
+    },
+
+    {
         id: "markup-margin",
         name: "Markup & Margin Calculator",
         route: "/business/markup-margin",
@@ -1752,6 +1774,29 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /uncollectible accounts?/i,
             /accounts receivable/i,
             /net realizable value/i,
+        ],
+    },
+    {
+        id: "receivables-aging-schedule",
+        name: "Receivables Aging Schedule",
+        route: "/accounting/receivables-aging-schedule",
+        description:
+            "Best when the user mentions aging buckets, age analysis, or an allowance based on receivables aging rather than one flat percentage.",
+        required: [],
+        aliases: [
+            "aging of receivables",
+            "ageing schedule",
+            "aging schedule",
+            "receivables aging",
+            "aged accounts receivable",
+        ],
+        keywords: [
+            /aging schedule/i,
+            /ageing schedule/i,
+            /aging of receivables/i,
+            /aged receivables?/i,
+            /age analysis/i,
+            /past due bucket/i,
         ],
     },
     {

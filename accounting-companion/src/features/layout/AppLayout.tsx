@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type MouseEvent as ReactMouseEvent,
+    type ReactNode,
+} from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import AppUpdatePrompt from "../../components/AppUpdatePrompt";
 import AppBrandMark from "../../components/AppBrandMark";
@@ -21,6 +28,7 @@ import {
 import {
     APP_NAV_GROUPS,
     NEW_FEATURE_PATHS,
+    getRouteAvailability,
     getRouteMeta,
     type AppNavGroupTitle,
 } from "../../utils/appCatalog";
@@ -29,6 +37,7 @@ import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
 import { useInstallExperience } from "../../utils/installExperience";
 import { useNetworkStatus } from "../../utils/networkStatus";
+import { clearDeploymentMismatch, useOfflineBundleStatus } from "../../utils/offlineStatus";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import {
     FeedbackReminder,
@@ -162,6 +171,9 @@ type SidebarContentProps = {
     pinnedRoutes: ReturnType<typeof getPinnedRoutes>;
     recentRoutes: ReturnType<typeof getRecentRoutes>;
     mostUsedRoutes: ReturnType<typeof getMostUsedRoutes>;
+    online: boolean;
+    bundleReady: boolean;
+    onUnavailableRoute: (reason: string) => void;
 };
 
 function SidebarContent({
@@ -174,7 +186,42 @@ function SidebarContent({
     pinnedRoutes,
     recentRoutes,
     mostUsedRoutes,
+    online,
+    bundleReady,
+    onUnavailableRoute,
 }: SidebarContentProps) {
+    function resolveRouteAvailability(route: { path: string }) {
+        const routeMeta = getRouteMeta(route.path);
+        if (!routeMeta) {
+            return {
+                canOpen: true,
+                label: "Available",
+                reason: "This route is available.",
+            };
+        }
+
+        return getRouteAvailability(routeMeta, {
+            online,
+            bundleReady,
+            currentPath: locationPathname,
+        });
+    }
+
+    function handleRouteIntent(
+        event: ReactMouseEvent<HTMLAnchorElement>,
+        route: { path: string }
+    ) {
+        const availability = resolveRouteAvailability(route);
+
+        if (!availability.canOpen) {
+            event.preventDefault();
+            onUnavailableRoute(availability.reason);
+            return;
+        }
+
+        closeMobileSidebar();
+    }
+
     return (
         <div
             className="flex h-full flex-col"
@@ -219,24 +266,32 @@ function SidebarContent({
                         <p className="app-section-kicker px-2 text-[0.68rem]">Pinned tools</p>
                         <div className="space-y-1.5">
                             {pinnedRoutes.map((route) => (
+                                (() => {
+                                    const availability = resolveRouteAvailability(route);
+
+                                    return (
                                 <Link
                                     key={route.path}
                                     to={route.path}
-                                    onClick={closeMobileSidebar}
+                                    onClick={(event) => handleRouteIntent(event, route)}
                                     className={[
                                         "app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-3 text-sm font-medium leading-5 transition duration-300",
                                         isPathActive(locationPathname, route.path)
                                             ? "app-sidebar-link-active"
                                             : "",
+                                        !availability.canOpen ? "opacity-75" : "",
                                     ].join(" ")}
+                                    title={availability.reason}
                                 >
                                     <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
                                         {route.label}
                                     </span>
                                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        Pin
+                                        {availability.canOpen ? "Pin" : availability.label}
                                     </span>
                                 </Link>
+                                    );
+                                })()
                             ))}
                         </div>
                     </div>
@@ -247,17 +302,26 @@ function SidebarContent({
                         <p className="app-section-kicker px-2 text-[0.68rem]">Most used</p>
                         <div className="grid gap-2">
                             {mostUsedRoutes.map((route) => (
+                                (() => {
+                                    const availability = resolveRouteAvailability(route);
+
+                                    return (
                                 <Link
                                     key={route.path}
                                     to={route.path}
-                                    onClick={closeMobileSidebar}
+                                    onClick={(event) => handleRouteIntent(event, route)}
                                     className="app-list-link rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium"
+                                    title={availability.reason}
                                 >
                                     <span className="block truncate text-[color:var(--app-text)]">
                                         {route.label}
                                     </span>
-                                    <span className="app-helper text-xs">{route.category}</span>
+                                    <span className="app-helper text-xs">
+                                        {route.category} · {availability.label}
+                                    </span>
                                 </Link>
+                                    );
+                                })()
                             ))}
                         </div>
                     </div>
@@ -268,17 +332,26 @@ function SidebarContent({
                         <p className="app-section-kicker px-2 text-[0.68rem]">Continue</p>
                         <div className="grid gap-2">
                             {recentRoutes.map((route) => (
+                                (() => {
+                                    const availability = resolveRouteAvailability(route);
+
+                                    return (
                                 <Link
                                     key={route.path}
                                     to={route.path}
-                                    onClick={closeMobileSidebar}
+                                    onClick={(event) => handleRouteIntent(event, route)}
                                     className="app-list-link rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium"
+                                    title={availability.reason}
                                 >
                                     <span className="block truncate text-[color:var(--app-text)]">
                                         {route.label}
                                     </span>
-                                    <span className="app-helper text-xs">{route.category}</span>
+                                    <span className="app-helper text-xs">
+                                        {route.category} · {availability.label}
+                                    </span>
                                 </Link>
+                                    );
+                                })()
                             ))}
                         </div>
                     </div>
@@ -362,17 +435,28 @@ function SidebarContent({
                                                         NEW_FEATURE_PATHS.has(item.path) &&
                                                         !seenNewPaths.includes(item.path);
 
-                                                    return (
+                                                return (
+                                                    (() => {
+                                                        const availability =
+                                                            resolveRouteAvailability(item);
+
+                                                        return (
                                                         <Link
                                                             key={item.path}
                                                             to={item.path}
-                                                            onClick={closeMobileSidebar}
+                                                            onClick={(event) =>
+                                                                handleRouteIntent(event, item)
+                                                            }
                                                             className={[
                                                                 "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-2.5 text-sm font-medium leading-5 transition duration-300",
                                                                 isActive
                                                                     ? "app-sidebar-link-active"
                                                                     : "",
+                                                                !availability.canOpen
+                                                                    ? "opacity-75"
+                                                                    : "",
                                                             ].join(" ")}
+                                                            title={availability.reason}
                                                         >
                                                             <span className="app-sidebar-link-title min-w-0 truncate text-[0.9rem]">
                                                                 {item.label}
@@ -390,13 +474,15 @@ function SidebarContent({
                                                                 >
                                                                     {isActive
                                                                         ? "Open"
-                                                                        : item.shortLabel ?? "Tool"}
+                                                                        : availability.label}
                                                                 </span>
                                                             )}
                                                         </Link>
-                                                    );
-                                                })}
-                                            </div>
+                                                        );
+                                                    })()
+                                                );
+                                            })}
+                                        </div>
                                         </div>
                                     </div>
                                 </div>
@@ -462,6 +548,7 @@ export default function AppLayout() {
     const activity = useAppActivity();
     const install = useInstallExperience();
     const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const update = useAppUpdateState();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
@@ -799,13 +886,15 @@ export default function AppLayout() {
 
             pushNotice(
                 "Offline mode",
-                "Calculators, Smart Solver routing, settings, and saved history still work. Feedback and external web content are unavailable offline.",
+                offlineBundle.ready
+                    ? "Offline-safe routes from this cached release can still open. Feedback submission, external web content, and update checks stay limited until you reconnect."
+                    : "This device went offline before the current release finished caching. Reconnect once so AccCalc can download the route files needed for trustworthy offline use.",
                 "warning"
             );
         }, 0);
 
         return () => window.clearTimeout(timer);
-    }, [network.online]);
+    }, [network.online, offlineBundle.ready]);
 
     useEffect(() => {
         if (previousStandaloneRef.current === install.isStandalone) return;
@@ -823,6 +912,21 @@ export default function AppLayout() {
 
         return () => window.clearTimeout(timer);
     }, [install.isStandalone]);
+
+    useEffect(() => {
+        if (!offlineBundle.deploymentMismatch) return;
+
+        const timer = window.setTimeout(() => {
+            pushNotice(
+                "Refresh recommended",
+                "This tab hit a stale route-file mismatch after a deploy. Refresh to reconnect the current shell with the latest chunk set.",
+                "warning"
+            );
+            clearDeploymentMismatch();
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, [offlineBundle.deploymentMismatch]);
 
     useEffect(() => {
         if (!sidebarResizeActive) return;
@@ -970,6 +1074,13 @@ export default function AppLayout() {
             ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] text-[color:var(--app-accent)]"
             : "",
     ].join(" ");
+    const currentRouteAvailability = currentMeta
+        ? getRouteAvailability(currentMeta, {
+              online: network.online,
+              bundleReady: offlineBundle.ready,
+              currentPath: location.pathname,
+          })
+        : null;
     const themeButtonLabel =
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
     const promptDockHidden = mobileSearchOpen || mobileSidebarOpen;
@@ -1005,6 +1116,11 @@ export default function AppLayout() {
                             pinnedRoutes={pinnedRoutes}
                             recentRoutes={recentRoutes}
                             mostUsedRoutes={mostUsedRoutes}
+                            online={network.online}
+                            bundleReady={offlineBundle.ready}
+                            onUnavailableRoute={(reason) =>
+                                pushNotice("Unavailable offline", reason, "warning")
+                            }
                         />
                     </aside>
                 ) : null}
@@ -1040,6 +1156,11 @@ export default function AppLayout() {
                         pinnedRoutes={pinnedRoutes}
                         recentRoutes={recentRoutes}
                         mostUsedRoutes={mostUsedRoutes}
+                        online={network.online}
+                        bundleReady={offlineBundle.ready}
+                        onUnavailableRoute={(reason) =>
+                            pushNotice("Unavailable offline", reason, "warning")
+                        }
                     />
                 </aside>
 
@@ -1216,7 +1337,10 @@ export default function AppLayout() {
                     {!network.online ? (
                         <div className="border-b app-divider px-4 py-2.5 md:px-5">
                             <div className="app-tone-warning rounded-[1.2rem] px-4 py-3 text-sm leading-6">
-                                Offline mode is active. Previously cached calculators, local Smart Solver routing, drafts, history, and settings still work. Feedback, embedded forms, external links, and never-visited route chunks still need internet access.
+                                {offlineBundle.ready
+                                    ? currentRouteAvailability?.reason ??
+                                      "Offline mode is active. This cached release can still open offline-safe routes, while feedback submission, external destinations, and update checks remain limited."
+                                    : "Offline mode is active before this release finished caching. Reconnect once so AccCalc can download the current route bundle for trustworthy offline use."}
                             </div>
                         </div>
                     ) : null}

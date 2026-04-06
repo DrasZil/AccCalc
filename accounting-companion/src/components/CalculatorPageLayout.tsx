@@ -1,8 +1,15 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
+import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageHeader from "./PageHeader";
 import ToolPinButton from "./ToolPinButton";
-import { APP_ROUTE_META, getRouteMeta } from "../utils/appCatalog";
+import {
+    APP_ROUTE_META,
+    getRouteAvailability,
+    getRouteMeta,
+} from "../utils/appCatalog";
+import { useNetworkStatus } from "../utils/networkStatus";
+import { useOfflineBundleStatus } from "../utils/offlineStatus";
 
 type CalculatorPageLayoutProps = {
     badge?: string;
@@ -49,9 +56,22 @@ export default function CalculatorPageLayout({
     headerMeta,
 }: CalculatorPageLayoutProps) {
     const location = useLocation();
+    const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const currentMeta = getRouteMeta(location.pathname);
     const [activeSection, setActiveSection] = useState<SectionKey>(
         prioritizeResultSection ? "results" : "inputs"
+    );
+    const routeAvailability = useMemo(
+        () =>
+            currentMeta
+                ? getRouteAvailability(currentMeta, {
+                      online: network.online,
+                      bundleReady: offlineBundle.ready,
+                      currentPath: location.pathname,
+                  })
+                : null,
+        [currentMeta, location.pathname, network.online, offlineBundle.ready]
     );
     const relatedRoutes = useMemo(() => {
         if (!currentMeta) return [];
@@ -133,8 +153,31 @@ export default function CalculatorPageLayout({
                 title={title}
                 description={description}
                 actions={combinedHeaderActions}
-                meta={headerMeta}
+                meta={
+                    <>
+                        {currentMeta ? (
+                            <OfflineCapabilityBadge level={currentMeta.offlineSupport} />
+                        ) : null}
+                        {routeAvailability ? (
+                            <span className="app-chip inline-flex items-center rounded-full px-3 py-1 text-xs">
+                                {routeAvailability.label}
+                            </span>
+                        ) : null}
+                        {headerMeta}
+                    </>
+                }
             />
+
+            {routeAvailability ? (
+                <div
+                    className={[
+                        "rounded-[1.35rem] px-4 py-3.5 text-sm leading-6",
+                        routeAvailability.canOpen ? "app-subtle-surface" : "app-tone-warning",
+                    ].join(" ")}
+                >
+                    {routeAvailability.reason}
+                </div>
+            ) : null}
 
             {sections.length > 1 ? (
                 <div className="sticky z-20 -mt-2 top-[calc(var(--app-header-height)+0.5rem)] xl:static xl:mt-0">

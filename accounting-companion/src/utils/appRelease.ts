@@ -1,57 +1,39 @@
-export const APP_VERSION = "2.3.0";
+export const APP_VERSION = "2.4.0";
 export const APP_RELEASE_DATE = "2026-04-06";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Compact calculator workspace",
-        body: "Calculator pages now use mobile-friendly section switching, tighter cards, and clearer action grouping to reduce unnecessary scrolling.",
+        title: "Truthful offline route caching",
+        body: "AccCalc now precaches the deployed route chunks for offline-safe local tools instead of relying only on the shell and whatever pages happened to be visited before going offline.",
     },
     {
-        title: "Smarter product home",
-        body: "The dashboard now surfaces pinned tools, recent tools, featured accounting workflows, Smart Solver examples, and release notes in one place.",
+        title: "Chunk mismatch recovery",
+        body: "Lazy route failures now surface honest recovery guidance, stale deploy mismatches raise refresh notices, and the service worker keeps one prior asset cache to reduce broken stale-tab chunk loads.",
     },
     {
-        title: "Pinned and recent tools",
-        body: "You can pin frequently used calculators and jump back into recently opened tools faster from the sidebar, home, and history views.",
+        title: "Capability-based offline labels",
+        body: "Routes, search results, headers, and dashboard cards now distinguish fully offline-safe routes from limited-offline routes instead of using one blanket offline claim.",
     },
     {
-        title: "New accounting planners",
-        body: "New comparison and working-capital helpers add inventory method comparison, depreciation schedule comparison, and cash conversion cycle analysis.",
+        title: "Adaptive Smart Solver",
+        body: "Smart Solver now shows route availability, expandable review fields, beginner and professional guidance modes, and stronger routing for aging-schedule and sales-mix workflows.",
     },
     {
-        title: "Sharper Smart Solver",
-        body: "Natural-language routing now handles broader wording, shorthand, and ambiguity cues while offering better match explanations and next-step guidance.",
-    },
-    {
-        title: "Render-loop hardening and practical schedules",
-        body: "The app now guards network-state subscriptions and Smart Solver prefill sync more safely, while key tools such as loan amortization show more practical payoff detail.",
-    },
-    {
-        title: "Partnership, equity, and install-depth upgrade",
-        body: "Partnership retirement, partner-capital rollforwards, equity multiplier analysis, and a platform-aware install and offline guide now strengthen both trust and product completeness.",
-    },
-    {
-        title: "Smarter production update lifecycle",
-        body: "Deployed builds now check for new versions intentionally, auto-apply only when safe, and prompt active users instead of forcing blind reloads.",
-    },
-    {
-        title: "Prompt-safe mobile install and share UX",
-        body: "Install and update cards now use one bottom-nav-aware dock, while sharing works from the header, dashboard, install guide, and settings with native and copy-link fallbacks.",
+        title: "Deeper accounting flexibility",
+        body: "Allowance, COGM, and trial balance workflows now support more realistic setup modes, while new receivables aging and sales-mix break-even tools widen coverage in accounting and CVP.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "Fixed a root render-loop issue caused by an unstable network-status subscription snapshot and hardened cross-route state application paths.",
-    "Redesigned the shell for narrower screens with a bottom navigation bar, mobile search sheet, and clearer header actions.",
-    "Introduced pinned tools, richer history summaries, and stronger homepage discovery for students and repeat users.",
-    "Added most-used tool surfacing, guided workflow collections, and deeper app-icon integration across the shell and install/error states.",
-    "Upgraded calculator page layout with section tabs, compact cards, clearer formula panels, and better mobile reachability.",
-    "Added inventory comparison, depreciation schedule comparison, and cash conversion cycle tools with contextual charts and interpretations, then expanded loan amortization with payoff trend and yearly schedule insight.",
-    "Expanded partnership and equity coverage with retirement bonus, statement of partners' capital, equity multiplier analysis, and stronger methodology consistency across connected tools.",
-    "Added a platform-aware install and offline guide that distinguishes Android native prompts, iOS Safari Add to Home Screen, browser-only fallbacks, and safe offline limits without fake parity.",
-    "Rebuilt the deployed update lifecycle so new versions are detected more reliably, safe auto-activation happens only when appropriate, and active users receive a contextual update prompt instead of a blind reload.",
-    "Fixed mobile prompt overlap by moving install and update cards into one safe-area-aware dock that measures the real bottom navigation height and keyboard inset.",
-    "Added a reusable app-sharing flow with native share support where available and copy-link fallback when native sharing is unavailable.",
-    "Improved validation, edge-case handling, and reusable accounting math helpers for more trustworthy outputs.",
-    "Expanded Smart Solver matching, examples, and result organization to feel more assistant-like and less rigid.",
+    "Added a build-time asset manifest and updated the service worker to precache route chunks, track cache readiness, and report deployment mismatches to the app.",
+    "Changed navigation handling to refresh the root shell safely, preserved one prior asset cache to soften stale-tab deploy mismatches, and added route-level lazy-load recovery UI.",
+    "Reworked offline messaging across the shell, homepage, install guide, and search to distinguish full offline support, limited offline support, and still-online actions.",
+    "Added offline availability checks to sidebar navigation and Smart Solver route opening so users are warned before entering an unavailable route while offline.",
+    "Expanded Allowance for Doubtful Accounts with both percentage and aging-schedule methods, including required ending allowance and adjustment guidance.",
+    "Added a dedicated Receivables Aging Schedule tool with dynamic aging buckets and net realizable value output.",
+    "Expanded Cost of Goods Manufactured with a derived-materials-used setup for problems that provide a raw-materials schedule instead of direct materials used directly.",
+    "Expanded Trial Balance Checker with a line-item entry mode so totals can be built and checked inside the tool itself.",
+    "Added a Sales Mix Break-even tool for multi-product CVP analysis using composite units and weighted contribution margin.",
+    "Upgraded Smart Solver with route-availability awareness, expandable review fields, new routing coverage, and clearer student-versus-practice guidance.",
+    "Added tests for receivables aging math, sales-mix break-even math, and route search coverage for the new tools.",
 ];
