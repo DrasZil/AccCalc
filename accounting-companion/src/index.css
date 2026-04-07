@@ -451,14 +451,17 @@ a:active {
 
 .app-formula-display {
     font-family: var(--app-font-display);
-    font-size: clamp(1rem, 0.94rem + 0.36vw, 1.16rem);
+    font-size: clamp(0.92rem, 0.88rem + 0.28vw, 1.08rem);
     font-weight: 640;
     letter-spacing: 0.005em;
-    line-height: 1.8;
-    word-spacing: 0.04em;
+    line-height: 1.65;
+    word-spacing: normal;
     color: var(--app-text);
     text-align: left;
-    text-wrap: balance;
+    text-wrap: pretty;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: "tnum" 1, "lnum" 1;
 }
@@ -536,6 +539,19 @@ a:active {
     font-size: 1em;
 }
 
+.app-guide-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.app-guide-tab-button {
+    min-width: 0;
+    flex: 1 1 7.5rem;
+    white-space: normal;
+    text-align: center;
+}
+
 .app-result-grid {
     display: grid;
     gap: var(--app-page-gap);
@@ -591,11 +607,14 @@ a:active {
     display: flex;
     justify-content: center;
     padding-block: 1.2rem;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .app-formula-panel .app-formula-display {
     max-width: 42rem;
     margin-inline: auto;
+    width: 100%;
 }
 
 .katex {
@@ -608,6 +627,7 @@ a:active {
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 0.15rem;
+    max-width: 100%;
 }
 
 .katex-display::-webkit-scrollbar {

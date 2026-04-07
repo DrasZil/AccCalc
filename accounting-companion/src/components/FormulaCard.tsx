@@ -11,6 +11,7 @@ import DisclosurePanel from "./DisclosurePanel";
 import SectionCard from "./SectionCard";
 import FormulaBlock from "./math/FormulaBlock";
 import MathInline from "./math/MathInline";
+import { formatGuideText } from "../utils/guideTextFormatting";
 import { looksLikeStandaloneMathText } from "../utils/mathNotation";
 
 type FormulaGlossaryItem = {
@@ -71,7 +72,7 @@ function prettifyText(value: string) {
 
 function polishNode(node: ReactNode, preferMath = false): ReactNode {
     if (typeof node === "string") {
-        const polished = prettifyText(node);
+        const polished = formatGuideText(prettifyText(node));
         const renderAsMath = preferMath || looksLikeStandaloneMathText(polished);
         return (
             <MathInline
@@ -294,14 +295,14 @@ export default function FormulaCard({
             {sections.length > 1 ? (
                 <div className="mt-5 lg:hidden">
                     <div className="app-panel rounded-[1.1rem] p-1.5">
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        <div className="app-guide-tabs">
                             {sections.map((section) => (
                                 <button
                                     key={section.key}
                                     type="button"
                                     onClick={() => setActiveSection(section.key)}
                                     className={[
-                                        "rounded-xl px-3 py-2 text-sm font-semibold",
+                                        "app-guide-tab-button rounded-xl px-3 py-2 text-sm font-semibold",
                                         resolvedActiveSectionKey === section.key
                                             ? "app-button-primary"
                                             : "app-button-ghost",

@@ -21,9 +21,8 @@ export default function FormulaBlock({
                 <MathText text={text} block renderMode="math" />
             </div>
             {supportingText ? (
-                <div className="app-body-md mt-3 text-sm">{supportingText}</div>
+                <div className="app-reading-content mt-3">{supportingText}</div>
             ) : null}
         </div>
     );
 }
-

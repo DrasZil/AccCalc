@@ -239,14 +239,14 @@ export default function CalculatorPageLayout({
                                 : "rounded-[1.05rem] p-1.25",
                         ].join(" ")}
                     >
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="app-guide-tabs">
                             {sections.map((section) => (
                                 <button
                                     key={section.key}
                                     type="button"
                                     onClick={() => setActiveSection(section.key)}
                                     className={[
-                                        "rounded-[0.95rem] px-2.5 py-1.5 text-[0.82rem] font-semibold",
+                                        "app-guide-tab-button rounded-[0.95rem] px-2.5 py-1.5 text-[0.82rem] font-semibold",
                                         activeSection === section.key
                                             ? "app-button-primary"
                                             : "app-button-ghost",
