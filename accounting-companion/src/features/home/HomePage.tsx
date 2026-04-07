@@ -72,7 +72,7 @@ const WORKFLOW_COLLECTIONS = [
     },
     {
         title: "Scan to solve",
-        description: "Extract an image, review the text and worksheet fields, then hand it into Smart Solver or a process-costing checker.",
+        description: "Upload a page, let AccCalc auto-read and classify it, then follow one suggested next step into Smart Solver or the right workspace.",
         paths: [
             "/scan-check",
             "/accounting/process-costing-practice-checker",
@@ -254,10 +254,10 @@ export default function HomePage() {
                         </div>
 
                         <h1 className="mt-3.5 max-w-2xl text-[clamp(1.55rem,1.2rem+1.25vw,2.35rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Cleaner tools, quicker starts.
+                            Simpler scans, quicker starts.
                         </h1>
                         <p className="app-body-md mt-2.5 max-w-2xl text-sm">
-                            Search, resume a workflow, or start with Smart Solver. Deeper notes and release detail stay available without crowding the first screen.
+                            Search, resume a workflow, or start with the new lighter Scan & Check flow. AccCalc now handles more of the OCR, classification, and routing automatically after upload.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2.5">
@@ -380,9 +380,9 @@ export default function HomePage() {
                                             />
                                         ) : null}
                                     </div>
-                                    <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                                        {route.shortLabel ?? route.label}
-                                    </h3>
+                                <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                    {route.shortLabel ?? route.label}
+                                </h3>
                                     <p className="app-helper mt-1 text-xs leading-5">
                                         {route.description}
                                     </p>

@@ -50,6 +50,9 @@ export function useScanQueue() {
                 selected: true,
                 problemRole: null,
                 preprocessNotes: [],
+                processingPhase: "queued",
+                processingSummary: "Waiting to start",
+                qualityWarnings: [],
             });
         }
 
@@ -85,6 +88,9 @@ export function useScanQueue() {
                     editableText: "",
                     problemRole: null,
                     preprocessNotes: [],
+                    processingPhase: "queued",
+                    processingSummary: "Waiting to start",
+                    qualityWarnings: [],
                 };
             })
         );

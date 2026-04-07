@@ -1,5 +1,15 @@
 import type { AccountingProblemSession, ScanImageItem, StructuredScanField } from "../../types";
 
+const ROLE_PRIORITY = new Map([
+    ["problem-statement", 1],
+    ["department-1-worksheet", 2],
+    ["department-2-worksheet", 3],
+    ["cost-schedule-page", 4],
+    ["answer-page", 5],
+    ["mixed-reference-page", 6],
+    ["unknown", 7],
+]);
+
 function uniqueFields(fields: StructuredScanField[]) {
     const seen = new Set<string>();
     return fields.filter((field) => {
@@ -21,11 +31,16 @@ export function buildAccountingProblemSession(items: ScanImageItem[]): Accountin
     const accountingItems = items.filter((item) => item.parsedResult?.accounting);
     if (accountingItems.length === 0) return null;
 
-    const pageRoles = accountingItems.map((item) => ({
-        id: item.id,
-        name: item.name,
-        role: item.parsedResult?.pageType ?? "unknown",
-    }));
+    const pageRoles = accountingItems
+        .map((item) => ({
+            id: item.id,
+            name: item.name,
+            role: item.parsedResult?.pageType ?? "unknown",
+        }))
+        .toSorted(
+            (left, right) =>
+                (ROLE_PRIORITY.get(left.role) ?? 99) - (ROLE_PRIORITY.get(right.role) ?? 99)
+        );
 
     const structuredFields = uniqueFields(
         accountingItems.flatMap((item) => item.parsedResult?.structuredFields ?? [])
@@ -39,7 +54,9 @@ export function buildAccountingProblemSession(items: ScanImageItem[]): Accountin
     return {
         routeHint,
         summary:
-            "Selected images look like one process-costing problem set. Review the merged fields, page roles, and carry-forward assumptions before checking totals.",
+            pageRoles.some((page) => page.role === "department-2-worksheet")
+                ? "Selected images look like one linked process-costing set with later-department or transferred-in treatment. Review page order and carry-forward assumptions before checking totals."
+                : "Selected images look like one process-costing problem set. AccCalc merged the worksheet roles automatically, but key fields should still be reviewed before trusting totals.",
         pageRoles,
         structuredFields,
         extractedCompletedCost: parseFieldNumber(structuredFields, "completed_cost"),

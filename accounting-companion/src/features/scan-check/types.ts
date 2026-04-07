@@ -3,6 +3,9 @@ export type ScanImageStatus =
     | "queued"
     | "preprocessing"
     | "recognizing"
+    | "classifying"
+    | "extracting"
+    | "routing"
     | "parsed"
     | "needs review"
     | "completed"
@@ -15,6 +18,8 @@ export type ScanProblemKind =
     | "word-problem"
     | "worked-solution"
     | "answer-check"
+    | "textbook-page"
+    | "notes-reference"
     | "accounting-worksheet"
     | "unknown";
 
@@ -55,6 +60,17 @@ export type AccountingProblemSession = {
     extractedEndingWipCost?: number | null;
     extractedCostPerEquivalentUnit?: number | null;
 };
+
+export type ScanProcessingPhase =
+    | "queued"
+    | "preparing"
+    | "enhancing"
+    | "reading"
+    | "classifying"
+    | "extracting"
+    | "routing"
+    | "completed"
+    | "failed";
 
 export type OcrResult = {
     text: string;
@@ -100,4 +116,7 @@ export type ScanImageItem = {
     selected: boolean;
     problemRole?: ScanPageType | null;
     preprocessNotes?: string[];
+    processingPhase?: ScanProcessingPhase;
+    processingSummary?: string;
+    qualityWarnings?: string[];
 };

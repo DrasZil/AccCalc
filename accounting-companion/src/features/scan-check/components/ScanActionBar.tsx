@@ -1,54 +1,47 @@
 type ScanActionBarProps = {
+    primaryLabel: string;
+    onPrimaryAction: () => void;
+    onReviewExtraction: () => void;
     disabled?: boolean;
-    onProcessQueue: () => void;
-    onMergeSelected: () => void;
-    onSendMergedToSmartSolver: () => void;
-    onOpenProcessCostingWorkspace?: () => void;
+    summary?: string;
 };
 
 export default function ScanActionBar({
+    primaryLabel,
+    onPrimaryAction,
+    onReviewExtraction,
     disabled = false,
-    onProcessQueue,
-    onMergeSelected,
-    onSendMergedToSmartSolver,
-    onOpenProcessCostingWorkspace,
+    summary,
 }: ScanActionBarProps) {
     return (
-        <div className="flex flex-wrap gap-2">
-            <button
-                type="button"
-                disabled={disabled}
-                onClick={onProcessQueue}
-                className="app-button-primary rounded-xl px-4 py-2 text-sm font-medium"
-            >
-                Process queue
-            </button>
-            <button
-                type="button"
-                disabled={disabled}
-                onClick={onMergeSelected}
-                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
-            >
-                Merge selected text
-            </button>
-            <button
-                type="button"
-                disabled={disabled}
-                onClick={onSendMergedToSmartSolver}
-                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
-            >
-                Send merged text to SmartSolver
-            </button>
-            {onOpenProcessCostingWorkspace ? (
-                <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={onOpenProcessCostingWorkspace}
-                    className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
-                >
-                    Open Process Costing Workspace
-                </button>
-            ) : null}
+        <div className="app-subtle-surface rounded-[1.2rem] p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="max-w-2xl">
+                    <p className="app-card-title text-sm">Suggested next step</p>
+                    <p className="app-helper mt-1 text-xs">
+                        {summary ??
+                            "AccCalc now prioritizes one next action and keeps the extraction controls behind review."}
+                    </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={onPrimaryAction}
+                        className="app-button-primary min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                    >
+                        {primaryLabel}
+                    </button>
+                    <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={onReviewExtraction}
+                        className="app-button-secondary min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                    >
+                        Review extraction
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

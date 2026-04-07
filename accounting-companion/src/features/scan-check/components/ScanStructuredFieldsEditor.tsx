@@ -12,7 +12,7 @@ export default function ScanStructuredFieldsEditor({
     if (fields.length === 0) return null;
 
     return (
-        <div className="mt-3 rounded-[1rem] border app-divider px-3 py-3">
+        <div className="rounded-[1rem] border app-divider px-3 py-3">
             <p className="app-helper text-xs uppercase tracking-[0.16em]">
                 Structured field review
             </p>

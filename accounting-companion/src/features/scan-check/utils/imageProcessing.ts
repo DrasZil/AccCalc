@@ -18,6 +18,37 @@ function loadImage(source: string) {
 
 export type ImagePreprocessProfile = "default" | "accounting-worksheet";
 
+function estimateBlur(data: Uint8ClampedArray, width: number, height: number) {
+    let edgeEnergy = 0;
+    let samples = 0;
+
+    for (let row = 1; row < height; row += 6) {
+        for (let column = 1; column < width; column += 6) {
+            const index = (row * width + column) * 4;
+            const left = (row * width + (column - 1)) * 4;
+            const top = ((row - 1) * width + column) * 4;
+            edgeEnergy +=
+                Math.abs(data[index] - data[left]) + Math.abs(data[index] - data[top]);
+            samples += 2;
+        }
+    }
+
+    return samples > 0 ? edgeEnergy / samples : 0;
+}
+
+function estimateContrast(data: Uint8ClampedArray) {
+    let min = 255;
+    let max = 0;
+
+    for (let index = 0; index < data.length; index += 12) {
+        const value = data[index];
+        if (value < min) min = value;
+        if (value > max) max = value;
+    }
+
+    return max - min;
+}
+
 function detectDarkBackground(data: Uint8ClampedArray) {
     let darkPixels = 0;
     for (let index = 0; index < data.length; index += 4) {
@@ -77,9 +108,14 @@ export async function preprocessImage(source: string) {
     const { data } = imageData;
     const darkBackgroundRatio = detectDarkBackground(data);
     const notes: string[] = [];
+    const qualityWarnings: string[] = [];
 
     if (darkBackgroundRatio > 0.45) {
         notes.push("Dark-background worksheet preprocessing applied.");
+    }
+
+    if (scale > 1) {
+        notes.push("Small image upscaled before OCR.");
     }
 
     for (let index = 0; index < data.length; index += 4) {
@@ -96,8 +132,19 @@ export async function preprocessImage(source: string) {
 
     context.putImageData(imageData, 0, 0);
     const tableLikelihood = detectGridLikelihood(data, canvas.width, canvas.height);
+    const blurScore = estimateBlur(data, canvas.width, canvas.height);
+    const contrastRange = estimateContrast(data);
     if (tableLikelihood > 0.45) {
         notes.push("Table/grid-like worksheet structure detected.");
+    }
+    if (blurScore < 18) {
+        qualityWarnings.push("Image looks soft or slightly blurred. Review digits and totals carefully.");
+    }
+    if (contrastRange < 110) {
+        qualityWarnings.push("Contrast is limited. OCR may miss faint handwriting or table lines.");
+    }
+    if (canvas.width < 900 || canvas.height < 900) {
+        qualityWarnings.push("Small source image detected. A closer crop or sharper capture may improve OCR.");
     }
 
     return {
@@ -106,5 +153,13 @@ export async function preprocessImage(source: string) {
         height: canvas.height,
         notes,
         tableLikelihood,
+        qualityWarnings,
+        qualityScore: Math.max(
+            20,
+            Math.min(
+                100,
+                Math.round(100 - Math.max(0, 20 - blurScore) * 2 - Math.max(0, 120 - contrastRange) / 2)
+            )
+        ),
     };
 }

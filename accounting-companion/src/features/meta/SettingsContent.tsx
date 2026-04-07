@@ -303,8 +303,7 @@ export default function SettingsContent({
                         <p className="app-section-kicker">Settings</p>
                         <h2 className="app-section-title mt-2 text-lg">App controls</h2>
                         <p className="app-body-md mt-1.5 text-sm">
-                            Short, grouped controls for appearance, solver behavior, offline use,
-                            history, and accessibility.
+                            Short, grouped controls for appearance, Scan & Check behavior, solver defaults, offline use, history, and accessibility.
                         </p>
                     </div>
 
@@ -653,7 +652,7 @@ export default function SettingsContent({
 
             <DisclosurePanel
                 title="Support"
-                summary="Optional support details, full-screen QR viewing, and share/download actions."
+                summary="Optional support details, full-screen QR viewing, and share/download actions that match the newer premium support flow."
                 badge="Support"
                 compact={compact}
             >
@@ -662,7 +661,7 @@ export default function SettingsContent({
 
             <DisclosurePanel
                 title="About / Updates"
-                summary="Release status, support pages, and current shipping notes."
+                summary="Release status, support pages, and the latest shipping notes for 3.2.2."
                 badge={`v${APP_VERSION}`}
                 compact={compact}
             >
