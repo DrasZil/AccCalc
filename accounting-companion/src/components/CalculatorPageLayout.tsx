@@ -9,6 +9,7 @@ import {
     getRouteAvailability,
     getRouteMeta,
 } from "../utils/appCatalog";
+import { useAppSettings } from "../utils/appSettings";
 import { useNetworkStatus } from "../utils/networkStatus";
 import { useOfflineBundleStatus } from "../utils/offlineStatus";
 
@@ -57,6 +58,7 @@ export default function CalculatorPageLayout({
     headerMeta,
 }: CalculatorPageLayoutProps) {
     const location = useLocation();
+    const settings = useAppSettings();
     const network = useNetworkStatus();
     const offlineBundle = useOfflineBundleStatus();
     const currentMeta = getRouteMeta(location.pathname);
@@ -203,12 +205,18 @@ export default function CalculatorPageLayout({
             <div className="md:hidden">
                 <DisclosurePanel
                     title="Tool details"
-                    summary={mobileToolDetailsSummary}
+                    summary={
+                        settings.compactMobileChrome
+                            ? routeAvailability?.label ?? "Open for method and limits."
+                            : mobileToolDetailsSummary
+                    }
                     badge="About"
                     compact
                 >
                     <div className="space-y-3">
-                        <p className="app-body-md max-w-none text-sm">{description}</p>
+                        {!settings.compactMobileChrome ? (
+                            <p className="app-body-md max-w-none text-sm">{description}</p>
+                        ) : null}
                         {routeAvailability ? (
                             <div
                                 className={[
@@ -241,7 +249,14 @@ export default function CalculatorPageLayout({
 
             {sections.length > 1 ? (
                 <div className="sticky z-20 -mt-1 top-[calc(var(--app-header-height)+0.35rem)] xl:static xl:mt-0">
-                    <div className="app-panel rounded-[1.05rem] p-1.25 backdrop-blur-xl xl:hidden">
+                    <div
+                        className={[
+                            "app-panel backdrop-blur-xl xl:hidden",
+                            settings.compactMobileChrome
+                                ? "rounded-[0.95rem] p-1"
+                                : "rounded-[1.05rem] p-1.25",
+                        ].join(" ")}
+                    >
                         <div className="grid grid-cols-3 gap-2">
                             {sections.map((section) => (
                                 <button

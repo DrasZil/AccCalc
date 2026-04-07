@@ -73,6 +73,10 @@ const SMART_PROMPT_EXAMPLES = [
     "Solve for current liabilities if current assets are 250,000 and the current ratio should be 2.5.",
     "Show the common-size income statement workspace.",
     "Open the capital budgeting comparison tool for a 200,000 project at 11%.",
+    "Find price elasticity of demand if price drops from 120 to 100 and quantity rises from 240 to 300.",
+    "Solve the market equilibrium if demand is P = 120 - 2Q and supply is P = 20 + Q.",
+    "Plan startup costs for permits, equipment, and opening inventory with a contingency allowance.",
+    "Estimate cash runway if opening cash is 300,000, inflows are 90,000, and outflows are 120,000 per month.",
 ];
 
 type ActionTone = "success" | "warning" | "info";
@@ -158,7 +162,9 @@ export default function SmartSolverPage() {
     const [showDetectedValues, setShowDetectedValues] = useState<boolean>(false);
     const [showMoreMatches, setShowMoreMatches] = useState<boolean>(false);
     const [expandedFieldKeys, setExpandedFieldKeys] = useState<FieldKey[]>([]);
-    const [guidanceMode, setGuidanceMode] = useState<"beginner" | "professional">("beginner");
+    const [guidanceMode, setGuidanceMode] = useState<
+        "compute" | "beginner" | "professional"
+    >(() => settings.smartSolverDefaultMode);
 
     const deferredSmartInput = useDeferredValue(smartInput);
 
@@ -227,6 +233,10 @@ export default function SmartSolverPage() {
     useEffect(() => {
         setExpandedFieldKeys([]);
     }, [selectedCalculatorId]);
+
+    useEffect(() => {
+        setGuidanceMode(settings.smartSolverDefaultMode);
+    }, [settings.smartSolverDefaultMode]);
 
     useEffect(() => {
         if (!hasAnyInput) return;
@@ -331,8 +341,39 @@ export default function SmartSolverPage() {
             .filter((calculator) => calculator.id !== selectedCalculator.id)
             .slice(0, 3)
             .map((calculator) => calculator.name);
+        const routeCategory = selectedRouteMeta?.category ?? "General";
+        const methodCue =
+            suggestedSolveTarget !== null
+                ? `Smart Solver detected a missing-variable intent and prepared the route to solve for ${suggestedSolveTarget}.`
+                : selectedCalculator.description;
+        const studyTip =
+            routeCategory === "Accounting"
+                ? "Check whether the problem uses ending balances, average balances, or adjustment-style estimates before you finalize the answer."
+                : routeCategory === "Finance"
+                  ? "Match the rate basis, compounding basis, and time basis before trusting the result."
+                  : routeCategory === "Economics"
+                    ? "Keep the model visible. Many economics formulas depend on midpoint, linearity, or equilibrium assumptions."
+                    : routeCategory === "Entrepreneurship"
+                      ? "Use the result as a planning signal, then pressure-test it with a realistic scenario before making a real decision."
+                      : "Verify units, period bases, and sign conventions before relying on the answer.";
+        const practicalNote =
+            routeCategory === "Accounting"
+                ? "This route fits worksheet-style answers that still need a defensible interpretation."
+                : routeCategory === "Finance"
+                  ? "This route fits lending, valuation, and capital-budgeting decisions where assumptions change the answer materially."
+                  : routeCategory === "Economics"
+                    ? "This route fits class exercises, market interpretation, and policy-style reasoning."
+                    : routeCategory === "Entrepreneurship"
+                      ? "This route fits feasibility checks, startup planning, and small-business decisions."
+                      : "This route is best when deterministic calculator logic is safer than free-form guessing.";
 
         return {
+            compute:
+                missingLabels.length > 0
+                    ? `Best route: ${selectedCalculator.name}. Supply ${missingLabels.join(
+                          ", "
+                      )} to finish the calculation safely.`
+                    : `Best route: ${selectedCalculator.name}. The prepared values look sufficient to open the calculator now.`,
             beginner:
                 missingLabels.length > 0
                     ? `This looks most like ${selectedCalculator.name}, but it still needs ${missingLabels.join(
@@ -346,8 +387,21 @@ export default function SmartSolverPage() {
                       )} before relying on the output.`
                     : `${selectedCalculator.name} is the strongest match and the required values appear present. The next step is to verify sign conventions, period assumptions, and method choice in the destination page.`,
             relatedTools,
+            methodCue,
+            studyTip,
+            practicalNote,
+            assumptions:
+                missingLabels.length > 0
+                    ? [`Missing values: ${missingLabels.join(", ")}.`]
+                    : analysis.extracted.notes.slice(0, 2),
         };
-    }, [analysis.ranked, selectedCalculator]);
+    }, [
+        analysis.extracted.notes,
+        analysis.ranked,
+        selectedCalculator,
+        selectedRouteMeta?.category,
+        suggestedSolveTarget,
+    ]);
 
     const primarySuggestions = useMemo(
         () => analysis.ranked.slice(0, Math.min(settings.smartSolverMaxSuggestions, 3)),
@@ -742,6 +796,9 @@ export default function SmartSolverPage() {
                                     </h3>
                                     <p className="app-body-md mt-1 text-sm">
                                         These inputs adapt to the active tool and should be your final check before continuing.
+                                        {settings.smartSolverPreferGuidedSetup
+                                            ? " Guided setup is active, so related fields from the same topic surface first."
+                                            : ""}
                                     </p>
                                 </div>
 
@@ -809,11 +866,23 @@ export default function SmartSolverPage() {
                     {solverInterpretation ? (
                         <CollapsibleSection
                             title="Guidance"
-                            description="Switch between study-first and practice-first reading before opening the matched tool."
+                            description="Switch between direct routing, study help, and practice-focused reading before opening the matched tool."
                             open
                             onToggle={() => undefined}
                         >
                             <div className="flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setGuidanceMode("compute")}
+                                    className={[
+                                        "rounded-xl px-4 py-2 text-sm font-medium",
+                                        guidanceMode === "compute"
+                                            ? "app-button-primary"
+                                            : "app-button-secondary",
+                                    ].join(" ")}
+                                >
+                                    Compute mode
+                                </button>
                                 <button
                                     type="button"
                                     onClick={() => setGuidanceMode("beginner")}
@@ -841,10 +910,54 @@ export default function SmartSolverPage() {
                             </div>
 
                             <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-4 text-sm leading-6">
-                                {guidanceMode === "beginner"
-                                    ? solverInterpretation.beginner
-                                    : solverInterpretation.professional}
+                                {guidanceMode === "compute"
+                                    ? solverInterpretation.compute
+                                    : guidanceMode === "beginner"
+                                      ? solverInterpretation.beginner
+                                      : solverInterpretation.professional}
                             </div>
+
+                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Method cue
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {solverInterpretation.methodCue}
+                                    </p>
+                                </div>
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Practical note
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {solverInterpretation.practicalNote}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {settings.smartSolverShowStudyNotes ? (
+                                <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Study note
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {solverInterpretation.studyTip}
+                                    </p>
+                                    {solverInterpretation.assumptions.length > 0 ? (
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {solverInterpretation.assumptions.map((note) => (
+                                                <span
+                                                    key={note}
+                                                    className="app-list-link rounded-full px-3 py-1 text-xs font-medium"
+                                                >
+                                                    {note}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            ) : null}
 
                             {solverInterpretation.relatedTools.length > 0 ? (
                                 <div className="mt-4">

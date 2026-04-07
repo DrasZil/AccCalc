@@ -5,10 +5,12 @@ const GROUP_CONFIG = {
     Accounting: { hint: "Reporting, valuation, and review", tone: "from-green-400/20 to-transparent", order: 3 },
     Finance: { hint: "Time value, lending, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
     "Managerial & Cost": { hint: "CVP, budgets, costing, and variances", tone: "from-orange-400/15 to-transparent", order: 5 },
-    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 6 },
-    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 7 },
+    Economics: { hint: "Elasticity, markets, and macro basics", tone: "from-teal-400/15 to-transparent", order: 6 },
+    Entrepreneurship: { hint: "Startup planning and small-business decisions", tone: "from-amber-400/15 to-transparent", order: 7 },
+    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 8 },
+    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 9 },
 };
-function feature(path, label, category, description, aliases = [], tags = [], shortLabel, isNew = false, keywords = []) {
+function feature(path, label, category, description, aliases = [], tags = [], shortLabel, _legacyIsNew = false, keywords = []) {
     return {
         path,
         label,
@@ -18,11 +20,21 @@ function feature(path, label, category, description, aliases = [], tags = [], sh
         aliases,
         tags,
         shortLabel,
-        isNew,
+        isNew: CURRENT_RELEASE_NEW_PATHS.has(path),
         keywords,
         ...inferOfflineMeta(path),
     };
 }
+const CURRENT_RELEASE_NEW_PATHS = new Set([
+    "/economics/price-elasticity-demand",
+    "/economics/market-equilibrium",
+    "/economics/surplus-analysis",
+    "/economics/real-interest-rate",
+    "/entrepreneurship/startup-cost-planner",
+    "/entrepreneurship/unit-economics",
+    "/entrepreneurship/sales-forecast-planner",
+    "/entrepreneurship/cash-runway-planner",
+]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Settings"],
     "Core Tools": ["Calculator"],
@@ -44,6 +56,8 @@ const SUBTOPIC_ORDER = {
         "Variances",
         "Depreciation",
     ],
+    Economics: ["Microeconomics", "Market Analysis", "Inflation & Rates"],
+    Entrepreneurship: ["Startup Planning", "Unit Economics", "Forecasting", "Cash Planning"],
     "Business Math": ["Pricing & Profit", "Averages & Basics"],
     Statistics: ["Descriptive Statistics"],
 };
@@ -120,6 +134,26 @@ function inferSubtopic(category, path, tags, label) {
                 return "CVP & Decisions";
             }
             return "Manufacturing Costs";
+        case "Economics":
+            if (haystack.includes("elasticity") ||
+                haystack.includes("surplus")) {
+                return "Microeconomics";
+            }
+            if (haystack.includes("equilibrium") || haystack.includes("market")) {
+                return "Market Analysis";
+            }
+            return "Inflation & Rates";
+        case "Entrepreneurship":
+            if (haystack.includes("startup") || haystack.includes("feasibility")) {
+                return "Startup Planning";
+            }
+            if (haystack.includes("unit economics") || haystack.includes("pricing")) {
+                return "Unit Economics";
+            }
+            if (haystack.includes("forecast")) {
+                return "Forecasting";
+            }
+            return "Cash Planning";
         case "Business Math":
             return haystack.includes("weighted") ? "Averages & Basics" : "Pricing & Profit";
         case "Statistics":
@@ -290,6 +324,14 @@ export const APP_ROUTE_META = [
     feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
+    feature("/economics/price-elasticity-demand", "Price Elasticity of Demand", "Economics", "Midpoint elasticity, revenue movement, and demand classification.", ["ped", "demand elasticity"], ["elasticity", "microeconomics"], "Elasticity", true, ["price elasticity", "elastic demand", "inelastic demand"]),
+    feature("/economics/market-equilibrium", "Market Equilibrium", "Economics", "Solve equilibrium price and quantity from linear demand and supply equations.", ["supply and demand equilibrium", "equilibrium price"], ["market", "equilibrium"], "Equilibrium", true, ["equilibrium", "supply and demand", "market clearing"]),
+    feature("/economics/surplus-analysis", "Consumer and Producer Surplus", "Economics", "Estimate welfare gains from trade at a known equilibrium.", ["consumer surplus", "producer surplus"], ["surplus", "microeconomics"], "Surplus", true, ["consumer surplus", "producer surplus", "total surplus"]),
+    feature("/economics/real-interest-rate", "Real Interest Rate", "Economics", "Compare exact and approximate real rates after inflation.", ["fisher equation", "real rate"], ["inflation", "rates"], "Real Rate", true, ["real interest rate", "inflation", "fisher"]),
+    feature("/entrepreneurship/startup-cost-planner", "Startup Cost Planner", "Entrepreneurship", "Organize launch costs, contingency, and opening cash needs.", ["startup budget", "startup costs"], ["startup", "planning"], "Startup Costs", true, ["startup cost", "launch budget", "feasibility"]),
+    feature("/entrepreneurship/unit-economics", "Unit Economics Workspace", "Entrepreneurship", "Read contribution, break-even, and customer-level economics from one worksheet.", ["customer economics", "startup unit economics"], ["unit economics", "pricing"], "Unit Economics", true, ["unit economics", "cac", "contribution"]),
+    feature("/entrepreneurship/sales-forecast-planner", "Sales Forecast Planner", "Entrepreneurship", "Project sales and gross profit from a monthly growth assumption.", ["sales projection", "revenue forecast"], ["forecasting", "sales"], "Sales Forecast", true, ["sales forecast", "revenue projection", "growth forecast"]),
+    feature("/entrepreneurship/cash-runway-planner", "Cash Runway Planner", "Entrepreneurship", "Estimate runway from current cash, recurring inflows, and recurring outflows.", ["runway calculator", "startup runway"], ["cash", "runway"], "Cash Runway", true, ["cash runway", "burn rate", "startup cash"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),
     feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),

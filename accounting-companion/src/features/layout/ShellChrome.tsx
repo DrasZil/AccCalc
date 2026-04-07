@@ -226,6 +226,29 @@ export function ShellIcon({
         );
     }
 
+    if (kind === "Economics") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M5 18.5h14" />
+                <path d="M7.5 18.5V13" />
+                <path d="M12 18.5V9" />
+                <path d="M16.5 18.5V6" />
+                <path d="M7 7.5c2 .6 3.5 1.1 5 .8 1.6-.2 2.9-1 5-2.3" />
+            </svg>
+        );
+    }
+
+    if (kind === "Entrepreneurship") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M6 18h12" />
+                <path d="M8 18v-6.5h8V18" />
+                <path d="M10 11.5V7h4v4.5" />
+                <path d="M12 4v3" />
+            </svg>
+        );
+    }
+
     if (kind === "Business Math") {
         return (
             <svg {...sharedProps}>

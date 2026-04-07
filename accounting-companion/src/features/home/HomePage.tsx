@@ -34,6 +34,8 @@ const SMART_PROMPT_EXAMPLES = [
     "Compare FIFO and weighted average if beginning inventory is 100 units at 50, then purchases are 80 at 55 and 120 at 60, with 150 units sold.",
     "Open the common-size income statement workspace.",
     "Compare NPV, PI, IRR, and discounted payback for a 200,000 project at 11%.",
+    "Find price elasticity if price falls from 120 to 100 and quantity rises from 240 to 300.",
+    "Plan startup costs with permits, equipment, inventory, and a 10% contingency.",
 ];
 
 const FEATURED_PATHS = [
@@ -48,6 +50,8 @@ const FEATURED_PATHS = [
     "/accounting/common-size-income-statement",
     "/accounting/working-capital-cycle",
     "/business/cash-budget",
+    "/economics/price-elasticity-demand",
+    "/entrepreneurship/unit-economics",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -110,6 +114,26 @@ const WORKFLOW_COLLECTIONS = [
             "/accounting/common-size-balance-sheet",
             "/accounting/horizontal-analysis",
             "/accounting/ratio-analysis-workspace",
+        ],
+    },
+    {
+        title: "Economics review",
+        description: "Start with elasticity, move into equilibrium, and finish with surplus or inflation-adjusted interpretation.",
+        paths: [
+            "/economics/price-elasticity-demand",
+            "/economics/market-equilibrium",
+            "/economics/surplus-analysis",
+            "/economics/real-interest-rate",
+        ],
+    },
+    {
+        title: "Startup planning",
+        description: "Move from launch cost planning into unit economics, sales forecasting, and runway checks.",
+        paths: [
+            "/entrepreneurship/startup-cost-planner",
+            "/entrepreneurship/unit-economics",
+            "/entrepreneurship/sales-forecast-planner",
+            "/entrepreneurship/cash-runway-planner",
         ],
     },
     {

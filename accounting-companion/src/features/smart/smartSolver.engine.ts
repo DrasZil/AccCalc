@@ -2688,6 +2688,128 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "price-elasticity-demand",
+        name: "Price Elasticity of Demand",
+        route: "/economics/price-elasticity-demand",
+        description:
+            "Best when the user wants midpoint elasticity, elastic versus inelastic classification, or price-response analysis.",
+        required: [],
+        aliases: ["ped", "demand elasticity", "price elasticity"],
+        keywords: [
+            /price elasticity/i,
+            /demand elasticity/i,
+            /\bped\b/i,
+            /elastic demand/i,
+            /inelastic demand/i,
+        ],
+    },
+    {
+        id: "market-equilibrium",
+        name: "Supply and Demand Equilibrium",
+        route: "/economics/market-equilibrium",
+        description:
+            "Best when the user wants equilibrium price and quantity from linear demand and supply equations.",
+        required: [],
+        aliases: ["supply and demand equilibrium", "market clearing"],
+        keywords: [
+            /market equilibrium/i,
+            /equilibrium price/i,
+            /equilibrium quantity/i,
+            /supply and demand/i,
+            /market clearing/i,
+        ],
+    },
+    {
+        id: "surplus-analysis",
+        name: "Consumer and Producer Surplus",
+        route: "/economics/surplus-analysis",
+        description:
+            "Best when the user wants consumer surplus, producer surplus, or total surplus at equilibrium.",
+        required: [],
+        aliases: ["consumer surplus", "producer surplus", "total surplus"],
+        keywords: [
+            /consumer surplus/i,
+            /producer surplus/i,
+            /total surplus/i,
+            /gains from trade/i,
+        ],
+    },
+    {
+        id: "real-interest-rate",
+        name: "Real Interest Rate",
+        route: "/economics/real-interest-rate",
+        description:
+            "Best when the user wants to compare nominal rate, inflation, and real purchasing-power return.",
+        required: [],
+        aliases: ["real rate", "fisher equation", "inflation adjusted return"],
+        keywords: [
+            /real interest rate/i,
+            /real rate/i,
+            /fisher equation/i,
+            /inflation adjusted/i,
+        ],
+    },
+    {
+        id: "startup-cost-planner",
+        name: "Startup Cost Planner",
+        route: "/entrepreneurship/startup-cost-planner",
+        description:
+            "Best when the user wants launch costs, contingency planning, or a startup funding estimate.",
+        required: [],
+        aliases: ["startup budget", "launch budget", "startup costs"],
+        keywords: [
+            /startup cost/i,
+            /startup budget/i,
+            /launch budget/i,
+            /feasibility budget/i,
+        ],
+    },
+    {
+        id: "unit-economics",
+        name: "Unit Economics Workspace",
+        route: "/entrepreneurship/unit-economics",
+        description:
+            "Best when the user wants contribution per unit, CAC impact, or break-even customers from one startup worksheet.",
+        required: [],
+        aliases: ["customer economics", "startup unit economics", "cac payback"],
+        keywords: [
+            /unit economics/i,
+            /customer acquisition cost/i,
+            /\bcac\b/i,
+            /break[- ]even customers/i,
+        ],
+    },
+    {
+        id: "sales-forecast-planner",
+        name: "Sales Forecast Planner",
+        route: "/entrepreneurship/sales-forecast-planner",
+        description:
+            "Best when the user wants simple month-based revenue growth planning or a startup sales forecast.",
+        required: [],
+        aliases: ["sales projection", "revenue forecast", "growth forecast"],
+        keywords: [
+            /sales forecast/i,
+            /sales projection/i,
+            /revenue forecast/i,
+            /growth forecast/i,
+        ],
+    },
+    {
+        id: "cash-runway-planner",
+        name: "Cash Runway Planner",
+        route: "/entrepreneurship/cash-runway-planner",
+        description:
+            "Best when the user wants burn rate or runway planning from opening cash and monthly cash flow assumptions.",
+        required: [],
+        aliases: ["runway calculator", "burn rate", "startup runway"],
+        keywords: [
+            /cash runway/i,
+            /startup runway/i,
+            /burn rate/i,
+            /runway calculator/i,
+        ],
+    },
+    {
         id: "vertical-analysis",
         name: "Vertical Analysis",
         route: "/accounting/vertical-analysis",

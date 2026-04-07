@@ -1,35 +1,35 @@
-export const APP_VERSION = "2.8.0";
-export const APP_RELEASE_DATE = "2026-04-06";
+export const APP_VERSION = "3.0.0";
+export const APP_RELEASE_DATE = "2026-04-07";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Solve-for mode becomes a first-class system",
-        body: "Core finance, pricing, break-even, depreciation, liquidity, profitability, and turnover pages can now solve for the missing variable with adaptive validation, formulas, and interpretation.",
+        title: "2.9 foundation: calmer mobile shell",
+        body: "The shell now supports compact mobile chrome, stronger settings architecture, and higher-contrast reading without giving up the existing desktop workspace.",
     },
     {
-        title: "Statement analysis gets broader",
-        body: "Common-size income statement, common-size balance sheet, horizontal analysis, and working-capital-cycle tools turn AccCalc into a stronger worksheet and review companion for reporting analysis.",
+        title: "2.9 foundation: smarter guidance",
+        body: "Smart Solver now separates compute, study, and practice lenses while surfacing clearer method cues, assumptions, and next-step notes.",
     },
     {
-        title: "Capital budgeting becomes a workspace",
-        body: "A comparison tool now places NPV, PI, IRR, and discounted payback side by side for one project so students and reviewers can compare methods without jumping between isolated pages.",
+        title: "3.0 expansion: economics arrives",
+        body: "Elasticity, market equilibrium, surplus analysis, and real-rate tools broaden AccCalc into a stronger business and economics study workspace.",
     },
     {
-        title: "Smart Solver understands missing-variable intent",
-        body: "Queries like find the principal, solve for current liabilities, or what selling price gives a target margin can route to the right calculator and preselect a safe solve target.",
+        title: "3.0 expansion: entrepreneurship arrives",
+        body: "Startup costs, unit economics, sales forecasting, and runway planning add practical small-business and feasibility support on top of accounting and finance.",
     },
     {
         title: "Release stays production-safe",
-        body: "The new solve-for layer is shared, tested, mobile-aware, and aligned with the current truthful offline/PWA route model so capability growth does not weaken stability.",
+        body: "The new categories use shared helpers, route metadata, Smart Solver discovery, and the existing truthful offline/PWA model instead of one-off feature code.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "Added a reusable solve-for-any-variable system for safe formula-driven calculators, with adaptive targets, inputs, validation, formulas, and interpretation.",
-    "Upgraded simple interest, compound interest, future value, present value, profit and loss, markup and margin, break-even, contribution margin, straight-line depreciation, current ratio, quick ratio, gross profit rate, return on assets, return on equity, inventory turnover, and receivables turnover.",
-    "Added Common-Size Income Statement, Common-Size Balance Sheet, Working Capital and Cycle, and Capital Budgeting Comparison workspaces, plus a stronger multi-line Horizontal Analysis page.",
-    "Extended Smart Solver to detect missing-variable intent and route supported calculators with safe solve-target preselection when confidence is high.",
-    "Expanded home highlights, route metadata, and search coverage for solve-for workflows, statement analysis, and capital-budgeting comparison.",
-    "Added shared formula-intelligence utilities, adaptive result panels, editable analysis rows, and new regression coverage for forward and reverse solve paths.",
-    "Kept the existing offline/PWA model truthful and production-safe while updating release metadata, documentation, and route-chunk coverage for 2.8.0.",
+    "2.9.0: Reworked the shell with compact mobile chrome, stronger settings categorization, high-contrast mode, and denser but clearer navigation behavior.",
+    "2.9.0: Upgraded Smart Solver with configurable compute, study, and practice lenses plus richer method cues, assumptions, and related-tool guidance.",
+    "2.9.0: Strengthened shared architecture for settings, navigation, responsive shell density, and release-safe metadata handling.",
+    "3.0.0: Added Economics with Price Elasticity of Demand, Supply and Demand Equilibrium, Consumer and Producer Surplus, and Real Interest Rate.",
+    "3.0.0: Added Entrepreneurship with Startup Cost Planner, Unit Economics Workspace, Sales Forecast Planner, and Cash Runway Planner.",
+    "3.0.0: Expanded home discovery, Smart Solver prompt examples, route metadata, and sidebar organization for the new categories.",
+    "3.0.0: Added new regression coverage for economics helpers, entrepreneurship helpers, and search discoverability while keeping offline/PWA behavior truthful.",
 ];

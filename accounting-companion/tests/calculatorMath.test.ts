@@ -44,20 +44,28 @@ import {
     computePresentValue,
     computePresentValueOfOrdinaryAnnuity,
     computeProfitabilityIndex,
+    computePriceElasticity,
     computeQuickRatio,
+    computeRealInterestRate,
     computeRatioAnalysisWorkspace,
     computeReceivablesAgingSchedule,
+    computeSalesForecast,
     computeSalesMixBreakEven,
     computeSimpleInterest,
     computeSinkingFundDeposit,
     computeStandardDeviation,
+    computeStartupCostPlan,
     computeStraightLineDepreciation,
     computeTargetProfit,
     computeTradeDiscount,
     computeTrialBalance,
     computeTurnoverWithDayBasis,
+    computeUnitEconomics,
     computeWeightedMean,
     computeWorkingCapitalCycle,
+    computeMarketEquilibrium,
+    computeSurplusAtEquilibrium,
+    computeCashRunway,
 } from "../src/utils/calculatorMath.js";
 import {
     breakEvenSolveDefinition,
@@ -713,6 +721,80 @@ runTest("working capital cycle combines balance and day measures", () => {
     assertClose(result.cashConversionCycle, 65);
 });
 
+runTest("economics helpers cover elasticity, equilibrium, surplus, and real rate", () => {
+    const elasticity = computePriceElasticity({
+        initialPrice: 120,
+        finalPrice: 100,
+        initialQuantity: 240,
+        finalQuantity: 300,
+    });
+    const equilibrium = computeMarketEquilibrium({
+        demandIntercept: 120,
+        demandSlope: 2,
+        supplyIntercept: 20,
+        supplySlope: 1,
+    });
+    const surplus = computeSurplusAtEquilibrium({
+        demandIntercept: 120,
+        supplyIntercept: 20,
+        equilibriumPrice: equilibrium.equilibriumPrice,
+        equilibriumQuantity: equilibrium.equilibriumQuantity,
+    });
+    const realRate = computeRealInterestRate(9, 4);
+
+    assertClose(elasticity.elasticity, -1.2222222222, 1e-6);
+    assert.equal(elasticity.classification, "Elastic");
+    assertClose(equilibrium.equilibriumQuantity, 33.3333333333, 1e-6);
+    assertClose(equilibrium.equilibriumPrice, 53.3333333333, 1e-6);
+    assertClose(surplus.consumerSurplus, 1111.1111111, 1e-4);
+    assertClose(surplus.producerSurplus, 555.5555556, 1e-4);
+    assertClose(realRate.exactRealRate, 4.8076923077, 1e-6);
+});
+
+runTest("entrepreneurship helpers support startup planning and runway checks", () => {
+    const startup = computeStartupCostPlan(
+        [
+            { label: "Permits", amount: 12000 },
+            { label: "Equipment", amount: 85000 },
+            { label: "Inventory", amount: 45000 },
+        ],
+        10,
+        50000
+    );
+    const unitEconomics = computeUnitEconomics({
+        sellingPrice: 900,
+        variableCostPerUnit: 520,
+        fixedCosts: 150000,
+        acquisitionCostPerCustomer: 250,
+        unitsPerCustomer: 2,
+    });
+    const forecast = computeSalesForecast({
+        startingSales: 150000,
+        monthlyGrowthPercent: 6,
+        months: 6,
+        grossMarginPercent: 35,
+    });
+    const runway = computeCashRunway({
+        openingCash: 300000,
+        averageMonthlyInflows: 90000,
+        averageMonthlyOutflows: 120000,
+        plannedGrowthPercent: 5,
+    });
+
+    assertClose(startup.subtotal, 142000);
+    assertClose(startup.contingencyAmount, 14200);
+    assertClose(startup.recommendedFunding, 206200);
+    assert.equal(startup.largestItem.label, "Equipment");
+    assertClose(unitEconomics.contributionPerUnit, 380);
+    assertClose(unitEconomics.breakEvenUnits, 394.7368421, 1e-6);
+    assertClose(unitEconomics.breakEvenCustomers, 294.1176471, 1e-6);
+    assertClose(forecast.totalSales, 1046297.7806, 1e-3);
+    assertClose(forecast.endingSales, 200733.8366, 1e-3);
+    assertClose(runway.adjustedInflows, 94500);
+    assertClose(runway.monthlyBurn, 25500);
+    assertClose(runway.runwayMonths, 11.7647058824, 1e-6);
+});
+
 runTest("capital budgeting comparison combines project metrics", () => {
     const result = computeCapitalBudgetingComparison(
         100000,
@@ -811,6 +893,10 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const ratioResults = searchAppRoutes("financial ratios");
     const commonSizeResults = searchAppRoutes("common size income statement");
     const capitalComparisonResults = searchAppRoutes("capital budgeting comparison");
+    const elasticityResults = searchAppRoutes("demand elasticity");
+    const equilibriumResults = searchAppRoutes("equilibrium price");
+    const startupResults = searchAppRoutes("startup budget");
+    const runwayResults = searchAppRoutes("burn rate");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -829,6 +915,10 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(ratioResults[0]?.path, "/accounting/ratio-analysis-workspace");
     assert.equal(commonSizeResults[0]?.path, "/accounting/common-size-income-statement");
     assert.equal(capitalComparisonResults[0]?.path, "/finance/capital-budgeting-comparison");
+    assert.equal(elasticityResults[0]?.path, "/economics/price-elasticity-demand");
+    assert.equal(equilibriumResults[0]?.path, "/economics/market-equilibrium");
+    assert.equal(startupResults[0]?.path, "/entrepreneurship/startup-cost-planner");
+    assert.equal(runwayResults[0]?.path, "/entrepreneurship/cash-runway-planner");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {

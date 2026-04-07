@@ -4,11 +4,16 @@ export type ThemePreference = "system" | "dark" | "light";
 
 export type AppSettings = {
     autoExpandActiveNavGroup: boolean;
+    compactMobileChrome: boolean;
     showInstallPrompt: boolean;
     smartSolverShowPromptExamples: boolean;
     smartSolverMaxSuggestions: number;
+    smartSolverDefaultMode: "compute" | "beginner" | "professional";
+    smartSolverPreferGuidedSetup: boolean;
+    smartSolverShowStudyNotes: boolean;
     rememberDesktopSidebarVisibility: boolean;
     enableMotionEffects: boolean;
+    highContrastMode: boolean;
     preferredCurrency: string;
     showFeedbackReminders: boolean;
     showOpeningAnimation: boolean;
@@ -24,11 +29,16 @@ let cachedSettingsSnapshot: AppSettings;
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
     autoExpandActiveNavGroup: false,
+    compactMobileChrome: true,
     showInstallPrompt: true,
     smartSolverShowPromptExamples: true,
     smartSolverMaxSuggestions: 4,
+    smartSolverDefaultMode: "beginner",
+    smartSolverPreferGuidedSetup: true,
+    smartSolverShowStudyNotes: true,
     rememberDesktopSidebarVisibility: true,
     enableMotionEffects: true,
+    highContrastMode: false,
     preferredCurrency: "PHP",
     showFeedbackReminders: true,
     showOpeningAnimation: true,
@@ -45,10 +55,20 @@ function sanitizeThemePreference(value: unknown): ThemePreference {
         : DEFAULT_APP_SETTINGS.themePreference;
 }
 
+function sanitizeSmartSolverMode(
+    value: unknown
+): AppSettings["smartSolverDefaultMode"] {
+    return value === "compute" || value === "professional" || value === "beginner"
+        ? value
+        : DEFAULT_APP_SETTINGS.smartSolverDefaultMode;
+}
+
 function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSettings {
     return {
         autoExpandActiveNavGroup:
             value?.autoExpandActiveNavGroup ?? DEFAULT_APP_SETTINGS.autoExpandActiveNavGroup,
+        compactMobileChrome:
+            value?.compactMobileChrome ?? DEFAULT_APP_SETTINGS.compactMobileChrome,
         showInstallPrompt: value?.showInstallPrompt ?? DEFAULT_APP_SETTINGS.showInstallPrompt,
         smartSolverShowPromptExamples:
             value?.smartSolverShowPromptExamples ??
@@ -57,11 +77,22 @@ function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSe
             typeof value?.smartSolverMaxSuggestions === "number"
                 ? Math.min(6, Math.max(2, Math.round(value.smartSolverMaxSuggestions)))
                 : DEFAULT_APP_SETTINGS.smartSolverMaxSuggestions,
+        smartSolverDefaultMode: sanitizeSmartSolverMode(
+            value?.smartSolverDefaultMode
+        ),
+        smartSolverPreferGuidedSetup:
+            value?.smartSolverPreferGuidedSetup ??
+            DEFAULT_APP_SETTINGS.smartSolverPreferGuidedSetup,
+        smartSolverShowStudyNotes:
+            value?.smartSolverShowStudyNotes ??
+            DEFAULT_APP_SETTINGS.smartSolverShowStudyNotes,
         rememberDesktopSidebarVisibility:
             value?.rememberDesktopSidebarVisibility ??
             DEFAULT_APP_SETTINGS.rememberDesktopSidebarVisibility,
         enableMotionEffects:
             value?.enableMotionEffects ?? DEFAULT_APP_SETTINGS.enableMotionEffects,
+        highContrastMode:
+            value?.highContrastMode ?? DEFAULT_APP_SETTINGS.highContrastMode,
         preferredCurrency:
             typeof value?.preferredCurrency === "string" && value.preferredCurrency.trim() !== ""
                 ? value.preferredCurrency.toUpperCase()

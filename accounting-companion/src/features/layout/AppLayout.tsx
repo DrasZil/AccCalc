@@ -57,6 +57,8 @@ const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
     Accounting: false,
     Finance: false,
     "Managerial & Cost": false,
+    Economics: false,
+    Entrepreneurship: false,
     "Business Math": false,
     Statistics: false,
 };
@@ -82,6 +84,10 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
             return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(43, 70, 229, 0.1))";
         case "Managerial & Cost":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.18), rgba(43, 70, 229, 0.08))";
+        case "Economics":
+            return "linear-gradient(135deg, rgba(36, 198, 176, 0.18), rgba(73, 138, 255, 0.08))";
+        case "Entrepreneurship":
+            return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(36, 198, 176, 0.08))";
         case "Business Math":
             return "linear-gradient(135deg, rgba(43, 70, 229, 0.18), rgba(220, 146, 71, 0.08))";
         case "Statistics":
@@ -103,6 +109,7 @@ function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
     if (groupTitle === "Core Tools") return "Core";
     if (groupTitle === "Smart Tools") return "Smart";
     if (groupTitle === "Managerial & Cost") return "Mgmt & Cost";
+    if (groupTitle === "Entrepreneurship") return "Startup";
     if (groupTitle === "Business Math") return "Business Math";
     return groupTitle;
 }
@@ -727,6 +734,12 @@ export default function AppLayout() {
     }, [settings.enableMotionEffects]);
 
     useEffect(() => {
+        if (typeof document === "undefined") return;
+        document.documentElement.dataset.contrast = settings.highContrastMode ? "high" : "normal";
+        document.body.dataset.contrast = settings.highContrastMode ? "high" : "normal";
+    }, [settings.highContrastMode]);
+
+    useEffect(() => {
         if (typeof window === "undefined") return;
 
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -1202,7 +1215,14 @@ export default function AppLayout() {
                         className="sticky top-0 z-[90] border-b app-divider backdrop-blur-xl"
                         style={{ background: "var(--app-header-bg)" }}
                     >
-                        <div className="flex items-center justify-between gap-3 px-4 py-2 md:px-5 md:py-2.5">
+                        <div
+                            className={[
+                                "flex items-center justify-between gap-3 md:px-5",
+                                settings.compactMobileChrome
+                                    ? "px-3.5 py-1.75 md:py-2.25"
+                                    : "px-4 py-2 md:py-2.5",
+                            ].join(" ")}
+                        >
                             <div className="min-w-0 flex-1 pr-2">
                                 <div className="flex items-center gap-2">
                                     <p className="app-kicker hidden text-[0.58rem] sm:block">
@@ -1348,7 +1368,12 @@ export default function AppLayout() {
                     </header>
 
                     {!network.online ? (
-                        <div className="border-b app-divider px-4 py-2.5 md:px-5">
+                        <div
+                            className={[
+                                "border-b app-divider md:px-5",
+                                settings.compactMobileChrome ? "px-3.5 py-2" : "px-4 py-2.5",
+                            ].join(" ")}
+                        >
                             <div className="app-tone-warning rounded-[1.2rem] px-4 py-3 text-sm leading-6">
                                 {offlineBundle.ready
                                     ? currentRouteAvailability?.reason ??
@@ -1360,7 +1385,12 @@ export default function AppLayout() {
 
                     <main
                         ref={mainRef}
-                        className="px-4 pt-2.5 md:px-5 md:pb-6 md:pt-4"
+                        className={[
+                            "md:px-5 md:pb-6",
+                            settings.compactMobileChrome
+                                ? "px-3.5 pt-2 md:pt-3.5"
+                                : "px-4 pt-2.5 md:pt-4",
+                        ].join(" ")}
                         style={{
                             paddingBottom:
                                 "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 1.35rem)",
@@ -1400,11 +1430,20 @@ export default function AppLayout() {
             <div
                 ref={mobileNavRef}
                 className={[
-                    "fixed inset-x-3 bottom-3 z-[95] xl:hidden",
+                    settings.compactMobileChrome
+                        ? "fixed inset-x-2.5 bottom-2.5 z-[95] xl:hidden"
+                        : "fixed inset-x-3 bottom-3 z-[95] xl:hidden",
                     mobileSearchOpen ? "pointer-events-none opacity-0" : "",
                 ].join(" ")}
             >
-                <div className="app-panel rounded-[1.6rem] p-2 shadow-[var(--app-shadow-lg)]">
+                <div
+                    className={[
+                        "app-panel shadow-[var(--app-shadow-lg)]",
+                        settings.compactMobileChrome
+                            ? "rounded-[1.4rem] p-1.5"
+                            : "rounded-[1.6rem] p-2",
+                    ].join(" ")}
+                >
                     <div className="grid grid-cols-5 gap-1.5">
                         <MobileNavButton
                             active={location.pathname === "/"}
@@ -1440,11 +1479,20 @@ export default function AppLayout() {
 
             <div
                 className={[
-                    "fixed inset-x-3 top-[calc(var(--app-header-height)+0.75rem)] z-[96] transition duration-300 md:hidden",
+                    settings.compactMobileChrome
+                        ? "fixed inset-x-2.5 top-[calc(var(--app-header-height)+0.5rem)] z-[96] transition duration-300 md:hidden"
+                        : "fixed inset-x-3 top-[calc(var(--app-header-height)+0.75rem)] z-[96] transition duration-300 md:hidden",
                     mobileSearchOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
                 ].join(" ")}
             >
-                <div className="app-search-panel rounded-[1.6rem] p-3">
+                <div
+                    className={[
+                        "app-search-panel",
+                        settings.compactMobileChrome
+                            ? "rounded-[1.35rem] p-2.5"
+                            : "rounded-[1.6rem] p-3",
+                    ].join(" ")}
+                >
                     <div className="flex items-center justify-between gap-3 px-1 pb-3">
                         <div>
                             <p className="app-kicker text-[0.68rem]">Mobile search</p>

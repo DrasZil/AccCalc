@@ -207,6 +207,28 @@ const InstallGuidePage = lazy(() => import("./features/meta/InstallGuidePage"));
 const ProfitabilityIndexPage = lazy(
     () => import("./features/finance/ProfitabilityIndexPage")
 );
+const PriceElasticityPage = lazy(
+    () => import("./features/economics/PriceElasticityPage")
+);
+const MarketEquilibriumPage = lazy(
+    () => import("./features/economics/MarketEquilibriumPage")
+);
+const SurplusAnalysisPage = lazy(
+    () => import("./features/economics/SurplusAnalysisPage")
+);
+const RealRatePage = lazy(() => import("./features/economics/RealRatePage"));
+const StartupCostPlannerPage = lazy(
+    () => import("./features/entrepreneurship/StartupCostPlannerPage")
+);
+const UnitEconomicsPage = lazy(
+    () => import("./features/entrepreneurship/UnitEconomicsPage")
+);
+const SalesForecastPlannerPage = lazy(
+    () => import("./features/entrepreneurship/SalesForecastPlannerPage")
+);
+const CashRunwayPlannerPage = lazy(
+    () => import("./features/entrepreneurship/CashRunwayPlannerPage")
+);
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
     () => import("./features/statistics/StandardDeviationPage")
@@ -311,6 +333,16 @@ export default function App() {
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
                         <Route path="business/flexible-budget" element={renderRoute("/business/flexible-budget", <FlexibleBudgetPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
+
+                        <Route path="economics/price-elasticity-demand" element={renderRoute("/economics/price-elasticity-demand", <PriceElasticityPage />)} />
+                        <Route path="economics/market-equilibrium" element={renderRoute("/economics/market-equilibrium", <MarketEquilibriumPage />)} />
+                        <Route path="economics/surplus-analysis" element={renderRoute("/economics/surplus-analysis", <SurplusAnalysisPage />)} />
+                        <Route path="economics/real-interest-rate" element={renderRoute("/economics/real-interest-rate", <RealRatePage />)} />
+
+                        <Route path="entrepreneurship/startup-cost-planner" element={renderRoute("/entrepreneurship/startup-cost-planner", <StartupCostPlannerPage />)} />
+                        <Route path="entrepreneurship/unit-economics" element={renderRoute("/entrepreneurship/unit-economics", <UnitEconomicsPage />)} />
+                        <Route path="entrepreneurship/sales-forecast-planner" element={renderRoute("/entrepreneurship/sales-forecast-planner", <SalesForecastPlannerPage />)} />
+                        <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
                         <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />

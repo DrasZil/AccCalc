@@ -36,10 +36,10 @@ export function SettingsPanelBody({
                     <div>
                         <p className="app-kicker text-[0.68rem]">Settings</p>
                         <h2 className="mt-2 text-[1.55rem] font-bold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.8rem]">
-                            App preferences
+                            App settings
                         </h2>
                         <p className="app-body-md mt-2 text-sm">
-                            Adjust appearance, navigation behavior, Smart Solver presentation, and study preferences without leaving your current page.
+                            Manage appearance, calculator behavior, Smart Solver, offline use, and accessibility from one organized panel.
                         </p>
                     </div>
 

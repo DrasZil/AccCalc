@@ -5,11 +5,16 @@ let cachedSettingsRaw;
 let cachedSettingsSnapshot;
 export const DEFAULT_APP_SETTINGS = {
     autoExpandActiveNavGroup: false,
+    compactMobileChrome: true,
     showInstallPrompt: true,
     smartSolverShowPromptExamples: true,
     smartSolverMaxSuggestions: 4,
+    smartSolverDefaultMode: "beginner",
+    smartSolverPreferGuidedSetup: true,
+    smartSolverShowStudyNotes: true,
     rememberDesktopSidebarVisibility: true,
     enableMotionEffects: true,
+    highContrastMode: false,
     preferredCurrency: "PHP",
     showFeedbackReminders: true,
     showOpeningAnimation: true,
@@ -23,18 +28,30 @@ function sanitizeThemePreference(value) {
         ? value
         : DEFAULT_APP_SETTINGS.themePreference;
 }
+function sanitizeSmartSolverMode(value) {
+    return value === "compute" || value === "professional" || value === "beginner"
+        ? value
+        : DEFAULT_APP_SETTINGS.smartSolverDefaultMode;
+}
 function sanitizeSettings(value) {
     return {
         autoExpandActiveNavGroup: value?.autoExpandActiveNavGroup ?? DEFAULT_APP_SETTINGS.autoExpandActiveNavGroup,
+        compactMobileChrome: value?.compactMobileChrome ?? DEFAULT_APP_SETTINGS.compactMobileChrome,
         showInstallPrompt: value?.showInstallPrompt ?? DEFAULT_APP_SETTINGS.showInstallPrompt,
         smartSolverShowPromptExamples: value?.smartSolverShowPromptExamples ??
             DEFAULT_APP_SETTINGS.smartSolverShowPromptExamples,
         smartSolverMaxSuggestions: typeof value?.smartSolverMaxSuggestions === "number"
             ? Math.min(6, Math.max(2, Math.round(value.smartSolverMaxSuggestions)))
             : DEFAULT_APP_SETTINGS.smartSolverMaxSuggestions,
+        smartSolverDefaultMode: sanitizeSmartSolverMode(value?.smartSolverDefaultMode),
+        smartSolverPreferGuidedSetup: value?.smartSolverPreferGuidedSetup ??
+            DEFAULT_APP_SETTINGS.smartSolverPreferGuidedSetup,
+        smartSolverShowStudyNotes: value?.smartSolverShowStudyNotes ??
+            DEFAULT_APP_SETTINGS.smartSolverShowStudyNotes,
         rememberDesktopSidebarVisibility: value?.rememberDesktopSidebarVisibility ??
             DEFAULT_APP_SETTINGS.rememberDesktopSidebarVisibility,
         enableMotionEffects: value?.enableMotionEffects ?? DEFAULT_APP_SETTINGS.enableMotionEffects,
+        highContrastMode: value?.highContrastMode ?? DEFAULT_APP_SETTINGS.highContrastMode,
         preferredCurrency: typeof value?.preferredCurrency === "string" && value.preferredCurrency.trim() !== ""
             ? value.preferredCurrency.toUpperCase()
             : DEFAULT_APP_SETTINGS.preferredCurrency,

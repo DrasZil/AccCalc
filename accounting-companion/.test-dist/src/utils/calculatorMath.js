@@ -1137,3 +1137,128 @@ export function computeCapitalBudgetingComparison(initialInvestment, discountRat
             : "Review / Reject",
     };
 }
+export function computePriceElasticity({ initialPrice, finalPrice, initialQuantity, finalQuantity, }) {
+    const priceMidpoint = (initialPrice + finalPrice) / 2;
+    const quantityMidpoint = (initialQuantity + finalQuantity) / 2;
+    const priceChangePercent = priceMidpoint === 0 ? 0 : ((finalPrice - initialPrice) / priceMidpoint) * 100;
+    const quantityChangePercent = quantityMidpoint === 0
+        ? 0
+        : ((finalQuantity - initialQuantity) / quantityMidpoint) * 100;
+    const elasticity = priceChangePercent === 0 ? 0 : quantityChangePercent / priceChangePercent;
+    const absElasticity = Math.abs(elasticity);
+    return {
+        priceChangePercent,
+        quantityChangePercent,
+        elasticity,
+        absElasticity,
+        classification: absElasticity > 1
+            ? "Elastic"
+            : absElasticity < 1
+                ? "Inelastic"
+                : "Unit elastic",
+        initialRevenue: initialPrice * initialQuantity,
+        finalRevenue: finalPrice * finalQuantity,
+    };
+}
+export function computeMarketEquilibrium({ demandIntercept, demandSlope, supplyIntercept, supplySlope, }) {
+    const denominator = demandSlope + supplySlope;
+    const equilibriumQuantity = denominator === 0 ? NaN : (demandIntercept - supplyIntercept) / denominator;
+    const equilibriumPrice = demandIntercept - demandSlope * equilibriumQuantity;
+    return {
+        equilibriumQuantity,
+        equilibriumPrice,
+        demandAtZeroPrice: demandSlope === 0 ? Infinity : demandIntercept / demandSlope,
+        supplyAtZeroPrice: supplySlope === 0 ? Infinity : -supplyIntercept / supplySlope,
+        isFeasible: Number.isFinite(equilibriumQuantity) &&
+            Number.isFinite(equilibriumPrice) &&
+            equilibriumQuantity >= 0 &&
+            equilibriumPrice >= 0,
+    };
+}
+export function computeSurplusAtEquilibrium({ demandIntercept, supplyIntercept, equilibriumPrice, equilibriumQuantity, }) {
+    const consumerSurplus = 0.5 * Math.max(demandIntercept - equilibriumPrice, 0) * equilibriumQuantity;
+    const producerSurplus = 0.5 * Math.max(equilibriumPrice - supplyIntercept, 0) * equilibriumQuantity;
+    return {
+        consumerSurplus,
+        producerSurplus,
+        totalSurplus: consumerSurplus + producerSurplus,
+    };
+}
+export function computeRealInterestRate(nominalRatePercent, inflationRatePercent) {
+    const nominalDecimal = nominalRatePercent / 100;
+    const inflationDecimal = inflationRatePercent / 100;
+    const exactRealRate = ((1 + nominalDecimal) / (1 + inflationDecimal) - 1) * 100;
+    const approximateRealRate = nominalRatePercent - inflationRatePercent;
+    return {
+        exactRealRate,
+        approximateRealRate,
+    };
+}
+export function computeStartupCostPlan(items, contingencyPercent, openingCashBuffer) {
+    const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
+    const contingencyAmount = subtotal * (contingencyPercent / 100);
+    const recommendedFunding = subtotal + contingencyAmount + openingCashBuffer;
+    const largestItem = items.reduce((largest, item) => (!largest || item.amount > largest.amount ? item : largest), null) ?? { label: "None", amount: 0 };
+    return {
+        subtotal,
+        contingencyAmount,
+        openingCashBuffer,
+        recommendedFunding,
+        largestItem,
+    };
+}
+export function computeUnitEconomics({ sellingPrice, variableCostPerUnit, fixedCosts, acquisitionCostPerCustomer, unitsPerCustomer, }) {
+    const contributionPerUnit = sellingPrice - variableCostPerUnit;
+    const grossMarginPercent = sellingPrice === 0 ? 0 : (contributionPerUnit / sellingPrice) * 100;
+    const contributionPerCustomer = contributionPerUnit * unitsPerCustomer;
+    const contributionAfterAcquisition = contributionPerCustomer - acquisitionCostPerCustomer;
+    const breakEvenUnits = contributionPerUnit <= 0 ? Infinity : fixedCosts / contributionPerUnit;
+    const breakEvenCustomers = contributionAfterAcquisition <= 0
+        ? Infinity
+        : fixedCosts / contributionAfterAcquisition;
+    return {
+        contributionPerUnit,
+        grossMarginPercent,
+        contributionPerCustomer,
+        contributionAfterAcquisition,
+        breakEvenUnits,
+        breakEvenCustomers,
+    };
+}
+export function computeSalesForecast({ startingSales, monthlyGrowthPercent, months, grossMarginPercent = 0, }) {
+    const growthFactor = 1 + monthlyGrowthPercent / 100;
+    const rows = Array.from({ length: months }, (_, index) => {
+        const sales = startingSales * Math.pow(growthFactor, index);
+        const grossProfit = sales * (grossMarginPercent / 100);
+        return {
+            period: index + 1,
+            sales,
+            grossProfit,
+        };
+    });
+    return {
+        rows,
+        totalSales: rows.reduce((sum, row) => sum + row.sales, 0),
+        totalGrossProfit: rows.reduce((sum, row) => sum + row.grossProfit, 0),
+        endingSales: rows.at(-1)?.sales ?? 0,
+    };
+}
+export function computeCashRunway({ openingCash, averageMonthlyInflows, averageMonthlyOutflows, plannedGrowthPercent = 0, }) {
+    const adjustedInflows = averageMonthlyInflows * (1 + plannedGrowthPercent / 100);
+    const monthlyNetCashFlow = adjustedInflows - averageMonthlyOutflows;
+    const monthlyBurn = averageMonthlyOutflows - adjustedInflows;
+    const runwayMonths = monthlyBurn <= 0 ? Infinity : openingCash / monthlyBurn;
+    return {
+        adjustedInflows,
+        monthlyNetCashFlow,
+        monthlyBurn,
+        runwayMonths,
+        status: monthlyBurn <= 0
+            ? "Positive or break-even cash flow"
+            : runwayMonths < 6
+                ? "Short runway"
+                : runwayMonths < 12
+                    ? "Moderate runway"
+                    : "Comfortable runway",
+    };
+}

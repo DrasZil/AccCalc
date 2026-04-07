@@ -145,6 +145,16 @@ html[data-theme="light"] {
     --app-bg-accent-c: rgba(215, 133, 42, 0.05);
 }
 
+html[data-contrast="high"] {
+    --app-border: color-mix(in srgb, var(--app-text) 24%, var(--app-border));
+    --app-border-subtle: color-mix(in srgb, var(--app-text) 16%, var(--app-border-subtle));
+    --app-border-strong: color-mix(in srgb, var(--app-accent) 55%, white 8%);
+    --app-text-secondary: color-mix(in srgb, var(--app-text) 72%, var(--app-text-secondary));
+    --app-text-muted: color-mix(in srgb, var(--app-text) 56%, var(--app-text-muted));
+    --app-accent-soft: color-mix(in srgb, var(--app-accent) 18%, transparent);
+    --app-accent-secondary-soft: color-mix(in srgb, var(--app-accent-secondary) 18%, transparent);
+}
+
 html {
     background: var(--app-bg);
     scroll-behavior: smooth;
@@ -536,6 +546,17 @@ a:active {
         linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
     box-shadow: var(--app-shadow-sm);
     backdrop-filter: blur(18px);
+}
+
+html[data-contrast="high"] .app-panel,
+html[data-contrast="high"] .app-panel-elevated,
+html[data-contrast="high"] .app-subtle-surface,
+html[data-contrast="high"] .app-input-shell,
+html[data-contrast="high"] .app-link-card,
+html[data-contrast="high"] .app-list-link,
+html[data-contrast="high"] .app-sidebar-group,
+html[data-contrast="high"] .app-sidebar-link {
+    border-width: 1.5px;
 }
 
 .app-panel-elevated {
@@ -1146,6 +1167,11 @@ body[data-motion="off"] * {
     .app-chip,
     .app-chip-accent {
         letter-spacing: 0.14em;
+    }
+
+    .app-panel,
+    .app-panel-elevated {
+        border-radius: 1.35rem;
     }
 }
 
