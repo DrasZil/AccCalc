@@ -12,23 +12,20 @@
     --app-radius-lg: 1.45rem;
     --app-radius-xl: 1.75rem;
     --app-font-sans:
-        "Inter Variable",
-        "Inter",
+        "Space Grotesk",
+        "Sora",
         "Plus Jakarta Sans",
+        "IBM Plex Sans",
         "Manrope",
-        "Segoe UI Variable Text",
         "Segoe UI",
-        "Aptos",
         "Helvetica Neue",
         sans-serif;
     --app-font-display:
-        "Inter Variable",
-        "Inter",
+        "Sora",
+        "Space Grotesk",
         "Plus Jakarta Sans",
-        "Segoe UI Variable Display",
-        "Aptos Display",
-        "Aptos",
-        "Helvetica Neue",
+        "IBM Plex Sans",
+        "Segoe UI",
         sans-serif;
     --app-font-mono:
         "JetBrains Mono",
@@ -447,10 +444,10 @@ a:active {
 
 .app-formula-display {
     font-family: var(--app-font-display);
-    font-size: clamp(1rem, 0.95rem + 0.32vw, 1.12rem);
-    font-weight: 620;
-    letter-spacing: 0.01em;
-    line-height: 1.75;
+    font-size: clamp(1rem, 0.94rem + 0.36vw, 1.16rem);
+    font-weight: 640;
+    letter-spacing: 0.005em;
+    line-height: 1.8;
     word-spacing: 0.04em;
     color: var(--app-text);
     text-align: left;
@@ -519,6 +516,22 @@ a:active {
 .app-formula-panel .app-formula-display {
     max-width: 42rem;
     margin-inline: auto;
+}
+
+.katex {
+    font-size: 1em;
+    color: var(--app-text);
+}
+
+.katex-display {
+    margin: 0.25rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.15rem;
+}
+
+.katex-display::-webkit-scrollbar {
+    height: 6px;
 }
 
 .app-link-accent {

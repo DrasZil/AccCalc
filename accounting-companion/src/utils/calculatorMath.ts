@@ -1,3 +1,14 @@
+import { percentToDecimal } from "./calc/percentUtils";
+import { roundTo } from "./calc/precision";
+import { sanitizeNumberOutput } from "./calc/numberSafety";
+import {
+    safeAdd,
+    safeDivide,
+    safeMultiply,
+    safePow,
+    safeSubtract,
+} from "./calc/safeOperators";
+
 type SimpleInterestParams = {
     principal: number;
     annualRatePercent: number;
@@ -333,16 +344,26 @@ export function computeLoanAmortization({
     annualRatePercent,
     termYears,
 }: LoanAmortizationParams) {
-    const monthlyRate = annualRatePercent / 100 / 12;
+    const monthlyRate = safeDivide(percentToDecimal(annualRatePercent), 12);
     const totalPayments = termYears * 12;
     const monthlyPayment =
         monthlyRate === 0
-            ? principal / totalPayments
-            : principal *
-              ((monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) /
-                  (Math.pow(1 + monthlyRate, totalPayments) - 1));
-    const totalPaid = monthlyPayment * totalPayments;
-    const totalInterest = totalPaid - principal;
+            ? safeDivide(principal, totalPayments)
+            : safeMultiply(
+                  principal,
+                  safeDivide(
+                      safeMultiply(
+                          monthlyRate,
+                          safePow(safeAdd(1, monthlyRate), totalPayments, 0)
+                      ),
+                      safeSubtract(
+                          safePow(safeAdd(1, monthlyRate), totalPayments, 0),
+                          1
+                      )
+                  )
+              );
+    const totalPaid = safeMultiply(monthlyPayment, totalPayments);
+    const totalInterest = safeSubtract(totalPaid, principal);
 
     return {
         monthlyRate,
@@ -416,11 +437,12 @@ export function computeBreakEven({
     sellingPricePerUnit,
     variableCostPerUnit,
 }: BreakEvenParams) {
-    const contributionMarginPerUnit = sellingPricePerUnit - variableCostPerUnit;
-    const breakEvenUnits = fixedCosts / contributionMarginPerUnit;
+    const contributionMarginPerUnit = safeSubtract(sellingPricePerUnit, variableCostPerUnit);
+    const breakEvenUnits =
+        contributionMarginPerUnit <= 0 ? 0 : safeDivide(fixedCosts, contributionMarginPerUnit);
     const practicalUnits = Math.ceil(breakEvenUnits);
-    const breakEvenSales = breakEvenUnits * sellingPricePerUnit;
-    const practicalSales = practicalUnits * sellingPricePerUnit;
+    const breakEvenSales = safeMultiply(breakEvenUnits, sellingPricePerUnit);
+    const practicalSales = safeMultiply(practicalUnits, sellingPricePerUnit);
 
     return {
         contributionMarginPerUnit,
@@ -437,11 +459,14 @@ export function computeTargetProfit({
     sellingPricePerUnit,
     variableCostPerUnit,
 }: TargetProfitParams) {
-    const contributionMarginPerUnit = sellingPricePerUnit - variableCostPerUnit;
-    const requiredUnits = (fixedCosts + targetProfit) / contributionMarginPerUnit;
+    const contributionMarginPerUnit = safeSubtract(sellingPricePerUnit, variableCostPerUnit);
+    const requiredUnits =
+        contributionMarginPerUnit <= 0
+            ? 0
+            : safeDivide(safeAdd(fixedCosts, targetProfit), contributionMarginPerUnit);
     const practicalUnits = Math.ceil(requiredUnits);
-    const requiredSales = requiredUnits * sellingPricePerUnit;
-    const practicalSales = practicalUnits * sellingPricePerUnit;
+    const requiredSales = safeMultiply(requiredUnits, sellingPricePerUnit);
+    const practicalSales = safeMultiply(practicalUnits, sellingPricePerUnit);
 
     return {
         contributionMarginPerUnit,
@@ -453,9 +478,9 @@ export function computeTargetProfit({
 }
 
 export function computeMarkupMargin({ cost, sellingPrice }: MarkupMarginParams) {
-    const profit = sellingPrice - cost;
-    const markup = (profit / cost) * 100;
-    const margin = (profit / sellingPrice) * 100;
+    const profit = safeSubtract(sellingPrice, cost);
+    const markup = safeMultiply(safeDivide(profit, cost), 100);
+    const margin = safeMultiply(safeDivide(profit, sellingPrice), 100);
 
     return {
         profit,
@@ -508,8 +533,8 @@ export function computeDoubleDecliningBalance({
 
 export function computeCurrentRatio({ currentAssets, currentLiabilities }: LiquidityRatioParams) {
     return {
-        currentRatio: currentAssets / currentLiabilities,
-        workingCapital: currentAssets - currentLiabilities,
+        currentRatio: safeDivide(currentAssets, currentLiabilities),
+        workingCapital: safeSubtract(currentAssets, currentLiabilities),
     };
 }
 
@@ -519,11 +544,11 @@ export function computeQuickRatio({
     netReceivables,
     currentLiabilities,
 }: QuickRatioParams) {
-    const quickAssets = cash + marketableSecurities + netReceivables;
+    const quickAssets = safeAdd(safeAdd(cash, marketableSecurities), netReceivables);
 
     return {
         quickAssets,
-        quickRatio: quickAssets / currentLiabilities,
+        quickRatio: safeDivide(quickAssets, currentLiabilities),
     };
 }
 
@@ -532,20 +557,20 @@ export function computeCashRatio(
     marketableSecurities: number,
     currentLiabilities: number
 ) {
-    const cashAssets = cash + marketableSecurities;
+    const cashAssets = safeAdd(cash, marketableSecurities);
 
     return {
         cashAssets,
-        cashRatio: cashAssets / currentLiabilities,
+        cashRatio: safeDivide(cashAssets, currentLiabilities),
     };
 }
 
 export function computeGrossProfitRate(netSales: number, costOfGoodsSold: number) {
-    const grossProfit = netSales - costOfGoodsSold;
+    const grossProfit = safeSubtract(netSales, costOfGoodsSold);
 
     return {
         grossProfit,
-        grossProfitRate: (grossProfit / netSales) * 100,
+        grossProfitRate: safeMultiply(safeDivide(grossProfit, netSales), 100),
     };
 }
 
@@ -554,11 +579,11 @@ export function computeTurnoverWithDayBasis({
     denominator,
     dayBasis = 365,
 }: TurnoverParams) {
-    const turnover = numerator / denominator;
+    const turnover = safeDivide(numerator, denominator);
 
     return {
         turnover,
-        days: dayBasis / turnover,
+        days: safeDivide(dayBasis, turnover),
     };
 }
 
@@ -1869,28 +1894,18 @@ export function computeRatioAnalysisWorkspace({
     averageEquity,
     dayBasis = 365,
 }: RatioAnalysisWorkspaceParams) {
-    const currentRatio =
-        currentLiabilities === 0 ? 0 : currentAssets / currentLiabilities;
-    const workingCapital = currentAssets - currentLiabilities;
-    const quickAssets = cash + marketableSecurities + netReceivables;
-    const quickRatio =
-        currentLiabilities === 0 ? 0 : quickAssets / currentLiabilities;
-    const grossProfit = netSales - costOfGoodsSold;
-    const grossProfitRate = netSales === 0 ? 0 : grossProfit / netSales;
-    const inventoryTurnover =
-        averageInventory === 0 ? 0 : costOfGoodsSold / averageInventory;
-    const inventoryDays =
-        inventoryTurnover === 0 ? 0 : dayBasis / inventoryTurnover;
-    const receivablesTurnover =
-        averageAccountsReceivable === 0
-            ? 0
-            : netCreditSales / averageAccountsReceivable;
-    const collectionDays =
-        receivablesTurnover === 0 ? 0 : dayBasis / receivablesTurnover;
-    const returnOnAssets =
-        averageTotalAssets === 0 ? 0 : netIncome / averageTotalAssets;
-    const returnOnEquity =
-        averageEquity === 0 ? 0 : netIncome / averageEquity;
+    const currentRatio = safeDivide(currentAssets, currentLiabilities);
+    const workingCapital = safeSubtract(currentAssets, currentLiabilities);
+    const quickAssets = safeAdd(safeAdd(cash, marketableSecurities), netReceivables);
+    const quickRatio = safeDivide(quickAssets, currentLiabilities);
+    const grossProfit = safeSubtract(netSales, costOfGoodsSold);
+    const grossProfitRate = safeDivide(grossProfit, netSales);
+    const inventoryTurnover = safeDivide(costOfGoodsSold, averageInventory);
+    const inventoryDays = safeDivide(dayBasis, inventoryTurnover);
+    const receivablesTurnover = safeDivide(netCreditSales, averageAccountsReceivable);
+    const collectionDays = safeDivide(dayBasis, receivablesTurnover);
+    const returnOnAssets = safeDivide(netIncome, averageTotalAssets);
+    const returnOnEquity = safeDivide(netIncome, averageEquity);
 
     return {
         currentRatio,
@@ -2146,14 +2161,15 @@ export function computePriceElasticity({
 }: PriceElasticityParams) {
     const priceMidpoint = (initialPrice + finalPrice) / 2;
     const quantityMidpoint = (initialQuantity + finalQuantity) / 2;
-    const priceChangePercent =
-        priceMidpoint === 0 ? 0 : ((finalPrice - initialPrice) / priceMidpoint) * 100;
-    const quantityChangePercent =
-        quantityMidpoint === 0
-            ? 0
-            : ((finalQuantity - initialQuantity) / quantityMidpoint) * 100;
-    const elasticity =
-        priceChangePercent === 0 ? 0 : quantityChangePercent / priceChangePercent;
+    const priceChangePercent = safeMultiply(
+        safeDivide(safeSubtract(finalPrice, initialPrice), priceMidpoint),
+        100
+    );
+    const quantityChangePercent = safeMultiply(
+        safeDivide(safeSubtract(finalQuantity, initialQuantity), quantityMidpoint),
+        100
+    );
+    const elasticity = safeDivide(quantityChangePercent, priceChangePercent);
     const absElasticity = Math.abs(elasticity);
 
     return {
@@ -2167,8 +2183,8 @@ export function computePriceElasticity({
                 : absElasticity < 1
                   ? "Inelastic"
                   : "Unit elastic",
-        initialRevenue: initialPrice * initialQuantity,
-        finalRevenue: finalPrice * finalQuantity,
+        initialRevenue: safeMultiply(initialPrice, initialQuantity),
+        finalRevenue: safeMultiply(finalPrice, finalQuantity),
     };
 }
 
@@ -2178,16 +2194,21 @@ export function computeMarketEquilibrium({
     supplyIntercept,
     supplySlope,
 }: MarketEquilibriumParams) {
-    const denominator = demandSlope + supplySlope;
-    const equilibriumQuantity =
-        denominator === 0 ? NaN : (demandIntercept - supplyIntercept) / denominator;
-    const equilibriumPrice = demandIntercept - demandSlope * equilibriumQuantity;
+    const denominator = safeAdd(demandSlope, supplySlope);
+    const equilibriumQuantity = safeDivide(
+        safeSubtract(demandIntercept, supplyIntercept),
+        denominator
+    );
+    const equilibriumPrice = safeSubtract(
+        demandIntercept,
+        safeMultiply(demandSlope, equilibriumQuantity)
+    );
 
     return {
-        equilibriumQuantity,
-        equilibriumPrice,
-        demandAtZeroPrice: demandSlope === 0 ? Infinity : demandIntercept / demandSlope,
-        supplyAtZeroPrice: supplySlope === 0 ? Infinity : -supplyIntercept / supplySlope,
+        equilibriumQuantity: roundTo(equilibriumQuantity, 8),
+        equilibriumPrice: roundTo(equilibriumPrice, 8),
+        demandAtZeroPrice: safeDivide(demandIntercept, demandSlope),
+        supplyAtZeroPrice: sanitizeNumberOutput(safeDivide(-supplyIntercept, supplySlope)),
         isFeasible:
             Number.isFinite(equilibriumQuantity) &&
             Number.isFinite(equilibriumPrice) &&
@@ -2218,11 +2239,13 @@ export function computeRealInterestRate(
     nominalRatePercent: number,
     inflationRatePercent: number
 ) {
-    const nominalDecimal = nominalRatePercent / 100;
-    const inflationDecimal = inflationRatePercent / 100;
-    const exactRealRate =
-        ((1 + nominalDecimal) / (1 + inflationDecimal) - 1) * 100;
-    const approximateRealRate = nominalRatePercent - inflationRatePercent;
+    const nominalDecimal = percentToDecimal(nominalRatePercent);
+    const inflationDecimal = percentToDecimal(inflationRatePercent);
+    const exactRealRate = safeMultiply(
+        safeSubtract(safeDivide(safeAdd(1, nominalDecimal), safeAdd(1, inflationDecimal)), 1),
+        100
+    );
+    const approximateRealRate = safeSubtract(nominalRatePercent, inflationRatePercent);
 
     return {
         exactRealRate,

@@ -9,6 +9,8 @@ import {
 } from "react";
 import DisclosurePanel from "./DisclosurePanel";
 import SectionCard from "./SectionCard";
+import FormulaBlock from "./math/FormulaBlock";
+import MathInline from "./math/MathInline";
 
 type FormulaGlossaryItem = {
     term: string;
@@ -68,7 +70,7 @@ function prettifyText(value: string) {
 
 function polishNode(node: ReactNode): ReactNode {
     if (typeof node === "string") {
-        return prettifyText(node);
+        return <MathInline text={prettifyText(node)} renderMode="auto" />;
     }
 
     if (Array.isArray(node)) {
@@ -106,10 +108,16 @@ export default function FormulaCard({
                     content: (
                         <div className="app-formula-panel app-subtle-surface rounded-[var(--app-radius-md)] px-5 py-5 text-left md:px-6">
                             <div className="mx-auto max-w-3xl">
-                                <p className="app-label mb-3">Equation</p>
-                                <div className="app-formula-display text-left">
-                                    {polishNode(formula)}
-                                </div>
+                                {typeof formula === "string" ? (
+                                    <FormulaBlock text={formula} />
+                                ) : (
+                                    <>
+                                        <p className="app-label mb-3">Equation</p>
+                                        <div className="app-formula-display text-left">
+                                            {polishNode(formula)}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ),

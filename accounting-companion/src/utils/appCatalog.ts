@@ -99,6 +99,7 @@ function feature(
 }
 
 const CURRENT_RELEASE_NEW_PATHS = new Set([
+    "/scan-check",
     "/accounting/adjusting-entries-workspace",
     "/accounting/working-capital-planner",
     "/accounting/inventory-control-workspace",
@@ -306,6 +307,16 @@ function inferOfflineMeta(path: string): Pick<RouteMeta, "offlineSupport" | "off
         };
     }
 
+    if (path === "/scan-check") {
+        return {
+            offlineSupport: "limited",
+            offlineSummary:
+                "The page and review UI can open offline after caching, but first OCR language downloads and camera access still depend on the browser.",
+            offlineDetail:
+                "Scan & Check is browser-first and local once its OCR assets are cached, but first-use OCR downloads, camera permission prompts, and notification behavior still vary by browser and device.",
+        };
+    }
+
     return {
         offlineSupport: "full",
         offlineSummary: "This route is designed to keep working offline after the current version is cached.",
@@ -382,6 +393,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/settings/feedback", "Feedback", "General", "Suggestions and issue reporting.", ["support", "report issue"], ["feedback"], "Feedback"),
     feature("/basic", "Scientific Calculator", "Core Tools", "Expression calculator with scientific functions, memory, and keyboard support.", ["basic calc", "standard calculator", "scientific calculator"], ["calculator", "scientific"], "Calculator"),
     feature("/smart/solver", "Smart Solver", "Smart Tools", "Natural-language routing into the right tool.", ["prompt solver", "smart search"], ["smart", "routing"], "Solver"),
+    feature("/scan-check", "Scan & Check", "Smart Tools", "Browser-first OCR review for equations, textbook problems, worked solutions, and answer checking.", ["ocr scan", "camera solve", "image to text math"], ["scan", "ocr", "review"], "Scan", true, ["ocr", "scan", "camera", "extract equation", "check solution"]),
 
     feature("/accounting/accounting-equation", "Accounting Equation", "Accounting", "Solve assets, liabilities, or equity.", ["assets liabilities equity", "ale"], ["fundamentals"]),
     feature("/accounting/notes-interest", "Notes Interest", "Accounting", "Compute note interest and maturity value.", ["note receivable interest", "maturity value"], ["notes", "interest"]),

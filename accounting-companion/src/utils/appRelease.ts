@@ -1,35 +1,34 @@
-export const APP_VERSION = "3.1.0";
+export const APP_VERSION = "3.2.0";
 export const APP_RELEASE_DATE = "2026-04-07";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Cleaner 3.1 shell and learning flow",
-        body: "Tool pages now restore a richer About this tool layer, history and settings are cleaner, and the home workspace is calmer without hiding important paths.",
+        title: "Scan & Check arrives in 3.2",
+        body: "AccCalc now includes a browser-first multi-image Scan & Check workflow with OCR review, confidence-aware parsing, preprocessing previews, and Smart Solver handoff.",
     },
     {
-        title: "Mobile friction reduced",
-        body: "Mobile search no longer forces the keyboard open, bottom navigation is more screen-integrated, duplicate menu actions were removed, and headers stay tighter on phones.",
+        title: "Math notation and UI polish",
+        body: "Important formulas, notes, and result labels now use stronger notation, upgraded typography, and cleaner visual hierarchy without regressing the compact shell.",
     },
     {
-        title: "Scientific calculator upgrade",
-        body: "The general calculator now supports scientific mode, trigonometric and logarithmic functions, exponent handling, angle modes, and stronger reusable history behavior.",
+        title: "Smarter guidance and permissions",
+        body: "Smart Solver now surfaces extraction review, solver-confidence context, and likely prompt issues, while Settings now includes permission-first controls for camera, notifications, storage, and support.",
     },
     {
-        title: "New 3.1 workspaces",
-        body: "Accounting, economics, and entrepreneurship gained new multi-purpose workspaces for adjustments, working capital, inventory control, elasticity analysis, and planning.",
+        title: "Richer chart and note interpretation",
+        body: "Shared interpretation blocks, chart insights, and stronger narrative helpers now make analytical pages easier to read and explain.",
     },
     {
         title: "Still production-safe",
-        body: "The release stays metadata-driven, test-covered, lazy-routed, and inside the existing truthful offline/PWA model instead of adding one-off feature code.",
+        body: "The release stays metadata-driven, lazy-routed, and honest about browser-only OCR and local-notification limits instead of pretending cloud-grade capabilities.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.1.0: Restored educational About this tool guidance so tool meaning, use, and common mistakes stay available without replacing the actual calculator.",
-    "3.1.0: Fixed mobile search autofocus behavior so opening mobile search no longer forces the keyboard open on page entry.",
-    "3.1.0: Redesigned settings into cleaner collapsible app-like sections and reorganized history into searchable, filterable time groups.",
-    "3.1.0: Reworked mobile navigation into a more integrated bottom bar and removed duplicate mobile header actions that were competing with nav.",
-    "3.1.0: Upgraded the general calculator into a stronger scientific calculator with trig, logs, exponent support, angle modes, and richer history.",
-    "3.1.0: Added Adjusting Entries Workspace, Working Capital Planner, Inventory Control Workspace, Economics Analysis Workspace, and Entrepreneurship Toolkit.",
-    "3.1.0: Expanded Smart Solver prompts, route metadata, charts, analytics, and regression coverage while keeping offline/PWA behavior truthful.",
+    "3.2.0: Added Scan & Check as a lazy-loaded browser-first OCR workflow with multi-image queueing, preprocessing, editable extracted text, confidence-aware parsing, and Smart Solver handoff.",
+    "3.2.0: Added permission-first settings for camera, notifications, storage retention, reminder preferences, and donation QR support.",
+    "3.2.0: Upgraded formula and result rendering with stronger math notation, better typography, and KaTeX-backed rendering for important formulas.",
+    "3.2.0: Extended Smart Solver with extracted-input review, solver-confidence summaries, likely prompt-mistake hints, and scan-origin prompt handoff.",
+    "3.2.0: Expanded shared interpretation blocks and chart insight helpers so graph-heavy pages can explain what changed and why it matters.",
+    "3.2.0: Kept browser-only OCR and local reminders honest about their constraints instead of overclaiming handwriting or push reliability.",
 ];

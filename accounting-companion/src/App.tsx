@@ -250,6 +250,7 @@ const StandardDeviationPage = lazy(
 );
 const WeightedMeanPage = lazy(() => import("./features/businessMath/WeightedMeanPage"));
 const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
+const ScanCheckPage = lazy(() => import("./features/scan-check/pages/ScanCheckPage"));
 
 function RouteFallback() {
     return (
@@ -317,6 +318,7 @@ export default function App() {
                         <Route path="history" element={renderRoute("/history", <HistoryPage />)} />
                         <Route path="basic" element={renderRoute("/basic", <BasicCalculatorPage />)} />
                         <Route path="smart/solver" element={renderRoute("/smart/solver", <SmartSolverPage />)} />
+                        <Route path="scan-check" element={renderRoute("/scan-check", <ScanCheckPage />)} />
 
                         <Route path="finance/simple-interest" element={renderRoute("/finance/simple-interest", <SimpleInterestPage />)} />
                         <Route path="finance/compound-interest" element={renderRoute("/finance/compound-interest", <CompoundInterestPage />)} />

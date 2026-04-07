@@ -83,11 +83,11 @@ const BUTTON_ROWS: ButtonSpec[][] = [
         { label: ")", value: ")", kind: "operator" },
     ],
     [
-        { label: "x^2", value: "SQUARE", kind: "action" },
-        { label: "sqrt", value: "SQRT", kind: "action" },
+        { label: "x²", value: "SQUARE", kind: "action" },
+        { label: "√x", value: "SQRT", kind: "action" },
         { label: "1/x", value: "RECIPROCAL", kind: "action" },
         { label: "%", value: "%", kind: "operator" },
-        { label: "/", value: "/", kind: "operator" },
+        { label: "÷", value: "/", kind: "operator" },
     ],
     [
         { label: "7", value: "7", kind: "number" },
@@ -122,8 +122,8 @@ const SCIENTIFIC_ROWS: ButtonSpec[][] = [
         { label: "log", value: "LOG10", kind: "action" },
     ],
     [
-        { label: "x^y", value: "^", kind: "operator" },
-        { label: "pi", value: "PI", kind: "action" },
+        { label: "xʸ", value: "^", kind: "operator" },
+        { label: "π", value: "PI", kind: "action" },
         { label: "e", value: "E_CONST", kind: "action" },
         { label: "abs", value: "ABS", kind: "action" },
         { label: "n!", value: "FACTORIAL", kind: "action" },
@@ -1035,7 +1035,7 @@ export default function BasicCalculatorPage() {
                                         formula="Scientific mode keeps expression solving separate from one-value scientific functions."
                                         steps={[
                                             "Build the expression first when you need parentheses or order of operations.",
-                                            "Use sin, cos, tan, ln, log, abs, factorial, pi, and e on the current display value.",
+                                            "Use sin, cos, tan, ln, log, abs, factorial, π, and e on the current display value.",
                                             "Use Ans or memory keys when you need to reuse a result quickly.",
                                         ]}
                                         interpretation="This calculator now behaves more like a real study or desk calculator: arithmetic stays deterministic, scientific functions stay explicit, and reused answers remain close at hand."

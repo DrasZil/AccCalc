@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import "katex/dist/katex.min.css";
 import { initializeAppUpdateLifecycle } from "./utils/appUpdate";
 import { APP_VERSION } from "./utils/appRelease";
 import { initializeOfflineStatusLifecycle } from "./utils/offlineStatus";

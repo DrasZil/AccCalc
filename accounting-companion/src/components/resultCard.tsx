@@ -4,6 +4,7 @@ import {
     getResultValueTone,
     isWideResultValue,
 } from "../utils/resultDisplay";
+import ResultMath from "./math/ResultMath";
 
 type ResultCardProps = {
     title: string;
@@ -50,12 +51,16 @@ export default function ResultCard({
                         : "app-result-text",
                 ].join(" ")}
             >
-                {getResultValueSegments(value).map((segment, index) => (
-                    <Fragment key={`${segment.text}-${index}`}>
-                        {segment.text}
-                        {segment.breakAfter ? <wbr /> : null}
-                    </Fragment>
-                ))}
+                {valueTone === "numeric" ? (
+                    getResultValueSegments(value).map((segment, index) => (
+                        <Fragment key={`${segment.text}-${index}`}>
+                            {segment.text}
+                            {segment.breakAfter ? <wbr /> : null}
+                        </Fragment>
+                    ))
+                ) : (
+                    <ResultMath value={value} />
+                )}
             </p>
             {supportingText ? (
                 <p className="app-body-md app-result-supporting mt-2 text-sm">

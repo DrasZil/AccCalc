@@ -6,7 +6,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import InputCard from "../../components/INputCard";
 import InputGrid from "../../components/InputGrid";
@@ -36,7 +36,13 @@ import {
     analyzeSmartInput,
     makePrefill,
 } from "./smartSolver.engine";
+import type { SmartSolverRouteState } from "./smartSolver.connector";
 import { suggestSolveTarget } from "./smartSolver.targets";
+import { buildExtractedInputReview } from "./utils/extractedInputReview";
+import { scoreSmartIntent } from "./utils/intentScoring";
+import { detectPromptMistakes } from "./utils/mistakeDetection";
+import { summarizeSolverConfidence } from "./utils/solverConfidence";
+import { summarizeExtractedValues } from "./utils/valueExtraction";
 
 const SMART_PROMPT_EXAMPLES = [
     "Customers still owe us 75,000 and we expect 4% to be uncollectible.",
@@ -150,6 +156,7 @@ function CollapsibleSection({
 }
 
 export default function SmartSolverPage() {
+    const location = useLocation();
     const navigate = useNavigate();
     const settings = useAppSettings();
     const network = useNetworkStatus();
@@ -193,6 +200,20 @@ export default function SmartSolverPage() {
         deferredSmartInput,
         fields,
     ]);
+    const intentScores = useMemo(
+        () => scoreSmartIntent(deferredSmartInput, analysis),
+        [analysis, deferredSmartInput]
+    );
+    const extractionSummary = useMemo(() => summarizeExtractedValues(analysis), [analysis]);
+    const solverConfidence = useMemo(() => summarizeSolverConfidence(analysis), [analysis]);
+    const extractedInputReview = useMemo(
+        () => buildExtractedInputReview(analysis),
+        [analysis]
+    );
+    const promptMistakes = useMemo(
+        () => detectPromptMistakes(deferredSmartInput),
+        [deferredSmartInput]
+    );
 
     const currentApplySignature = useMemo(
         () =>
@@ -242,6 +263,20 @@ export default function SmartSolverPage() {
     useEffect(() => {
         setGuidanceMode(settings.smartSolverDefaultMode);
     }, [settings.smartSolverDefaultMode]);
+
+    useEffect(() => {
+        const routeState = location.state as SmartSolverRouteState | null;
+        if (!routeState?.query?.trim()) return;
+
+        setSmartInput(routeState.query);
+        setActionFeedback({
+            tone: "info",
+            text:
+                routeState.from === "scan-check"
+                    ? "Scan text was loaded into Smart Solver. Review extracted values before opening a tool."
+                    : "A prepared prompt was loaded into Smart Solver.",
+        });
+    }, [location.state]);
 
     useEffect(() => {
         if (!hasAnyInput) return;
@@ -542,7 +577,7 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally. Smart Solver reads the prompt, prepares likely inputs, and routes you into one of ${totalCoveredTools} supported tools across ${solverCoverageGroups.length} categories. Matching runs locally, while opening the suggested page offline still depends on this release already being cached.`}
+            description={`Describe the problem naturally or send reviewed scan text. Smart Solver reads the prompt, prepares likely inputs, surfaces confidence-aware review when extraction looks uncertain, and routes you into one of ${totalCoveredTools} supported tools across ${solverCoverageGroups.length} categories. Matching runs locally, while opening the suggested page offline still depends on this release already being cached.`}
             prioritizeResultSection={hasAnyInput}
             inputSection={
                 <div className="space-y-4">
@@ -765,6 +800,11 @@ export default function SmartSolverPage() {
                                     }
                                 />
                                 <ResultCard
+                                    title="Solver Confidence"
+                                    value={solverConfidence.label}
+                                    supportingText={solverConfidence.reason}
+                                />
+                                <ResultCard
                                     title="Next Step"
                                     value={
                                         selectedCalculator?.missing.length
@@ -776,6 +816,45 @@ export default function SmartSolverPage() {
                                 />
                                 <ResultCard title="Interpreter Feedback" value={analysis.followUp} />
                             </ResultGrid>
+
+                            <div className="grid gap-3 md:grid-cols-2">
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Extracted input review
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {extractedInputReview}
+                                    </p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {intentScores.slice(0, 3).map((intent) => (
+                                            <span
+                                                key={intent.label}
+                                                className="app-list-link rounded-full px-3 py-1 text-xs font-medium"
+                                            >
+                                                {intent.label}: {intent.score}%
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Value extraction
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {extractionSummary.summary}
+                                    </p>
+                                    {promptMistakes.length > 0 ? (
+                                        <div className="mt-3 space-y-1">
+                                            {promptMistakes.map((note) => (
+                                                <p key={note} className="text-sm text-[color:var(--app-text)]">
+                                                    {note}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
 
                             {selectedRouteAvailability ? (
                                 <div

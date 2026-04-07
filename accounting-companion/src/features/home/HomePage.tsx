@@ -28,6 +28,7 @@ import { useNetworkStatus } from "../../utils/networkStatus";
 import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 
 const SMART_PROMPT_EXAMPLES = [
+    "Scan a worked solution, review the extracted steps, and send the corrected text to Smart Solver.",
     "Find the quick ratio if cash is 50,000, marketable securities are 25,000, receivables are 40,000, and current liabilities are 100,000.",
     "What selling price gives a 30% margin if cost is 700?",
     "Find the principal if simple interest is 4,800 at 12% for 2 years.",
@@ -41,6 +42,7 @@ const SMART_PROMPT_EXAMPLES = [
 ];
 
 const FEATURED_PATHS = [
+    "/scan-check",
     "/smart/solver",
     "/accounting/ratio-analysis-workspace",
     "/business/break-even",
@@ -53,6 +55,15 @@ const FEATURED_PATHS = [
 ];
 
 const WORKFLOW_COLLECTIONS = [
+    {
+        title: "Scan to solve",
+        description: "Extract an image, review the text, then hand it into Smart Solver or a calculator.",
+        paths: [
+            "/scan-check",
+            "/smart/solver",
+            "/basic",
+        ],
+    },
     {
         title: "Liquidity",
         description: "Move from quick liquidity checks into working-capital interpretation.",
@@ -235,8 +246,14 @@ export default function HomePage() {
 
                         <div className="mt-4 flex flex-wrap gap-2.5">
                             <Link
-                                to="/smart/solver"
+                                to="/scan-check"
                                 className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                            >
+                                Open Scan & Check
+                            </Link>
+                            <Link
+                                to="/smart/solver"
+                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
                                 Open solver
                             </Link>

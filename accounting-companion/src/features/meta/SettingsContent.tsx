@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import ShareAppButton from "../../components/ShareAppButton";
 import SectionCard from "../../components/SectionCard";
+import DonationSupportCard from "../settings/components/DonationSupportCard";
+import PermissionCenter from "../settings/components/PermissionCenter";
 import { clearStoredActivity } from "../../utils/appActivity";
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import {
@@ -14,6 +16,9 @@ import {
 } from "../../utils/appSettings";
 import { SUPPORTED_CURRENCIES } from "../../utils/currency";
 import { APP_RELEASE_NOTES, APP_VERSION } from "../../utils/appRelease";
+import { useLocalNotifications } from "../../hooks/useLocalNotifications";
+import { usePermissionState } from "../../hooks/usePermissionState";
+import { updateScanRetentionConsent } from "../../services/storage/storageConsent";
 
 type SettingsContentProps = {
     compact?: boolean;
@@ -223,6 +228,13 @@ export default function SettingsContent({
 }: SettingsContentProps) {
     const settings = useAppSettings();
     const update = useAppUpdateState();
+    const permissions = usePermissionState();
+    const notifications = useLocalNotifications({
+        enabled: settings.reminderNotificationsEnabled,
+        category: settings.reminderCategory,
+        tone: settings.reminderTone,
+        frequency: settings.reminderFrequency,
+    });
 
     const quickStats = useMemo(
         () => [
@@ -261,6 +273,26 @@ export default function SettingsContent({
         value: AppSettings[Key]
     ) {
         updateAppSettings({ [key]: value } as Partial<AppSettings>);
+    }
+
+    const storageSummary = permissions.persistentStorage.supported
+        ? permissions.persistentStorage.persisted
+            ? "Persistent browser storage is already available on this device."
+            : "Browser storage is available, but the browser may still clear cached data under pressure."
+        : "This browser does not expose persistent-storage status, so local history and scan retention should be treated as best-effort.";
+
+    async function requestCameraPermission() {
+        if (!navigator.mediaDevices?.getUserMedia) return;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" },
+                audio: false,
+            });
+            stream.getTracks().forEach((track) => track.stop());
+        } catch {
+            // Camera state is reflected by the permission hook and browser behavior.
+        }
     }
 
     return (
@@ -461,6 +493,55 @@ export default function SettingsContent({
             </DisclosurePanel>
 
             <DisclosurePanel
+                title="Permissions / Privacy"
+                summary="Explain permissions first, then request only when needed."
+                badge="Consent"
+                compact={compact}
+            >
+                <PermissionCenter
+                    cameraState={permissions.camera}
+                    notificationsState={
+                        permissions.notifications === "enabled"
+                            ? "enabled"
+                            : notifications.permission === "denied"
+                              ? "blocked"
+                              : permissions.notifications
+                    }
+                    storageState={permissions.storage}
+                    scanRetentionEnabled={settings.scanRetentionEnabled}
+                    reminderEnabled={settings.reminderNotificationsEnabled}
+                    reminderCategory={settings.reminderCategory}
+                    reminderTone={settings.reminderTone}
+                    reminderFrequency={settings.reminderFrequency}
+                    reminderPreview={notifications.preview}
+                    storageSummary={storageSummary}
+                    onRequestCamera={() => {
+                        void requestCameraPermission();
+                    }}
+                    onToggleScanRetention={(value) => {
+                        setSetting("scanRetentionEnabled", value);
+                        updateScanRetentionConsent(value);
+                    }}
+                    onToggleReminder={(value) =>
+                        setSetting("reminderNotificationsEnabled", value)
+                    }
+                    onRequestNotifications={() => {
+                        void notifications.requestPermission();
+                    }}
+                    onSendPreview={() => {
+                        notifications.sendPreview();
+                    }}
+                    onChangeReminderCategory={(value) =>
+                        setSetting("reminderCategory", value)
+                    }
+                    onChangeReminderTone={(value) => setSetting("reminderTone", value)}
+                    onChangeReminderFrequency={(value) =>
+                        setSetting("reminderFrequency", value)
+                    }
+                />
+            </DisclosurePanel>
+
+            <DisclosurePanel
                 title="Offline / PWA"
                 summary="Install, share, and release-delivery behavior."
                 badge="Offline"
@@ -561,7 +642,22 @@ export default function SettingsContent({
                         value={settings.showNewFeatureIndicators}
                         onChange={(value) => setSetting("showNewFeatureIndicators", value)}
                     />
+                    <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                        <p className="app-card-title text-sm">Reminder limits</p>
+                        <p className="app-body-md mt-1 text-sm">
+                            Browser reminders are opt-in and most reliable while AccCalc is open or recently active. They are not a replacement for full push notifications on every browser.
+                        </p>
+                    </div>
                 </div>
+            </DisclosurePanel>
+
+            <DisclosurePanel
+                title="Support"
+                summary="Optional support details and QR donation entry."
+                badge="Support"
+                compact={compact}
+            >
+                <DonationSupportCard />
             </DisclosurePanel>
 
             <DisclosurePanel
