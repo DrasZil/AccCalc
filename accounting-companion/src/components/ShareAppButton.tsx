@@ -15,10 +15,10 @@ type ShareAppButtonProps = {
 export default function ShareAppButton({
     className = "",
     iconOnly = false,
-    label = "Share app",
+    label = "Share link",
     onResult,
     shareText,
-    title = "Share AccCalc",
+    title = "Share AccCalc link",
     variant = "secondary",
 }: ShareAppButtonProps) {
     const [status, setStatus] = useState<ShareAppOutcome | null>(null);

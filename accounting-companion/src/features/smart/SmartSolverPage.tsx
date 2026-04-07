@@ -77,6 +77,11 @@ const SMART_PROMPT_EXAMPLES = [
     "Solve the market equilibrium if demand is P = 120 - 2Q and supply is P = 20 + Q.",
     "Plan startup costs for permits, equipment, and opening inventory with a contingency allowance.",
     "Estimate cash runway if opening cash is 300,000, inflows are 90,000, and outflows are 120,000 per month.",
+    "Open the adjusting entries workspace for prepaid expense and accrued expense review.",
+    "Build a working capital planner using current assets, liabilities, receivables days, inventory days, and payables days.",
+    "Check inventory shrinkage and missed purchase discounts in one inventory control workspace.",
+    "Compare price, income, and cross elasticity in the economics analysis workspace.",
+    "Use the entrepreneurship toolkit to find a selling price target or split profit between owners.",
 ];
 
 type ActionTone = "success" | "warning" | "info";

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
+import CurvesChart from "../../components/CurvesChart";
 import FormulaCard from "../../components/FormulaCard";
 import InputCard from "../../components/INputCard";
 import InputGrid from "../../components/InputGrid";
@@ -63,12 +64,52 @@ export default function MarketEquilibriumPage() {
                         <p className="app-body-md mt-2 text-sm">{result.error}</p>
                     </SectionCard>
                 ) : result ? (
-                    <ResultGrid columns={4}>
-                        <ResultCard title="Equilibrium Price" value={result.equilibriumPrice.toFixed(2)} tone="accent" />
-                        <ResultCard title="Equilibrium Quantity" value={result.equilibriumQuantity.toFixed(2)} tone="accent" />
-                        <ResultCard title="Demand Zero-Price Quantity" value={result.demandAtZeroPrice.toFixed(2)} />
-                        <ResultCard title="Supply Zero-Price Quantity" value={result.supplyAtZeroPrice.toFixed(2)} />
-                    </ResultGrid>
+                    <div className="space-y-4">
+                        <ResultGrid columns={4}>
+                            <ResultCard title="Equilibrium Price" value={result.equilibriumPrice.toFixed(2)} tone="accent" />
+                            <ResultCard title="Equilibrium Quantity" value={result.equilibriumQuantity.toFixed(2)} tone="accent" />
+                            <ResultCard title="Demand Zero-Price Quantity" value={result.demandAtZeroPrice.toFixed(2)} />
+                            <ResultCard title="Supply Zero-Price Quantity" value={result.supplyAtZeroPrice.toFixed(2)} />
+                        </ResultGrid>
+
+                        <CurvesChart
+                            title="Supply and demand view"
+                            description="The equilibrium point is where the demand and supply curves intersect."
+                            xLabel="Quantity"
+                            yLabel="Price"
+                            series={[
+                                {
+                                    label: "Demand",
+                                    accent: "primary",
+                                    points: [
+                                        { x: 0, y: Number(demandIntercept) },
+                                        { x: result.demandAtZeroPrice, y: 0 },
+                                    ],
+                                },
+                                {
+                                    label: "Supply",
+                                    accent: "secondary",
+                                    points: [
+                                        { x: 0, y: Number(supplyIntercept) },
+                                        {
+                                            x:
+                                                result.equilibriumQuantity * 1.5,
+                                            y:
+                                                Number(supplyIntercept) +
+                                                Number(supplySlope) *
+                                                    result.equilibriumQuantity *
+                                                    1.5,
+                                        },
+                                    ],
+                                },
+                            ]}
+                            highlightPoint={{
+                                label: "Equilibrium",
+                                x: result.equilibriumQuantity,
+                                y: result.equilibriumPrice,
+                            }}
+                        />
+                    </div>
                 ) : null
             }
             explanationSection={

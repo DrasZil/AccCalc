@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageHeader from "./PageHeader";
+import ToolAboutPanel from "./ToolAboutPanel";
 import ToolPinButton from "./ToolPinButton";
 import {
     APP_ROUTE_META,
@@ -170,14 +171,6 @@ export default function CalculatorPageLayout({
         );
     }, [currentMeta, headerMeta, routeAvailability]);
 
-    const mobileToolDetailsSummary = useMemo(() => {
-        if (routeAvailability) {
-            return `${routeAvailability.label}. Open for context, method, and limits.`;
-        }
-
-        return "Open for context, method, and notes.";
-    }, [routeAvailability]);
-
     return (
         <div className="app-page-stack">
             <PageHeader
@@ -203,37 +196,15 @@ export default function CalculatorPageLayout({
             />
 
             <div className="md:hidden">
-                <DisclosurePanel
-                    title="Tool details"
-                    summary={
-                        settings.compactMobileChrome
-                            ? routeAvailability?.label ?? "Open for method and limits."
-                            : mobileToolDetailsSummary
-                    }
-                    badge="About"
-                    compact
-                >
-                    <div className="space-y-3">
-                        {!settings.compactMobileChrome ? (
-                            <p className="app-body-md max-w-none text-sm">{description}</p>
-                        ) : null}
-                        {routeAvailability ? (
-                            <div
-                                className={[
-                                    "rounded-[1rem] px-3.5 py-3 text-sm leading-6",
-                                    routeAvailability.canOpen
-                                        ? "app-subtle-surface"
-                                        : "app-tone-warning",
-                                ].join(" ")}
-                            >
-                                {routeAvailability.reason}
-                            </div>
-                        ) : null}
-                        {headerMeta ? (
-                            <div className="flex flex-wrap gap-2">{headerMeta}</div>
-                        ) : null}
-                    </div>
-                </DisclosurePanel>
+                {currentMeta ? (
+                    <ToolAboutPanel
+                        route={currentMeta}
+                        availability={routeAvailability}
+                        relatedRoutes={relatedRoutes}
+                        compact
+                        includeDescription={!settings.compactMobileChrome}
+                    />
+                ) : null}
             </div>
 
             {routeAvailability ? (
@@ -244,6 +215,17 @@ export default function CalculatorPageLayout({
                     ].join(" ")}
                 >
                     {routeAvailability.reason}
+                </div>
+            ) : null}
+
+            {currentMeta ? (
+                <div className="hidden md:block">
+                    <ToolAboutPanel
+                        route={currentMeta}
+                        availability={routeAvailability}
+                        relatedRoutes={relatedRoutes}
+                        includeDescription={false}
+                    />
                 </div>
             ) : null}
 

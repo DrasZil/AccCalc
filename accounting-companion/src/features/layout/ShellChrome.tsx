@@ -80,9 +80,10 @@ export function ShellIcon({
     if (kind === "share") {
         return (
             <svg {...sharedProps}>
-                <path d="M12 15.5V5" />
-                <path d="M8.5 8.5L12 5l3.5 3.5" />
-                <path d="M5 13.5v3A2.5 2.5 0 0 0 7.5 19h9a2.5 2.5 0 0 0 2.5-2.5v-3" />
+                <path d="M10.5 13.5l3-3" />
+                <path d="M7.8 15.2a2.3 2.3 0 1 1 0-4.6 2.3 2.3 0 0 1 2 .9" />
+                <path d="M16.2 13.4a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0-2 .9" />
+                <path d="M10.5 10.5l3 3" />
             </svg>
         );
     }

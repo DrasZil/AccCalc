@@ -1262,9 +1262,10 @@ export default function AppLayout() {
 
                                 <ShareAppButton
                                     iconOnly
-                                    label="Share AccCalc"
-                                    title="Share AccCalc"
+                                    label="Share link"
+                                    title="Share AccCalc link"
                                     variant="icon"
+                                    className="hidden rounded-xl p-2.25 md:inline-flex"
                                     onResult={(result) => {
                                         if (result === "copied") {
                                             pushNotice(
@@ -1333,16 +1334,6 @@ export default function AppLayout() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setMobileSearchRoute(location.pathname)}
-                                    aria-label="Open mobile search"
-                                    title="Search"
-                                    className="app-icon-button rounded-xl p-2.25 md:hidden"
-                                >
-                                    <ShellIcon kind="search" />
-                                </button>
-
-                                <button
-                                    type="button"
                                     onClick={() =>
                                         setSettingsPanelRoute((current) =>
                                             current === location.pathname ? null : location.pathname
@@ -1353,15 +1344,6 @@ export default function AppLayout() {
                                     className={settingsButtonClass}
                                 >
                                     <ShellIcon kind="settings" />
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setMobileSidebarRoute(location.pathname)}
-                                    aria-label="Open menu"
-                                    className="app-icon-button rounded-xl p-2.25 xl:hidden"
-                                >
-                                    <ShellIcon kind="menu" />
                                 </button>
                             </div>
                         </div>
@@ -1393,7 +1375,7 @@ export default function AppLayout() {
                         ].join(" ")}
                         style={{
                             paddingBottom:
-                                "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 1.35rem)",
+                                "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 0.85rem)",
                         }}
                     >
                         <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">
@@ -1430,18 +1412,17 @@ export default function AppLayout() {
             <div
                 ref={mobileNavRef}
                 className={[
-                    settings.compactMobileChrome
-                        ? "fixed inset-x-2.5 bottom-2.5 z-[95] xl:hidden"
-                        : "fixed inset-x-3 bottom-3 z-[95] xl:hidden",
+                    "fixed inset-x-0 bottom-0 z-[95] border-t app-divider backdrop-blur-xl xl:hidden",
                     mobileSearchOpen ? "pointer-events-none opacity-0" : "",
                 ].join(" ")}
+                style={{ background: "var(--app-header-bg)" }}
             >
                 <div
                     className={[
-                        "app-panel shadow-[var(--app-shadow-lg)]",
+                        "mx-auto max-w-3xl",
                         settings.compactMobileChrome
-                            ? "rounded-[1.4rem] p-1.5"
-                            : "rounded-[1.6rem] p-2",
+                            ? "px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.35rem)] pt-1.5"
+                            : "px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] pt-2",
                     ].join(" ")}
                 >
                     <div className="grid grid-cols-5 gap-1.5">
@@ -1513,6 +1494,7 @@ export default function AppLayout() {
                         key={`mobile-${location.pathname}`}
                         variant="hero"
                         autoFocus
+                        suppressMobileAutoFocus
                         placeholder="Search ratios, depreciation, inventory..."
                     />
                 </div>

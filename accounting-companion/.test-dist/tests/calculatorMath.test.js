@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCommonSizeStatement, computeCompoundInterest, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeInternalRateOfReturn, computeInventoryMethodComparison, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCustomerPayback, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeInternalRateOfReturn, computeInventoryShrinkage, computeInventoryMethodComparison, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
 import { breakEvenSolveDefinition, currentRatioSolveDefinition, priceCostMarginSolveDefinition, simpleInterestSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
@@ -613,6 +613,69 @@ runTest("entrepreneurship helpers support startup planning and runway checks", (
     assertClose(runway.monthlyBurn, 25500);
     assertClose(runway.runwayMonths, 11.7647058824, 1e-6);
 });
+runTest("3.1 helper workspaces cover adjustments, pricing, splits, shrinkage, and elasticity variants", () => {
+    const shrinkage = computeInventoryShrinkage({
+        bookUnits: 1200,
+        physicalUnits: 1160,
+        costPerUnit: 145,
+    });
+    const prepaid = computePrepaidExpenseAdjustment({
+        beginningPrepaid: 25000,
+        endingPrepaid: 8000,
+    });
+    const unearned = computeUnearnedRevenueAdjustment({
+        beginningUnearnedRevenue: 18000,
+        endingUnearnedRevenue: 7000,
+    });
+    const accruedRevenue = computeAccruedRevenueAdjustment({
+        revenueEarned: 24000,
+        cashCollected: 9000,
+    });
+    const accruedExpense = computeAccruedExpenseAdjustment({
+        expenseIncurred: 19500,
+        cashPaid: 11000,
+    });
+    const pricing = computePricingPlanner({
+        unitCost: 700,
+        targetMarginPercent: 30,
+        targetMonthlyIncome: 40000,
+        contributionPerUnit: 120,
+    });
+    const split = computeOwnerSplit({
+        distributableProfit: 90000,
+        ratioA: 3,
+        ratioB: 2,
+        ratioC: 1,
+    });
+    const payback = computeCustomerPayback({
+        acquisitionCost: 2400,
+        monthlyContributionPerCustomer: 400,
+    });
+    const elasticity = computeElasticityShift({
+        initialDriver: 100,
+        finalDriver: 125,
+        initialQuantity: 250,
+        finalQuantity: 220,
+    });
+    assertClose(shrinkage.shrinkageUnits, 40);
+    assertClose(shrinkage.shrinkageAmount, 5800);
+    assertClose(shrinkage.shrinkageRate, 3.3333333333, 1e-6);
+    assertClose(prepaid.expenseRecognized, 17000);
+    assert.equal(prepaid.adjustmentDirection, "debit-expense-credit-prepaid");
+    assertClose(unearned.revenueRecognized, 11000);
+    assert.equal(unearned.adjustmentDirection, "debit-unearned-credit-revenue");
+    assertClose(accruedRevenue.accruedRevenue, 15000);
+    assertClose(accruedExpense.accruedExpense, 8500);
+    assertClose(pricing.suggestedSellingPrice, 1000);
+    assertClose(pricing.markUpPercent, 42.8571428571, 1e-6);
+    assertClose(pricing.unitsNeededForTargetIncome, 333.3333333333, 1e-6);
+    assertClose(split.shareA, 45000);
+    assertClose(split.shareB, 30000);
+    assertClose(split.shareC, 15000);
+    assertClose(payback.paybackMonths, 6);
+    assert.equal(payback.status, "Healthy payback");
+    assertClose(elasticity.elasticity, -0.5744680851, 1e-6);
+});
 runTest("capital budgeting comparison combines project metrics", () => {
     const result = computeCapitalBudgetingComparison(100000, 12, [30000, 35000, 40000, 45000], 25000);
     assert.equal(result.decision, "Accept");
@@ -701,6 +764,11 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const equilibriumResults = searchAppRoutes("equilibrium price");
     const startupResults = searchAppRoutes("startup budget");
     const runwayResults = searchAppRoutes("burn rate");
+    const adjustmentsResults = searchAppRoutes("accrued expense adjustment");
+    const workingCapitalPlannerResults = searchAppRoutes("operating cycle planner");
+    const inventoryControlResults = searchAppRoutes("inventory shrinkage");
+    const elasticityWorkspaceResults = searchAppRoutes("income elasticity");
+    const toolkitResults = searchAppRoutes("owner split planner");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -722,6 +790,11 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(equilibriumResults[0]?.path, "/economics/market-equilibrium");
     assert.equal(startupResults[0]?.path, "/entrepreneurship/startup-cost-planner");
     assert.equal(runwayResults[0]?.path, "/entrepreneurship/cash-runway-planner");
+    assert.equal(adjustmentsResults[0]?.path, "/accounting/adjusting-entries-workspace");
+    assert.equal(workingCapitalPlannerResults[0]?.path, "/accounting/working-capital-planner");
+    assert.equal(inventoryControlResults[0]?.path, "/accounting/inventory-control-workspace");
+    assert.equal(elasticityWorkspaceResults[0]?.path, "/economics/economics-analysis-workspace");
+    assert.equal(toolkitResults[0]?.path, "/entrepreneurship/entrepreneurship-toolkit");
 });
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
     assert.equal(suggestSolveTarget("simple-interest", "find the principal"), "principal");

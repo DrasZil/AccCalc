@@ -2688,6 +2688,69 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "adjusting-entries-workspace",
+        name: "Adjusting Entries Workspace",
+        route: "/accounting/adjusting-entries-workspace",
+        description:
+            "Best when the user wants prepaid, unearned, accrued revenue, or accrued expense adjustments from one structured worksheet.",
+        required: [],
+        aliases: [
+            "adjusting entries",
+            "adjustment worksheet",
+            "prepaid adjustment",
+            "accrued expense",
+            "accrued revenue",
+            "unearned revenue adjustment",
+        ],
+        keywords: [
+            /adjusting entries/i,
+            /prepaid expense/i,
+            /unearned revenue/i,
+            /accrued revenue/i,
+            /accrued expense/i,
+            /adjustment entry/i,
+        ],
+    },
+    {
+        id: "working-capital-planner",
+        name: "Working Capital Planner",
+        route: "/accounting/working-capital-planner",
+        description:
+            "Best when the user wants current ratio, operating cycle, receivables days, inventory days, or cash conversion cycle in one planner.",
+        required: [],
+        aliases: ["working capital planner", "operating cycle planner", "ccc planner"],
+        keywords: [
+            /working capital planner/i,
+            /operating cycle/i,
+            /cash conversion cycle/i,
+            /\bccc\b/i,
+            /receivables days/i,
+            /inventory days/i,
+            /payables days/i,
+        ],
+    },
+    {
+        id: "inventory-control-workspace",
+        name: "Inventory Control Workspace",
+        route: "/accounting/inventory-control-workspace",
+        description:
+            "Best when the user wants shrinkage and purchase-discount control signals in one inventory review.",
+        required: [],
+        aliases: [
+            "inventory control",
+            "inventory shrinkage",
+            "shrinkage analysis",
+            "purchase discount control",
+        ],
+        keywords: [
+            /inventory control/i,
+            /inventory shrinkage/i,
+            /shrinkage/i,
+            /purchase discount/i,
+            /discount discipline/i,
+        ],
+    },
+    {
         id: "price-elasticity-demand",
         name: "Price Elasticity of Demand",
         route: "/economics/price-elasticity-demand",
@@ -2750,6 +2813,26 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "economics-analysis-workspace",
+        name: "Economics Analysis Workspace",
+        route: "/economics/economics-analysis-workspace",
+        description:
+            "Best when the user wants to compare price, income, and cross elasticity from one guided workspace.",
+        required: [],
+        aliases: [
+            "elasticity workspace",
+            "income elasticity",
+            "cross elasticity",
+            "economics analysis workspace",
+        ],
+        keywords: [
+            /economics analysis workspace/i,
+            /income elasticity/i,
+            /cross elasticity/i,
+            /elasticity workspace/i,
+        ],
+    },
+    {
         id: "startup-cost-planner",
         name: "Startup Cost Planner",
         route: "/entrepreneurship/startup-cost-planner",
@@ -2807,6 +2890,27 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /startup runway/i,
             /burn rate/i,
             /runway calculator/i,
+        ],
+    },
+    {
+        id: "entrepreneurship-toolkit",
+        name: "Entrepreneurship Toolkit",
+        route: "/entrepreneurship/entrepreneurship-toolkit",
+        description:
+            "Best when the user wants pricing targets, owner profit splits, or customer payback from one small-business worksheet.",
+        required: [],
+        aliases: [
+            "entrepreneurship toolkit",
+            "pricing target toolkit",
+            "owner split planner",
+            "customer payback",
+        ],
+        keywords: [
+            /entrepreneurship toolkit/i,
+            /owner split/i,
+            /customer payback/i,
+            /pricing target/i,
+            /target selling price/i,
         ],
     },
     {

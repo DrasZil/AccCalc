@@ -7,6 +7,8 @@ type InputCardProps = {
     inputMode?: "decimal" | "numeric" | "text" | "search";
     helperText?: string;
     step?: string;
+    autoFocus?: boolean;
+    enterKeyHint?: "done" | "next" | "go" | "search" | "send";
 };
 
 export default function InputCard({
@@ -18,6 +20,8 @@ export default function InputCard({
     inputMode = "decimal",
     helperText,
     step = "any",
+    autoFocus = false,
+    enterKeyHint = "done",
 }: InputCardProps) {
     return (
         <div className="app-input-shell rounded-[var(--app-radius-md)] p-3">
@@ -31,8 +35,9 @@ export default function InputCard({
                 placeholder={placeholder}
                 inputMode={inputMode}
                 aria-label={label}
+                autoFocus={autoFocus}
                 autoComplete="off"
-                enterKeyHint="done"
+                enterKeyHint={enterKeyHint}
                 spellCheck={false}
                 step={type === "number" ? step : undefined}
                 className={[

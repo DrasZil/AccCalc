@@ -2086,6 +2086,58 @@ type CashRunwayParams = {
     plannedGrowthPercent?: number;
 };
 
+type InventoryShrinkageParams = {
+    bookUnits: number;
+    physicalUnits: number;
+    costPerUnit: number;
+};
+
+type PrepaidExpenseAdjustmentParams = {
+    beginningPrepaid: number;
+    endingPrepaid: number;
+};
+
+type UnearnedRevenueAdjustmentParams = {
+    beginningUnearnedRevenue: number;
+    endingUnearnedRevenue: number;
+};
+
+type AccruedRevenueAdjustmentParams = {
+    revenueEarned: number;
+    cashCollected: number;
+};
+
+type AccruedExpenseAdjustmentParams = {
+    expenseIncurred: number;
+    cashPaid: number;
+};
+
+type PricingPlannerParams = {
+    unitCost: number;
+    targetMarginPercent: number;
+    targetMonthlyIncome: number;
+    contributionPerUnit: number;
+};
+
+type OwnerSplitParams = {
+    distributableProfit: number;
+    ratioA: number;
+    ratioB: number;
+    ratioC?: number;
+};
+
+type CustomerPaybackParams = {
+    acquisitionCost: number;
+    monthlyContributionPerCustomer: number;
+};
+
+type ElasticityShiftParams = {
+    initialDriver: number;
+    finalDriver: number;
+    initialQuantity: number;
+    finalQuantity: number;
+};
+
 export function computePriceElasticity({
     initialPrice,
     finalPrice,
@@ -2283,5 +2335,149 @@ export function computeCashRunway({
                   : runwayMonths < 12
                     ? "Moderate runway"
                     : "Comfortable runway",
+    };
+}
+
+export function computeInventoryShrinkage({
+    bookUnits,
+    physicalUnits,
+    costPerUnit,
+}: InventoryShrinkageParams) {
+    const shrinkageUnits = Math.max(bookUnits - physicalUnits, 0);
+    const shrinkageAmount = shrinkageUnits * costPerUnit;
+    const shrinkageRate = bookUnits === 0 ? 0 : (shrinkageUnits / bookUnits) * 100;
+
+    return {
+        shrinkageUnits,
+        shrinkageAmount,
+        shrinkageRate,
+    };
+}
+
+export function computePrepaidExpenseAdjustment({
+    beginningPrepaid,
+    endingPrepaid,
+}: PrepaidExpenseAdjustmentParams) {
+    const expenseRecognized = beginningPrepaid - endingPrepaid;
+    return {
+        expenseRecognized,
+        adjustmentDirection:
+            expenseRecognized >= 0 ? "debit-expense-credit-prepaid" : "reverse-balance",
+    };
+}
+
+export function computeUnearnedRevenueAdjustment({
+    beginningUnearnedRevenue,
+    endingUnearnedRevenue,
+}: UnearnedRevenueAdjustmentParams) {
+    const revenueRecognized = beginningUnearnedRevenue - endingUnearnedRevenue;
+    return {
+        revenueRecognized,
+        adjustmentDirection:
+            revenueRecognized >= 0 ? "debit-unearned-credit-revenue" : "reverse-balance",
+    };
+}
+
+export function computeAccruedRevenueAdjustment({
+    revenueEarned,
+    cashCollected,
+}: AccruedRevenueAdjustmentParams) {
+    const accruedRevenue = revenueEarned - cashCollected;
+    return {
+        accruedRevenue,
+        adjustmentDirection:
+            accruedRevenue >= 0 ? "debit-receivable-credit-revenue" : "reverse-balance",
+    };
+}
+
+export function computeAccruedExpenseAdjustment({
+    expenseIncurred,
+    cashPaid,
+}: AccruedExpenseAdjustmentParams) {
+    const accruedExpense = expenseIncurred - cashPaid;
+    return {
+        accruedExpense,
+        adjustmentDirection:
+            accruedExpense >= 0 ? "debit-expense-credit-payable" : "reverse-balance",
+    };
+}
+
+export function computePricingPlanner({
+    unitCost,
+    targetMarginPercent,
+    targetMonthlyIncome,
+    contributionPerUnit,
+}: PricingPlannerParams) {
+    const targetMarginDecimal = targetMarginPercent / 100;
+    const suggestedSellingPrice =
+        targetMarginDecimal >= 1 ? Infinity : unitCost / (1 - targetMarginDecimal);
+    const unitsNeededForTargetIncome =
+        contributionPerUnit <= 0 ? Infinity : targetMonthlyIncome / contributionPerUnit;
+
+    return {
+        suggestedSellingPrice,
+        markUpPercent:
+            unitCost === 0 ? 0 : ((suggestedSellingPrice - unitCost) / unitCost) * 100,
+        unitsNeededForTargetIncome,
+    };
+}
+
+export function computeOwnerSplit({
+    distributableProfit,
+    ratioA,
+    ratioB,
+    ratioC = 0,
+}: OwnerSplitParams) {
+    const totalRatio = ratioA + ratioB + ratioC;
+    return {
+        totalRatio,
+        shareA: distributableProfit * (ratioA / totalRatio),
+        shareB: distributableProfit * (ratioB / totalRatio),
+        shareC: distributableProfit * (ratioC / totalRatio),
+    };
+}
+
+export function computeCustomerPayback({
+    acquisitionCost,
+    monthlyContributionPerCustomer,
+}: CustomerPaybackParams) {
+    const paybackMonths =
+        monthlyContributionPerCustomer <= 0
+            ? Infinity
+            : acquisitionCost / monthlyContributionPerCustomer;
+
+    return {
+        paybackMonths,
+        status:
+            paybackMonths === Infinity
+                ? "No payback"
+                : paybackMonths <= 3
+                  ? "Fast payback"
+                  : paybackMonths <= 6
+                    ? "Healthy payback"
+                    : paybackMonths <= 12
+                      ? "Long payback"
+                      : "Slow payback",
+    };
+}
+
+export function computeElasticityShift({
+    initialDriver,
+    finalDriver,
+    initialQuantity,
+    finalQuantity,
+}: ElasticityShiftParams) {
+    const driverMidpoint = (initialDriver + finalDriver) / 2;
+    const quantityMidpoint = (initialQuantity + finalQuantity) / 2;
+    const driverChangePercent =
+        driverMidpoint === 0 ? 0 : (finalDriver - initialDriver) / driverMidpoint;
+    const quantityChangePercent =
+        quantityMidpoint === 0 ? 0 : (finalQuantity - initialQuantity) / quantityMidpoint;
+
+    return {
+        elasticity:
+            driverChangePercent === 0 ? 0 : quantityChangePercent / driverChangePercent,
+        driverChangePercent,
+        quantityChangePercent,
     };
 }

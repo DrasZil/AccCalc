@@ -55,8 +55,14 @@ const CommonSizeIncomeStatementPage = lazy(
 const CommonSizeBalanceSheetPage = lazy(
     () => import("./features/accounting/CommonSizeBalanceSheetPage")
 );
+const AdjustingEntriesWorkspacePage = lazy(
+    () => import("./features/accounting/AdjustingEntriesWorkspacePage")
+);
 const RatioAnalysisWorkspacePage = lazy(
     () => import("./features/accounting/RatioAnalysisWorkspacePage")
+);
+const InventoryControlWorkspacePage = lazy(
+    () => import("./features/accounting/InventoryControlWorkspacePage")
 );
 const LowerOfCostOrNRVPage = lazy(
     () => import("./features/accounting/LowerOfCostOrNRVPage")
@@ -108,6 +114,9 @@ const ReceivablesTurnoverPage = lazy(
 );
 const WorkingCapitalCyclePage = lazy(
     () => import("./features/accounting/WorkingCapitalCyclePage")
+);
+const WorkingCapitalPlannerPage = lazy(
+    () => import("./features/accounting/WorkingCapitalPlannerPage")
 );
 const ReturnOnAssetsPage = lazy(() => import("./features/accounting/ReturnOnAssetsPage"));
 const ReturnOnEquityPage = lazy(() => import("./features/accounting/ReturnOnEquityPage"));
@@ -217,8 +226,14 @@ const SurplusAnalysisPage = lazy(
     () => import("./features/economics/SurplusAnalysisPage")
 );
 const RealRatePage = lazy(() => import("./features/economics/RealRatePage"));
+const EconomicsAnalysisWorkspacePage = lazy(
+    () => import("./features/economics/EconomicsAnalysisWorkspacePage")
+);
 const StartupCostPlannerPage = lazy(
     () => import("./features/entrepreneurship/StartupCostPlannerPage")
+);
+const EntrepreneurshipToolkitPage = lazy(
+    () => import("./features/entrepreneurship/EntrepreneurshipToolkitPage")
 );
 const UnitEconomicsPage = lazy(
     () => import("./features/entrepreneurship/UnitEconomicsPage")
@@ -338,8 +353,10 @@ export default function App() {
                         <Route path="economics/market-equilibrium" element={renderRoute("/economics/market-equilibrium", <MarketEquilibriumPage />)} />
                         <Route path="economics/surplus-analysis" element={renderRoute("/economics/surplus-analysis", <SurplusAnalysisPage />)} />
                         <Route path="economics/real-interest-rate" element={renderRoute("/economics/real-interest-rate", <RealRatePage />)} />
+                        <Route path="economics/economics-analysis-workspace" element={renderRoute("/economics/economics-analysis-workspace", <EconomicsAnalysisWorkspacePage />)} />
 
                         <Route path="entrepreneurship/startup-cost-planner" element={renderRoute("/entrepreneurship/startup-cost-planner", <StartupCostPlannerPage />)} />
+                        <Route path="entrepreneurship/entrepreneurship-toolkit" element={renderRoute("/entrepreneurship/entrepreneurship-toolkit", <EntrepreneurshipToolkitPage />)} />
                         <Route path="entrepreneurship/unit-economics" element={renderRoute("/entrepreneurship/unit-economics", <UnitEconomicsPage />)} />
                         <Route path="entrepreneurship/sales-forecast-planner" element={renderRoute("/entrepreneurship/sales-forecast-planner", <SalesForecastPlannerPage />)} />
                         <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
@@ -397,6 +414,9 @@ export default function App() {
                         <Route path="accounting/horizontal-analysis" element={renderRoute("/accounting/horizontal-analysis", <HorizontalAnalysisPage />)} />
                         <Route path="accounting/common-size-income-statement" element={renderRoute("/accounting/common-size-income-statement", <CommonSizeIncomeStatementPage />)} />
                         <Route path="accounting/common-size-balance-sheet" element={renderRoute("/accounting/common-size-balance-sheet", <CommonSizeBalanceSheetPage />)} />
+                        <Route path="accounting/adjusting-entries-workspace" element={renderRoute("/accounting/adjusting-entries-workspace", <AdjustingEntriesWorkspacePage />)} />
+                        <Route path="accounting/working-capital-planner" element={renderRoute("/accounting/working-capital-planner", <WorkingCapitalPlannerPage />)} />
+                        <Route path="accounting/inventory-control-workspace" element={renderRoute("/accounting/inventory-control-workspace", <InventoryControlWorkspacePage />)} />
                         <Route path="accounting/vertical-analysis" element={renderRoute("/accounting/vertical-analysis", <VerticalAnalysisPage />)} />
                         <Route path="accounting/asset-turnover" element={renderRoute("/accounting/asset-turnover", <AssetTurnoverPage />)} />
                         <Route path="accounting/return-on-equity" element={renderRoute("/accounting/return-on-equity", <ReturnOnEquityPage />)} />

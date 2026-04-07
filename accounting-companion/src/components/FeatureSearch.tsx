@@ -20,6 +20,7 @@ type FeatureSearchProps = {
     className?: string;
     placeholder?: string;
     autoFocus?: boolean;
+    suppressMobileAutoFocus?: boolean;
 };
 
 function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
@@ -54,6 +55,7 @@ export default function FeatureSearch({
     className = "",
     placeholder = "Search calculators, helpers, aliases, abbreviations, or topics",
     autoFocus = false,
+    suppressMobileAutoFocus = false,
 }: FeatureSearchProps) {
     const navigate = useNavigate();
     const location = useLocation();
@@ -65,6 +67,13 @@ export default function FeatureSearch({
     const [query, setQuery] = useState("");
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
+    const shouldAutoFocus =
+        autoFocus &&
+        !(
+            suppressMobileAutoFocus &&
+            typeof window !== "undefined" &&
+            window.matchMedia("(max-width: 768px)").matches
+        );
 
     const deferredQuery = useDeferredValue(query);
     const suggestions = useMemo(
@@ -159,7 +168,7 @@ export default function FeatureSearch({
                     <input
                         ref={inputRef}
                         type="text"
-                        autoFocus={autoFocus}
+                        autoFocus={shouldAutoFocus}
                         value={query}
                         onChange={(event) => {
                             setQuery(event.target.value);

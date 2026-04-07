@@ -1,19 +1,24 @@
 # AccCalc Developer Guide
 
 ## 1. Release overview
-AccCalc `3.0.0` ships as a two-layer upgrade on top of the `2.8.0` baseline.
+AccCalc `3.1.0` builds on the `2.9.0` and `3.0.0` upgrades with a cleaner shell, stronger educational framing, and broader multi-purpose workspaces.
 
-- `2.9.0` is the foundation release:
+- `2.9.0` established:
   - mobile-first shell tightening
   - category-driven settings architecture
   - stronger contrast and responsive shell behavior
   - richer Smart Solver guidance modes
-  - cleaner shared navigation rules
-- `3.0.0` is the expansion release:
-  - new Economics category
-  - new Entrepreneurship category
+- `3.0.0` expanded:
+  - Economics
+  - Entrepreneurship
   - broader Smart Solver discovery and teaching support
   - more practical analysis and planning workflows
+- `3.1.0` adds:
+  - restored educational About panels
+  - cleaner mobile navigation and no forced mobile search keyboard
+  - reorganized settings and history surfaces
+  - scientific-calculator upgrades
+  - new accounting, economics, and entrepreneurship workspaces
 
 ## 2. App overview
 AccCalc is a React + Vite + TypeScript + Tailwind calculator platform for accounting, finance, managerial accounting, business math, economics, entrepreneurship, and review support. The app is route-based, metadata-driven, mobile-first, and intentionally honest about offline behavior after the current release has been cached.
@@ -86,12 +91,15 @@ Persisted settings model:
 - `src/utils/appSettings.ts`
 
 Current settings sections:
+- Account
 - Appearance
 - Calculator behavior
 - AI / Solver
 - Saved data
 - Offline / PWA
 - Accessibility
+- Privacy / Security
+- Notifications / Prompts
 - About / Updates
 
 Important current settings additions:
@@ -261,6 +269,7 @@ Current intentional limits:
 - Smart Solver does not auto-build arbitrary multi-row schedules from messy prose
 - helper-level regression coverage is stronger than route-level UI coverage
 - offline use still depends on the release being cached once online
+- schedule-style workspaces still prefer structured entry over speculative reverse-solving
 
 High-value future work:
 - richer multi-period analysis workspaces

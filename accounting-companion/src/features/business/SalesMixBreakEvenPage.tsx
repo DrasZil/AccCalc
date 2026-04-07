@@ -235,6 +235,8 @@ export default function SalesMixBreakEvenPage() {
                                                     updateProduct(product.id, { label: value })
                                                 }
                                                 placeholder="Product A"
+                                                type="text"
+                                                inputMode="text"
                                             />
                                             <InputCard
                                                 label="Selling Price"

@@ -36,22 +36,20 @@ const SMART_PROMPT_EXAMPLES = [
     "Compare NPV, PI, IRR, and discounted payback for a 200,000 project at 11%.",
     "Find price elasticity if price falls from 120 to 100 and quantity rises from 240 to 300.",
     "Plan startup costs with permits, equipment, inventory, and a 10% contingency.",
+    "Build an adjusting entry for prepaid expense or accrued expense.",
+    "Use the entrepreneurship toolkit to find a selling price target or customer payback.",
 ];
 
 const FEATURED_PATHS = [
     "/smart/solver",
     "/accounting/ratio-analysis-workspace",
-    "/accounting/current-ratio",
     "/business/break-even",
-    "/finance/loan-amortization",
     "/finance/internal-rate-of-return",
     "/finance/capital-budgeting-comparison",
-    "/accounting/bond-amortization-schedule",
     "/accounting/common-size-income-statement",
-    "/accounting/working-capital-cycle",
-    "/business/cash-budget",
+    "/accounting/adjusting-entries-workspace",
     "/economics/price-elasticity-demand",
-    "/entrepreneurship/unit-economics",
+    "/entrepreneurship/entrepreneurship-toolkit",
 ];
 
 const WORKFLOW_COLLECTIONS = [
@@ -117,6 +115,15 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
+        title: "Adjustment and control",
+        description: "Move from routine adjusting entries into working-capital and inventory-control review.",
+        paths: [
+            "/accounting/adjusting-entries-workspace",
+            "/accounting/working-capital-planner",
+            "/accounting/inventory-control-workspace",
+        ],
+    },
+    {
         title: "Economics review",
         description: "Start with elasticity, move into equilibrium, and finish with surplus or inflation-adjusted interpretation.",
         paths: [
@@ -131,6 +138,7 @@ const WORKFLOW_COLLECTIONS = [
         description: "Move from launch cost planning into unit economics, sales forecasting, and runway checks.",
         paths: [
             "/entrepreneurship/startup-cost-planner",
+            "/entrepreneurship/entrepreneurship-toolkit",
             "/entrepreneurship/unit-economics",
             "/entrepreneurship/sales-forecast-planner",
             "/entrepreneurship/cash-runway-planner",
@@ -195,29 +203,16 @@ export default function HomePage() {
         []
     );
 
-    const offlineCapabilityGroups = useMemo(
-        () => ({
-            full: Array.from(APP_ROUTE_META_MAP.values()).filter(
-                (route) => route.offlineSupport === "full"
-            ),
-            limited: Array.from(APP_ROUTE_META_MAP.values()).filter(
-                (route) => route.offlineSupport === "limited"
-            ),
-        }),
-        []
-    );
-
     const quickStartRoutes = (pinnedRoutes.length > 0 ? pinnedRoutes : recommended).slice(0, 4);
     const statusStats = [
         { label: "Pins", value: pinnedRoutes.length, helper: "Quick access" },
-        { label: "Recent", value: recentRoutes.length, helper: "Resume faster" },
-        { label: "Saved", value: activity.savedRecords.length, helper: "Solver trail" },
+        { label: "Saved", value: activity.savedRecords.length, helper: "Stored prompts" },
     ];
 
     return (
         <div className="app-page-stack">
-            <section className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(19rem,0.92fr)] xl:items-start">
+            <section className="app-panel rounded-[var(--app-radius-xl)] p-4.5 md:p-6">
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(17rem,0.88fr)] xl:items-start">
                     <div className="max-w-3xl">
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="shrink-0">
@@ -231,15 +226,14 @@ export default function HomePage() {
                             </span>
                         </div>
 
-                        <h1 className="mt-4 max-w-2xl text-[clamp(1.7rem,1.25rem+1.6vw,2.55rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Faster accounting tools, less noise.
+                        <h1 className="mt-3.5 max-w-2xl text-[clamp(1.55rem,1.2rem+1.25vw,2.35rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                            Cleaner tools, quicker starts.
                         </h1>
-                        <p className="app-body-md mt-3 max-w-2xl text-sm">
-                            Search, open a pinned tool, or start with Smart Solver. Deeper notes,
-                            release detail, and offline guidance stay available without crowding the first screen.
+                        <p className="app-body-md mt-2.5 max-w-2xl text-sm">
+                            Search, resume a workflow, or start with Smart Solver. Deeper notes and release detail stay available without crowding the first screen.
                         </p>
 
-                        <div className="mt-4 flex flex-wrap gap-3">
+                        <div className="mt-4 flex flex-wrap gap-2.5">
                             <Link
                                 to="/smart/solver"
                                 className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
@@ -254,7 +248,7 @@ export default function HomePage() {
                             </Link>
                             <ShareAppButton
                                 className="rounded-xl px-4 py-2.5"
-                                label="Share"
+                                label="Share link"
                                 shareText="Try AccCalc for accounting, finance, and business calculations with truthful offline support after caching."
                             />
                         </div>
@@ -267,7 +261,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="space-y-3">
-                        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                             {statusStats.map((stat) => (
                                 <div
                                     key={stat.label}
@@ -304,7 +298,7 @@ export default function HomePage() {
                 </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
@@ -314,11 +308,9 @@ export default function HomePage() {
                                 Pinned and recommended tools stay close to the top.
                             </p>
                         </div>
-                        {recentRoutes.length > 0 ? (
-                            <Link to="/history" className="app-link-accent text-sm font-medium">
-                                View all
-                            </Link>
-                        ) : null}
+                        <Link to="/history" className="app-link-accent text-sm font-medium">
+                            View all
+                        </Link>
                     </div>
 
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -379,23 +371,12 @@ export default function HomePage() {
                     ) : null}
                 </div>
 
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="app-section-kicker text-[0.68rem]">Release</p>
-                            <h2 className="app-section-title mt-2">What changed</h2>
-                            <p className="app-helper mt-2 text-xs">
-                                The highest-signal improvements from the current release.
-                            </p>
-                        </div>
-                        {unseenFeatures.length > 0 ? (
-                            <span className="app-badge-new rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
-                                {unseenFeatures.length} new
-                            </span>
-                        ) : null}
-                    </div>
-
-                    <div className="mt-4 space-y-3">
+                <DisclosurePanel
+                    title="What changed"
+                    summary="The highest-signal improvements from the current release."
+                    badge={unseenFeatures.length > 0 ? `${unseenFeatures.length} new` : "Release"}
+                >
+                    <div className="space-y-3">
                         {APP_RELEASE_HIGHLIGHTS.slice(0, 3).map((item) => (
                             <div
                                 key={item.title}
@@ -407,22 +388,22 @@ export default function HomePage() {
                                 <p className="app-helper mt-1.5 text-xs leading-5">{item.body}</p>
                             </div>
                         ))}
-                    </div>
 
-                    {unseenFeatures.length > 0 ? (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {unseenFeatures.slice(0, 4).map((feature) => (
-                                <Link
-                                    key={feature.path}
-                                    to={feature.path}
-                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
-                                >
-                                    {feature.shortLabel ?? feature.label}
-                                </Link>
-                            ))}
-                        </div>
-                    ) : null}
-                </div>
+                        {unseenFeatures.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {unseenFeatures.slice(0, 4).map((feature) => (
+                                    <Link
+                                        key={feature.path}
+                                        to={feature.path}
+                                        className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                    >
+                                        {feature.shortLabel ?? feature.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : null}
+                    </div>
+                </DisclosurePanel>
             </section>
 
             <section className="space-y-3">
@@ -528,51 +509,6 @@ export default function HomePage() {
                 </DisclosurePanel>
 
                 <DisclosurePanel
-                    title="Offline details"
-                    summary="Truthful status for cached routes and still-online actions."
-                    badge={offlineBundle.ready ? "Cached" : "Preparing"}
-                >
-                    <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Fully offline-safe
-                            </p>
-                            <p className="app-helper mt-1.5 text-xs leading-5">
-                                {offlineCapabilityGroups.full.length} local routes, including calculators,
-                                history, settings, and bundled learning content.
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Limited offline
-                            </p>
-                            <p className="app-helper mt-1.5 text-xs leading-5">
-                                {offlineCapabilityGroups.limited.length} routes that still explain limits
-                                offline while keeping some actions online.
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Current cache
-                            </p>
-                            <p className="app-helper mt-1.5 text-xs leading-5">
-                                {offlineBundle.ready
-                                    ? `${offlineBundle.assetCount} assets cached for this release.`
-                                    : "The current release is not fully cached on this device yet."}
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Still online-only
-                            </p>
-                            <p className="app-helper mt-1.5 text-xs leading-5">
-                                Feedback submission, external destinations, and first-time asset downloads.
-                            </p>
-                        </div>
-                    </div>
-                </DisclosurePanel>
-
-                <DisclosurePanel
                     title="Browse categories"
                     summary="Short entry lists instead of a long homepage dump."
                     badge={`${categoryShortcuts.length} groups`}
@@ -631,8 +567,8 @@ export default function HomePage() {
                     ) : null}
 
                     <DisclosurePanel
-                        title={`Release notes · ${APP_VERSION}`}
-                        summary="The detailed shipping log for this release."
+                        title={`Release notes | ${APP_VERSION}`}
+                                                summary="The detailed shipping log for this release."
                         badge={`${APP_RELEASE_NOTES.length} notes`}
                     >
                         <div className="space-y-2">
@@ -651,3 +587,4 @@ export default function HomePage() {
         </div>
     );
 }
+

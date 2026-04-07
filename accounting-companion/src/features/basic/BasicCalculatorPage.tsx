@@ -1,14 +1,18 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import Decimal from "decimal.js";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
+import DisclosurePanel from "../../components/DisclosurePanel";
+import FormulaCard from "../../components/FormulaCard";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import { saveToolRecord } from "../../utils/appActivity";
 import { useAppSettings } from "../../utils/appSettings";
 
-type CalcOperator = "+" | "-" | "*" | "/";
+type CalcOperator = "+" | "-" | "*" | "/" | "^";
 type Token = string;
+type CalculatorMode = "basic" | "scientific";
+type AngleMode = "DEG" | "RAD";
 
 type ButtonSpec = {
     label: string;
@@ -19,6 +23,7 @@ type ButtonSpec = {
 type HistoryEntry = {
     expression: string;
     result: string;
+    mode: CalculatorMode;
 };
 
 type BasicCalculatorDraft = {
@@ -27,6 +32,9 @@ type BasicCalculatorDraft = {
     memoryValue: string | null;
     justEvaluated: boolean;
     statusMessage: string;
+    mode: CalculatorMode;
+    angleMode: AngleMode;
+    lastAnswer: string | null;
 };
 
 const BASIC_CALCULATOR_DRAFT_KEY = "accalc-basic-draft";
@@ -50,6 +58,9 @@ function readBasicCalculatorDraft(): BasicCalculatorDraft | null {
             justEvaluated: Boolean(parsed.justEvaluated),
             statusMessage:
                 typeof parsed.statusMessage === "string" ? parsed.statusMessage : "Ready",
+            mode: parsed.mode === "scientific" ? "scientific" : "basic",
+            angleMode: parsed.angleMode === "RAD" ? "RAD" : "DEG",
+            lastAnswer: typeof parsed.lastAnswer === "string" ? parsed.lastAnswer : null,
         };
     } catch {
         return null;
@@ -102,8 +113,25 @@ const BUTTON_ROWS: ButtonSpec[][] = [
     [{ label: "0", value: "0", kind: "number" }],
 ];
 
+const SCIENTIFIC_ROWS: ButtonSpec[][] = [
+    [
+        { label: "sin", value: "SIN", kind: "action" },
+        { label: "cos", value: "COS", kind: "action" },
+        { label: "tan", value: "TAN", kind: "action" },
+        { label: "ln", value: "LN", kind: "action" },
+        { label: "log", value: "LOG10", kind: "action" },
+    ],
+    [
+        { label: "x^y", value: "^", kind: "operator" },
+        { label: "pi", value: "PI", kind: "action" },
+        { label: "e", value: "E_CONST", kind: "action" },
+        { label: "abs", value: "ABS", kind: "action" },
+        { label: "n!", value: "FACTORIAL", kind: "action" },
+    ],
+];
+
 function isOperator(token: string): token is CalcOperator {
-    return token === "+" || token === "-" || token === "*" || token === "/";
+    return token === "+" || token === "-" || token === "*" || token === "/" || token === "^";
 }
 
 function formatForDisplay(value: Decimal): string {
@@ -116,12 +144,18 @@ function formatForDisplay(value: Decimal): string {
 }
 
 function renderToken(token: string): string {
-    if (token === "*") return "x";
+    if (token === "*") return "×";
+    if (token === "/") return "÷";
     return token;
 }
 
 function precedence(operator: CalcOperator): number {
+    if (operator === "^") return 3;
     return operator === "+" || operator === "-" ? 1 : 2;
+}
+
+function isRightAssociative(operator: CalcOperator) {
+    return operator === "^";
 }
 
 function applyOperator(left: Decimal, right: Decimal, operator: CalcOperator): Decimal {
@@ -135,6 +169,8 @@ function applyOperator(left: Decimal, right: Decimal, operator: CalcOperator): D
         case "/":
             if (right.isZero()) throw new Error("Cannot divide by zero.");
             return left.div(right);
+        case "^":
+            return left.pow(right.toNumber());
     }
 }
 
@@ -164,9 +200,13 @@ function evaluateTokens(tokens: Token[]): Decimal {
         if (isOperator(token)) {
             while (operatorStack.length) {
                 const lastToken = operatorStack[operatorStack.length - 1];
-                if (!isOperator(lastToken) || precedence(lastToken) < precedence(token)) {
+                if (!isOperator(lastToken)) {
                     break;
                 }
+                const shouldPop = isRightAssociative(token)
+                    ? precedence(lastToken) > precedence(token)
+                    : precedence(lastToken) >= precedence(token);
+                if (!shouldPop) break;
                 outputQueue.push(operatorStack.pop() as Token);
             }
 
@@ -225,6 +265,26 @@ function getLastExplicitNumber(tokens: Token[]): Decimal | null {
     return null;
 }
 
+function factorial(value: Decimal) {
+    if (!value.isInteger() || value.isNegative()) {
+        throw new Error("Factorial needs a non-negative whole number.");
+    }
+
+    if (value.greaterThan(170)) {
+        throw new Error("Factorial is limited to 170 to avoid overflow.");
+    }
+
+    let result = new Decimal(1);
+    for (let index = 2; index <= value.toNumber(); index += 1) {
+        result = result.times(index);
+    }
+    return result;
+}
+
+function toRadians(value: Decimal, angleMode: AngleMode) {
+    return angleMode === "DEG" ? value.times(Math.PI).div(180) : value;
+}
+
 function getButtonClass(kind: ButtonSpec["kind"] = "number", value?: string) {
     const baseClass =
         "flex min-h-14 items-center justify-center rounded-[1.2rem] px-3 py-3 text-base font-semibold transition active:scale-[0.98]";
@@ -265,13 +325,16 @@ export default function BasicCalculatorPage() {
             const raw = window.localStorage.getItem("accalc-basic-history");
             if (!raw) return [];
             const parsed = JSON.parse(raw) as HistoryEntry[];
-            return Array.isArray(parsed) ? parsed.slice(0, 8) : [];
+            return Array.isArray(parsed) ? parsed.slice(0, 12) : [];
         } catch {
             return [];
         }
     });
     const [justEvaluated, setJustEvaluated] = useState(savedDraft?.justEvaluated ?? false);
     const [statusMessage, setStatusMessage] = useState(savedDraft?.statusMessage ?? "Ready");
+    const [mode, setMode] = useState<CalculatorMode>(savedDraft?.mode ?? "scientific");
+    const [angleMode, setAngleMode] = useState<AngleMode>(savedDraft?.angleMode ?? "DEG");
+    const [lastAnswer, setLastAnswer] = useState<string | null>(savedDraft?.lastAnswer ?? null);
 
     const expressionDisplay = useMemo(() => {
         const displayTokens = [...tokens];
@@ -499,16 +562,17 @@ export default function BasicCalculatorPage() {
             const expression = finalTokens.map(renderToken).join(" ");
 
             setHistory((previousHistory) =>
-                [{ expression, result: formattedResult }, ...previousHistory].slice(0, 8)
+                [{ expression, result: formattedResult, mode }, ...previousHistory].slice(0, 12)
             );
             saveToolRecord({
-                title: "Basic Calculator",
+                title: "Scientific Calculator",
                 path: "/basic",
                 input: expression,
                 result: formattedResult,
             });
             setTokens([]);
             setCurrentInput(formattedResult);
+            setLastAnswer(formattedResult);
             setJustEvaluated(true);
             setStatusMessage("Calculated");
         } catch (error) {
@@ -560,6 +624,12 @@ export default function BasicCalculatorPage() {
         }
     }
 
+    function insertConstant(value: Decimal, label: string) {
+        setCurrentInput(formatForDisplay(value));
+        setJustEvaluated(false);
+        setStatusMessage(`${label} inserted`);
+    }
+
     function handleAction(value: string) {
         if (/^\d$/u.test(value)) {
             inputDigit(value);
@@ -599,6 +669,42 @@ export default function BasicCalculatorPage() {
                     return new Decimal(1).div(input);
                 }, "Reciprocal applied");
                 return;
+            case "ABS":
+                applyUnaryOperation((input) => input.abs(), "Absolute value");
+                return;
+            case "SIN":
+                applyUnaryOperation(
+                    (input) => new Decimal(Math.sin(toRadians(input, angleMode).toNumber())),
+                    `Sine in ${angleMode}`
+                );
+                return;
+            case "COS":
+                applyUnaryOperation(
+                    (input) => new Decimal(Math.cos(toRadians(input, angleMode).toNumber())),
+                    `Cosine in ${angleMode}`
+                );
+                return;
+            case "TAN":
+                applyUnaryOperation(
+                    (input) => new Decimal(Math.tan(toRadians(input, angleMode).toNumber())),
+                    `Tangent in ${angleMode}`
+                );
+                return;
+            case "LN":
+                applyUnaryOperation((input) => {
+                    if (input.lte(0)) throw new Error("Natural log needs a positive number.");
+                    return new Decimal(Math.log(input.toNumber()));
+                }, "Natural log");
+                return;
+            case "LOG10":
+                applyUnaryOperation((input) => {
+                    if (input.lte(0)) throw new Error("Common log needs a positive number.");
+                    return new Decimal(Math.log10(input.toNumber()));
+                }, "Common log");
+                return;
+            case "FACTORIAL":
+                applyUnaryOperation((input) => factorial(input), "Factorial");
+                return;
             case "%":
                 applyPercent();
                 return;
@@ -612,6 +718,7 @@ export default function BasicCalculatorPage() {
             case "-":
             case "*":
             case "/":
+            case "^":
                 pushOperator(value);
                 return;
             case "=":
@@ -623,6 +730,19 @@ export default function BasicCalculatorPage() {
             case "M-":
             case "MS":
                 updateMemory(value);
+                return;
+            case "PI":
+                insertConstant(new Decimal(Math.PI), "π");
+                return;
+            case "E_CONST":
+                insertConstant(new Decimal(Math.E), "e");
+                return;
+            case "ANS":
+                if (lastAnswer) {
+                    setCurrentInput(lastAnswer);
+                    setJustEvaluated(false);
+                    setStatusMessage("Last answer recalled");
+                }
                 return;
             default:
                 return;
@@ -645,12 +765,18 @@ export default function BasicCalculatorPage() {
                 memoryValue: memoryValue?.toString() ?? null,
                 justEvaluated,
                 statusMessage,
+                mode,
+                angleMode,
+                lastAnswer,
             } satisfies BasicCalculatorDraft)
         );
     }, [
+        angleMode,
         currentInput,
         justEvaluated,
+        lastAnswer,
         memoryValue,
+        mode,
         settings.saveOfflineHistory,
         statusMessage,
         tokens,
@@ -671,6 +797,11 @@ export default function BasicCalculatorPage() {
 
         if (key === ".") {
             handleAction(".");
+            return;
+        }
+
+        if (key === "^") {
+            handleAction("^");
             return;
         }
 
@@ -721,12 +852,50 @@ export default function BasicCalculatorPage() {
     return (
         <CalculatorPageLayout
             badge="Core Tools"
-            title="Basic Calculator"
-            description="A fuller calculator with expression logic, parentheses, memory controls, keyboard support, and recent history for quick checking."
+            title="Scientific Calculator"
+            description="A stronger general calculator with scientific functions, memory controls, expression handling, keyboard support, and reusable recent results."
             inputSection={
                 <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
                     <SectionCard className="overflow-hidden">
                         <div className="rounded-[1.7rem] border app-divider bg-[linear-gradient(180deg,var(--app-elevated),var(--app-surface))] p-4 md:p-5">
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex flex-wrap gap-2">
+                                    {(["basic", "scientific"] as const).map((calculatorMode) => (
+                                        <button
+                                            key={calculatorMode}
+                                            type="button"
+                                            onClick={() => setMode(calculatorMode)}
+                                            className={[
+                                                "rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em]",
+                                                mode === calculatorMode
+                                                    ? "app-button-primary"
+                                                    : "app-button-ghost",
+                                            ].join(" ")}
+                                        >
+                                            {calculatorMode}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {(["DEG", "RAD"] as const).map((currentMode) => (
+                                        <button
+                                            key={currentMode}
+                                            type="button"
+                                            onClick={() => setAngleMode(currentMode)}
+                                            className={[
+                                                "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em]",
+                                                angleMode === currentMode
+                                                    ? "app-button-secondary"
+                                                    : "app-button-ghost",
+                                            ].join(" ")}
+                                        >
+                                            {currentMode}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="app-subtle-surface rounded-[1.5rem] p-4 md:p-5">
                                 <p className="app-label min-h-6 text-right">
                                     {statusMessage}
@@ -739,31 +908,67 @@ export default function BasicCalculatorPage() {
                                 </p>
                             </div>
 
-                            <div className="mt-4 grid grid-cols-5 gap-3">
-                                {BUTTON_ROWS.flat().map((button) => (
-                                    <button
-                                        key={`${button.value}-${button.label}`}
-                                        type="button"
-                                        onClick={() => handleAction(button.value)}
-                                        className={[
-                                            getButtonClass(button.kind, button.value),
-                                            button.value === "0" ? "col-span-5 md:col-span-1" : "",
-                                        ].join(" ")}
-                                    >
-                                        {button.label}
-                                    </button>
+                            <div className="mt-4 space-y-3">
+                                {mode === "scientific"
+                                    ? SCIENTIFIC_ROWS.map((row, rowIndex) => (
+                                          <div
+                                              key={`scientific-${rowIndex}`}
+                                              className="grid grid-cols-5 gap-3"
+                                          >
+                                              {row.map((button) => (
+                                                  <button
+                                                      key={`${button.value}-${button.label}`}
+                                                      type="button"
+                                                      onClick={() => handleAction(button.value)}
+                                                      className={getButtonClass(
+                                                          button.kind,
+                                                          button.value
+                                                      )}
+                                                  >
+                                                      {button.label}
+                                                  </button>
+                                              ))}
+                                          </div>
+                                      ))
+                                    : null}
+
+                                {BUTTON_ROWS.map((row, rowIndex) => (
+                                    <div key={`row-${rowIndex}`} className="grid grid-cols-5 gap-3">
+                                        {row.map((button) => (
+                                            <button
+                                                key={`${button.value}-${button.label}`}
+                                                type="button"
+                                                onClick={() => handleAction(button.value)}
+                                                className={[
+                                                    getButtonClass(button.kind, button.value),
+                                                    button.value === "0"
+                                                        ? "col-span-5 md:col-span-1"
+                                                        : "",
+                                                ].join(" ")}
+                                            >
+                                                {button.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     </SectionCard>
 
                     <div className="space-y-6">
-                        <ResultGrid columns={2}>
+                        <ResultGrid columns={4}>
+                            <ResultCard title="Mode" value={mode} />
+                            <ResultCard title="Angle" value={angleMode} />
                             <ResultCard
                                 title="Memory"
                                 value={memoryValue ? formatForDisplay(memoryValue) : "Empty"}
                             />
-                            <ResultCard title="History Count" value={String(history.length)} />
+                            <ResultCard
+                                title="Last Answer"
+                                value={lastAnswer ?? "None"}
+                                supportingText={`History: ${history.length}`}
+                                tone="accent"
+                            />
                         </ResultGrid>
 
                         <SectionCard>
@@ -773,7 +978,7 @@ export default function BasicCalculatorPage() {
                                 <div className="mt-4 space-y-3">
                                     {history.map((entry) => (
                                         <button
-                                            key={`${entry.expression}-${entry.result}`}
+                                            key={`${entry.expression}-${entry.result}-${entry.mode}`}
                                             type="button"
                                             onClick={() => {
                                                 setCurrentInput(entry.result);
@@ -783,9 +988,14 @@ export default function BasicCalculatorPage() {
                                             }}
                                             className="app-list-link block w-full rounded-[1.35rem] px-4 py-3 text-left transition"
                                         >
-                                            <p className="app-section-kicker text-xs">
-                                                {entry.expression}
-                                            </p>
+                                            <div className="flex items-center justify-between gap-3">
+                                                <p className="app-section-kicker text-xs">
+                                                    {entry.mode}
+                                                </p>
+                                                <p className="app-helper text-xs">
+                                                    {entry.expression}
+                                                </p>
+                                            </div>
                                             <p className="app-value-display mt-2 text-[1.45rem]">
                                                 {entry.result}
                                             </p>
@@ -800,21 +1010,43 @@ export default function BasicCalculatorPage() {
                         </SectionCard>
 
                         <SectionCard>
-                            <h2 className="app-section-title text-base">Keyboard Support</h2>
-                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                <div className="app-subtle-surface rounded-[1.35rem] p-4">
-                                    <p className="app-card-title text-sm">Input</p>
-                                    <p className="app-body-md mt-2 text-sm">
-                                        Use `0-9`, `.`, `+`, `-`, `*`, `/`, `(`, and `)`.
-                                    </p>
+                            <DisclosurePanel
+                                title="Scientific controls"
+                                summary="Functions, constants, and desktop shortcuts."
+                                badge="Guide"
+                            >
+                                <div className="space-y-4">
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <div className="app-subtle-surface rounded-[1rem] p-4">
+                                            <p className="app-card-title text-sm">Input</p>
+                                            <p className="app-body-md mt-2 text-sm">
+                                                Use `0-9`, `.`, `+`, `-`, `*`, `/`, `^`, `(`, and `)`.
+                                            </p>
+                                        </div>
+                                        <div className="app-subtle-surface rounded-[1rem] p-4">
+                                            <p className="app-card-title text-sm">Control</p>
+                                            <p className="app-body-md mt-2 text-sm">
+                                                Use `Enter` for equals, `Backspace` to delete, `Delete` for CE, and `Esc` for AC.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <FormulaCard
+                                        formula="Scientific mode keeps expression solving separate from one-value scientific functions."
+                                        steps={[
+                                            "Build the expression first when you need parentheses or order of operations.",
+                                            "Use sin, cos, tan, ln, log, abs, factorial, pi, and e on the current display value.",
+                                            "Use Ans or memory keys when you need to reuse a result quickly.",
+                                        ]}
+                                        interpretation="This calculator now behaves more like a real study or desk calculator: arithmetic stays deterministic, scientific functions stay explicit, and reused answers remain close at hand."
+                                        warnings={[
+                                            "Trig functions follow the DEG or RAD toggle.",
+                                            "Factorial only works for non-negative whole numbers.",
+                                            "Logarithms require positive input values.",
+                                        ]}
+                                    />
                                 </div>
-                                <div className="app-subtle-surface rounded-[1.35rem] p-4">
-                                    <p className="app-card-title text-sm">Control</p>
-                                    <p className="app-body-md mt-2 text-sm">
-                                        Use `Enter` for equals, `Backspace` to delete, `Delete` for CE, and `Esc` for AC.
-                                    </p>
-                                </div>
-                            </div>
+                            </DisclosurePanel>
                         </SectionCard>
                     </div>
                 </div>

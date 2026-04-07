@@ -1691,15 +1691,15 @@ function createTurnoverDefinition(options: {
                         targetKey === options.ratioKey
                             ? options.ratioLabel
                             : targetKey === options.numeratorKey
-                              ? options.numeratorLabel
-                              : options.denominatorLabel,
+                                ? options.numeratorLabel
+                                : options.denominatorLabel,
                     value:
                         targetKey === options.ratioKey
                             ? formatTimes(ratio)
                             : formatPHP(
-                                  targetKey === options.numeratorKey
-                                      ? numerator
-                                      : denominator
+                                    targetKey === options.numeratorKey
+                                        ? numerator
+                                        : denominator
                               ),
                     tone: "accent",
                 },
@@ -1708,10 +1708,10 @@ function createTurnoverDefinition(options: {
                 ],
                 formula:
                     targetKey === options.ratioKey
-                        ? `${options.ratioLabel} = ${options.numeratorLabel} / ${options.denominatorLabel}`
-                        : targetKey === options.numeratorKey
-                          ? `${options.numeratorLabel} = ${options.ratioLabel} × ${options.denominatorLabel}`
-                          : `${options.denominatorLabel} = ${options.numeratorLabel} / ${options.ratioLabel}`,
+                            ? `${options.ratioLabel} = ${options.numeratorLabel} / ${options.denominatorLabel}`
+                            : targetKey === options.numeratorKey
+                            ? `${options.numeratorLabel} = ${options.ratioLabel} × ${options.denominatorLabel}`
+                            : `${options.denominatorLabel} = ${options.numeratorLabel} / ${options.ratioLabel}`,
                 steps: [
                     `${options.ratioLabel} = ${formatPHP(numerator)} / ${formatPHP(denominator)} = ${formatTimes(ratio)}.`,
                     `${options.dayLabel} = 365 / ${formatTimes(ratio)} = ${formatDays(turnover.days)}.`,

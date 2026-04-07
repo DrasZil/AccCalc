@@ -1,35 +1,35 @@
-export const APP_VERSION = "3.0.0";
+export const APP_VERSION = "3.1.0";
 export const APP_RELEASE_DATE = "2026-04-07";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "2.9 foundation: calmer mobile shell",
-        body: "The shell now supports compact mobile chrome, stronger settings architecture, and higher-contrast reading without giving up the existing desktop workspace.",
+        title: "Cleaner 3.1 shell and learning flow",
+        body: "Tool pages now restore a richer About this tool layer, history and settings are cleaner, and the home workspace is calmer without hiding important paths.",
     },
     {
-        title: "2.9 foundation: smarter guidance",
-        body: "Smart Solver now separates compute, study, and practice lenses while surfacing clearer method cues, assumptions, and next-step notes.",
+        title: "Mobile friction reduced",
+        body: "Mobile search no longer forces the keyboard open, bottom navigation is more screen-integrated, duplicate menu actions were removed, and headers stay tighter on phones.",
     },
     {
-        title: "3.0 expansion: economics arrives",
-        body: "Elasticity, market equilibrium, surplus analysis, and real-rate tools broaden AccCalc into a stronger business and economics study workspace.",
+        title: "Scientific calculator upgrade",
+        body: "The general calculator now supports scientific mode, trigonometric and logarithmic functions, exponent handling, angle modes, and stronger reusable history behavior.",
     },
     {
-        title: "3.0 expansion: entrepreneurship arrives",
-        body: "Startup costs, unit economics, sales forecasting, and runway planning add practical small-business and feasibility support on top of accounting and finance.",
+        title: "New 3.1 workspaces",
+        body: "Accounting, economics, and entrepreneurship gained new multi-purpose workspaces for adjustments, working capital, inventory control, elasticity analysis, and planning.",
     },
     {
-        title: "Release stays production-safe",
-        body: "The new categories use shared helpers, route metadata, Smart Solver discovery, and the existing truthful offline/PWA model instead of one-off feature code.",
+        title: "Still production-safe",
+        body: "The release stays metadata-driven, test-covered, lazy-routed, and inside the existing truthful offline/PWA model instead of adding one-off feature code.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "2.9.0: Reworked the shell with compact mobile chrome, stronger settings categorization, high-contrast mode, and denser but clearer navigation behavior.",
-    "2.9.0: Upgraded Smart Solver with configurable compute, study, and practice lenses plus richer method cues, assumptions, and related-tool guidance.",
-    "2.9.0: Strengthened shared architecture for settings, navigation, responsive shell density, and release-safe metadata handling.",
-    "3.0.0: Added Economics with Price Elasticity of Demand, Supply and Demand Equilibrium, Consumer and Producer Surplus, and Real Interest Rate.",
-    "3.0.0: Added Entrepreneurship with Startup Cost Planner, Unit Economics Workspace, Sales Forecast Planner, and Cash Runway Planner.",
-    "3.0.0: Expanded home discovery, Smart Solver prompt examples, route metadata, and sidebar organization for the new categories.",
-    "3.0.0: Added new regression coverage for economics helpers, entrepreneurship helpers, and search discoverability while keeping offline/PWA behavior truthful.",
+    "3.1.0: Restored educational About this tool guidance so tool meaning, use, and common mistakes stay available without replacing the actual calculator.",
+    "3.1.0: Fixed mobile search autofocus behavior so opening mobile search no longer forces the keyboard open on page entry.",
+    "3.1.0: Redesigned settings into cleaner collapsible app-like sections and reorganized history into searchable, filterable time groups.",
+    "3.1.0: Reworked mobile navigation into a more integrated bottom bar and removed duplicate mobile header actions that were competing with nav.",
+    "3.1.0: Upgraded the general calculator into a stronger scientific calculator with trig, logs, exponent support, angle modes, and richer history.",
+    "3.1.0: Added Adjusting Entries Workspace, Working Capital Planner, Inventory Control Workspace, Economics Analysis Workspace, and Entrepreneurship Toolkit.",
+    "3.1.0: Expanded Smart Solver prompts, route metadata, charts, analytics, and regression coverage while keeping offline/PWA behavior truthful.",
 ];

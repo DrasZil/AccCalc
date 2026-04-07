@@ -99,6 +99,11 @@ function feature(
 }
 
 const CURRENT_RELEASE_NEW_PATHS = new Set([
+    "/accounting/adjusting-entries-workspace",
+    "/accounting/working-capital-planner",
+    "/accounting/inventory-control-workspace",
+    "/economics/economics-analysis-workspace",
+    "/entrepreneurship/entrepreneurship-toolkit",
     "/economics/price-elasticity-demand",
     "/economics/market-equilibrium",
     "/economics/surplus-analysis",
@@ -375,7 +380,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/settings/about", "About", "General", "App background and context.", ["about acccalc"], ["about"], "About"),
     feature("/settings/install", "Install and Offline Guide", "General", "Platform-aware install guidance plus offline support limits and safeguards.", ["pwa install", "offline guide", "add to home screen"], ["install", "offline"], "Install", true),
     feature("/settings/feedback", "Feedback", "General", "Suggestions and issue reporting.", ["support", "report issue"], ["feedback"], "Feedback"),
-    feature("/basic", "Basic Calculator", "Core Tools", "Expression calculator with memory and keyboard support.", ["basic calc", "standard calculator"], ["calculator"], "Calculator"),
+    feature("/basic", "Scientific Calculator", "Core Tools", "Expression calculator with scientific functions, memory, and keyboard support.", ["basic calc", "standard calculator", "scientific calculator"], ["calculator", "scientific"], "Calculator"),
     feature("/smart/solver", "Smart Solver", "Smart Tools", "Natural-language routing into the right tool.", ["prompt solver", "smart search"], ["smart", "routing"], "Solver"),
 
     feature("/accounting/accounting-equation", "Accounting Equation", "Accounting", "Solve assets, liabilities, or equity.", ["assets liabilities equity", "ale"], ["fundamentals"]),
@@ -418,6 +423,9 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/accounting/horizontal-analysis", "Horizontal Analysis Workspace", "Accounting", "Multi-line amount and percentage change across periods.", ["trend analysis", "comparative statements"], ["analysis", "statements", "workspace"], "Horizontal", true, ["horizontal analysis", "comparative analysis", "trend analysis"]),
     feature("/accounting/common-size-income-statement", "Common-Size Income Statement", "Accounting", "Express income-statement lines as percentages of net sales.", ["vertical analysis income statement", "common size income"], ["analysis", "statements", "common-size"], "Common-Size IS", true, ["common size", "income statement", "vertical analysis"]),
     feature("/accounting/common-size-balance-sheet", "Common-Size Balance Sheet", "Accounting", "Express balance-sheet lines as percentages of total assets.", ["vertical analysis balance sheet", "common size balance sheet"], ["analysis", "statements", "common-size"], "Common-Size BS", true, ["common size", "balance sheet", "vertical analysis"]),
+    feature("/accounting/adjusting-entries-workspace", "Adjusting Entries Workspace", "Accounting", "Handle prepaid, unearned, accrued revenue, and accrued expense adjustments from one worksheet.", ["adjusting entries", "adjustment worksheet", "prepaid adjustment", "accrued expense"], ["adjustments", "worksheet", "accruals"], "Adjustments", true, ["adjusting entries", "accruals", "deferrals", "journal entry"]),
+    feature("/accounting/working-capital-planner", "Working Capital Planner", "Accounting", "Combine liquidity, turnover days, operating cycle, and cash conversion cycle in one planner.", ["working capital planner", "operating cycle planner", "ccc planner"], ["working capital", "analysis", "planner", "cash"], "WC Planner", true, ["working capital", "operating cycle", "cash conversion cycle", "planner"]),
+    feature("/accounting/inventory-control-workspace", "Inventory Control Workspace", "Accounting", "Review shrinkage and purchase-discount discipline in one control-focused workspace.", ["inventory control", "shrinkage", "inventory shrinkage", "purchase discount control"], ["inventory", "control", "shrinkage", "discount"], "Inventory Control", true, ["inventory shrinkage", "inventory control", "cash discount", "purchase discipline"]),
     feature("/accounting/vertical-analysis", "Vertical Analysis", "Accounting", "Common-size statement percentage.", ["common size"], ["analysis", "statements"]),
     feature("/accounting/trial-balance-checker", "Trial Balance Checker", "Accounting", "Compare total debits and credits.", ["trial balance", "tb checker"], ["accounting cycle"], undefined, true),
     feature("/accounting/account-classification", "Account Classification Helper", "Accounting", "Look up account type, statement section, and normal balance.", ["normal balance helper", "chart of accounts helper"], ["accounting cycle", "classification"], undefined, true),
@@ -458,11 +466,13 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/economics/market-equilibrium", "Market Equilibrium", "Economics", "Solve equilibrium price and quantity from linear demand and supply equations.", ["supply and demand equilibrium", "equilibrium price"], ["market", "equilibrium"], "Equilibrium", true, ["equilibrium", "supply and demand", "market clearing"]),
     feature("/economics/surplus-analysis", "Consumer and Producer Surplus", "Economics", "Estimate welfare gains from trade at a known equilibrium.", ["consumer surplus", "producer surplus"], ["surplus", "microeconomics"], "Surplus", true, ["consumer surplus", "producer surplus", "total surplus"]),
     feature("/economics/real-interest-rate", "Real Interest Rate", "Economics", "Compare exact and approximate real rates after inflation.", ["fisher equation", "real rate"], ["inflation", "rates"], "Real Rate", true, ["real interest rate", "inflation", "fisher"]),
+    feature("/economics/economics-analysis-workspace", "Economics Analysis Workspace", "Economics", "Compare price, income, and cross elasticity cases from one guided study page.", ["elasticity workspace", "price income cross elasticity"], ["elasticity", "microeconomics", "workspace"], "Elasticity Lab", true, ["elasticity workspace", "price elasticity", "income elasticity", "cross elasticity"]),
 
     feature("/entrepreneurship/startup-cost-planner", "Startup Cost Planner", "Entrepreneurship", "Organize launch costs, contingency, and opening cash needs.", ["startup budget", "startup costs"], ["startup", "planning"], "Startup Costs", true, ["startup cost", "launch budget", "feasibility"]),
     feature("/entrepreneurship/unit-economics", "Unit Economics Workspace", "Entrepreneurship", "Read contribution, break-even, and customer-level economics from one worksheet.", ["customer economics", "startup unit economics"], ["unit economics", "pricing"], "Unit Economics", true, ["unit economics", "cac", "contribution"]),
     feature("/entrepreneurship/sales-forecast-planner", "Sales Forecast Planner", "Entrepreneurship", "Project sales and gross profit from a monthly growth assumption.", ["sales projection", "revenue forecast"], ["forecasting", "sales"], "Sales Forecast", true, ["sales forecast", "revenue projection", "growth forecast"]),
     feature("/entrepreneurship/cash-runway-planner", "Cash Runway Planner", "Entrepreneurship", "Estimate runway from current cash, recurring inflows, and recurring outflows.", ["runway calculator", "startup runway"], ["cash", "runway"], "Cash Runway", true, ["cash runway", "burn rate", "startup cash"]),
+    feature("/entrepreneurship/entrepreneurship-toolkit", "Entrepreneurship Toolkit", "Entrepreneurship", "Use one workspace for pricing targets, owner splits, and customer payback checks.", ["pricing target toolkit", "owner split planner", "customer payback"], ["unit economics", "pricing", "planning", "toolkit"], "Toolkit", true, ["selling price", "owner split", "customer payback", "startup toolkit"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),
     feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),

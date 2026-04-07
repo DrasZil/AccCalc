@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import ComparisonBarsChart from "../../components/ComparisonBarsChart";
+import DonutChart from "../../components/DonutChart";
 import EditableRowsCard from "../../components/EditableRowsCard";
 import FormulaCard from "../../components/FormulaCard";
 import InputCard from "../../components/INputCard";
@@ -116,6 +117,17 @@ export default function StartupCostPlannerPage() {
                                 { label: "Subtotal", value: result.subtotal, accent: "primary" },
                                 { label: "Contingency", value: result.contingencyAmount, accent: "highlight" },
                                 { label: "Cash Buffer", value: result.openingCashBuffer, accent: "secondary" },
+                            ]}
+                            formatter={(value) => formatPHP(value)}
+                        />
+
+                        <DonutChart
+                            title="Funding composition"
+                            description="This view makes it easier to see how much of the required funding goes to setup costs, contingency, and opening cash."
+                            items={[
+                                { label: "Startup subtotal", value: result.subtotal, accent: "primary" },
+                                { label: "Contingency", value: result.contingencyAmount, accent: "highlight" },
+                                { label: "Cash buffer", value: result.openingCashBuffer, accent: "secondary" },
                             ]}
                             formatter={(value) => formatPHP(value)}
                         />
