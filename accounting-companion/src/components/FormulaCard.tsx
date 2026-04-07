@@ -11,6 +11,7 @@ import DisclosurePanel from "./DisclosurePanel";
 import SectionCard from "./SectionCard";
 import FormulaBlock from "./math/FormulaBlock";
 import MathInline from "./math/MathInline";
+import { looksLikeStandaloneMathText } from "../utils/mathNotation";
 
 type FormulaGlossaryItem = {
     term: string;
@@ -68,19 +69,31 @@ function prettifyText(value: string) {
         );
 }
 
-function polishNode(node: ReactNode): ReactNode {
+function polishNode(node: ReactNode, preferMath = false): ReactNode {
     if (typeof node === "string") {
-        return <MathInline text={prettifyText(node)} renderMode="auto" />;
+        const polished = prettifyText(node);
+        const renderAsMath = preferMath || looksLikeStandaloneMathText(polished);
+        return (
+            <MathInline
+                text={polished}
+                renderMode={renderAsMath ? "math" : "plain"}
+                className={renderAsMath ? "app-reading-formula-inline" : "app-reading-inline"}
+            />
+        );
     }
 
     if (Array.isArray(node)) {
-        return node.map((child, index) => <span key={index}>{polishNode(child)}</span>);
+        return node.map((child, index) => (
+            <span key={index} className="app-reading-inline">
+                {polishNode(child, preferMath)}
+            </span>
+        ));
     }
 
     if (isValidElement(node)) {
         const element = node as ReactElement<{ children?: ReactNode }>;
         const nextChildren = element.props.children
-            ? Children.map(element.props.children, (child) => polishNode(child))
+            ? Children.map(element.props.children, (child) => polishNode(child, preferMath))
             : element.props.children;
 
         return cloneElement(element, undefined, nextChildren);
@@ -127,17 +140,17 @@ export default function FormulaCard({
                     label: "Steps",
                     shortLabel: "Steps",
                     content: (
-                        <ol className="space-y-3 text-sm leading-7 text-[color:var(--app-text)]">
+                        <ol className="space-y-3">
                             {steps.map((step, index) => (
                                 <li
                                     key={index}
-                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
+                                    className="app-subtle-surface min-w-0 rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
                                     <div className="flex items-start gap-3">
                                         <span className="app-chip-accent mt-0.5 inline-flex min-w-[2rem] items-center justify-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                             {index + 1}
                                         </span>
-                                        <div className="min-w-0 flex-1 text-[0.95rem] leading-7 tracking-[-0.01em]">
+                                        <div className="app-reading-content app-guide-step min-w-0 flex-1">
                                             {polishNode(step)}
                                         </div>
                                     </div>
@@ -161,7 +174,7 @@ export default function FormulaCard({
                                     className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
                                     <p className="app-card-title text-sm">{item.term}</p>
-                                    <p className="app-body-md mt-1.5 text-sm">
+                                    <p className="app-reading-content mt-1.5">
                                         {polishNode(item.meaning)}
                                     </p>
                                 </div>
@@ -179,7 +192,7 @@ export default function FormulaCard({
                     content: (
                         <div className="app-tone-accent rounded-[1.15rem] px-5 py-4 md:px-6 md:py-5">
                             <p className="app-label mb-2">Key takeaway</p>
-                            <div className="max-w-3xl text-[0.96rem] leading-7 tracking-[-0.012em]">
+                            <div className="app-reading-content max-w-3xl app-reading-strong">
                                 {polishNode(interpretation)}
                             </div>
                         </div>
@@ -197,9 +210,9 @@ export default function FormulaCard({
                             {assumptions.map((assumption, index) => (
                                 <div
                                     key={`assumption-${index}`}
-                                    className="app-tone-info rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 md:px-5"
+                                    className="app-tone-info rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    {polishNode(assumption)}
+                                    <div className="app-reading-content">{polishNode(assumption)}</div>
                                 </div>
                             ))}
                         </div>
@@ -217,9 +230,9 @@ export default function FormulaCard({
                             {notes.map((note, index) => (
                                 <div
                                     key={`note-${index}`}
-                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 text-[color:var(--app-text)] md:px-5"
+                                    className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    {polishNode(note)}
+                                    <div className="app-reading-content">{polishNode(note)}</div>
                                 </div>
                             ))}
                         </div>
@@ -237,9 +250,9 @@ export default function FormulaCard({
                             {warnings.map((warning, index) => (
                                 <div
                                     key={`warning-${index}`}
-                                    className="app-tone-warning rounded-[1.1rem] px-4 py-3.5 text-sm leading-7 md:px-5"
+                                    className="app-tone-warning rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    {polishNode(warning)}
+                                    <div className="app-reading-content">{polishNode(warning)}</div>
                                 </div>
                             ))}
                         </div>

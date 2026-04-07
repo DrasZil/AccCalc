@@ -12,8 +12,7 @@ export default function InterpretationBlock({
     return (
         <div className={`${toneClassName("accent")} rounded-[1.1rem] px-4 py-3.5`}>
             <p className="app-card-title text-sm">{title}</p>
-            <p className="app-body-md mt-2 text-sm">{body}</p>
+            <p className="app-reading-content mt-2">{body}</p>
         </div>
     );
 }
-

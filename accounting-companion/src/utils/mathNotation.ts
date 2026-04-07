@@ -96,8 +96,29 @@ export function polishMathText(input: string) {
     return applyUnicodeScripts(next);
 }
 
+export function looksLikeStandaloneMathText(input: string) {
+    const normalized = input.trim();
+    if (!normalized) return false;
+
+    const wordMatches = normalized.match(/[A-Za-z]{2,}/g) ?? [];
+    const wordCount = wordMatches.length;
+    const hasStrongMathSignal =
+        /[=^_]|<=|>=|!=|\bsqrt\b|\bpi\b|\btheta\b|\bsigma\b|\bdelta\b|\bmu\b|\bsum\b/iu.test(
+            normalized
+        ) ||
+        /\d\s*[+\-*/]\s*\d/.test(normalized) ||
+        /[A-Za-z0-9)]\s*[=]\s*[A-Za-z0-9(]/.test(normalized) ||
+        /\b[A-Za-z]\d+\b|\b\d+[A-Za-z]\b/.test(normalized);
+
+    if (hasStrongMathSignal) return true;
+    if (wordCount >= 5) return false;
+    if (/[.?!:]/.test(normalized) && wordCount >= 3) return false;
+
+    return /[+\-*/%]/.test(normalized) && wordCount <= 3;
+}
+
 export function looksLikeMathText(input: string) {
-    return /[=+\-*/^_]|sqrt|pi|theta|sigma|delta|mu|sum|\d+\s*[A-Za-z]/iu.test(input);
+    return looksLikeStandaloneMathText(input);
 }
 
 export function plainTextToLatex(input: string) {
@@ -118,4 +139,3 @@ export function plainTextToLatex(input: string) {
         .replace(/([A-Za-z0-9)])\s*\*\s*([A-Za-z0-9(])/g, "$1 \\times $2")
         .replace(/([A-Za-z0-9)])\s*\/\s*([A-Za-z0-9(])/g, "$1 \\div $2");
 }
-

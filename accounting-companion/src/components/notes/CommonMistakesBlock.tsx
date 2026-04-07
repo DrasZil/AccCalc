@@ -10,7 +10,7 @@ export default function CommonMistakesBlock({ mistakes }: CommonMistakesBlockPro
     return (
         <div className={`${toneClassName("warning")} rounded-[1.1rem] px-4 py-3.5`}>
             <p className="app-card-title text-sm">Common pitfalls</p>
-            <div className="mt-2 space-y-2 text-sm">
+            <div className="app-reading-content mt-2 space-y-2">
                 {mistakes.map((mistake) => (
                     <p key={mistake}>{mistake}</p>
                 ))}
@@ -18,4 +18,3 @@ export default function CommonMistakesBlock({ mistakes }: CommonMistakesBlockPro
         </div>
     );
 }
-

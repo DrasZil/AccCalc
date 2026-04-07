@@ -19,8 +19,8 @@ export default function ChartInsightPanel({
             <div className="max-w-2xl">
                 <p className="app-section-kicker">Interpretation</p>
                 <h3 className="app-section-title mt-2 text-xl">{title}</h3>
-                <p className="app-body-md mt-2 text-sm">{meaning}</p>
-                <p className="app-body-md mt-2 text-sm">{importance}</p>
+                <p className="app-reading-content mt-2">{meaning}</p>
+                <p className="app-reading-content mt-2">{importance}</p>
             </div>
 
             {highlights.length > 0 ? (
@@ -38,4 +38,3 @@ export default function ChartInsightPanel({
         </div>
     );
 }
-

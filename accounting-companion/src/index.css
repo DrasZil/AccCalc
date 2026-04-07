@@ -416,12 +416,14 @@ a:active {
     font-size: 0.92rem;
     line-height: 1.66;
     color: var(--app-text-secondary);
+    font-style: normal;
 }
 
 .app-body-lg {
     font-size: 0.96rem;
     line-height: 1.7;
     color: var(--app-text-secondary);
+    font-style: normal;
 }
 
 .app-helper {
@@ -459,6 +461,79 @@ a:active {
     text-wrap: balance;
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.app-reading-content,
+.app-reading-inline {
+    max-width: none;
+    min-width: 0;
+    font-family: var(--app-font-sans);
+    font-size: clamp(0.9rem, 0.88rem + 0.14vw, 0.98rem);
+    font-style: normal;
+    font-weight: 450;
+    letter-spacing: -0.01em;
+    line-height: 1.7;
+    color: var(--app-text-secondary);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-wrap: pretty;
+}
+
+.app-reading-content > *,
+.app-reading-inline > * {
+    max-width: 100%;
+}
+
+.app-reading-content p,
+.app-reading-content li,
+.app-reading-content ul,
+.app-reading-content ol,
+.app-reading-inline {
+    max-width: none;
+    font: inherit;
+    color: inherit;
+}
+
+.app-reading-content p + p,
+.app-reading-content li + li {
+    margin-top: 0.55rem;
+}
+
+.app-reading-content strong,
+.app-reading-inline strong {
+    color: var(--app-text);
+    font-weight: 640;
+}
+
+.app-reading-strong {
+    color: var(--app-text);
+}
+
+.app-reading-formula-inline {
+    display: inline;
+    max-width: 100%;
+    font-family: var(--app-font-display);
+    font-style: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.app-guide-step {
+    font-size: clamp(0.9rem, 0.88rem + 0.12vw, 0.97rem);
+}
+
+.app-guide-step .katex-display,
+.app-reading-content .katex-display,
+.app-reading-inline .katex-display {
+    margin: 0.18rem 0;
+    max-width: 100%;
+}
+
+.app-guide-step .katex,
+.app-reading-content .katex,
+.app-reading-inline .katex {
+    font-size: 1em;
 }
 
 .app-result-grid {
