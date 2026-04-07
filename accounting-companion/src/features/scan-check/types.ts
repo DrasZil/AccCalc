@@ -32,6 +32,17 @@ export type ScanPageType =
     | "mixed-reference-page"
     | "unknown";
 
+export type ScanImageSourceKind =
+    | "screenshot"
+    | "dark-screenshot"
+    | "photo"
+    | "textbook-photo"
+    | "handwriting"
+    | "digital-handwriting"
+    | "accounting-table"
+    | "mixed"
+    | "unknown";
+
 export type StructuredScanField = {
     key: string;
     label: string;
@@ -87,6 +98,8 @@ export type OcrResult = {
 export type ParsedScanResult = {
     kind: ScanProblemKind;
     cleanedText: string;
+    cleanupNotes: string[];
+    flaggedValues: string[];
     suggestedIntent: string;
     parseConfidence: number;
     extractionConfidence?: number;
@@ -107,6 +120,8 @@ export type ScanImageItem = {
     sourceDataUrl?: string | null;
     previewUrl: string;
     processedPreviewUrl: string | null;
+    detectedImageType?: ScanImageSourceKind;
+    qualityScore?: number;
     status: ScanImageStatus;
     progress: number;
     error: string | null;

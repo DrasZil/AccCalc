@@ -8,13 +8,12 @@ export function getConfidenceLevel(value: number): ConfidenceLevel {
 
 export function explainConfidence(value: number) {
     if (value >= 85) {
-        return "Strong printed-text read. Still review symbols and numbers before solving.";
+        return "Strong OCR read. Cleaned text should be usable, but still verify key numbers and symbols.";
     }
 
     if (value >= 60) {
-        return "Usable extraction, but some values or operators may need confirmation.";
+        return "Usable extraction, but some digits, punctuation, or operators may still need confirmation.";
     }
 
-    return "Low-confidence OCR. Review the extracted text carefully before solving.";
+    return "Low-confidence OCR. Review flagged values carefully and compare cleaned text against the raw OCR before solving.";
 }
-

@@ -1,34 +1,34 @@
-export const APP_VERSION = "3.2.4";
+export const APP_VERSION = "3.2.5";
 export const APP_RELEASE_DATE = "2026-04-08";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Mobile camera capture works better in 3.2.4",
-        body: "Scan & Check now prefers native mobile camera capture first, then falls back gracefully when a browser does not support a reliable direct camera flow.",
+        title: "OCR quality is stronger in 3.2.5",
+        body: "Scan & Check now applies more image-aware preprocessing so screenshots, textbook photos, soft captures, and accounting tables clean up more reliably before OCR runs.",
     },
     {
-        title: "Capture flows feed the queue directly",
-        body: "Taking a photo now drops it straight into the scan queue so preview, OCR, review, and persistence behave the same as a normal image upload.",
+        title: "Digits and symbols separate more safely",
+        body: "Numeric cleanup now treats commas, decimals, percentages, and currency more carefully so short values like 6 are less likely to keep stray punctuation or merge with nearby text.",
     },
     {
-        title: "Safer fallbacks on awkward browsers",
-        body: "When native capture or live camera is not reliable, AccCalc falls back to the image picker instead of leaving the user stuck after a permission prompt.",
+        title: "Handwriting and blur are flagged more honestly",
+        body: "The scan flow now detects softer handwriting-like images and mild blur earlier, cleans what is safe, and leaves questionable values closer to raw OCR when confidence is weak.",
     },
     {
-        title: "Mobile scan controls feel clearer",
-        body: "Start Camera, Upload image, capture status, and related feedback are now grouped more clearly for touch-first scan sessions.",
+        title: "Cleaned and raw text are easier to compare",
+        body: "Review panels now make a clearer distinction between cleaned text, raw OCR, and flagged numeric values so users can verify critical accounting amounts faster.",
     },
     {
-        title: "Still future-proof and honest",
-        body: "The camera fix builds on the existing persistence, preview, toast, and OCR layers without replacing them or treating fragile live camera logic as the only path.",
+        title: "The OCR upgrade stays modular",
+        body: "This release extends the existing preprocessing, parser, and review layers without disturbing the working mobile camera flow, session persistence, preview modal, or toast system.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.2.4: Fixed the mobile camera flow so Start Camera prefers native device capture on supported phones and sends the photo directly into the scan queue after capture.",
-    "3.2.4: Added graceful fallback from native capture or live camera into the image picker when the browser or device does not support a reliable direct camera flow.",
-    "3.2.4: Kept captured photos inside the same persisted scan-session logic so they restore with the queue, preview, OCR output, and review state.",
-    "3.2.4: Refined scan toasts and status messaging for camera opening, fallback use, permission denial, and capture-related guidance without blocking the workflow.",
-    "3.2.4: Preserved desktop behavior while keeping live inline camera as a secondary supported path only where secure-context browser support is strong enough.",
-    "3.2.4: Tightened mobile button grouping around Start Camera and Upload image so the capture flow feels clearer and more touch-friendly.",
+    "3.2.5: Added stronger image-aware preprocessing with border trimming, adaptive contrast tuning, and mild sharpening for soft screenshots, textbook photos, and accounting-style tables.",
+    "3.2.5: Improved OCR cleanup for accounting text so currency, percentages, grouped numbers, and list formatting display more like readable digital text.",
+    "3.2.5: Tightened number and punctuation handling so obvious stray endings like 6, are cleaned more safely without blindly rewriting uncertain values.",
+    "3.2.5: Added clearer flagged-value handling so low-confidence commas, decimals, and handwriting-like digits stay closer to raw OCR and surface as review warnings.",
+    "3.2.5: Added cleaned-vs-raw merged text review plus per-image cleanup notes and image-type summaries inside the existing scan result flow.",
+    "3.2.5: Preserved the 3.2.4 camera capture, session restore, preview modal, toast system, and responsive layout fixes while improving OCR robustness on top of them.",
 ];

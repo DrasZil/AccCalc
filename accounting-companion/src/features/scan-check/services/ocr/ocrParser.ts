@@ -17,19 +17,23 @@ function extractUnits(text: string) {
 
 function extractValues(text: string) {
     const matches =
-        text.match(/(?:[A-Za-z][A-Za-z ]{1,18}[:=]\s*)?-?\d[\d,.]*(?:\.\d+)?%?/g) ?? [];
+        text.match(
+            /(?:PHP\s*)?-?\d[\d,.]*(?:\.\d+)?%?(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?/g
+        ) ?? [];
+
     return matches.slice(0, 8).map((match, index) => ({
         label: `Value ${index + 1}`,
         value: match.trim(),
     }));
 }
 
-function detectLikelyIssues(text: string) {
+function detectLikelyIssues(text: string, flaggedValues: string[]) {
     const issues: string[] = [];
-    if (/\u2212/.test(text) && /\+/.test(text)) {
+
+    if (/-/.test(text) && /\+/.test(text)) {
         issues.push("Check for sign errors around positive and negative terms.");
     }
-    if (/[×x]\s*\d/.test(text) || /\d\s*[÷/]\s*\d/.test(text)) {
+    if (/[x*]\s*\d/.test(text) || /\d\s*[\/]\s*\d/.test(text)) {
         issues.push("Verify operators because OCR often confuses multiplication and division symbols.");
     }
     if (/\b(?:kg|cm|days?|years?)\b/i.test(text) && /%/.test(text)) {
@@ -44,10 +48,18 @@ function detectLikelyIssues(text: string) {
     if (/transferred-?in/i.test(text) && !/department\s*2|dept\.?\s*2/i.test(text)) {
         issues.push("Transferred-in cost appears without a clear later-department label. Review the department carry-forward assumption.");
     }
+    if (flaggedValues.length > 0) {
+        issues.push("Some numeric values were left close to the raw OCR text because commas, decimals, or handwriting were uncertain.");
+    }
+
     return issues;
 }
 
-function getRouteHint(kind: ParsedScanResult["kind"], cleanedText: string, accountingPageType?: ScanPageType) {
+function getRouteHint(
+    kind: ParsedScanResult["kind"],
+    cleanedText: string,
+    accountingPageType?: ScanPageType
+) {
     if (kind === "accounting-worksheet") {
         return accountingPageType === "department-2-worksheet"
             ? "/accounting/department-transferred-in-process-costing"
@@ -72,7 +84,8 @@ function getRouteHint(kind: ParsedScanResult["kind"], cleanedText: string, accou
 }
 
 export function parseOcrText(text: string, ocrConfidence: number): ParsedScanResult {
-    const cleanedText = cleanupMathLikeText(text, ocrConfidence);
+    const cleanup = cleanupMathLikeText(text, ocrConfidence);
+    const cleanedText = cleanup.cleanedText;
     const normalizedAccountingText = normalizeAccountingWorksheetText(cleanedText);
     const accountingFields = extractAccountingFields(normalizedAccountingText);
     const accountingClassification = classifyAccountingWorksheet(normalizedAccountingText);
@@ -84,14 +97,15 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         : classifyScanText(cleanedText);
     const extractedValues = extractValues(cleanedText);
     const detectedUnits = extractUnits(cleanedText);
-    const likelyIssues = detectLikelyIssues(cleanedText);
+    const likelyIssues = detectLikelyIssues(cleanedText, cleanup.flaggedValues);
     const parseConfidence = Math.max(
         25,
         Math.min(
             100,
             ocrConfidence -
                 (kind === "unknown" ? 22 : 0) +
-                Math.min(extractedValues.length * 3, 18)
+                Math.min(extractedValues.length * 3, 18) -
+                Math.min(cleanup.flaggedValues.length * 5, 18)
         )
     );
 
@@ -99,18 +113,18 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         kind === "accounting-worksheet"
             ? "Check my solution"
             : kind === "equation"
-            ? "Extract equation"
-            : kind === "worked-solution"
-              ? "Check my solution"
-              : kind === "answer-check"
-                ? "Compare final answer"
-                : kind === "word-problem"
-                  ? "Check this word problem"
-                  : kind === "textbook-page"
-                    ? "Open suggested workspace"
-                    : kind === "notes-reference"
-                      ? "Review extracted values"
-                  : "Send to SmartSolver";
+              ? "Extract equation"
+              : kind === "worked-solution"
+                ? "Check my solution"
+                : kind === "answer-check"
+                  ? "Compare final answer"
+                  : kind === "word-problem"
+                    ? "Check this word problem"
+                    : kind === "textbook-page"
+                      ? "Open suggested workspace"
+                      : kind === "notes-reference"
+                        ? "Review extracted values"
+                        : "Send to SmartSolver";
 
     const routeHint = getRouteHint(kind, cleanedText, accountingPageType);
 
@@ -118,20 +132,23 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         kind === "accounting-worksheet"
             ? "This looks like an accounting worksheet, so review structured fields and page roles before trusting the final totals."
             : kind === "worked-solution"
-            ? "This looks like worked steps, so likely-mistake checks are more important than immediate solving."
-            : kind === "textbook-page"
-              ? "This looks like a textbook or reference page, so AccCalc is routing toward the most likely related tool."
-            : kind === "notes-reference"
-              ? "This looks like notes or a formula reference, so extract the key values before solving."
-            : "Review extracted values before routing into a calculator.",
+              ? "This looks like worked steps, so likely-mistake checks are more important than immediate solving."
+              : kind === "textbook-page"
+                ? "This looks like a textbook or reference page, so AccCalc is routing toward the most likely related tool."
+                : kind === "notes-reference"
+                  ? "This looks like notes or a formula reference, so extract the key values before solving."
+                  : "Review extracted values before routing into a calculator.",
         detectedUnits.length > 0
             ? `Detected units: ${detectedUnits.join(", ")}.`
             : "No clear units detected from OCR.",
+        ...cleanup.cleanupNotes,
     ];
 
     return {
         kind,
         cleanedText,
+        cleanupNotes: cleanup.cleanupNotes,
+        flaggedValues: cleanup.flaggedValues,
         suggestedIntent,
         parseConfidence,
         extractionConfidence: isAccountingWorksheet

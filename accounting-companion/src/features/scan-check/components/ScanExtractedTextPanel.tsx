@@ -1,4 +1,5 @@
 import DisclosurePanel from "../../../components/DisclosurePanel";
+import { useState } from "react";
 import type { ScanImageItem } from "../types";
 
 type ScanExtractedTextPanelProps = {
@@ -12,6 +13,12 @@ export default function ScanExtractedTextPanel({
     mergedText,
     onMergedTextChange,
 }: ScanExtractedTextPanelProps) {
+    const [viewMode, setViewMode] = useState<"cleaned" | "raw">("cleaned");
+    const rawMergedText = items
+        .filter((item) => item.selected && item.ocrResult?.text?.trim())
+        .map((item) => [`[${item.name}]`, item.ocrResult?.text?.trim() ?? ""].join("\n"))
+        .join("\n\n");
+
     return (
         <DisclosurePanel
             title="Merged text and notes"
@@ -25,12 +32,38 @@ export default function ScanExtractedTextPanel({
                     <p className="app-helper mt-1 text-xs">
                         Selected images are combined here before deeper review or routing into SmartSolver.
                     </p>
-                    <textarea
-                        value={mergedText}
-                        onChange={(event) => onMergedTextChange(event.target.value)}
-                        rows={10}
-                        className="app-field app-wrap-anywhere mt-3 w-full rounded-[1rem] px-3 py-3 text-sm font-medium"
-                    />
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("cleaned")}
+                            className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                                viewMode === "cleaned" ? "app-button-primary" : "app-button-ghost"
+                            }`}
+                        >
+                            Cleaned view
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("raw")}
+                            className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                                viewMode === "raw" ? "app-button-primary" : "app-button-ghost"
+                            }`}
+                        >
+                            Raw OCR view
+                        </button>
+                    </div>
+                    {viewMode === "cleaned" ? (
+                        <textarea
+                            value={mergedText}
+                            onChange={(event) => onMergedTextChange(event.target.value)}
+                            rows={10}
+                            className="app-field app-wrap-anywhere mt-3 w-full rounded-[1rem] px-3 py-3 text-sm font-medium"
+                        />
+                    ) : (
+                        <div className="app-field app-wrap-anywhere mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded-[1rem] px-3 py-3 text-sm">
+                            {rawMergedText || "Raw OCR text will appear here after selected images finish processing."}
+                        </div>
+                    )}
                 </div>
 
                 <div className="app-subtle-surface min-w-0 rounded-[1.2rem] p-4">
@@ -49,6 +82,11 @@ export default function ScanExtractedTextPanel({
                                         item.parsedResult?.suggestedIntent ||
                                         "Review extracted text manually before solving."}
                                 </p>
+                                {item.parsedResult?.flaggedValues.length ? (
+                                    <p className="app-helper app-wrap-anywhere mt-2 text-xs text-[color:var(--app-warning)]">
+                                        {item.parsedResult.flaggedValues[0]}
+                                    </p>
+                                ) : null}
                             </div>
                         ))}
                     </div>

@@ -4,7 +4,11 @@ export function mergeSelectedOcrText(items: ScanImageItem[]) {
     return items
         .filter((item) => item.selected && item.editableText.trim() !== "")
         .map((item) =>
-            [`[${item.name}]`, item.editableText.trim()]
+            [
+                `[${item.name}]`,
+                item.detectedImageType ? `Source: ${item.detectedImageType.replaceAll("-", " ")}` : "",
+                item.editableText.trim(),
+            ]
                 .filter(Boolean)
                 .join("\n")
                 .replace(/\n{3,}/g, "\n\n")

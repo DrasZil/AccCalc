@@ -164,6 +164,7 @@ export default function ScanCheckPage() {
             if (item.confidenceLevel === "low") flags.add("Low OCR confidence detected on at least one image.");
             item.qualityWarnings?.forEach((warning) => flags.add(warning));
             item.parsedResult?.likelyIssues.forEach((issue) => flags.add(issue));
+            item.parsedResult?.flaggedValues.forEach((flag) => flags.add(flag));
         });
         return Array.from(flags);
     }, [queue.items]);
@@ -304,12 +305,16 @@ export default function ScanCheckPage() {
                     queue.updateItem(item.id, (current) => ({
                         ...current,
                         processedPreviewUrl: processed.processedDataUrl,
+                        detectedImageType: processed.detectedImageType,
+                        qualityScore: processed.qualityScore,
                         preprocessNotes: processed.notes,
                         qualityWarnings: processed.qualityWarnings,
                         status: "recognizing",
                         progress: 24,
                         processingPhase: "reading",
-                        processingSummary: processed.qualityWarnings?.[0] ?? "Reading text",
+                        processingSummary:
+                            processed.qualityWarnings?.[0] ??
+                            `Reading ${processed.detectedImageType.replaceAll("-", " ")} text`,
                     }));
                     const ocrResult = await ocr.recognize(processed.processedDataUrl, (progress) =>
                         queue.updateItem(item.id, (current) => ({
@@ -342,6 +347,8 @@ export default function ScanCheckPage() {
                     const nextItem: ScanImageItem = {
                         ...item,
                         processedPreviewUrl: processed.processedDataUrl,
+                        detectedImageType: processed.detectedImageType,
+                        qualityScore: processed.qualityScore,
                         preprocessNotes: processed.notes,
                         qualityWarnings: processed.qualityWarnings,
                         status,
@@ -352,7 +359,12 @@ export default function ScanCheckPage() {
                         confidenceLevel,
                         problemRole: parsed.pageType ?? null,
                         processingPhase: "completed",
-                        processingSummary: status === "needs review" ? "Review suggested before checking" : `Suggested route: ${getRouteLabel(parsed.routeHint)}`,
+                        processingSummary:
+                            status === "needs review"
+                                ? parsed.flaggedValues.length > 0
+                                    ? "Review flagged numbers before checking"
+                                    : "Review suggested before checking"
+                                : `Suggested route: ${getRouteLabel(parsed.routeHint)}`,
                         error: null,
                     };
                     const nextIndex = nextItems.findIndex((entry) => entry.id === item.id);
@@ -379,10 +391,14 @@ export default function ScanCheckPage() {
                 if (item.confidenceLevel === "low") nextFlags.add("low");
                 item.qualityWarnings?.forEach((warning) => nextFlags.add(warning));
                 item.parsedResult?.likelyIssues.forEach((issue) => nextFlags.add(issue));
+                item.parsedResult?.flaggedValues.forEach((flag) => nextFlags.add(flag));
             });
             showToast({
                 title: `${nextItems.length} image${nextItems.length === 1 ? "" : "s"} processed`,
-                body: nextFlags.size > 0 ? "OCR completed with some warnings. Check flagged lines before solving." : "Review extracted values, then continue with the suggested tool.",
+                body:
+                    nextFlags.size > 0
+                        ? "Text cleaned for easier review, but some values still need checking before solving."
+                        : "Text cleaned and normalized. Review extracted values, then continue with the suggested tool.",
                 tone: nextFlags.size > 0 ? "warning" : "success",
             });
         }
@@ -560,6 +576,14 @@ export default function ScanCheckPage() {
                                             <p className="app-helper app-wrap-anywhere mt-1 text-xs">
                                                 {activePreview.name}
                                             </p>
+                                            {activePreview.detectedImageType ? (
+                                                <p className="app-helper app-wrap-anywhere mt-2 text-xs">
+                                                    Detected as {activePreview.detectedImageType.replaceAll("-", " ")}
+                                                    {typeof activePreview.qualityScore === "number"
+                                                        ? ` with quality score ${activePreview.qualityScore}/100.`
+                                                        : "."}
+                                                </p>
+                                            ) : null}
                                         </div>
                                         {activePreview.preprocessNotes?.length ? (
                                             <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
@@ -695,6 +719,8 @@ export default function ScanCheckPage() {
                                             qualityWarnings: [],
                                             preprocessNotes: [],
                                             processedPreviewUrl: null,
+                                            detectedImageType: undefined,
+                                            qualityScore: undefined,
                                         }));
                                         showToast({
                                             title: "Reprocessing image",

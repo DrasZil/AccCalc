@@ -33,6 +33,8 @@ export default function ScanImageCard({
     onRetry,
 }: ScanImageCardProps) {
     const primaryIssue = item.parsedResult?.likelyIssues[0] ?? item.qualityWarnings?.[0] ?? null;
+    const flaggedValues = item.parsedResult?.flaggedValues ?? [];
+    const cleanupNotes = item.parsedResult?.cleanupNotes ?? [];
 
     return (
         <div className="app-panel min-w-0 rounded-[1.2rem] p-4">
@@ -45,6 +47,12 @@ export default function ScanImageCard({
                     {item.parsedResult?.pageType && item.parsedResult.pageType !== "unknown" ? (
                         <p className="app-helper app-wrap-anywhere mt-1 text-xs">
                             Detected page type: {item.parsedResult.pageType}
+                        </p>
+                    ) : null}
+                    {item.detectedImageType && item.detectedImageType !== "unknown" ? (
+                        <p className="app-helper app-wrap-anywhere mt-1 text-xs">
+                            Image type: {item.detectedImageType.replaceAll("-", " ")}
+                            {typeof item.qualityScore === "number" ? ` • Quality ${item.qualityScore}/100` : ""}
                         </p>
                     ) : null}
                 </div>
@@ -135,6 +143,36 @@ export default function ScanImageCard({
                         </div>
                     ) : null}
 
+                    {flaggedValues.length ? (
+                        <div className="rounded-[1rem] border app-divider px-3 py-3">
+                            <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                Flagged values
+                            </p>
+                            <div className="mt-2 space-y-1">
+                                {flaggedValues.map((flag) => (
+                                    <p key={flag} className="app-wrap-anywhere text-sm text-[color:var(--app-text)]">
+                                        {flag}
+                                    </p>
+                                ))}
+                            </div>
+                        </div>
+                    ) : null}
+
+                    {cleanupNotes.length ? (
+                        <div className="app-subtle-surface rounded-[1rem] px-3 py-3">
+                            <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                Cleanup notes
+                            </p>
+                            <div className="mt-2 space-y-1">
+                                {cleanupNotes.map((note) => (
+                                    <p key={note} className="app-wrap-anywhere text-sm text-[color:var(--app-text)]">
+                                        {note}
+                                    </p>
+                                ))}
+                            </div>
+                        </div>
+                    ) : null}
+
                     <div className="flex flex-wrap gap-2">
                         <button
                             type="button"
@@ -181,8 +219,11 @@ export default function ScanImageCard({
 
                     <label className="block">
                         <span className="app-helper text-xs uppercase tracking-[0.16em]">
-                            Editable extracted text
+                            Cleaned review text
                         </span>
+                        <p className="app-helper app-wrap-anywhere mt-1 text-xs">
+                            This cleaned view improves spacing, accounting formatting, and obvious OCR noise while keeping uncertain values flagged nearby.
+                        </p>
                         <textarea
                             value={item.editableText}
                             onChange={(event) => onTextChange(event.target.value)}
