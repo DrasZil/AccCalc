@@ -70,24 +70,29 @@ export default function ScanExtractedTextPanel({
                     <p className="app-card-title text-sm">Per-image review hints</p>
                     <div className="mt-3 space-y-2">
                         {items.map((item) => (
-                            <div
-                                key={item.id}
-                                className="min-w-0 rounded-[0.9rem] border app-divider px-3 py-3"
-                            >
-                                <p className="app-wrap-anywhere text-sm font-semibold text-[color:var(--app-text)]">
-                                    {item.name}
-                                </p>
-                                <p className="app-helper app-wrap-anywhere mt-1 text-xs">
-                                    {item.processingSummary ||
-                                        item.parsedResult?.suggestedIntent ||
-                                        "Review extracted text manually before solving."}
-                                </p>
-                                {item.parsedResult?.flaggedValues.length ? (
-                                    <p className="app-helper app-wrap-anywhere mt-2 text-xs text-[color:var(--app-warning)]">
-                                        {item.parsedResult.flaggedValues[0]}
-                                    </p>
-                                ) : null}
-                            </div>
+                            (() => {
+                                const flaggedValues = item.parsedResult?.flaggedValues ?? [];
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="min-w-0 rounded-[0.9rem] border app-divider px-3 py-3"
+                                    >
+                                        <p className="app-wrap-anywhere text-sm font-semibold text-[color:var(--app-text)]">
+                                            {item.name}
+                                        </p>
+                                        <p className="app-helper app-wrap-anywhere mt-1 text-xs">
+                                            {item.processingSummary ||
+                                                item.parsedResult?.suggestedIntent ||
+                                                "Review extracted text manually before solving."}
+                                        </p>
+                                        {flaggedValues.length ? (
+                                            <p className="app-helper app-wrap-anywhere mt-2 text-xs text-[color:var(--app-warning)]">
+                                                {flaggedValues[0]}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                );
+                            })()
                         ))}
                     </div>
                 </div>

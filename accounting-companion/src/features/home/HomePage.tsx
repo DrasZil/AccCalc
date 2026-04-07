@@ -5,7 +5,6 @@ import DisclosurePanel from "../../components/DisclosurePanel";
 import FeatureSearch from "../../components/FeatureSearch";
 import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
-import SupportAccCalcSection from "../settings/components/SupportAccCalcSection";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -330,9 +329,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-
-            <SupportAccCalcSection spotlight compact />
-
             <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">

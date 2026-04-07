@@ -661,7 +661,7 @@ export default function SettingsContent({
 
             <DisclosurePanel
                 title="About / Updates"
-                summary="Release status, support pages, and the latest shipping notes for 3.2.2."
+                summary="Release status, support pages, and the latest shipping notes for the current build."
                 badge={`v${APP_VERSION}`}
                 compact={compact}
             >

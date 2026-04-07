@@ -1,34 +1,34 @@
-export const APP_VERSION = "3.2.5";
+export const APP_VERSION = "3.2.6";
 export const APP_RELEASE_DATE = "2026-04-08";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "OCR quality is stronger in 3.2.5",
-        body: "Scan & Check now applies more image-aware preprocessing so screenshots, textbook photos, soft captures, and accounting tables clean up more reliably before OCR runs.",
+        title: "Home is cleaner in 3.2.6",
+        body: "The optional donation surface was removed from Home so the landing page stays visually consistent and focused on primary workflows.",
     },
     {
-        title: "Digits and symbols separate more safely",
-        body: "Numeric cleanup now treats commas, decimals, percentages, and currency more carefully so short values like 6 are less likely to keep stray punctuation or merge with nearby text.",
+        title: "Scan & Check opens reliably again",
+        body: "Saved scan sessions are now normalized before hydration so old or partially malformed OCR payloads do not crash the route during load.",
     },
     {
-        title: "Handwriting and blur are flagged more honestly",
-        body: "The scan flow now detects softer handwriting-like images and mild blur earlier, cleans what is safe, and leaves questionable values closer to raw OCR when confidence is weak.",
+        title: "Older session data is repaired safely",
+        body: "Missing arrays like likely issues, notes, or flagged values now default safely during restore, and invalid saved entries are ignored or rewritten cleanly.",
     },
     {
-        title: "Cleaned and raw text are easier to compare",
-        body: "Review panels now make a clearer distinction between cleaned text, raw OCR, and flagged numeric values so users can verify critical accounting amounts faster.",
+        title: "Defensive scan rendering is tighter",
+        body: "Scan review panels now guard nested arrays and summary data more carefully, reducing regression risk from partial OCR or persistence state.",
     },
     {
-        title: "The OCR upgrade stays modular",
-        body: "This release extends the existing preprocessing, parser, and review layers without disturbing the working mobile camera flow, session persistence, preview modal, or toast system.",
+        title: "Settings still keeps support easy to find",
+        body: "Donation support remains available in Settings through the themed support section, but it no longer distracts from the Home experience.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.2.5: Added stronger image-aware preprocessing with border trimming, adaptive contrast tuning, and mild sharpening for soft screenshots, textbook photos, and accounting-style tables.",
-    "3.2.5: Improved OCR cleanup for accounting text so currency, percentages, grouped numbers, and list formatting display more like readable digital text.",
-    "3.2.5: Tightened number and punctuation handling so obvious stray endings like 6, are cleaned more safely without blindly rewriting uncertain values.",
-    "3.2.5: Added clearer flagged-value handling so low-confidence commas, decimals, and handwriting-like digits stay closer to raw OCR and surface as review warnings.",
-    "3.2.5: Added cleaned-vs-raw merged text review plus per-image cleanup notes and image-type summaries inside the existing scan result flow.",
-    "3.2.5: Preserved the 3.2.4 camera capture, session restore, preview modal, toast system, and responsive layout fixes while improving OCR robustness on top of them.",
+    "3.2.6: Removed the donation spotlight card from Home so the landing page stays on-theme and focused on primary calculators and scan workflows.",
+    "3.2.6: Kept donation support available from Settings through the existing themed support section instead of the Home layout.",
+    "3.2.6: Fixed the Scan & Check load crash caused by restored session objects that were missing nested arrays such as likely issues, notes, or flagged values.",
+    "3.2.6: Added scan-session normalization during persistence restore so malformed or older saved payloads are repaired, sanitized, or dropped safely.",
+    "3.2.6: Added safer render defaults across Scan & Check so nested arrays and summary values no longer assume fully shaped OCR data.",
+    "3.2.6: Preserved the current scan camera, preview, OCR, responsive layout, and session persistence improvements while stabilizing the route.",
 ];

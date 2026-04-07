@@ -88,6 +88,7 @@ function getSessionPhase(items: ScanImageItem[]): ScanProcessingPhase {
 
 function buildQuickFacts(items: ScanImageItem[], primaryItem: ScanImageItem | null, accountingPageCount: number) {
     const selectedCount = items.filter((item) => item.selected).length;
+    const extractedValues = primaryItem?.parsedResult?.extractedValues ?? [];
     return [
         { label: "Images", value: String(items.length) },
         { label: "Selected", value: String(selectedCount) },
@@ -98,7 +99,7 @@ function buildQuickFacts(items: ScanImageItem[], primaryItem: ScanImageItem | nu
                     ? `${accountingPageCount} worksheet`
                     : primaryItem?.parsedResult?.kind?.replaceAll("-", " ") ?? "unknown",
         },
-        { label: "Values", value: String(primaryItem?.parsedResult?.extractedValues.length ?? 0) },
+        { label: "Values", value: String(extractedValues.length) },
     ];
 }
 
@@ -153,7 +154,7 @@ export default function ScanCheckPage() {
         if (queue.items.some((item) =>
             ["queued", "preprocessing", "recognizing", "classifying", "extracting", "routing"].includes(item.status)
         )) return 1;
-        if (queue.items.some((item) => item.status === "needs review" || item.confidenceLevel === "low" || (item.parsedResult?.likelyIssues.length ?? 0) > 0)) {
+        if (queue.items.some((item) => item.status === "needs review" || item.confidenceLevel === "low" || ((item.parsedResult?.likelyIssues ?? []).length > 0))) {
             return 2;
         }
         return 3;
@@ -163,8 +164,8 @@ export default function ScanCheckPage() {
         queue.items.forEach((item) => {
             if (item.confidenceLevel === "low") flags.add("Low OCR confidence detected on at least one image.");
             item.qualityWarnings?.forEach((warning) => flags.add(warning));
-            item.parsedResult?.likelyIssues.forEach((issue) => flags.add(issue));
-            item.parsedResult?.flaggedValues.forEach((flag) => flags.add(flag));
+            (item.parsedResult?.likelyIssues ?? []).forEach((issue) => flags.add(issue));
+            (item.parsedResult?.flaggedValues ?? []).forEach((flag) => flags.add(flag));
         });
         return Array.from(flags);
     }, [queue.items]);
@@ -339,7 +340,10 @@ export default function ScanCheckPage() {
                         status: "extracting",
                         progress: 86,
                         processingPhase: "extracting",
-                        processingSummary: parsed.accounting?.fields.length ? "Extracting structured fields" : "Extracting values and cleaning text",
+                        processingSummary:
+                            (parsed.accounting?.fields ?? []).length > 0
+                                ? "Extracting structured fields"
+                                : "Extracting values and cleaning text",
                     }));
                     const confidenceLevel = getConfidenceLevel(ocrResult.confidence);
                     const status: ScanImageItem["status"] =
@@ -390,8 +394,8 @@ export default function ScanCheckPage() {
             nextItems.forEach((item) => {
                 if (item.confidenceLevel === "low") nextFlags.add("low");
                 item.qualityWarnings?.forEach((warning) => nextFlags.add(warning));
-                item.parsedResult?.likelyIssues.forEach((issue) => nextFlags.add(issue));
-                item.parsedResult?.flaggedValues.forEach((flag) => nextFlags.add(flag));
+                (item.parsedResult?.likelyIssues ?? []).forEach((issue) => nextFlags.add(issue));
+                (item.parsedResult?.flaggedValues ?? []).forEach((flag) => nextFlags.add(flag));
             });
             showToast({
                 title: `${nextItems.length} image${nextItems.length === 1 ? "" : "s"} processed`,
@@ -456,10 +460,12 @@ export default function ScanCheckPage() {
         restoredToastShownRef.current = true;
         showToast({
             title: "Previous scan restored",
-            body: "Your images and extracted results are back so you can continue where you left off.",
+            body: queue.restoredWithRepair
+                ? "A partially invalid saved scan session was repaired and restored safely."
+                : "Your images and extracted results are back so you can continue where you left off.",
             tone: "info",
         });
-    }, [queue.restoredFromSession]);
+    }, [queue.restoredFromSession, queue.restoredWithRepair]);
 
     useEffect(() => {
         const hasQueued = queue.items.some((item) => item.status === "queued" || item.status === "failed");
@@ -617,7 +623,7 @@ export default function ScanCheckPage() {
                                         summary={
                                             accountingSession?.summary ??
                                             primaryItem?.processingSummary ??
-                                            primaryItem?.parsedResult?.notes[0] ??
+                                            (primaryItem?.parsedResult?.notes ?? [])[0] ??
                                             "Review the extracted summary and continue with the suggested tool."
                                         }
                                         detectedType={

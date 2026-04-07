@@ -32,7 +32,8 @@ export default function ScanImageCard({
     onSetActivePreview,
     onRetry,
 }: ScanImageCardProps) {
-    const primaryIssue = item.parsedResult?.likelyIssues[0] ?? item.qualityWarnings?.[0] ?? null;
+    const likelyIssues = item.parsedResult?.likelyIssues ?? [];
+    const primaryIssue = likelyIssues[0] ?? item.qualityWarnings?.[0] ?? null;
     const flaggedValues = item.parsedResult?.flaggedValues ?? [];
     const cleanupNotes = item.parsedResult?.cleanupNotes ?? [];
 
@@ -113,13 +114,13 @@ export default function ScanImageCard({
                 className="mt-3"
             >
                 <div className="space-y-3">
-                    {item.parsedResult?.likelyIssues.length ? (
+                    {likelyIssues.length ? (
                         <div className="rounded-[1rem] border app-divider px-3 py-3">
                             <p className="app-helper text-xs uppercase tracking-[0.16em]">
                                 Possible issues detected
                             </p>
                             <div className="mt-2 space-y-1">
-                                {item.parsedResult.likelyIssues.map((issue) => (
+                                {likelyIssues.map((issue) => (
                                     <p key={issue} className="app-wrap-anywhere text-sm text-[color:var(--app-text)]">
                                         {issue}
                                     </p>

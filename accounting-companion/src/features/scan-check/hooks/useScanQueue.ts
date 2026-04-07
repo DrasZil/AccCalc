@@ -23,6 +23,7 @@ export function useScanQueue() {
     const [queueError, setQueueError] = useState<string | null>(null);
     const [hydrated, setHydrated] = useState(false);
     const [restoredFromSession, setRestoredFromSession] = useState(false);
+    const [restoredWithRepair, setRestoredWithRepair] = useState(false);
     const itemsRef = useRef<ScanImageItem[]>([]);
 
     useEffect(() => {
@@ -36,6 +37,7 @@ export function useScanQueue() {
             if (cancelled) return;
             setItems(session.items);
             setRestoredFromSession(session.restored);
+            setRestoredWithRepair(session.repaired);
             setHydrated(true);
         });
 
@@ -193,6 +195,7 @@ export function useScanQueue() {
         queueError,
         hydrated,
         restoredFromSession,
+        restoredWithRepair,
         addFiles,
         replaceFile,
         updateItem,
