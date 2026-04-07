@@ -8,8 +8,13 @@ type ScanImageQueueProps = {
     onToggleSelected: (id: string) => void;
     onSendToSmartSolver: (item: ScanImageItem) => void;
     onTextChange: (id: string, value: string) => void;
+    onStructuredFieldsChange: (
+        id: string,
+        nextFields: NonNullable<ScanImageItem["parsedResult"]>["structuredFields"]
+    ) => void;
     onReplace: (id: string, file: File) => void;
     onSetActivePreview: (id: string) => void;
+    onRetry: (id: string) => void;
 };
 
 export default function ScanImageQueue({
@@ -19,8 +24,10 @@ export default function ScanImageQueue({
     onToggleSelected,
     onSendToSmartSolver,
     onTextChange,
+    onStructuredFieldsChange,
     onReplace,
     onSetActivePreview,
+    onRetry,
 }: ScanImageQueueProps) {
     return (
         <div className="grid gap-4 xl:grid-cols-2">
@@ -34,11 +41,14 @@ export default function ScanImageQueue({
                     onToggleSelected={() => onToggleSelected(item.id)}
                     onSendToSmartSolver={() => onSendToSmartSolver(item)}
                     onTextChange={(value) => onTextChange(item.id, value)}
+                    onStructuredFieldsChange={(nextFields) =>
+                        onStructuredFieldsChange(item.id, nextFields)
+                    }
                     onReplace={(file) => onReplace(item.id, file)}
                     onSetActivePreview={() => onSetActivePreview(item.id)}
+                    onRetry={() => onRetry(item.id)}
                 />
             ))}
         </div>
     );
 }
-

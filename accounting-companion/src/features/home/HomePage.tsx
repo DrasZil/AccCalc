@@ -5,6 +5,7 @@ import DisclosurePanel from "../../components/DisclosurePanel";
 import FeatureSearch from "../../components/FeatureSearch";
 import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
+import SupportAccCalcSection from "../settings/components/SupportAccCalcSection";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -28,6 +29,7 @@ import { useNetworkStatus } from "../../utils/networkStatus";
 import { useOfflineBundleStatus } from "../../utils/offlineStatus";
 
 const SMART_PROMPT_EXAMPLES = [
+    "Check a process-costing worksheet with equivalent units, completed and transferred out, ending WIP, and transferred-in cost.",
     "Scan a worked solution, review the extracted steps, and send the corrected text to Smart Solver.",
     "Find the quick ratio if cash is 50,000, marketable securities are 25,000, receivables are 40,000, and current liabilities are 100,000.",
     "What selling price gives a 30% margin if cost is 700?",
@@ -43,6 +45,8 @@ const SMART_PROMPT_EXAMPLES = [
 
 const FEATURED_PATHS = [
     "/scan-check",
+    "/accounting/process-costing-workspace",
+    "/accounting/cost-of-production-report",
     "/smart/solver",
     "/accounting/ratio-analysis-workspace",
     "/business/break-even",
@@ -56,10 +60,22 @@ const FEATURED_PATHS = [
 
 const WORKFLOW_COLLECTIONS = [
     {
+        title: "Process costing",
+        description: "Move from unit flow and equivalent units into departmental costing, production reports, and practice checking.",
+        paths: [
+            "/accounting/process-costing-workspace",
+            "/accounting/equivalent-units-weighted-average",
+            "/accounting/cost-per-equivalent-unit",
+            "/accounting/cost-of-production-report",
+            "/accounting/process-costing-practice-checker",
+        ],
+    },
+    {
         title: "Scan to solve",
-        description: "Extract an image, review the text, then hand it into Smart Solver or a calculator.",
+        description: "Extract an image, review the text and worksheet fields, then hand it into Smart Solver or a process-costing checker.",
         paths: [
             "/scan-check",
+            "/accounting/process-costing-practice-checker",
             "/smart/solver",
             "/basic",
         ],
@@ -314,6 +330,8 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            <SupportAccCalcSection spotlight compact />
 
             <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">

@@ -1,3 +1,4 @@
+import ScanStructuredFieldsEditor from "./ScanStructuredFieldsEditor";
 import ScanConfidenceBadge from "./ScanConfidenceBadge";
 import type { ScanImageItem } from "../types";
 
@@ -9,8 +10,12 @@ type ScanImageCardProps = {
     onToggleSelected: () => void;
     onSendToSmartSolver: () => void;
     onTextChange: (value: string) => void;
+    onStructuredFieldsChange: (
+        nextFields: NonNullable<ScanImageItem["parsedResult"]>["structuredFields"]
+    ) => void;
     onReplace: (file: File) => void;
     onSetActivePreview: () => void;
+    onRetry: () => void;
 };
 
 export default function ScanImageCard({
@@ -21,8 +26,10 @@ export default function ScanImageCard({
     onToggleSelected,
     onSendToSmartSolver,
     onTextChange,
+    onStructuredFieldsChange,
     onReplace,
     onSetActivePreview,
+    onRetry,
 }: ScanImageCardProps) {
     return (
         <div className="app-panel rounded-[1.2rem] p-4">
@@ -32,6 +39,11 @@ export default function ScanImageCard({
                     <p className="app-helper mt-1 text-xs uppercase tracking-[0.16em]">
                         {item.status} • {Math.round(item.progress)}%
                     </p>
+                    {item.parsedResult?.pageType && item.parsedResult.pageType !== "unknown" ? (
+                        <p className="app-helper mt-1 text-xs">
+                            Detected page type: {item.parsedResult.pageType}
+                        </p>
+                    ) : null}
                 </div>
                 <ScanConfidenceBadge
                     level={item.confidenceLevel}
@@ -68,6 +80,13 @@ export default function ScanImageCard({
                     className="app-button-ghost rounded-xl px-3 py-2 text-xs font-medium"
                 >
                     {item.selected ? "Included in merge" : "Exclude from merge"}
+                </button>
+                <button
+                    type="button"
+                    onClick={onRetry}
+                    className="app-button-ghost rounded-xl px-3 py-2 text-xs font-medium"
+                >
+                    Retry OCR
                 </button>
                 <button
                     type="button"
@@ -110,6 +129,22 @@ export default function ScanImageCard({
                 />
             </label>
 
+            <ScanStructuredFieldsEditor
+                fields={item.parsedResult?.structuredFields ?? []}
+                onChange={onStructuredFieldsChange}
+            />
+
+            {item.ocrResult?.text ? (
+                <div className="mt-3 rounded-[1rem] border app-divider px-3 py-3">
+                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                        Raw OCR text
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-[color:var(--app-text)]">
+                        {item.ocrResult.text}
+                    </p>
+                </div>
+            ) : null}
+
             {item.parsedResult?.likelyIssues.length ? (
                 <div className="mt-3 rounded-[1rem] border app-divider px-3 py-3">
                     <p className="app-helper text-xs uppercase tracking-[0.16em]">
@@ -133,4 +168,3 @@ export default function ScanImageCard({
         </div>
     );
 }
-

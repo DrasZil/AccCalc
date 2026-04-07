@@ -108,6 +108,36 @@ const PrimeConversionCostPage = lazy(
 const EquivalentUnitsWeightedAveragePage = lazy(
     () => import("./features/accounting/EquivalentUnitsWeightedAveragePage")
 );
+const ProcessCostingWorkspaceEntryPage = lazy(
+    () => import("./features/accounting/ProcessCostingWorkspaceEntryPage")
+);
+const CostPerEquivalentUnitPage = lazy(
+    () => import("./features/accounting/CostPerEquivalentUnitPage")
+);
+const CostOfProductionReportPage = lazy(
+    () => import("./features/accounting/CostOfProductionReportPage")
+);
+const Department1ProcessCostingPage = lazy(
+    () => import("./features/accounting/Department1ProcessCostingPage")
+);
+const DepartmentTransferredInProcessCostingPage = lazy(
+    () => import("./features/accounting/DepartmentTransferredInProcessCostingPage")
+);
+const WeightedAverageProcessCostingPage = lazy(
+    () => import("./features/accounting/WeightedAverageProcessCostingPage")
+);
+const FIFOProcessCostingPage = lazy(
+    () => import("./features/accounting/FIFOProcessCostingPage")
+);
+const CostReconciliationCheckerPage = lazy(
+    () => import("./features/accounting/CostReconciliationCheckerPage")
+);
+const TransferredInCostHelperPage = lazy(
+    () => import("./features/accounting/TransferredInCostHelperPage")
+);
+const ProcessCostingPracticeCheckerPage = lazy(
+    () => import("./features/accounting/ProcessCostingPracticeCheckerPage")
+);
 const QuickRatioPage = lazy(() => import("./features/accounting/QuickRatioPage"));
 const ReceivablesTurnoverPage = lazy(
     () => import("./features/accounting/ReceivablesTurnoverPage")
@@ -391,6 +421,16 @@ export default function App() {
                         <Route path="accounting/cost-of-goods-manufactured" element={renderRoute("/accounting/cost-of-goods-manufactured", <CostOfGoodsManufacturedPage />)} />
                         <Route path="accounting/factory-overhead-variance" element={renderRoute("/accounting/factory-overhead-variance", <FactoryOverheadVariancePage />)} />
                         <Route path="accounting/equivalent-units-weighted-average" element={renderRoute("/accounting/equivalent-units-weighted-average", <EquivalentUnitsWeightedAveragePage />)} />
+                        <Route path="accounting/process-costing-workspace" element={renderRoute("/accounting/process-costing-workspace", <ProcessCostingWorkspaceEntryPage />)} />
+                        <Route path="accounting/cost-per-equivalent-unit" element={renderRoute("/accounting/cost-per-equivalent-unit", <CostPerEquivalentUnitPage />)} />
+                        <Route path="accounting/cost-of-production-report" element={renderRoute("/accounting/cost-of-production-report", <CostOfProductionReportPage />)} />
+                        <Route path="accounting/department-1-process-costing" element={renderRoute("/accounting/department-1-process-costing", <Department1ProcessCostingPage />)} />
+                        <Route path="accounting/department-transferred-in-process-costing" element={renderRoute("/accounting/department-transferred-in-process-costing", <DepartmentTransferredInProcessCostingPage />)} />
+                        <Route path="accounting/weighted-average-process-costing" element={renderRoute("/accounting/weighted-average-process-costing", <WeightedAverageProcessCostingPage />)} />
+                        <Route path="accounting/fifo-process-costing" element={renderRoute("/accounting/fifo-process-costing", <FIFOProcessCostingPage />)} />
+                        <Route path="accounting/cost-reconciliation-checker" element={renderRoute("/accounting/cost-reconciliation-checker", <CostReconciliationCheckerPage />)} />
+                        <Route path="accounting/transferred-in-cost-helper" element={renderRoute("/accounting/transferred-in-cost-helper", <TransferredInCostHelperPage />)} />
+                        <Route path="accounting/process-costing-practice-checker" element={renderRoute("/accounting/process-costing-practice-checker", <ProcessCostingPracticeCheckerPage />)} />
                         <Route path="accounting/prime-conversion-cost" element={renderRoute("/accounting/prime-conversion-cost", <PrimeConversionCostPage />)} />
                         <Route path="accounting/materials-price-variance" element={renderRoute("/accounting/materials-price-variance", <MaterialsPriceVariancePage />)} />
                         <Route path="accounting/materials-quantity-variance" element={renderRoute("/accounting/materials-quantity-variance", <MaterialsQuantityVariancePage />)} />

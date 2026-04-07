@@ -653,7 +653,7 @@ export default function SettingsContent({
 
             <DisclosurePanel
                 title="Support"
-                summary="Optional support details and QR donation entry."
+                summary="Optional support details, full-screen QR viewing, and share/download actions."
                 badge="Support"
                 compact={compact}
             >
@@ -710,7 +710,7 @@ export default function SettingsContent({
                     </div>
 
                     <div className="space-y-2">
-                        {APP_RELEASE_NOTES.slice(0, 5).map((note) => (
+                        {APP_RELEASE_NOTES.slice(0, 6).map((note) => (
                             <div
                                 key={note}
                                 className="app-subtle-surface rounded-[1rem] px-4 py-3 text-sm leading-6"

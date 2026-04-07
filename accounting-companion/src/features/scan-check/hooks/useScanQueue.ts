@@ -48,6 +48,8 @@ export function useScanQueue() {
                 editableText: "",
                 confidenceLevel: "low",
                 selected: true,
+                problemRole: null,
+                preprocessNotes: [],
             });
         }
 
@@ -81,6 +83,8 @@ export function useScanQueue() {
                     ocrResult: null,
                     parsedResult: null,
                     editableText: "",
+                    problemRole: null,
+                    preprocessNotes: [],
                 };
             })
         );

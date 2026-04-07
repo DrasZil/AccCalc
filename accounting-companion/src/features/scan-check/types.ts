@@ -15,7 +15,46 @@ export type ScanProblemKind =
     | "word-problem"
     | "worked-solution"
     | "answer-check"
+    | "accounting-worksheet"
     | "unknown";
+
+export type ScanPageType =
+    | "problem-statement"
+    | "department-1-worksheet"
+    | "department-2-worksheet"
+    | "cost-schedule-page"
+    | "answer-page"
+    | "mixed-reference-page"
+    | "unknown";
+
+export type StructuredScanField = {
+    key: string;
+    label: string;
+    value: string;
+    confidence: number;
+    inferred?: boolean;
+};
+
+export type AccountingWorksheetExtraction = {
+    topic: string;
+    pageType: ScanPageType;
+    pageTypeConfidence: number;
+    extractionConfidence: number;
+    routeHint: string;
+    fields: StructuredScanField[];
+    likelyMistakes: string[];
+    notes: string[];
+};
+
+export type AccountingProblemSession = {
+    routeHint: string;
+    summary: string;
+    pageRoles: Array<{ id: string; name: string; role: ScanPageType }>;
+    structuredFields: StructuredScanField[];
+    extractedCompletedCost?: number | null;
+    extractedEndingWipCost?: number | null;
+    extractedCostPerEquivalentUnit?: number | null;
+};
 
 export type OcrResult = {
     text: string;
@@ -34,10 +73,15 @@ export type ParsedScanResult = {
     cleanedText: string;
     suggestedIntent: string;
     parseConfidence: number;
+    extractionConfidence?: number;
     extractedValues: Array<{ label: string; value: string }>;
     detectedUnits: string[];
     likelyIssues: string[];
     notes: string[];
+    pageType?: ScanPageType;
+    routeHint?: string;
+    structuredFields?: StructuredScanField[];
+    accounting?: AccountingWorksheetExtraction | null;
 };
 
 export type ScanImageItem = {
@@ -54,5 +98,6 @@ export type ScanImageItem = {
     editableText: string;
     confidenceLevel: ConfidenceLevel;
     selected: boolean;
+    problemRole?: ScanPageType | null;
+    preprocessNotes?: string[];
 };
-

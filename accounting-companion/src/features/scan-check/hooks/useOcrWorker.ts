@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-    recognizeImageWithWorker,
-    terminateSharedOcrWorker,
-} from "../services/ocr/tesseractClient";
+import { getOcrEngine } from "../services/ocr/ocrEngine";
 
 export function useOcrWorker() {
     const [busy, setBusy] = useState(false);
+    const engine = getOcrEngine();
 
-    useEffect(() => () => void terminateSharedOcrWorker(), []);
+    useEffect(() => () => void engine.terminate?.(), [engine]);
 
     async function recognize(
         image: string,
@@ -15,7 +13,7 @@ export function useOcrWorker() {
     ) {
         setBusy(true);
         try {
-            return await recognizeImageWithWorker(image, onProgress);
+            return await engine.recognize(image, onProgress);
         } finally {
             setBusy(false);
         }
@@ -23,7 +21,7 @@ export function useOcrWorker() {
 
     return {
         busy,
+        engineLabel: engine.label,
         recognize,
     };
 }
-

@@ -3,6 +3,7 @@ type ScanActionBarProps = {
     onProcessQueue: () => void;
     onMergeSelected: () => void;
     onSendMergedToSmartSolver: () => void;
+    onOpenProcessCostingWorkspace?: () => void;
 };
 
 export default function ScanActionBar({
@@ -10,6 +11,7 @@ export default function ScanActionBar({
     onProcessQueue,
     onMergeSelected,
     onSendMergedToSmartSolver,
+    onOpenProcessCostingWorkspace,
 }: ScanActionBarProps) {
     return (
         <div className="flex flex-wrap gap-2">
@@ -37,6 +39,16 @@ export default function ScanActionBar({
             >
                 Send merged text to SmartSolver
             </button>
+            {onOpenProcessCostingWorkspace ? (
+                <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={onOpenProcessCostingWorkspace}
+                    className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
+                >
+                    Open Process Costing Workspace
+                </button>
+            ) : null}
         </div>
     );
 }

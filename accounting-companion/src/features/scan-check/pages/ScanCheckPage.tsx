@@ -9,6 +9,7 @@ import PracticalMeaningBlock from "../../../components/notes/PracticalMeaningBlo
 import StudyTipBlock from "../../../components/notes/StudyTipBlock";
 import { buildChartHighlights } from "../../../utils/charts/chartHighlights";
 import { buildComparisonNarrative } from "../../../utils/charts/chartNarratives";
+import { buildAccountingProblemSession } from "../services/accounting/accountingProblemSession";
 import { getConfidenceLevel } from "../services/ocr/ocrConfidence";
 import { mergeSelectedOcrText } from "../services/ocr/ocrMerge";
 import { parseOcrText } from "../services/ocr/ocrParser";
@@ -18,10 +19,28 @@ import ScanDropzone from "../components/ScanDropzone";
 import ScanExtractedTextPanel from "../components/ScanExtractedTextPanel";
 import ScanImageQueue from "../components/ScanImageQueue";
 import ScanPreprocessPreview from "../components/ScanPreprocessPreview";
+import ScanProblemSessionPanel from "../components/ScanProblemSessionPanel";
 import { useImagePreprocess } from "../hooks/useImagePreprocess";
 import { useOcrWorker } from "../hooks/useOcrWorker";
 import { useScanQueue } from "../hooks/useScanQueue";
-import type { ScanImageItem } from "../types";
+import type { ScanImageItem, StructuredScanField } from "../types";
+
+function prefillFromStructuredFields(fields: StructuredScanField[]) {
+    const byKey = new Map(fields.map((field) => [field.key, field.value]));
+    return {
+        departmentLabel: byKey.get("department"),
+        unitsStartedOrReceived: byKey.get("units_started"),
+        unitsCompletedAndTransferred: byKey.get("units_completed"),
+        endingWipUnits: byKey.get("ending_wip_units"),
+        currentTransferredInCost: byKey.get("transferred_in_cost"),
+        currentMaterialsCost: byKey.get("materials_cost"),
+        currentLaborCost: byKey.get("labor_cost"),
+        currentOverheadCost: byKey.get("overhead_cost"),
+        extractedCompletedCost: byKey.get("completed_cost"),
+        extractedEndingWipCost: byKey.get("ending_wip_cost"),
+        extractedCostPerEquivalentUnit: byKey.get("cost_per_eu"),
+    };
+}
 
 export default function ScanCheckPage() {
     const navigate = useNavigate();
@@ -36,14 +55,18 @@ export default function ScanCheckPage() {
 
     const activePreview =
         queue.items.find((item) => item.id === activePreviewId) ?? queue.items[0] ?? null;
+    const accountingSession = useMemo(
+        () => buildAccountingProblemSession(queue.items.filter((item) => item.selected)),
+        [queue.items]
+    );
 
     const queueSummary = useMemo(
         () => [
             { label: "Images", value: queue.items.length },
             { label: "Selected", value: queue.items.filter((item) => item.selected).length },
             {
-                label: "Ready",
-                value: queue.items.filter((item) => item.status === "completed").length,
+                label: "Accounting pages",
+                value: queue.items.filter((item) => item.parsedResult?.accounting).length,
             },
         ],
         [queue.items]
@@ -53,6 +76,8 @@ export default function ScanCheckPage() {
         const nextItems = [...queue.items];
 
         for (const item of queue.items) {
+            if (item.status === "completed" && item.ocrResult) continue;
+
             try {
                 queue.setItemStatus(item.id, "preprocessing", 12);
                 const base64Source = await queue.fileToDataUrl(item.file);
@@ -61,57 +86,39 @@ export default function ScanCheckPage() {
                 queue.updateItem(item.id, (current) => ({
                     ...current,
                     processedPreviewUrl: processed.processedDataUrl,
+                    preprocessNotes: processed.notes,
                 }));
 
                 queue.setItemStatus(item.id, "recognizing", 20);
-                const ocrResult = await ocr.recognize(processed.processedDataUrl, (progress) => {
-                    queue.setItemStatus(item.id, "recognizing", Math.max(progress, 20));
-                });
+                const ocrResult = await ocr.recognize(processed.processedDataUrl, (progress) =>
+                    queue.setItemStatus(item.id, "recognizing", Math.max(progress, 20))
+                );
                 const parsed = parseOcrText(ocrResult.text, ocrResult.confidence);
                 const confidenceLevel = getConfidenceLevel(ocrResult.confidence);
+                const status: ScanImageItem["status"] =
+                    confidenceLevel === "low" || parsed.parseConfidence < 60
+                        ? "needs review"
+                        : "completed";
+
                 const nextItem = {
                     ...item,
                     processedPreviewUrl: processed.processedDataUrl,
-                    status:
-                        confidenceLevel === "low" || parsed.parseConfidence < 60
-                            ? ("needs review" as const)
-                            : ("completed" as const),
+                    preprocessNotes: processed.notes,
+                    status,
                     progress: 100,
                     ocrResult,
                     parsedResult: parsed,
                     editableText: parsed.cleanedText,
                     confidenceLevel,
+                    problemRole: parsed.pageType ?? null,
                     error: null,
                 };
 
                 const nextIndex = nextItems.findIndex((entry) => entry.id === item.id);
-                if (nextIndex >= 0) {
-                    nextItems[nextIndex] = nextItem;
-                }
+                if (nextIndex >= 0) nextItems[nextIndex] = nextItem;
 
-                queue.updateItem(item.id, (current) => ({
-                    ...current,
-                    status:
-                        confidenceLevel === "low" || parsed.parseConfidence < 60
-                            ? "needs review"
-                            : "completed",
-                    progress: 100,
-                    ocrResult,
-                    parsedResult: parsed,
-                    editableText: parsed.cleanedText,
-                    confidenceLevel,
-                    error: null,
-                }));
+                queue.updateItem(item.id, () => nextItem);
             } catch (error) {
-                const nextIndex = nextItems.findIndex((entry) => entry.id === item.id);
-                if (nextIndex >= 0) {
-                    nextItems[nextIndex] = {
-                        ...nextItems[nextIndex],
-                        status: "failed",
-                        error: error instanceof Error ? error.message : "OCR failed.",
-                    };
-                }
-
                 queue.updateItem(item.id, (current) => ({
                     ...current,
                     status: "failed",
@@ -122,37 +129,42 @@ export default function ScanCheckPage() {
 
         setMergedText(mergeSelectedOcrText(nextItems));
         setStatusMessage(
-            "OCR finished. Review extracted values and confidence before sending anything to SmartSolver."
+            "OCR finished. Review raw text, structured fields, page roles, and extracted totals before checking the worksheet."
         );
     }
 
     function sendTextToSmartSolver(text: string) {
         if (text.trim() === "") return;
-
-        navigate("/smart/solver", {
-            state: {
-                from: "scan-check",
-                query: text,
-            },
-        });
+        navigate("/smart/solver", { state: { from: "scan-check", query: text } });
     }
 
     function handleSendSingle(item: ScanImageItem) {
         sendTextToSmartSolver(item.editableText || item.parsedResult?.cleanedText || "");
     }
 
+    function openProcessCostingWorkspace() {
+        if (!accountingSession) return;
+        navigate(accountingSession.routeHint, {
+            state: {
+                from: "scan-check",
+                prefill: prefillFromStructuredFields(accountingSession.structuredFields),
+                scanReview: accountingSession,
+            },
+        });
+    }
+
     return (
         <CalculatorPageLayout
             badge="Smart Tools / Scan & Check"
             title="Scan & Check"
-            description="Browser-first OCR for equations, textbook problems, worked solutions, and answer checks. It is strongest on printed text and clear screenshots, and it stays confidence-aware instead of pretending certainty."
+            description="Browser-first OCR for equations, textbook problems, worked solutions, and accounting worksheets. It is strongest on printed text, screenshots, and guided review of handwritten practice sheets."
             prioritizeResultSection
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
                         <p className="app-card-title text-base">What this is good at</p>
                         <p className="app-body-md mt-2 text-sm">
-                            Clear screenshots, textbook pages, printed worksheets, and decent handwriting. Review is always required when confidence is not strong.
+                            Clear screenshots, textbook pages, accounting worksheets, and decent handwriting. For dark-background process-costing pages, review remains mandatory before checking totals.
                         </p>
                         <div className="mt-4 grid gap-3 md:grid-cols-2">
                             <ScanDropzone onFiles={queue.addFiles} />
@@ -169,7 +181,7 @@ export default function ScanCheckPage() {
                         <SectionCard>
                             <p className="app-card-title text-base">Image preprocessing preview</p>
                             <p className="app-helper mt-1 text-xs">
-                                Grayscale and contrast cleanup help OCR, but they do not guarantee perfect symbol recognition.
+                                Dark-background cleanup, contrast enhancement, and grid detection are applied when useful. They improve OCR, but they do not guarantee perfect handwritten accounting recognition.
                             </p>
                             <div className="mt-4">
                                 <ScanPreprocessPreview
@@ -177,6 +189,15 @@ export default function ScanCheckPage() {
                                     processedUrl={activePreview.processedPreviewUrl}
                                 />
                             </div>
+                            {activePreview.preprocessNotes?.length ? (
+                                <div className="mt-3 space-y-1">
+                                    {activePreview.preprocessNotes.map((note) => (
+                                        <p key={note} className="app-helper text-xs">
+                                            {note}
+                                        </p>
+                                    ))}
+                                </div>
+                            ) : null}
                         </SectionCard>
                     ) : null}
 
@@ -192,7 +213,12 @@ export default function ScanCheckPage() {
                                         setMergedText(mergeSelectedOcrText(queue.items))
                                     }
                                     onSendMergedToSmartSolver={() =>
-                                        sendTextToSmartSolver(mergedText || queue.mergedSelectedText)
+                                        sendTextToSmartSolver(
+                                            mergedText || queue.mergedSelectedText
+                                        )
+                                    }
+                                    onOpenProcessCostingWorkspace={
+                                        accountingSession ? openProcessCostingWorkspace : undefined
                                     }
                                 />
                             </div>
@@ -220,6 +246,11 @@ export default function ScanCheckPage() {
                             </div>
                         </SectionCard>
 
+                        <ScanProblemSessionPanel
+                            session={accountingSession}
+                            onOpenWorkspace={openProcessCostingWorkspace}
+                        />
+
                         <ScanImageQueue
                             items={queue.items}
                             onRemove={queue.removeItem}
@@ -227,13 +258,29 @@ export default function ScanCheckPage() {
                             onToggleSelected={queue.toggleSelected}
                             onSendToSmartSolver={handleSendSingle}
                             onTextChange={(id, value) =>
+                                queue.updateItem(id, (item) => ({ ...item, editableText: value }))
+                            }
+                            onStructuredFieldsChange={(id, nextFields) =>
                                 queue.updateItem(id, (item) => ({
                                     ...item,
-                                    editableText: value,
+                                    parsedResult: item.parsedResult
+                                        ? { ...item.parsedResult, structuredFields: nextFields }
+                                        : item.parsedResult,
                                 }))
                             }
                             onReplace={(id, file) => void queue.replaceFile(id, file)}
                             onSetActivePreview={setActivePreviewId}
+                            onRetry={(id) =>
+                                queue.updateItem(id, (item) => ({
+                                    ...item,
+                                    status: "queued",
+                                    progress: 0,
+                                    error: null,
+                                    ocrResult: null,
+                                    parsedResult: null,
+                                    editableText: "",
+                                }))
+                            }
                         />
 
                         <ScanExtractedTextPanel
@@ -246,7 +293,7 @@ export default function ScanCheckPage() {
                     <SectionCard>
                         <p className="app-card-title text-sm">No images queued</p>
                         <p className="app-body-md mt-2 text-sm">
-                            Add one or more images to start OCR, editing, and answer checking.
+                            Add one or more images to start OCR, field review, and accounting worksheet checking.
                         </p>
                     </SectionCard>
                 )
@@ -258,35 +305,36 @@ export default function ScanCheckPage() {
                         meaning={buildComparisonNarrative(
                             queue.items.map((item) => ({
                                 label: item.name,
-                                value: item.ocrResult?.confidence ?? 0,
+                                value: item.parsedResult?.extractionConfidence ??
+                                    item.ocrResult?.confidence ??
+                                    0,
                             }))
                         )}
-                        importance="OCR confidence, parse confidence, and solver confidence are kept separate so weak extraction does not look more certain than it is."
+                        importance="OCR confidence, extraction confidence, and worksheet-check confidence stay separate so weak handwriting recognition does not look more certain than it is."
                         highlights={buildChartHighlights(
                             queue.items.map((item) => ({
                                 label: item.name,
-                                value:
-                                    item.parsedResult?.parseConfidence ??
+                                value: item.parsedResult?.parseConfidence ??
                                     item.ocrResult?.confidence ??
                                     0,
                             }))
                         )}
                     />
-                    <InterpretationBlock body="Use Scan & Check to extract, review, and route problems into the right calculator or SmartSolver flow. It shows what was extracted, what was inferred, and what still needs confirmation." />
+                    <InterpretationBlock body="Scan & Check now treats accounting worksheets as structured pages, not just plain text. It shows raw OCR, editable fields, page roles, and the route hint before sending anything into a checker." />
                     <CommonMistakesBlock
                         mistakes={[
-                            "Low-confidence OCR can confuse minus signs, decimals, and multiplication symbols.",
-                            "Worked solutions may contain copied-number errors even when the final answer looks neat.",
-                            "Word problems often need unit and period confirmation before solving.",
+                            "Dark worksheets can still confuse 0, 6, 8, and comma placement in large accounting amounts.",
+                            "Department 2 pages often hide transferred-in cost assumptions that must be reviewed manually.",
+                            "Merged image sets should be checked for page order before comparing student answers with system output.",
                         ]}
                     />
-                    <StudyTipBlock body="If confidence is low, correct the extracted text first, then send the cleaned version to SmartSolver rather than trusting the raw OCR output." />
-                    <PracticalMeaningBlock body="This release keeps OCR in the browser for privacy and portability. That means it is useful now, but still less capable than cloud OCR or a dedicated handwriting model." />
+                    <StudyTipBlock body="For process-costing problems, confirm units, page role, and materials timing first. Wrong structure usually causes more downstream error than one arithmetic slip." />
+                    <PracticalMeaningBlock body="This release keeps OCR in the browser for privacy and portability. It is useful now for worksheet review, but still weaker than a dedicated handwritten accounting model." />
                 </div>
             }
             headerMeta={
                 <span className="app-chip inline-flex items-center rounded-full px-3 py-1 text-xs">
-                    Browser OCR
+                    {ocr.engineLabel}
                 </span>
             }
         />

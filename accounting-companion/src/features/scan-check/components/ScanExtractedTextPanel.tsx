@@ -16,7 +16,7 @@ export default function ScanExtractedTextPanel({
             <div className="app-panel rounded-[1.2rem] p-4">
                 <p className="app-card-title text-sm">Merged review text</p>
                 <p className="app-helper mt-1 text-xs">
-                    Selected images are combined here before routing into SmartSolver.
+                    Selected images are combined here before routing into SmartSolver or the process-costing workspace.
                 </p>
                 <textarea
                     value={mergedText}

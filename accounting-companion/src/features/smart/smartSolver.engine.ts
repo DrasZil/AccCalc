@@ -2284,6 +2284,30 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "process-costing-workspace",
+        name: "Process Costing Workspace",
+        route: "/accounting/process-costing-workspace",
+        description:
+            "Best when the user needs a full process-costing workspace with equivalent units, departmental schedules, transferred-in cost, or cost reconciliation.",
+        required: [],
+        aliases: [
+            "process costing workspace",
+            "cost of production report",
+            "departmental process costing",
+            "process costing checker",
+        ],
+        keywords: [
+            /process costing/i,
+            /equivalent units of production/i,
+            /cost of production report/i,
+            /costs accounted for/i,
+            /costs to be accounted for/i,
+            /transferred-?in/i,
+            /department 2/i,
+            /ending wip/i,
+        ],
+    },
+    {
         id: "factory-overhead-variance",
         name: "Factory Overhead Variances",
         route: "/accounting/factory-overhead-variance",

@@ -1,5 +1,6 @@
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
+import SupportAccCalcSection from "../settings/components/SupportAccCalcSection";
 
 export default function AboutPage() {
     return (
@@ -74,6 +75,8 @@ export default function AboutPage() {
                     </p>
                 </div>
             </SectionCard>
+
+            <SupportAccCalcSection compact />
         </div>
     );
 }

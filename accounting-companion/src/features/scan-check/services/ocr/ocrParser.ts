@@ -1,6 +1,11 @@
 import { cleanupMathLikeText } from "./ocrMathCleanup";
 import { classifyScanText } from "./ocrClassifier";
-import type { ParsedScanResult } from "../../types";
+import type { ParsedScanResult, ScanPageType } from "../../types";
+import { classifyAccountingWorksheet } from "../accounting/accountingWorksheetClassifier";
+import {
+    extractAccountingFields,
+    normalizeAccountingWorksheetText,
+} from "../accounting/accountingFieldExtractor";
 
 function extractUnits(text: string) {
     const matches =
@@ -38,7 +43,15 @@ function detectLikelyIssues(text: string) {
 
 export function parseOcrText(text: string, ocrConfidence: number): ParsedScanResult {
     const cleanedText = cleanupMathLikeText(text);
-    const kind = classifyScanText(cleanedText);
+    const normalizedAccountingText = normalizeAccountingWorksheetText(cleanedText);
+    const accountingFields = extractAccountingFields(normalizedAccountingText);
+    const accountingClassification = classifyAccountingWorksheet(normalizedAccountingText);
+    const accountingPageType = accountingClassification.pageType as ScanPageType;
+    const isAccountingWorksheet =
+        accountingFields.length >= 3 || accountingPageType !== "unknown";
+    const kind = isAccountingWorksheet
+        ? "accounting-worksheet"
+        : classifyScanText(cleanedText);
     const extractedValues = extractValues(cleanedText);
     const detectedUnits = extractUnits(cleanedText);
     const likelyIssues = detectLikelyIssues(cleanedText);
@@ -53,7 +66,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
     );
 
     const suggestedIntent =
-        kind === "equation"
+        kind === "accounting-worksheet"
+            ? "Check my solution"
+            : kind === "equation"
             ? "Extract equation"
             : kind === "worked-solution"
               ? "Check my solution"
@@ -64,7 +79,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
                   : "Send to SmartSolver";
 
     const notes = [
-        kind === "worked-solution"
+        kind === "accounting-worksheet"
+            ? "This looks like an accounting worksheet, so review structured fields and page roles before trusting the final totals."
+            : kind === "worked-solution"
             ? "This looks like worked steps, so likely-mistake checks are more important than immediate solving."
             : "Review extracted values before routing into a calculator.",
         detectedUnits.length > 0
@@ -77,10 +94,37 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         cleanedText,
         suggestedIntent,
         parseConfidence,
+        extractionConfidence: isAccountingWorksheet
+            ? Math.min(95, Math.round((accountingClassification.confidence + parseConfidence) / 2))
+            : undefined,
         extractedValues,
         detectedUnits,
         likelyIssues,
         notes,
+        pageType: isAccountingWorksheet ? accountingPageType : "unknown",
+        routeHint: isAccountingWorksheet
+            ? accountingPageType === "department-2-worksheet"
+                ? "/accounting/department-transferred-in-process-costing"
+                : "/accounting/process-costing-workspace"
+            : undefined,
+        structuredFields: isAccountingWorksheet ? accountingFields : undefined,
+        accounting: isAccountingWorksheet
+            ? {
+                  topic: "Process costing",
+                  pageType: accountingPageType,
+                  pageTypeConfidence: accountingClassification.confidence,
+                  extractionConfidence: Math.min(
+                      95,
+                      Math.round((accountingClassification.confidence + parseConfidence) / 2)
+                  ),
+                  routeHint:
+                      accountingPageType === "department-2-worksheet"
+                          ? "/accounting/department-transferred-in-process-costing"
+                          : "/accounting/process-costing-workspace",
+                  fields: accountingFields,
+                  likelyMistakes: likelyIssues,
+                  notes,
+              }
+            : null,
     };
 }
-
