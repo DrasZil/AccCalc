@@ -184,6 +184,23 @@ export default function ScanCheckPage() {
         setToast(nextToast);
     }
 
+    function handleScanFeedback(
+        message: string,
+        tone: "info" | "success" | "warning" = "info"
+    ) {
+        setStatusMessage(message);
+        showToast({
+            title:
+                tone === "success"
+                    ? "Scan updated"
+                    : tone === "warning"
+                      ? "Scan attention"
+                      : "Scan status",
+            body: message,
+            tone,
+        });
+    }
+
     function clearSavedPageState() {
         if (typeof window === "undefined") return;
         window.localStorage.removeItem(PAGE_STATE_KEY);
@@ -473,7 +490,10 @@ export default function ScanCheckPage() {
 
                             <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(19rem,0.9fr)]">
                                 <ScanDropzone onFiles={handleAddFiles} />
-                                <ScanCameraCapture onCapture={(file) => void handleAddFiles([file])} />
+                                <ScanCameraCapture
+                                    onCapture={(file) => handleAddFiles([file])}
+                                    onFeedback={handleScanFeedback}
+                                />
                             </div>
 
                             <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

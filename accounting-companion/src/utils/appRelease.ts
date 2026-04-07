@@ -1,34 +1,34 @@
-export const APP_VERSION = "3.2.3";
+export const APP_VERSION = "3.2.4";
 export const APP_RELEASE_DATE = "2026-04-08";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Scan & Check is steadier in 3.2.3",
-        body: "The scan flow now restores recent sessions, fits better on smaller screens, and handles image review with less overflow and less friction.",
+        title: "Mobile camera capture works better in 3.2.4",
+        body: "Scan & Check now prefers native mobile camera capture first, then falls back gracefully when a browser does not support a reliable direct camera flow.",
     },
     {
-        title: "Image review is more resilient",
-        body: "Images now preview cleanly, fit their containers better, and stay available after navigation instead of disappearing when the user comes back.",
+        title: "Capture flows feed the queue directly",
+        body: "Taking a photo now drops it straight into the scan queue so preview, OCR, review, and persistence behave the same as a normal image upload.",
     },
     {
-        title: "Cleaner OCR writing",
-        body: "OCR output now gets better cleanup for currency, spacing, common OCR typos, and more readable digital text while still preserving raw OCR for review.",
+        title: "Safer fallbacks on awkward browsers",
+        body: "When native capture or live camera is not reliable, AccCalc falls back to the image picker instead of leaving the user stuck after a permission prompt.",
     },
     {
-        title: "Better mobile and desktop balance",
-        body: "Scan cards, result panels, badges, and review sections now wrap and scale more gracefully on narrow screens while using desktop space more intentionally.",
+        title: "Mobile scan controls feel clearer",
+        body: "Start Camera, Upload image, capture status, and related feedback are now grouped more clearly for touch-first scan sessions.",
     },
     {
         title: "Still future-proof and honest",
-        body: "The release adds persistence and preview utilities around the existing modular OCR pipeline without flattening the architecture or pretending browser OCR is perfect.",
+        body: "The camera fix builds on the existing persistence, preview, toast, and OCR layers without replacing them or treating fragile live camera logic as the only path.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.2.3: Fixed Scan & Check overflow and width issues so result cards, chips, review panels, merged text, and image cards stay within the viewport on smaller screens.",
-    "3.2.3: Added on-device scan-session persistence so uploaded images, extracted text, OCR results, and review state survive navigation and recent returns to the page.",
-    "3.2.3: Improved image handling with cleaner aspect-ratio fitting, larger preview viewing, clearer remove/replace behavior, and more stable review updates after image changes.",
-    "3.2.3: Refined OCR cleanup for spacing, currency, common OCR character confusion, and more readable digital display without hiding raw OCR text.",
-    "3.2.3: Added non-intrusive scan toasts for processing, restore, update, remove, and retry feedback with automatic dismissal.",
-    "3.2.3: Tightened desktop space usage and mobile scan flow so the page feels less sparse on wide screens and less cramped on phones.",
+    "3.2.4: Fixed the mobile camera flow so Start Camera prefers native device capture on supported phones and sends the photo directly into the scan queue after capture.",
+    "3.2.4: Added graceful fallback from native capture or live camera into the image picker when the browser or device does not support a reliable direct camera flow.",
+    "3.2.4: Kept captured photos inside the same persisted scan-session logic so they restore with the queue, preview, OCR output, and review state.",
+    "3.2.4: Refined scan toasts and status messaging for camera opening, fallback use, permission denial, and capture-related guidance without blocking the workflow.",
+    "3.2.4: Preserved desktop behavior while keeping live inline camera as a secondary supported path only where secure-context browser support is strong enough.",
+    "3.2.4: Tightened mobile button grouping around Start Camera and Upload image so the capture flow feels clearer and more touch-friendly.",
 ];
