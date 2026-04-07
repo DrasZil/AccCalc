@@ -30,7 +30,7 @@ export default function ScanImageQueue({
     onRetry,
 }: ScanImageQueueProps) {
     return (
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
             {items.map((item) => (
                 <ScanImageCard
                     key={item.id}

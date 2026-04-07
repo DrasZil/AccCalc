@@ -61,18 +61,18 @@ export default function ScanCameraCapture({ onCapture }: ScanCameraCaptureProps)
     }
 
     return (
-        <div className="app-subtle-surface rounded-[1.2rem] p-4">
+        <div className="app-subtle-surface min-w-0 rounded-[1.2rem] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                     <p className="app-card-title text-sm">Camera capture</p>
-                    <p className="app-helper mt-1 text-xs leading-5">
+                    <p className="app-helper app-wrap-anywhere mt-1 text-xs leading-5">
                         AccCalc only requests camera access after you choose live capture here.
                     </p>
                 </div>
                 <button
                     type="button"
                     onClick={startCamera}
-                    className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
+                    className="app-button-secondary min-h-11 rounded-xl px-4 py-2 text-sm font-medium"
                 >
                     {status === "live" ? "Camera ready" : "Start camera"}
                 </button>
@@ -90,7 +90,7 @@ export default function ScanCameraCapture({ onCapture }: ScanCameraCaptureProps)
                     <button
                         type="button"
                         onClick={captureFrame}
-                        className="app-button-primary rounded-xl px-4 py-2 text-sm font-medium"
+                        className="app-button-primary min-h-11 rounded-xl px-4 py-2 text-sm font-medium"
                     >
                         Capture image
                     </button>
@@ -98,11 +98,10 @@ export default function ScanCameraCapture({ onCapture }: ScanCameraCaptureProps)
             ) : null}
 
             {status === "blocked" ? (
-                <p className="app-helper mt-3 text-xs">
+                <p className="app-helper app-wrap-anywhere mt-3 text-xs">
                     Camera access was blocked. You can still use file upload.
                 </p>
             ) : null}
         </div>
     );
 }
-

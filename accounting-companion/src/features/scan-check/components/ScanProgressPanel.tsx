@@ -26,15 +26,15 @@ export default function ScanProgressPanel({
     const activeItems = items.slice(0, 4);
 
     return (
-        <div className="app-panel rounded-[1.2rem] p-4 md:p-5">
+        <div className="app-panel min-w-0 rounded-[1.2rem] p-4 md:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                     <p className="app-card-title text-base">Processing</p>
-                    <p className="app-helper mt-1 text-xs">
+                    <p className="app-helper app-wrap-anywhere mt-1 text-xs">
                         {PHASE_LABELS[sessionPhase]}. This may take a moment on larger or handwritten pages.
                     </p>
                 </div>
-                <span className="app-chip-accent rounded-full px-3 py-1 text-[0.62rem]">
+                <span className="app-chip-accent max-w-full rounded-full px-3 py-1 text-[0.62rem] whitespace-normal">
                     {Math.round(overallProgress)}%
                 </span>
             </div>
@@ -48,13 +48,13 @@ export default function ScanProgressPanel({
 
             <div className="mt-4 space-y-3">
                 {activeItems.map((item) => (
-                    <div key={item.id} className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                    <div key={item.id} className="app-subtle-surface min-w-0 rounded-[1rem] px-3.5 py-3">
                         <div className="flex items-center justify-between gap-3">
                             <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-[color:var(--app-text)]">
+                                <p className="app-wrap-anywhere text-sm font-semibold text-[color:var(--app-text)]">
                                     {item.name}
                                 </p>
-                                <p className="app-helper mt-1 text-xs">
+                                <p className="app-helper app-wrap-anywhere mt-1 text-xs">
                                     {PHASE_LABELS[item.processingPhase ?? "queued"]}
                                     {item.processingSummary ? ` • ${item.processingSummary}` : ""}
                                 </p>

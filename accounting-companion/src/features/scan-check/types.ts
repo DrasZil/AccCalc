@@ -104,6 +104,7 @@ export type ScanImageItem = {
     id: string;
     file: File;
     name: string;
+    sourceDataUrl?: string | null;
     previewUrl: string;
     processedPreviewUrl: string | null;
     status: ScanImageStatus;
@@ -119,4 +120,5 @@ export type ScanImageItem = {
     processingPhase?: ScanProcessingPhase;
     processingSummary?: string;
     qualityWarnings?: string[];
+    updatedAt?: number;
 };

@@ -1,6 +1,6 @@
 import DisclosurePanel from "../../../components/DisclosurePanel";
-import ScanStructuredFieldsEditor from "./ScanStructuredFieldsEditor";
 import ScanConfidenceBadge from "./ScanConfidenceBadge";
+import ScanStructuredFieldsEditor from "./ScanStructuredFieldsEditor";
 import type { ScanImageItem } from "../types";
 
 type ScanImageCardProps = {
@@ -35,43 +35,55 @@ export default function ScanImageCard({
     const primaryIssue = item.parsedResult?.likelyIssues[0] ?? item.qualityWarnings?.[0] ?? null;
 
     return (
-        <div className="app-panel rounded-[1.2rem] p-4">
+        <div className="app-panel min-w-0 rounded-[1.2rem] p-4">
             <div className="flex items-start justify-between gap-3">
-                <div>
-                    <p className="app-card-title text-sm">{item.name}</p>
+                <div className="min-w-0 flex-1">
+                    <p className="app-card-title app-wrap-anywhere text-sm">{item.name}</p>
                     <p className="app-helper mt-1 text-xs uppercase tracking-[0.16em]">
                         {(item.processingPhase ?? item.status).replaceAll("-", " ")} • {Math.round(item.progress)}%
                     </p>
                     {item.parsedResult?.pageType && item.parsedResult.pageType !== "unknown" ? (
-                        <p className="app-helper mt-1 text-xs">
+                        <p className="app-helper app-wrap-anywhere mt-1 text-xs">
                             Detected page type: {item.parsedResult.pageType}
                         </p>
                     ) : null}
                 </div>
-                <ScanConfidenceBadge
-                    level={item.confidenceLevel}
-                    score={item.ocrResult?.confidence ?? 0}
-                />
+                <div className="flex items-start gap-2">
+                    <ScanConfidenceBadge
+                        level={item.confidenceLevel}
+                        score={item.ocrResult?.confidence ?? 0}
+                    />
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        aria-label={`Remove ${item.name}`}
+                        className="app-button-ghost rounded-full px-2.5 py-1.5 text-xs font-semibold"
+                    >
+                        x
+                    </button>
+                </div>
             </div>
 
-            <button type="button" onClick={onSetActivePreview} className="mt-3 block w-full">
-                <img
-                    src={item.previewUrl}
-                    alt={item.name}
-                    className="h-40 w-full rounded-[1rem] object-cover"
-                />
+            <button type="button" onClick={onSetActivePreview} className="mt-3 block w-full min-w-0">
+                <div className="app-image-frame h-40 w-full rounded-[1rem] p-2 sm:h-44">
+                    <img
+                        src={item.previewUrl}
+                        alt={item.name}
+                        className="h-full w-full rounded-[0.85rem] object-contain"
+                    />
+                </div>
             </button>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                <div className="app-subtle-surface min-w-0 rounded-[1rem] px-3.5 py-3">
                     <p className="app-helper text-xs uppercase tracking-[0.16em]">Quick read</p>
-                    <p className="mt-1 text-sm text-[color:var(--app-text)]">
+                    <p className="app-wrap-anywhere mt-1 text-sm text-[color:var(--app-text)]">
                         {item.processingSummary ??
                             item.parsedResult?.suggestedIntent ??
                             "Review the extraction before solving."}
                     </p>
                     {primaryIssue ? (
-                        <p className="app-helper mt-2 text-xs text-[color:var(--app-warning)]">
+                        <p className="app-helper app-wrap-anywhere mt-2 text-xs text-[color:var(--app-warning)]">
                             {primaryIssue}
                         </p>
                     ) : null}
@@ -79,7 +91,7 @@ export default function ScanImageCard({
                 <button
                     type="button"
                     onClick={onSendToSmartSolver}
-                    className="app-button-secondary min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                    className="app-button-secondary min-h-11 w-full rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto"
                 >
                     Continue
                 </button>
@@ -100,7 +112,7 @@ export default function ScanImageCard({
                             </p>
                             <div className="mt-2 space-y-1">
                                 {item.parsedResult.likelyIssues.map((issue) => (
-                                    <p key={issue} className="text-sm text-[color:var(--app-text)]">
+                                    <p key={issue} className="app-wrap-anywhere text-sm text-[color:var(--app-text)]">
                                         {issue}
                                     </p>
                                 ))}
@@ -115,7 +127,7 @@ export default function ScanImageCard({
                             </p>
                             <div className="mt-2 space-y-1">
                                 {item.qualityWarnings.map((warning) => (
-                                    <p key={warning} className="text-sm text-[color:var(--app-text)]">
+                                    <p key={warning} className="app-wrap-anywhere text-sm text-[color:var(--app-text)]">
                                         {warning}
                                     </p>
                                 ))}
@@ -152,13 +164,6 @@ export default function ScanImageCard({
                         >
                             Reprocess
                         </button>
-                        <button
-                            type="button"
-                            onClick={onRemove}
-                            className="app-button-secondary min-h-10 rounded-xl px-3 py-2 text-xs font-medium"
-                        >
-                            Remove
-                        </button>
                         <label className="app-button-secondary cursor-pointer rounded-xl px-3 py-2 text-xs font-medium">
                             Replace
                             <input
@@ -182,7 +187,7 @@ export default function ScanImageCard({
                             value={item.editableText}
                             onChange={(event) => onTextChange(event.target.value)}
                             rows={7}
-                            className="app-field mt-2 w-full rounded-[1rem] px-3 py-3 text-sm"
+                            className="app-field app-wrap-anywhere mt-2 w-full rounded-[1rem] px-3 py-3 text-sm"
                         />
                     </label>
 
@@ -196,7 +201,7 @@ export default function ScanImageCard({
                             <p className="app-helper text-xs uppercase tracking-[0.16em]">
                                 Raw OCR text
                             </p>
-                            <p className="mt-2 whitespace-pre-wrap text-sm text-[color:var(--app-text)]">
+                            <p className="app-wrap-anywhere mt-2 whitespace-pre-wrap text-sm text-[color:var(--app-text)]">
                                 {item.ocrResult.text}
                             </p>
                         </div>

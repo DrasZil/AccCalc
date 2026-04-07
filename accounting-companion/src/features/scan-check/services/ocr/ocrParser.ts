@@ -72,7 +72,7 @@ function getRouteHint(kind: ParsedScanResult["kind"], cleanedText: string, accou
 }
 
 export function parseOcrText(text: string, ocrConfidence: number): ParsedScanResult {
-    const cleanedText = cleanupMathLikeText(text);
+    const cleanedText = cleanupMathLikeText(text, ocrConfidence);
     const normalizedAccountingText = normalizeAccountingWorksheetText(cleanedText);
     const accountingFields = extractAccountingFields(normalizedAccountingText);
     const accountingClassification = classifyAccountingWorksheet(normalizedAccountingText);

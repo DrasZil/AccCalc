@@ -2,28 +2,60 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ScanImageItem, ScanImageStatus } from "../types";
 import { fileToDataUrl } from "../utils/imageProcessing";
 import { validateScanFile } from "../utils/scanFileValidation";
+import {
+    cleanupScanItemUrls,
+    clearScanSession,
+    loadScanSession,
+    saveScanSession,
+} from "../services/scanSessionStore";
 
 function makeId() {
     return `scan-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+type AddFilesResult = {
+    added: number;
+    errors: string[];
+};
+
 export function useScanQueue() {
     const [items, setItems] = useState<ScanImageItem[]>([]);
     const [queueError, setQueueError] = useState<string | null>(null);
+    const [hydrated, setHydrated] = useState(false);
+    const [restoredFromSession, setRestoredFromSession] = useState(false);
     const itemsRef = useRef<ScanImageItem[]>([]);
 
     useEffect(() => {
         itemsRef.current = items;
     }, [items]);
 
-    useEffect(
-        () => () => {
-            itemsRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-        },
-        []
-    );
+    useEffect(() => {
+        let cancelled = false;
 
-    async function addFiles(files: File[]) {
+        void loadScanSession().then((session) => {
+            if (cancelled) return;
+            setItems(session.items);
+            setRestoredFromSession(session.restored);
+            setHydrated(true);
+        });
+
+        return () => {
+            cancelled = true;
+            cleanupScanItemUrls(itemsRef.current);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!hydrated) return;
+
+        const timeout = window.setTimeout(() => {
+            void saveScanSession(items);
+        }, 220);
+
+        return () => window.clearTimeout(timeout);
+    }, [hydrated, items]);
+
+    async function addFiles(files: File[]): Promise<AddFilesResult> {
         const nextItems: ScanImageItem[] = [];
         const errors: string[] = [];
 
@@ -34,11 +66,13 @@ export function useScanQueue() {
                 continue;
             }
 
+            const sourceDataUrl = await fileToDataUrl(file);
             nextItems.push({
                 id: makeId(),
                 file,
                 name: file.name,
-                previewUrl: URL.createObjectURL(file),
+                sourceDataUrl,
+                previewUrl: sourceDataUrl,
                 processedPreviewUrl: null,
                 status: "queued",
                 progress: 0,
@@ -53,6 +87,7 @@ export function useScanQueue() {
                 processingPhase: "queued",
                 processingSummary: "Waiting to start",
                 qualityWarnings: [],
+                updatedAt: Date.now(),
             });
         }
 
@@ -60,25 +95,26 @@ export function useScanQueue() {
             setItems((current) => [...current, ...nextItems]);
         }
         setQueueError(errors.length > 0 ? errors.join(" ") : null);
+        return { added: nextItems.length, errors };
     }
 
     async function replaceFile(id: string, file: File) {
         const error = validateScanFile(file);
         if (error) {
             setQueueError(`${file.name}: ${error}`);
-            return;
+            return false;
         }
 
-        const previewUrl = URL.createObjectURL(file);
+        const sourceDataUrl = await fileToDataUrl(file);
         setItems((current) =>
             current.map((item) => {
                 if (item.id !== id) return item;
-                URL.revokeObjectURL(item.previewUrl);
                 return {
                     ...item,
                     file,
                     name: file.name,
-                    previewUrl,
+                    sourceDataUrl,
+                    previewUrl: sourceDataUrl,
                     processedPreviewUrl: null,
                     status: "queued",
                     progress: 0,
@@ -91,13 +127,20 @@ export function useScanQueue() {
                     processingPhase: "queued",
                     processingSummary: "Waiting to start",
                     qualityWarnings: [],
+                    updatedAt: Date.now(),
                 };
             })
         );
+        setQueueError(null);
+        return true;
     }
 
     function updateItem(id: string, updater: (item: ScanImageItem) => ScanImageItem) {
-        setItems((current) => current.map((item) => (item.id === id ? updater(item) : item)));
+        setItems((current) =>
+            current.map((item) =>
+                item.id === id ? { ...updater(item), updatedAt: Date.now() } : item
+            )
+        );
     }
 
     function setItemStatus(id: string, status: ScanImageStatus, progress = 0) {
@@ -105,13 +148,7 @@ export function useScanQueue() {
     }
 
     function removeItem(id: string) {
-        setItems((current) => {
-            const target = current.find((item) => item.id === id);
-            if (target) {
-                URL.revokeObjectURL(target.previewUrl);
-            }
-            return current.filter((item) => item.id !== id);
-        });
+        setItems((current) => current.filter((item) => item.id !== id));
     }
 
     function moveItem(id: string, direction: -1 | 1) {
@@ -123,12 +160,19 @@ export function useScanQueue() {
             const next = [...current];
             const [moved] = next.splice(index, 1);
             next.splice(nextIndex, 0, moved);
-            return next;
+            return next.map((item) => ({ ...item, updatedAt: Date.now() }));
         });
     }
 
     function toggleSelected(id: string) {
         updateItem(id, (item) => ({ ...item, selected: !item.selected }));
+    }
+
+    async function resetSession() {
+        cleanupScanItemUrls(itemsRef.current);
+        setItems([]);
+        setQueueError(null);
+        await clearScanSession();
     }
 
     const mergedSelectedText = useMemo(
@@ -143,6 +187,8 @@ export function useScanQueue() {
     return {
         items,
         queueError,
+        hydrated,
+        restoredFromSession,
         addFiles,
         replaceFile,
         updateItem,
@@ -152,5 +198,6 @@ export function useScanQueue() {
         toggleSelected,
         mergedSelectedText,
         fileToDataUrl,
+        resetSession,
     };
 }

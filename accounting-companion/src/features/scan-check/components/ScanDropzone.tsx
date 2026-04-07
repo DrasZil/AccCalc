@@ -17,7 +17,7 @@ export default function ScanDropzone({ onFiles }: ScanDropzoneProps) {
         <label
             onDragOver={(event) => event.preventDefault()}
             onDrop={handleDrop}
-            className="app-panel block cursor-pointer rounded-[1.2rem] border-dashed p-5 text-center"
+            className="app-panel block min-w-0 cursor-pointer rounded-[1.2rem] border-dashed p-5 text-center"
         >
             <input
                 type="file"
@@ -30,14 +30,13 @@ export default function ScanDropzone({ onFiles }: ScanDropzoneProps) {
                     event.currentTarget.value = "";
                 }}
             />
-            <p className="app-card-title text-sm">Drop or choose multiple images</p>
-            <p className="app-body-md mt-2 text-sm">
+            <p className="app-card-title app-wrap-anywhere text-sm">Drop or choose multiple images</p>
+            <p className="app-body-md app-wrap-anywhere mt-2 text-sm">
                 Printed text, screenshots, textbook pages, and decent handwriting work best.
             </p>
-            <p className="app-helper mt-2 text-xs">
+            <p className="app-helper app-wrap-anywhere mt-2 text-xs">
                 Supported: PNG, JPG, WEBP, GIF. Maximum 8 MB per image.
             </p>
         </label>
     );
 }
-

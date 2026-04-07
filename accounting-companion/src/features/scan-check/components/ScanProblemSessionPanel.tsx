@@ -20,30 +20,30 @@ export default function ScanProblemSessionPanel({
             defaultOpen={false}
         >
             <div className="space-y-4">
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 xl:grid-cols-2">
                     {session.pageRoles.map((page) => (
                         <div
                             key={`${page.id}-${page.role}`}
-                            className="rounded-[1rem] border app-divider px-4 py-3"
+                            className="min-w-0 rounded-[1rem] border app-divider px-4 py-3"
                         >
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                            <p className="app-wrap-anywhere text-sm font-semibold text-[color:var(--app-text)]">
                                 {page.name}
                             </p>
-                            <p className="app-helper mt-1 text-xs">{page.role}</p>
+                            <p className="app-helper app-wrap-anywhere mt-1 text-xs">{page.role}</p>
                         </div>
                     ))}
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 xl:grid-cols-2">
                     {session.structuredFields.slice(0, 10).map((field) => (
                         <div
                             key={`${field.key}-${field.value}`}
-                            className="app-subtle-surface rounded-[1rem] px-4 py-3"
+                            className="app-subtle-surface min-w-0 rounded-[1rem] px-4 py-3"
                         >
                             <p className="app-helper text-xs uppercase tracking-[0.16em]">
                                 {field.label}
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                            <p className="app-wrap-anywhere mt-1 text-sm font-semibold text-[color:var(--app-text)]">
                                 {field.value}
                             </p>
                         </div>

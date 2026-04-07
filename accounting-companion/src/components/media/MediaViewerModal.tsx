@@ -43,8 +43,12 @@ export default function MediaViewerModal({
             role="dialog"
             aria-modal="true"
             aria-label={title}
+            onClick={onClose}
         >
-            <div className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-[color:var(--app-surface)] shadow-[0_30px_80px_rgba(0,0,0,0.34)]">
+            <div
+                className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-[color:var(--app-surface)] shadow-[0_30px_80px_rgba(0,0,0,0.34)]"
+                onClick={(event) => event.stopPropagation()}
+            >
                 <div className="flex items-start justify-between gap-4 border-b app-divider px-4 py-4 md:px-6">
                     <div className="min-w-0">
                         <p className="app-card-title text-base md:text-lg">{title}</p>
@@ -62,8 +66,8 @@ export default function MediaViewerModal({
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4 py-4 md:px-6 md:py-6">
-                    <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-                        <div className="flex min-h-[22rem] items-center justify-center rounded-[1.75rem] bg-white p-4 md:p-8">
+                    <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)]">
+                        <div className="flex min-h-[18rem] min-w-0 items-center justify-center rounded-[1.75rem] bg-white p-3 md:min-h-[22rem] md:p-8">
                             {imageSrc ? (
                                 <>
                                     {imageState === "loading" ? (
