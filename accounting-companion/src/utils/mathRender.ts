@@ -1,33 +1,9 @@
+import katex from "katex";
 import { formatGuideText } from "./guideTextFormatting";
 
 type RenderMathOptions = {
     block?: boolean;
 };
-
-type MathJaxTexSvgResult = {
-    outerHTML?: string;
-};
-
-type MathJaxBrowserGlobal = {
-    startup?: {
-        promise?: Promise<unknown>;
-        typeset?: boolean;
-    };
-    tex?: Record<string, unknown>;
-    svg?: Record<string, unknown>;
-    options?: Record<string, unknown>;
-    tex2svgPromise?: (
-        tex: string,
-        options?: { display?: boolean }
-    ) => Promise<MathJaxTexSvgResult>;
-    tex2svg?: (tex: string, options?: { display?: boolean }) => MathJaxTexSvgResult;
-};
-
-declare global {
-    interface Window {
-        MathJax?: MathJaxBrowserGlobal;
-    }
-}
 
 const renderCache = new Map<string, Promise<string | null>>();
 const BASIC_OPERATORS = /([=+\-*/()])/g;
@@ -45,9 +21,7 @@ const GREEK_MAP: Record<string, string> = {
     theta: "\\theta",
 };
 
-let mathJaxReadyPromise: Promise<MathJaxBrowserGlobal | null> | null = null;
-
-function escapeTextForMathJax(text: string) {
+function escapeTextForLatex(text: string) {
     return text.replace(/([#$%&_^{}\\])/g, "\\$1");
 }
 
@@ -69,7 +43,7 @@ function formatMathToken(token: string) {
     if (GREEK_MAP[lowered]) return GREEK_MAP[lowered];
 
     if (NUMBER_TOKEN.test(trimmed)) {
-        return escapeTextForMathJax(trimmed);
+        return escapeTextForLatex(trimmed);
     }
 
     if (WORD_TOKEN.test(trimmed) && trimmed.length <= 4 && /[A-Z]/.test(trimmed)) {
@@ -86,10 +60,10 @@ function formatMathToken(token: string) {
         return `${base}^{${exponent}}`;
     }
 
-    return `\\text{${escapeTextForMathJax(trimmed)}}`;
+    return `\\text{${escapeTextForLatex(trimmed)}}`;
 }
 
-function convertPlainTextToMathJax(input: string) {
+function convertPlainTextToLatex(input: string) {
     const normalized = normalizeOperators(formatGuideText(input));
     const statements = normalized
         .split(/\s*;\s*/g)
@@ -122,76 +96,21 @@ function convertPlainTextToMathJax(input: string) {
         .join(" \\\\ ");
 }
 
-function resolveTexSource(input: string) {
+function resolveLatexSource(input: string) {
     return /\\[A-Za-z]+|\{|\}|\$/.test(input) &&
         !/[A-Za-z]{3,}\s+[A-Za-z]{3,}/.test(input)
         ? input
-        : convertPlainTextToMathJax(input);
+        : convertPlainTextToLatex(input);
 }
 
-function buildMathJaxConfig(existing?: MathJaxBrowserGlobal | null): MathJaxBrowserGlobal {
-    return {
-        ...(existing ?? {}),
-        startup: {
-            ...(existing?.startup ?? {}),
-            typeset: false,
-        },
-        options: {
-            ...(existing?.options ?? {}),
-            enableMenu: false,
-        },
-        tex: {
-            ...(existing?.tex ?? {}),
-            inlineMath: [["\\(", "\\)"]],
-            displayMath: [
-                ["$$", "$$"],
-                ["\\[", "\\]"],
-            ],
-            packages: {
-                "[+]": ["base", "ams", "newcommand", "textmacros", "html", "noerrors", "noundefined"],
-            },
-        },
-        svg: {
-            ...(existing?.svg ?? {}),
-            fontCache: "none",
-        },
-    };
-}
-
-async function loadMathJaxBrowser() {
-    if (typeof window === "undefined") {
-        return null;
-    }
-
-    const existing = window.MathJax;
-    if (existing?.tex2svgPromise || existing?.tex2svg) {
-        await existing.startup?.promise?.catch(() => undefined);
-        return existing;
-    }
-
-    if (!mathJaxReadyPromise) {
-        window.MathJax = buildMathJaxConfig(existing);
-        mathJaxReadyPromise = import("mathjax-full/es5/tex-svg.js")
-            .then(async () => {
-                const nextMathJax = window.MathJax ?? null;
-                await nextMathJax?.startup?.promise?.catch(() => undefined);
-                return nextMathJax;
-            })
-            .catch(() => null);
-    }
-
-    return mathJaxReadyPromise;
-}
-
-async function createMathMarkup(texSource: string, block: boolean) {
-    const mathJax = await loadMathJaxBrowser();
-    if (!mathJax) return null;
-
-    const renderedNode = mathJax.tex2svgPromise
-        ? await mathJax.tex2svgPromise(texSource, { display: block })
-        : mathJax.tex2svg?.(texSource, { display: block });
-
-    return renderedNode?.outerHTML ?? null;
+function createMathMarkup(latexSource: string, block: boolean) {
+    return katex.renderToString(latexSource, {
+        displayMode: block,
+        output: "htmlAndMathml",
+        throwOnError: false,
+        strict: "ignore",
+        trust: false,
+    });
 }
 
 export function renderMathMarkupAsync(input: string, options: RenderMathOptions = {}) {
@@ -206,12 +125,19 @@ export function renderMathMarkupAsync(input: string, options: RenderMathOptions 
         return cached;
     }
 
-    const texSource = resolveTexSource(normalizedInput);
-    if (!texSource) {
+    const latexSource = resolveLatexSource(normalizedInput);
+    if (!latexSource) {
         return Promise.resolve(null);
     }
 
-    const renderPromise = createMathMarkup(texSource, options.block ?? false).catch(() => null);
+    const renderPromise = Promise.resolve().then(() => {
+        try {
+            return createMathMarkup(latexSource, options.block ?? false);
+        } catch {
+            return null;
+        }
+    });
+
     renderCache.set(cacheKey, renderPromise);
     return renderPromise;
 }
