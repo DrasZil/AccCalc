@@ -9,6 +9,7 @@ import {
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import AppUpdatePrompt from "../../components/AppUpdatePrompt";
 import AppBrandMark from "../../components/AppBrandMark";
+import DonationPromptCard from "../../components/DonationPromptCard";
 import FeatureSearch from "../../components/FeatureSearch";
 import FloatingPromptDock from "../../components/FloatingPromptDock";
 import InstallPrompt from "../../components/InstallPrompt";
@@ -64,6 +65,7 @@ const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
 };
 
 const ROUTE_DRAFT_STORAGE_PREFIX = "accalc-route-draft";
+const SUPPORT_PROMPT_STORAGE_KEY = "accalc-support-prompt";
 
 function isPathActive(currentPath: string, itemPath: string) {
     if (itemPath === "/") return currentPath === "/";
@@ -99,6 +101,49 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
 
 function getDraftStorageKey(pathname: string) {
     return `${ROUTE_DRAFT_STORAGE_PREFIX}:${pathname}`;
+}
+
+function readSupportPromptPreference() {
+    if (typeof window === "undefined") {
+        return {
+            dismissedUntil: 0,
+            dismissedForever: false,
+        };
+    }
+
+    try {
+        const raw = window.localStorage.getItem(SUPPORT_PROMPT_STORAGE_KEY);
+        if (!raw) {
+            return {
+                dismissedUntil: 0,
+                dismissedForever: false,
+            };
+        }
+
+        const parsed = JSON.parse(raw) as {
+            dismissedUntil?: number;
+            dismissedForever?: boolean;
+        };
+
+        return {
+            dismissedUntil:
+                typeof parsed.dismissedUntil === "number" ? parsed.dismissedUntil : 0,
+            dismissedForever: parsed.dismissedForever ?? false,
+        };
+    } catch {
+        return {
+            dismissedUntil: 0,
+            dismissedForever: false,
+        };
+    }
+}
+
+function writeSupportPromptPreference(nextValue: {
+    dismissedUntil: number;
+    dismissedForever: boolean;
+}) {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(SUPPORT_PROMPT_STORAGE_KEY, JSON.stringify(nextValue));
 }
 
 function getNavLabel(route: { label: string; shortLabel?: string }) {
@@ -264,7 +309,7 @@ function SidebarContent({
                         </Link>
 
                         <p className="mt-1.5 max-w-xs text-[0.76rem] leading-5 app-sidebar-group-hint">
-                            Accounting, finance, and business tools with calmer offline-aware navigation.
+                            Solve, check, and learn across accounting, finance, business, and related coursework from one clearer workspace.
                         </p>
                     </div>
 
@@ -633,10 +678,12 @@ export default function AppLayout() {
     });
     const [bootVisible, setBootVisible] = useState<boolean>(() => settings.showOpeningAnimation);
     const [feedbackVisible, setFeedbackVisible] = useState<boolean>(false);
+    const [supportPromptVisible, setSupportPromptVisible] = useState<boolean>(false);
     const [sidebarResizeActive, setSidebarResizeActive] = useState<boolean>(false);
 
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
+    const noticeTimersRef = useRef<Record<string, number>>({});
     const previousOnlineRef = useRef<boolean>(network.online);
     const previousStandaloneRef = useRef<boolean>(install.isStandalone);
 
@@ -687,11 +734,31 @@ export default function AppLayout() {
     );
 
     function pushNotice(title: string, message: string, tone: Notice["tone"] = "info") {
-        const id = `${title}-${Date.now()}`;
-        setNotices((current) => [...current, { id, title, message, tone }].slice(-4));
-        window.setTimeout(() => {
-            setNotices((current) => current.filter((notice) => notice.id !== id));
-        }, 7000);
+        const existingId = `${title}:${message}`;
+
+        if (noticeTimersRef.current[existingId]) {
+            window.clearTimeout(noticeTimersRef.current[existingId]);
+        }
+
+        setNotices((current) => {
+            const withoutDuplicate = current.filter((notice) => notice.id !== existingId);
+            return [...withoutDuplicate, { id: existingId, title, message, tone }].slice(-4);
+        });
+
+        noticeTimersRef.current[existingId] = window.setTimeout(() => {
+            setNotices((current) => current.filter((notice) => notice.id !== existingId));
+            delete noticeTimersRef.current[existingId];
+        }, tone === "warning" ? 7800 : 5200);
+    }
+
+    function dismissSupportPrompt(mode: "later" | "forever") {
+        const nextValue = {
+            dismissedUntil: mode === "later" ? Date.now() + 1000 * 60 * 60 * 24 * 21 : 0,
+            dismissedForever: mode === "forever",
+        };
+
+        writeSupportPromptPreference(nextValue);
+        setSupportPromptVisible(false);
     }
 
     function closeTransientPanels() {
@@ -992,6 +1059,26 @@ export default function AppLayout() {
 
     useEffect(() => {
         if (typeof window === "undefined") return;
+        if (location.pathname.startsWith("/settings")) return;
+        if (feedbackVisible) return;
+
+        const preference = readSupportPromptPreference();
+        if (preference.dismissedForever) return;
+        if (preference.dismissedUntil > Date.now()) return;
+        if (activity.launches < 8) return;
+        if (activity.recent.length + activity.savedRecords.length < 12) return;
+
+        const timer = window.setTimeout(() => setSupportPromptVisible(true), 600);
+        return () => window.clearTimeout(timer);
+    }, [activity.launches, activity.recent.length, activity.savedRecords.length, feedbackVisible, location.pathname]);
+
+    useEffect(() => {
+        if (!location.pathname.startsWith("/settings")) return;
+        setSupportPromptVisible(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
 
         const handleError = (event: ErrorEvent) => {
             pushNotice(
@@ -1018,6 +1105,14 @@ export default function AppLayout() {
             window.removeEventListener("unhandledrejection", handleRejection);
         };
     }, []);
+
+    useEffect(
+        () => () => {
+            Object.values(noticeTimersRef.current).forEach((timer) => window.clearTimeout(timer));
+            noticeTimersRef.current = {};
+        },
+        []
+    );
 
     useEffect(() => {
         if (typeof window === "undefined" || !mainRef.current) return;
@@ -1123,13 +1218,21 @@ export default function AppLayout() {
             <LaunchScreen visible={settings.showOpeningAnimation && bootVisible} />
             <NoticeStack
                 notices={notices}
-                onDismiss={(id) =>
-                    setNotices((current) => current.filter((notice) => notice.id !== id))
-                }
+                onDismiss={(id) => {
+                    if (noticeTimersRef.current[id]) {
+                        window.clearTimeout(noticeTimersRef.current[id]);
+                        delete noticeTimersRef.current[id];
+                    }
+                    setNotices((current) => current.filter((notice) => notice.id !== id));
+                }}
             />
             <FloatingPromptDock hidden={promptDockHidden}>
                 <AppUpdatePrompt update={update} />
                 <InstallPrompt blocked={update.updateReady} />
+                <DonationPromptCard
+                    visible={supportPromptVisible}
+                    onDismiss={dismissSupportPrompt}
+                />
             </FloatingPromptDock>
             <FeedbackReminder visible={feedbackVisible} onClose={() => setFeedbackVisible(false)} />
 
@@ -1242,7 +1345,7 @@ export default function AppLayout() {
                                 </h2>
                                 <p className="app-clamp-1 mt-0.5 hidden text-[0.74rem] leading-5 app-helper xl:block">
                                     {currentMeta?.description ??
-                                        "Accounting, finance, and business tools with calmer utility-first navigation."}
+                                        "Solve, check, and learn across accounting, finance, business, and related coursework from one clearer workspace."}
                                 </p>
                             </div>
 

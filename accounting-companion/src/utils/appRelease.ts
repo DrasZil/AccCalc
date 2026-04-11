@@ -1,34 +1,35 @@
-export const APP_VERSION = "3.2.8";
-export const APP_RELEASE_DATE = "2026-04-08";
+export const APP_VERSION = "3.3.0";
+export const APP_RELEASE_DATE = "2026-04-11";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Guide text is cleaner in 3.2.8",
-        body: "Interpretation, assumptions, warnings, and step panels now render with a shared readable text style instead of drifting into inconsistent font, spacing, or overflow behavior.",
+        title: "Scan text is cleaner and safer",
+        body: "OCR cleanup now reconstructs spacing, punctuation, and currency more carefully while flagging uncertain numeric values instead of silently forcing risky corrections.",
     },
     {
-        title: "Plain text no longer looks like math by accident",
-        body: "Formula guidance now distinguishes actual formulas from normal explanatory sentences more safely, so words, peso values, and full lines do not get pushed through math-style rendering unnecessarily.",
+        title: "Scan routing is smarter",
+        body: "Scan & Check now ranks best-fit tools with reasons, supports stronger CVP and partnership detection, and falls back to Smart Solver only when the text stays ambiguous.",
     },
     {
-        title: "Wrapping is safer on smaller screens",
-        body: "Long guide lines, warnings, and mixed text-plus-symbol content now wrap inside their cards more reliably on mobile without clipping or awkward overflow.",
+        title: "Learn content is clearer across calculators",
+        body: "The old Guide language has been replaced with Learn-focused wording, formulas stay inside their cards more reliably, and explanatory sections read more like educational text instead of accidental math styling.",
     },
     {
-        title: "Shared educational panels are more consistent",
-        body: "Interpretation blocks, note cards, chart insight text, and formula-supporting panels now share tighter typography rules for font family, spacing, and line height.",
+        title: "CVP and partnership coverage expanded",
+        body: "AccCalc 3.3.0 adds a broader CVP Analysis page and a new Partnership Dissolution workflow while strengthening the existing CVP and partnership tool chain.",
     },
     {
-        title: "The patch stays low-risk",
-        body: "This update fixes the shared rendering path instead of touching calculator math or per-tool business logic, so outputs and workflows stay intact.",
+        title: "Notifications and support prompts are calmer",
+        body: "Global notices now deduplicate repeated events more reliably, and the optional donation prompt stays lightweight, dismissible, and separate from the main workflow.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.2.8: Fixed shared interpretation and guide typography so calculator helper text uses the app reading font and spacing consistently instead of drifting into math-like styling.",
-    "3.2.8: Tightened formula detection for shared explanatory content so full sentences with numbers, units, or symbols do not render as KaTeX unless they are actually formula-like.",
-    "3.2.8: Added shared reading-content styles for interpretation panels, note blocks, chart insight copy, and formula-supporting sections to improve wrapping, spacing, and readability.",
-    "3.2.8: Improved mobile handling for long guide lines, warning text, and mixed symbol content so they wrap inside cards instead of overflowing or clipping.",
-    "3.2.8: Added a reusable guide-text formatter that inserts safer spaces for merged labels, operator spacing, and common calculator-generated wording.",
-    "3.2.8: Kept the patch focused on shared rendering and styling so calculator logic, SmartSolver, scan, and persistence behavior are unchanged.",
+    "3.3.0: Upgraded OCR cleanup to recover spacing, punctuation, operator separation, and currency formatting more safely while exposing uncertain numeric values for review.",
+    "3.3.0: Added ranked scan-to-tool recommendations with reason text so Scan & Check can suggest the best-fit calculator or a short fallback list instead of a weak single guess.",
+    "3.3.0: Reworked shared formula and learning rendering so formulas wrap more safely, plain explanatory text stays readable, and Learn replaces the older Guide label across calculator flows.",
+    "3.3.0: Added a broader CVP Analysis page covering contribution margin, break-even, target profit, margin of safety, operating leverage, and quick sensitivity checks.",
+    "3.3.0: Added Partnership Dissolution support with realization gain or loss, liquidation cash, and deficiency-aware partner settlement guidance.",
+    "3.3.0: Rewrote the About page and refreshed the home messaging so AccCalc more clearly presents itself as a tool for solving, checking, and learning.",
+    "3.3.0: Hardened global notices to reduce duplicate toasts and added a respectful optional support prompt that routes users to the donation section without interrupting work.",
 ];

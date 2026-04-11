@@ -123,6 +123,8 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/unit-economics",
     "/entrepreneurship/sales-forecast-planner",
     "/entrepreneurship/cash-runway-planner",
+    "/business/cvp-analysis",
+    "/accounting/partnership-dissolution",
 ]);
 
 const SUBTOPIC_ORDER: Partial<Record<AppNavGroupTitle, string[]>> = {
@@ -422,6 +424,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/accounting/partnership-admission-bonus", "Partnership Admission Bonus", "Accounting", "Incoming partner capital credit under the bonus method.", ["bonus method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "bonus", "capital"]),
     feature("/accounting/partnership-admission-goodwill", "Partnership Admission Goodwill", "Accounting", "Implied capital and goodwill under the goodwill method.", ["goodwill method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "goodwill", "capital"]),
     feature("/accounting/partnership-retirement-bonus", "Partnership Retirement Bonus", "Accounting", "Review a retiring partner settlement under the bonus method.", ["partner retirement", "withdrawal bonus", "retiring partner settlement"], ["partnership", "retirement", "equity"], undefined, true, ["partnership", "retirement", "withdrawal", "bonus", "settlement"]),
+    feature("/accounting/partnership-dissolution", "Partnership Dissolution", "Accounting", "Review realization, liquidation cash, and deficiency handling during partnership dissolution.", ["partnership liquidation", "realization and liquidation", "partner deficiency"], ["partnership", "dissolution", "liquidation"], "Dissolution", true, ["partnership", "dissolution", "liquidation", "realization", "deficiency"]),
     feature("/accounting/partners-capital-statement", "Statement of Partners' Capital", "Accounting", "Roll forward capital balances for two or three partners.", ["partners capital statement", "capital rollforward", "statement of partners capital"], ["partnership", "equity", "capital"], undefined, true, ["partnership", "capital", "rollforward", "equity", "drawings"]),
     feature("/accounting/philippine-vat", "Philippine VAT", "Accounting", "Output VAT, input VAT, and net VAT at 12%.", ["vat payable", "input vat", "output vat"], ["tax", "philippines"]),
     feature("/accounting/current-ratio", "Current Ratio", "Accounting", "Current ratio plus working capital with solve-for support.", ["working capital", "liquidity ratio"], ["ratios", "liquidity"], undefined, true, ["current ratio", "working capital", "solve for current liabilities"]),
@@ -480,6 +483,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
     feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
     feature("/business/sales-mix-break-even", "Sales Mix Break-even", "Managerial & Cost", "Break-even analysis for multi-product sales mixes.", ["multi product break even", "sales mix cvp", "composite unit break even"], ["cvp", "sales mix", "break-even"], undefined, true, ["sales mix", "composite unit", "weighted contribution margin"]),
+    feature("/business/cvp-analysis", "CVP Analysis", "Managerial & Cost", "Study contribution margin, break-even, target profit, margin of safety, operating leverage, and quick sensitivity in one page.", ["cvp dashboard", "cost volume profit analysis", "managerial cvp"], ["cvp", "analysis", "decision"], "CVP Analysis", true, ["cvp", "break-even", "target profit", "margin of safety", "operating leverage"]),
     feature("/business/cash-collections-schedule", "Cash Collections Schedule", "Managerial & Cost", "Build a month-based receipts schedule from sales and collection lag patterns.", ["schedule of cash collections", "cash receipts schedule"], ["budgeting", "collections", "cash"], undefined, true, ["cash collections", "collections schedule", "cash receipts"]),
     feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash"]),

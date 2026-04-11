@@ -127,7 +127,7 @@ export default function FormulaCard({
                                 ) : (
                                     <>
                                         <p className="app-label mb-3">Equation</p>
-                                        <div className="app-formula-display text-left">
+                                        <div className="app-formula-display app-formula-shell text-left">
                                             {polishNode(formula)}
                                         </div>
                                     </>
@@ -278,9 +278,9 @@ export default function FormulaCard({
         <SectionCard className="overflow-hidden">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <p className="app-section-kicker text-[0.68rem]">Formula guide</p>
+                    <p className="app-section-kicker text-[0.68rem]">Learn</p>
                     <p className="app-body-md mt-2 text-sm">
-                        Keep the calculator in front. Open the deeper method only when needed.
+                        Keep the calculator in front. Open the formula, reasoning, and cautions only when you need deeper study support.
                     </p>
                 </div>
                 <div className="hidden flex-wrap gap-2 lg:flex">
@@ -325,9 +325,9 @@ export default function FormulaCard({
                     <div className="space-y-4">
                         {sections.find((section) => section.key === "interpretation")?.content ?? (
                             <div className="app-subtle-surface rounded-[1.15rem] px-5 py-4">
-                                <p className="app-label mb-2">Reading</p>
+                                <p className="app-label mb-2">Learning support</p>
                                 <p className="app-body-md text-sm">
-                                    Open the supporting sections below for variable meaning and cautions.
+                                    Open the supporting sections below for variable meaning, assumptions, and cautions.
                                 </p>
                             </div>
                         )}
@@ -343,7 +343,7 @@ export default function FormulaCard({
                         <DisclosurePanel
                             key={section.key}
                             title={section.label}
-                            summary={`Open ${section.shortLabel.toLowerCase()} when you need more depth.`}
+                            summary={`Open ${section.shortLabel.toLowerCase()} when you need more depth for checking, studying, or interpretation.`}
                         >
                             {section.content}
                         </DisclosurePanel>

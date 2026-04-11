@@ -51,10 +51,16 @@ export function useLocalNotifications({
 
         if (permission !== "granted") return;
 
-        timerRef.current = window.setTimeout(() => {
-            sendReminderNotification(category, tone);
-            writeReminderSchedule(buildNextSchedule(category, tone, frequency));
-        }, Math.max(schedule.nextAt - Date.now(), 1000));
+        const scheduleNext = (nextScheduleAt: number) => {
+            timerRef.current = window.setTimeout(() => {
+                sendReminderNotification(category, tone);
+                const nextSchedule = buildNextSchedule(category, tone, frequency);
+                writeReminderSchedule(nextSchedule);
+                scheduleNext(Math.max(nextSchedule.nextAt - Date.now(), 1000));
+            }, nextScheduleAt);
+        };
+
+        scheduleNext(Math.max(schedule.nextAt - Date.now(), 1000));
 
         return () => {
             if (timerRef.current !== null) {

@@ -98,6 +98,9 @@ const PartnershipAdmissionGoodwillPage = lazy(
 const PartnershipRetirementBonusPage = lazy(
     () => import("./features/accounting/PartnershipRetirementBonusPage")
 );
+const PartnershipDissolutionPage = lazy(
+    () => import("./features/accounting/PartnershipDissolutionPage")
+);
 const PartnersCapitalStatementPage = lazy(
     () => import("./features/accounting/PartnersCapitalStatementPage")
 );
@@ -195,6 +198,7 @@ const OperatingLeveragePage = lazy(
 const SalesMixBreakEvenPage = lazy(
     () => import("./features/business/SalesMixBreakEvenPage")
 );
+const CvpAnalysisPage = lazy(() => import("./features/business/CvpAnalysisPage"));
 const CashCollectionsSchedulePage = lazy(
     () => import("./features/business/CashCollectionsSchedulePage")
 );
@@ -375,6 +379,7 @@ export default function App() {
                         <Route path="business/net-profit-margin" element={renderRoute("/business/net-profit-margin", <NetProfitMarginPage />)} />
                         <Route path="business/operating-leverage" element={renderRoute("/business/operating-leverage", <OperatingLeveragePage />)} />
                         <Route path="business/sales-mix-break-even" element={renderRoute("/business/sales-mix-break-even", <SalesMixBreakEvenPage />)} />
+                        <Route path="business/cvp-analysis" element={renderRoute("/business/cvp-analysis", <CvpAnalysisPage />)} />
                         <Route path="business/cash-collections-schedule" element={renderRoute("/business/cash-collections-schedule", <CashCollectionsSchedulePage />)} />
                         <Route path="business/cash-disbursements-schedule" element={renderRoute("/business/cash-disbursements-schedule", <CashDisbursementsSchedulePage />)} />
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
@@ -416,6 +421,7 @@ export default function App() {
                         <Route path="accounting/partnership-admission-bonus" element={renderRoute("/accounting/partnership-admission-bonus", <PartnershipAdmissionBonusPage />)} />
                         <Route path="accounting/partnership-admission-goodwill" element={renderRoute("/accounting/partnership-admission-goodwill", <PartnershipAdmissionGoodwillPage />)} />
                         <Route path="accounting/partnership-retirement-bonus" element={renderRoute("/accounting/partnership-retirement-bonus", <PartnershipRetirementBonusPage />)} />
+                        <Route path="accounting/partnership-dissolution" element={renderRoute("/accounting/partnership-dissolution", <PartnershipDissolutionPage />)} />
                         <Route path="accounting/partners-capital-statement" element={renderRoute("/accounting/partners-capital-statement", <PartnersCapitalStatementPage />)} />
                         <Route path="accounting/philippine-vat" element={renderRoute("/accounting/philippine-vat", <PhilippineVATPage />)} />
                         <Route path="accounting/cost-of-goods-manufactured" element={renderRoute("/accounting/cost-of-goods-manufactured", <CostOfGoodsManufacturedPage />)} />

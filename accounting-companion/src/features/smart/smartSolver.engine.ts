@@ -1721,6 +1721,36 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "cvp-analysis",
+        name: "CVP Analysis",
+        route: "/business/cvp-analysis",
+        description:
+        "Best when the user wants a broader CVP read that combines contribution margin, break-even, target profit, margin of safety, operating leverage, and sensitivity cues in one page.",
+        required: [],
+        optional: [
+            "fixedCosts",
+            "sellingPricePerUnit",
+            "variableCostPerUnit",
+            "targetProfit",
+            "actualUnits",
+        ],
+        aliases: [
+        "cost volume profit analysis",
+        "cvp analysis",
+        "cvp dashboard",
+        "managerial cvp",
+        ],
+        keywords: [
+        /\bcvp\b/i,
+        /cost[- ]volume[- ]profit/i,
+        /contribution margin/i,
+        /break[- ]even/i,
+        /target profit/i,
+        /margin of safety/i,
+        /operating leverage/i,
+        ],
+    },
+    {
         id: "cash-collections-schedule",
         name: "Cash Collections Schedule",
         route: "/business/cash-collections-schedule",
@@ -2205,6 +2235,29 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /partner withdrawal/i,
             /settlement paid/i,
             /bonus on retirement/i,
+        ],
+    },
+    {
+        id: "partnership-dissolution",
+        name: "Partnership Dissolution",
+        route: "/accounting/partnership-dissolution",
+        description:
+            "Best when the problem involves realization, liquidation, deficiency handling, or final partner cash distribution during dissolution.",
+        required: [],
+        aliases: [
+            "partnership dissolution",
+            "partnership liquidation",
+            "realization and liquidation",
+            "partner deficiency",
+        ],
+        keywords: [
+            /partnership dissolution/i,
+            /partnership liquidation/i,
+            /realization and liquidation/i,
+            /gain or loss on realization/i,
+            /capital deficiency/i,
+            /liquidation/i,
+            /realization/i,
         ],
     },
     {

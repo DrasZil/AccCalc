@@ -656,7 +656,9 @@ export default function SettingsContent({
                 badge="Support"
                 compact={compact}
             >
-                <DonationSupportCard />
+                <div id="support-accalc">
+                    <DonationSupportCard />
+                </div>
             </DisclosurePanel>
 
             <DisclosurePanel

@@ -5,6 +5,8 @@ type ScanResultOverviewProps = {
     confidenceLabel: string;
     confidenceSummary?: string;
     suggestedWorkspaceLabel: string;
+    routeReason?: string;
+    alternatives?: Array<{ label: string; reason: string; confidence: string }>;
     quickFacts: Array<{ label: string; value: string }>;
     flags: string[];
     primaryActionLabel: string;
@@ -19,6 +21,8 @@ export default function ScanResultOverview({
     confidenceLabel,
     confidenceSummary,
     suggestedWorkspaceLabel,
+    routeReason,
+    alternatives = [],
     quickFacts,
     flags,
     primaryActionLabel,
@@ -52,6 +56,11 @@ export default function ScanResultOverview({
                     <p className="app-wrap-anywhere mt-2 text-sm font-semibold text-[color:var(--app-text)]">
                         {suggestedWorkspaceLabel}
                     </p>
+                    {routeReason ? (
+                        <p className="app-helper app-wrap-anywhere mt-2 text-xs leading-5">
+                            {routeReason}
+                        </p>
+                    ) : null}
                 </div>
                 <div className="app-subtle-surface min-w-0 rounded-[1rem] px-4 py-3">
                     <p className="app-metric-label">Quick summary</p>
@@ -67,6 +76,24 @@ export default function ScanResultOverview({
                     </div>
                 </div>
             </div>
+
+            {alternatives.length > 0 ? (
+                <div className="app-subtle-surface mt-4 rounded-[1rem] px-4 py-3">
+                    <p className="app-metric-label">Alternative matches</p>
+                    <div className="mt-2 space-y-2">
+                        {alternatives.slice(0, 3).map((alternative) => (
+                            <div key={`${alternative.label}-${alternative.reason}`}>
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {alternative.label}
+                                </p>
+                                <p className="app-helper app-wrap-anywhere mt-1 text-xs leading-5">
+                                    {alternative.confidence}: {alternative.reason}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
 
             {flags.length > 0 ? (
                 <div className="app-tone-warning mt-4 rounded-[1rem] px-4 py-3">

@@ -1,5 +1,5 @@
-const CURRENCY_SYMBOLS = new Set(["$", "₱", "€", "£", "¥"]);
-const SOFT_BREAK_AFTER = new Set([",", "/", ":", "·"]);
+const CURRENCY_SYMBOLS = new Set(["$", "\u20b1", "\u20ac", "\u00a3", "\u00a5"]);
+const SOFT_BREAK_AFTER = new Set([",", "/", ":", "\u00b7"]);
 function groupPlainNumberToken(token) {
     if (token.includes(","))
         return token;

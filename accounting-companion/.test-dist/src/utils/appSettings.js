@@ -20,6 +20,11 @@ export const DEFAULT_APP_SETTINGS = {
     showOpeningAnimation: true,
     showNewFeatureIndicators: true,
     saveOfflineHistory: true,
+    scanRetentionEnabled: true,
+    reminderNotificationsEnabled: false,
+    reminderCategory: "study-motivation",
+    reminderTone: "soft",
+    reminderFrequency: "rare",
     themePreference: "system",
 };
 cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
@@ -59,6 +64,28 @@ function sanitizeSettings(value) {
         showOpeningAnimation: value?.showOpeningAnimation ?? DEFAULT_APP_SETTINGS.showOpeningAnimation,
         showNewFeatureIndicators: value?.showNewFeatureIndicators ?? DEFAULT_APP_SETTINGS.showNewFeatureIndicators,
         saveOfflineHistory: value?.saveOfflineHistory ?? DEFAULT_APP_SETTINGS.saveOfflineHistory,
+        scanRetentionEnabled: value?.scanRetentionEnabled ?? DEFAULT_APP_SETTINGS.scanRetentionEnabled,
+        reminderNotificationsEnabled: value?.reminderNotificationsEnabled ??
+            DEFAULT_APP_SETTINGS.reminderNotificationsEnabled,
+        reminderCategory: value?.reminderCategory === "struggle-motivation" ||
+            value?.reminderCategory === "comfort" ||
+            value?.reminderCategory === "focus" ||
+            value?.reminderCategory === "saved-work" ||
+            value?.reminderCategory === "study-motivation"
+            ? value.reminderCategory
+            : DEFAULT_APP_SETTINGS.reminderCategory,
+        reminderTone: value?.reminderTone === "focused" ||
+            value?.reminderTone === "motivational" ||
+            value?.reminderTone === "comforting" ||
+            value?.reminderTone === "practical" ||
+            value?.reminderTone === "soft"
+            ? value.reminderTone
+            : DEFAULT_APP_SETTINGS.reminderTone,
+        reminderFrequency: value?.reminderFrequency === "light" ||
+            value?.reminderFrequency === "moderate" ||
+            value?.reminderFrequency === "rare"
+            ? value.reminderFrequency
+            : DEFAULT_APP_SETTINGS.reminderFrequency,
         themePreference: sanitizeThemePreference(value?.themePreference),
     };
 }

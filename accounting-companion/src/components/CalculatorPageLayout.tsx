@@ -26,7 +26,7 @@ type CalculatorPageLayoutProps = {
     headerMeta?: ReactNode;
 };
 
-type SectionKey = "inputs" | "results" | "guide";
+type SectionKey = "inputs" | "results" | "learn";
 
 function LayoutSection({
     label,
@@ -139,9 +139,9 @@ export default function CalculatorPageLayout({
                     : null,
                 explanationSection
                     ? {
-                          key: "guide" as const,
-                          label: "Interpretation",
-                          shortLabel: "Guide",
+                          key: "learn" as const,
+                          label: "Learn",
+                          shortLabel: "Learn",
                           content: explanationSection,
                       }
                     : null,
@@ -276,8 +276,8 @@ export default function CalculatorPageLayout({
                                 <div className="space-y-[var(--app-page-gap-lg)]">
                                     {explanationSection ? (
                                         <DisclosurePanel
-                                            title="Formula and guide"
-                                            summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                            title="Learn this method"
+                                            summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
                                             badge="Details"
                                         >
                                             {explanationSection}
@@ -293,8 +293,8 @@ export default function CalculatorPageLayout({
                                     </LayoutSection>
                                     {explanationSection ? (
                                         <DisclosurePanel
-                                            title="Formula and guide"
-                                            summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                            title="Learn this method"
+                                            summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
                                             badge="Details"
                                         >
                                             {explanationSection}
@@ -316,8 +316,8 @@ export default function CalculatorPageLayout({
                         </LayoutSection>
                         {explanationSection ? (
                             <DisclosurePanel
-                                title="Formula and guide"
-                                summary="Open the method, meaning, assumptions, and cautions only when you need them."
+                                title="Learn this method"
+                                summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
                                 badge="Details"
                             >
                                 {explanationSection}

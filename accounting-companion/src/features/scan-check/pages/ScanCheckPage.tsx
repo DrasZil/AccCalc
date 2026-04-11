@@ -56,12 +56,16 @@ function getRouteLabel(routeHint?: string) {
             return "Process Costing Workspace";
         case "/accounting/department-transferred-in-process-costing":
             return "Department 2 Process Costing";
+        case "/business/cvp-analysis":
+            return "CVP Analysis";
         case "/basic":
             return "Basic Calculator";
         case "/economics/market-equilibrium":
             return "Market Equilibrium";
         case "/business/break-even":
             return "Break-even";
+        case "/accounting/partnership-dissolution":
+            return "Partnership Dissolution";
         default:
             return "Smart Solver";
     }
@@ -170,6 +174,7 @@ export default function ScanCheckPage() {
         return Array.from(flags);
     }, [queue.items]);
     const primaryRouteHint = accountingSession?.routeHint ?? primaryItem?.parsedResult?.routeHint ?? "/smart/solver";
+    const scanRecommendations = primaryItem?.parsedResult?.recommendations ?? [];
     const primaryActionLabel = accountingSession
         ? "Open suggested workspace"
         : primaryItem?.parsedResult?.suggestedIntent === "Check my solution"
@@ -639,6 +644,18 @@ export default function ScanCheckPage() {
                                                 : "Confidence is still being calculated."
                                         }
                                         suggestedWorkspaceLabel={getRouteLabel(primaryRouteHint)}
+                                        routeReason={
+                                            accountingSession
+                                                ? "The selected pages behave like one accounting worksheet session, so AccCalc is keeping the workflow together."
+                                                : primaryItem?.parsedResult?.routeReason
+                                        }
+                                        alternatives={scanRecommendations
+                                            .filter((entry) => entry.path !== primaryRouteHint)
+                                            .map((entry) => ({
+                                                label: entry.label,
+                                                reason: entry.reason,
+                                                confidence: entry.confidence,
+                                            }))}
                                         quickFacts={buildQuickFacts(queue.items, primaryItem, accountingPageCount)}
                                         flags={reviewFlags}
                                         primaryActionLabel={primaryActionLabel}

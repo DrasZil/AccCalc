@@ -5,25 +5,24 @@ type CleanupResult = {
 };
 
 const COMMON_REPLACEMENTS: Array<[RegExp, string]> = [
-    [/ÃƒÂ·/g, "/"],
-    [/Ãƒâ€”/g, "x"],
-    [/[â€â€‘â€’â€“â€”]/g, "-"],
+    [/ÃƒÆ’Ã‚Â·/g, "/"],
+    [/ÃƒÆ’Ã¢â‚¬â€/g, "×"],
+    [/[Ã¢â‚¬ÂÃ¢â‚¬â€˜Ã¢â‚¬â€™Ã¢â‚¬â€œÃ¢â‚¬â€]/g, "-"],
     [/\bphp\b/gi, "PHP"],
     [/\bpeso(?:s)?\b/gi, "PHP"],
-    [/[â‚±]\s*/g, "PHP "],
+    [/[Ã¢â€šÂ±₱]\s*/g, "PHP "],
+    [/â€¢/g, "•"],
 ];
+
+const LIST_LINE_PATTERN = /^((?:\d+|[A-Za-z])(?:[.)]|-))\s*/;
 
 function isLikelyNumberToken(token: string) {
     return /\d/.test(token) || /(?:PHP|[%$])/i.test(token);
 }
 
-function isValidThousandsGrouping(value: string) {
-    return /^\d{1,3}(,\d{3})+$/.test(value);
-}
-
 function normalizeGroupedInteger(value: string) {
     if (!value.includes(",")) return value;
-    if (isValidThousandsGrouping(value)) return value;
+    if (/^\d{1,3}(,\d{3})+$/.test(value)) return value;
     return value.replace(/,/g, "");
 }
 
@@ -34,16 +33,9 @@ function normalizeDecimalStructure(
 ) {
     if (!/[.,]/.test(value)) return value;
 
-    const trailingComma = value.match(/^-?\d+,$/);
-    if (trailingComma) {
-        flags.add(`Removed a trailing comma from ${trailingComma[0]}.`);
-        return trailingComma[0].slice(0, -1);
-    }
-
-    const trailingPeriod = value.match(/^-?\d+\.$/);
-    if (trailingPeriod) {
-        flags.add(`Removed a trailing period from ${trailingPeriod[0]}.`);
-        return trailingPeriod[0].slice(0, -1);
+    if (/^-?\d+[.,]$/.test(value)) {
+        flags.add(`Removed a trailing separator from ${value}.`);
+        return value.slice(0, -1);
     }
 
     if (value.includes(".") && value.includes(",")) {
@@ -52,13 +44,19 @@ function normalizeDecimalStructure(
     }
 
     if (value.includes(",")) {
-        const segments = value.split(",");
-        if (segments.length === 2 && /^\d{1,4}$/.test(segments[0]) && /^\d{1,2}$/.test(segments[1])) {
-            if (confidence >= 82) {
-                flags.add(`Interpreted ${value} as a decimal value.`);
-                return `${segments[0]}.${segments[1]}`;
-            }
-            flags.add(`Kept ${value} as raw because the comma may be a decimal or grouping separator.`);
+        const pieces = value.split(",");
+        const looksDecimal =
+            pieces.length === 2 &&
+            /^\d{1,4}$/.test(pieces[0]) &&
+            /^\d{1,2}$/.test(pieces[1]);
+
+        if (looksDecimal && confidence >= 84) {
+            flags.add(`Interpreted ${value} as a decimal value.`);
+            return `${pieces[0]}.${pieces[1]}`;
+        }
+
+        if (looksDecimal && confidence < 84) {
+            flags.add(`Kept ${value} close to raw because the comma could be decimal or thousands grouping.`);
             return value;
         }
 
@@ -68,6 +66,7 @@ function normalizeDecimalStructure(
     const pieces = value.split(".");
     if (pieces.length > 2) {
         const decimalPart = pieces.pop() ?? "";
+        flags.add(`Collapsed repeated decimal separators in ${value}.`);
         return `${pieces.join("")}.${decimalPart}`;
     }
 
@@ -81,6 +80,7 @@ function normalizeNumericToken(
 ) {
     const original = token;
     let next = token;
+
     const prefixMatch = next.match(/^(PHP|[$])\s*/i);
     const prefix = prefixMatch?.[0] ?? "";
     if (prefix) {
@@ -101,48 +101,42 @@ function normalizeNumericToken(
             .replace(/(?<=\d)B(?=\d|[.,%])/g, "8")
             .replace(/(?<=\d)Z(?=\d|[.,%])/g, "2");
 
-        if (confidence >= 76) {
-            next = next
-                .replace(/(?<=\d)[Oo](?=$|[^\w])/g, "0")
-                .replace(/(?<=\d)[Il|](?=$|[^\w])/g, "1");
-        } else if (/[OoIl|SBZ]/.test(next)) {
-            flags.add(`Kept ${original} close to raw because letters and digits may be mixed.`);
+        if (confidence < 70 && /[OoIl|SBZ]/.test(next)) {
+            flags.add(`Kept ${original} close to raw because letters and digits may still be mixed.`);
         }
     }
 
     next = next
         .replace(/[,:;]{2,}/g, ",")
-        .replace(/(?<=\d)\s+(?=[.,]\d)/g, "")
-        .replace(/\s+/g, "");
+        .replace(/\s+/g, "")
+        .replace(/(?<=\d)-(?=\d)/g, " - ");
 
     next = normalizeDecimalStructure(next, confidence, flags);
 
     const normalizedPrefix = prefix ? "PHP " : "";
-    const normalizedSuffix = suffix ? (suffix.startsWith("%") ? "%" : ` ${suffix}`) : "";
+    const normalizedSuffix = suffix ? (suffix === "%" ? "%" : ` ${suffix}`) : "";
     const result = `${normalizedPrefix}${next}${normalizedSuffix}`.trim();
 
     if (result !== original && confidence < 62 && /\d/.test(result)) {
-        flags.add(`Numeric cleanup adjusted ${original}. Review the value if it is important.`);
+        flags.add(`Numeric cleanup adjusted ${original}. Review it against the raw OCR text if the exact value matters.`);
     }
 
     return result;
 }
 
-function normalizeListLine(line: string) {
-    return line
-        .replace(/^(\d+)\s*[,)]\s+/g, "$1. ")
-        .replace(/^([A-Za-z])\s*[,)]\s+/g, "$1. ");
-}
-
 function normalizeLineSpacing(line: string) {
     return line
         .replace(/[^\S\r\n]+/g, " ")
+        .replace(/([A-Za-z])(?=PHP\b)/g, "$1 ")
+        .replace(/(?<=\d)(?=PHP\b)/g, " ")
+        .replace(/(?<=[A-Za-z])(?=\d{2,}\b)/g, " ")
+        .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ")
         .replace(/\s*([:;])\s*/g, "$1 ")
-        .replace(/\s*([=+\-x/])\s*/g, " $1 ")
+        .replace(/\s*([=+×÷*/])\s*/g, " $1 ")
+        .replace(/\s*-\s*(?=\d)/g, " - ")
         .replace(/\(\s+/g, "(")
         .replace(/\s+\)/g, ")")
         .replace(/\s*%\b/g, "%")
-        .replace(/(?<=\d)\s*(units?|days?|years?|months?|hours?)\b/gi, " $1")
         .replace(/\s{2,}/g, " ")
         .trim();
 }
@@ -152,11 +146,16 @@ function shouldDropLine(line: string) {
 }
 
 function cleanLine(line: string, confidence: number, flags: Set<string>) {
-    let next = normalizeListLine(line);
+    let next = line;
 
     for (const [pattern, replacement] of COMMON_REPLACEMENTS) {
         next = next.replace(pattern, replacement);
     }
+
+    next = next.replace(LIST_LINE_PATTERN, (_, marker: string) => {
+        const normalizedMarker = marker.endsWith(")") ? `${marker[0]}.` : marker;
+        return `${normalizedMarker} `;
+    });
 
     next = normalizeLineSpacing(next);
 
@@ -169,30 +168,34 @@ function cleanLine(line: string, confidence: number, flags: Set<string>) {
         .join(" ")
         .replace(/\bPHP\s+PHP\b/g, "PHP")
         .replace(/\s{2,}/g, " ")
-        .replace(/(?<!\d),(?!\d)/g, ",")
         .replace(/\brequired\b:/i, "Required:")
         .replace(/\bsolution\b:/i, "Solution:")
-        .replace(/\bending work in process\b/gi, "Ending work in process")
         .trim();
 
     return shouldDropLine(next) ? "" : next;
 }
 
-function joinBrokenLines(lines: string[]) {
+function shouldJoinLines(previous: string, next: string) {
+    if (!previous || !next) return false;
+    if (/[.:?]$/.test(previous)) return false;
+    if (/^•|^\d+\.|^[A-Za-z]\./.test(next)) return false;
+    if (/^[a-z(]/.test(next)) return true;
+    if (/^[A-Z][a-z]/.test(next) && previous.length < 70) return true;
+    return false;
+}
+
+function rebuildParagraphs(lines: string[]) {
     const joined: string[] = [];
 
     lines.forEach((line) => {
         if (!line) return;
+
         const previous = joined[joined.length - 1];
-        if (
-            previous &&
-            !/[.:?)]$/.test(previous) &&
-            /^[a-z(]/.test(line) &&
-            previous.length < 90
-        ) {
+        if (previous && shouldJoinLines(previous, line)) {
             joined[joined.length - 1] = `${previous} ${line}`;
             return;
         }
+
         joined.push(line);
     });
 
@@ -202,6 +205,7 @@ function joinBrokenLines(lines: string[]) {
 export function cleanupMathLikeText(input: string, confidence = 70): CleanupResult {
     const cleanupNotes = new Set<string>();
     const flaggedValues = new Set<string>();
+
     const normalizedLines = input
         .replace(/\r/g, "")
         .replace(/\t/g, " ")
@@ -209,25 +213,32 @@ export function cleanupMathLikeText(input: string, confidence = 70): CleanupResu
         .map((line) => cleanLine(line, confidence, flaggedValues))
         .filter(Boolean);
 
-    const joinedLines = joinBrokenLines(normalizedLines);
-    const cleanedText = joinedLines
+    const rebuiltLines = rebuildParagraphs(normalizedLines);
+    const cleanedText = rebuiltLines
         .join("\n")
         .replace(/\n{3,}/g, "\n\n")
         .replace(/[ \t]+/g, " ")
         .trim();
 
-    cleanupNotes.add("Cleaned obvious OCR spacing and punctuation for easier review.");
+    cleanupNotes.add(
+        "Cleaned obvious OCR spacing, punctuation, and line merges so the scan reads more like digital text."
+    );
 
     if (/\bPHP\s+\d/.test(cleanedText) || /%/.test(cleanedText)) {
-        cleanupNotes.add("Normalized accounting-style currency, percentages, and numeric spacing.");
+        cleanupNotes.add(
+            "Normalized currency, percentages, and operator spacing without forcing uncertain values into one interpretation."
+        );
     }
+
     if (flaggedValues.size > 0) {
-        cleanupNotes.add("Preserved some uncertain numeric text close to the raw OCR output.");
+        cleanupNotes.add(
+            "Some numbers were kept close to the raw OCR output because commas, decimals, or mixed letter-digit shapes were uncertain."
+        );
     }
 
     return {
         cleanedText,
         cleanupNotes: Array.from(cleanupNotes),
-        flaggedValues: Array.from(flaggedValues).slice(0, 8),
+        flaggedValues: Array.from(flaggedValues).slice(0, 10),
     };
 }

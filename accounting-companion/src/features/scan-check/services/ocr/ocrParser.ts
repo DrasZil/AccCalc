@@ -6,6 +6,7 @@ import {
     extractAccountingFields,
     normalizeAccountingWorksheetText,
 } from "../accounting/accountingFieldExtractor";
+import { recommendScanRoutes } from "./ocrRouting";
 
 function extractUnits(text: string) {
     const matches =
@@ -55,34 +56,6 @@ function detectLikelyIssues(text: string, flaggedValues: string[]) {
     return issues;
 }
 
-function getRouteHint(
-    kind: ParsedScanResult["kind"],
-    cleanedText: string,
-    accountingPageType?: ScanPageType
-) {
-    if (kind === "accounting-worksheet") {
-        return accountingPageType === "department-2-worksheet"
-            ? "/accounting/department-transferred-in-process-costing"
-            : "/accounting/process-costing-workspace";
-    }
-
-    if (kind === "equation") return "/basic";
-    if (kind === "word-problem" || kind === "worked-solution" || kind === "answer-check") {
-        return "/smart/solver";
-    }
-    if (kind === "textbook-page" || kind === "notes-reference") {
-        if (/elasticity|equilibrium|demand|supply/i.test(cleanedText)) {
-            return "/economics/market-equilibrium";
-        }
-        if (/margin|break-even|contribution/i.test(cleanedText)) {
-            return "/business/break-even";
-        }
-        return "/smart/solver";
-    }
-
-    return "/smart/solver";
-}
-
 export function parseOcrText(text: string, ocrConfidence: number): ParsedScanResult {
     const cleanup = cleanupMathLikeText(text, ocrConfidence);
     const cleanedText = cleanup.cleanedText;
@@ -98,6 +71,12 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
     const extractedValues = extractValues(cleanedText);
     const detectedUnits = extractUnits(cleanedText);
     const likelyIssues = detectLikelyIssues(cleanedText, cleanup.flaggedValues);
+    const recommendations = recommendScanRoutes(
+        isAccountingWorksheet ? normalizedAccountingText : cleanedText,
+        kind,
+        accountingPageType
+    );
+    const primaryRecommendation = recommendations[0];
     const parseConfidence = Math.max(
         25,
         Math.min(
@@ -113,7 +92,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         kind === "accounting-worksheet"
             ? "Check my solution"
             : kind === "equation"
-              ? "Extract equation"
+              ? "Open suggested tool"
               : kind === "worked-solution"
                 ? "Check my solution"
                 : kind === "answer-check"
@@ -126,7 +105,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
                         ? "Review extracted values"
                         : "Send to SmartSolver";
 
-    const routeHint = getRouteHint(kind, cleanedText, accountingPageType);
+    const routeHint = primaryRecommendation?.path;
 
     const notes = [
         kind === "accounting-worksheet"
@@ -134,13 +113,16 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
             : kind === "worked-solution"
               ? "This looks like worked steps, so likely-mistake checks are more important than immediate solving."
               : kind === "textbook-page"
-                ? "This looks like a textbook or reference page, so AccCalc is routing toward the most likely related tool."
+                ? "This looks like a textbook or reference page, so AccCalc is ranking the most likely related tools instead of forcing one weak guess."
                 : kind === "notes-reference"
                   ? "This looks like notes or a formula reference, so extract the key values before solving."
                   : "Review extracted values before routing into a calculator.",
         detectedUnits.length > 0
             ? `Detected units: ${detectedUnits.join(", ")}.`
             : "No clear units detected from OCR.",
+        primaryRecommendation
+            ? `Best-fit route: ${primaryRecommendation.label}. ${primaryRecommendation.reason}`
+            : "No confident specialized route was found, so Smart Solver remains the safest fallback.",
         ...cleanup.cleanupNotes,
     ];
 
@@ -160,6 +142,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         notes,
         pageType: isAccountingWorksheet ? accountingPageType : "unknown",
         routeHint,
+        routeReason: primaryRecommendation?.reason,
+        routeConfidence: primaryRecommendation?.score,
+        recommendations,
         structuredFields: isAccountingWorksheet ? accountingFields : undefined,
         accounting: isAccountingWorksheet
             ? {

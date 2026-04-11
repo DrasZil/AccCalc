@@ -26,6 +26,17 @@ function feature(path, label, category, description, aliases = [], tags = [], sh
     };
 }
 const CURRENT_RELEASE_NEW_PATHS = new Set([
+    "/scan-check",
+    "/accounting/process-costing-workspace",
+    "/accounting/cost-per-equivalent-unit",
+    "/accounting/cost-of-production-report",
+    "/accounting/department-1-process-costing",
+    "/accounting/department-transferred-in-process-costing",
+    "/accounting/weighted-average-process-costing",
+    "/accounting/fifo-process-costing",
+    "/accounting/cost-reconciliation-checker",
+    "/accounting/transferred-in-cost-helper",
+    "/accounting/process-costing-practice-checker",
     "/accounting/adjusting-entries-workspace",
     "/accounting/working-capital-planner",
     "/accounting/inventory-control-workspace",
@@ -39,6 +50,8 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/unit-economics",
     "/entrepreneurship/sales-forecast-planner",
     "/entrepreneurship/cash-runway-planner",
+    "/business/cvp-analysis",
+    "/accounting/partnership-dissolution",
 ]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Settings"],
@@ -194,6 +207,13 @@ function inferOfflineMeta(path) {
             offlineDetail: "The embedded Google Form and external feedback destination require internet access even though the route itself can still explain the limitation offline.",
         };
     }
+    if (path === "/scan-check") {
+        return {
+            offlineSupport: "limited",
+            offlineSummary: "The page and review UI can open offline after caching, but first OCR language downloads and camera access still depend on the browser.",
+            offlineDetail: "Scan & Check is browser-first and local once its OCR assets are cached, but first-use OCR downloads, camera permission prompts, and notification behavior still vary by browser and device.",
+        };
+    }
     return {
         offlineSupport: "full",
         offlineSummary: "This route is designed to keep working offline after the current version is cached.",
@@ -256,6 +276,7 @@ export const APP_ROUTE_META = [
     feature("/settings/feedback", "Feedback", "General", "Suggestions and issue reporting.", ["support", "report issue"], ["feedback"], "Feedback"),
     feature("/basic", "Scientific Calculator", "Core Tools", "Expression calculator with scientific functions, memory, and keyboard support.", ["basic calc", "standard calculator", "scientific calculator"], ["calculator", "scientific"], "Calculator"),
     feature("/smart/solver", "Smart Solver", "Smart Tools", "Natural-language routing into the right tool.", ["prompt solver", "smart search"], ["smart", "routing"], "Solver"),
+    feature("/scan-check", "Scan & Check", "Smart Tools", "Browser-first OCR review for equations, textbook problems, worked solutions, and answer checking.", ["ocr scan", "camera solve", "image to text math"], ["scan", "ocr", "review"], "Scan", true, ["ocr", "scan", "camera", "extract equation", "check solution"]),
     feature("/accounting/accounting-equation", "Accounting Equation", "Accounting", "Solve assets, liabilities, or equity.", ["assets liabilities equity", "ale"], ["fundamentals"]),
     feature("/accounting/notes-interest", "Notes Interest", "Accounting", "Compute note interest and maturity value.", ["note receivable interest", "maturity value"], ["notes", "interest"]),
     feature("/accounting/cash-discount", "Cash Discount", "Accounting", "Evaluate cash discount credit terms.", ["2/10 n/30", "credit terms"], ["discount", "merchandising"]),
@@ -273,6 +294,7 @@ export const APP_ROUTE_META = [
     feature("/accounting/partnership-admission-bonus", "Partnership Admission Bonus", "Accounting", "Incoming partner capital credit under the bonus method.", ["bonus method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "bonus", "capital"]),
     feature("/accounting/partnership-admission-goodwill", "Partnership Admission Goodwill", "Accounting", "Implied capital and goodwill under the goodwill method.", ["goodwill method admission"], ["partnership", "admission"], undefined, true, ["partnership", "admission", "goodwill", "capital"]),
     feature("/accounting/partnership-retirement-bonus", "Partnership Retirement Bonus", "Accounting", "Review a retiring partner settlement under the bonus method.", ["partner retirement", "withdrawal bonus", "retiring partner settlement"], ["partnership", "retirement", "equity"], undefined, true, ["partnership", "retirement", "withdrawal", "bonus", "settlement"]),
+    feature("/accounting/partnership-dissolution", "Partnership Dissolution", "Accounting", "Review realization, liquidation cash, and deficiency handling during partnership dissolution.", ["partnership liquidation", "realization and liquidation", "partner deficiency"], ["partnership", "dissolution", "liquidation"], "Dissolution", true, ["partnership", "dissolution", "liquidation", "realization", "deficiency"]),
     feature("/accounting/partners-capital-statement", "Statement of Partners' Capital", "Accounting", "Roll forward capital balances for two or three partners.", ["partners capital statement", "capital rollforward", "statement of partners capital"], ["partnership", "equity", "capital"], undefined, true, ["partnership", "capital", "rollforward", "equity", "drawings"]),
     feature("/accounting/philippine-vat", "Philippine VAT", "Accounting", "Output VAT, input VAT, and net VAT at 12%.", ["vat payable", "input vat", "output vat"], ["tax", "philippines"]),
     feature("/accounting/current-ratio", "Current Ratio", "Accounting", "Current ratio plus working capital with solve-for support.", ["working capital", "liquidity ratio"], ["ratios", "liquidity"], undefined, true, ["current ratio", "working capital", "solve for current liabilities"]),
@@ -328,6 +350,7 @@ export const APP_ROUTE_META = [
     feature("/business/margin-of-safety", "Margin of Safety", "Managerial & Cost", "How far actual sales exceed break-even sales.", ["mos"], ["cvp"]),
     feature("/business/operating-leverage", "Operating Leverage", "Managerial & Cost", "Sensitivity of operating income to sales changes.", ["dol", "degree of operating leverage"], ["cvp"]),
     feature("/business/sales-mix-break-even", "Sales Mix Break-even", "Managerial & Cost", "Break-even analysis for multi-product sales mixes.", ["multi product break even", "sales mix cvp", "composite unit break even"], ["cvp", "sales mix", "break-even"], undefined, true, ["sales mix", "composite unit", "weighted contribution margin"]),
+    feature("/business/cvp-analysis", "CVP Analysis", "Managerial & Cost", "Study contribution margin, break-even, target profit, margin of safety, operating leverage, and quick sensitivity in one page.", ["cvp dashboard", "cost volume profit analysis", "managerial cvp"], ["cvp", "analysis", "decision"], "CVP Analysis", true, ["cvp", "break-even", "target profit", "margin of safety", "operating leverage"]),
     feature("/business/cash-collections-schedule", "Cash Collections Schedule", "Managerial & Cost", "Build a month-based receipts schedule from sales and collection lag patterns.", ["schedule of cash collections", "cash receipts schedule"], ["budgeting", "collections", "cash"], undefined, true, ["cash collections", "collections schedule", "cash receipts"]),
     feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash"]),
@@ -345,6 +368,16 @@ export const APP_ROUTE_META = [
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),
     feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),
+    feature("/accounting/process-costing-workspace", "Process Costing Workspace", "Managerial & Cost", "Configurable process-costing workspace for weighted average, FIFO, transferred-in cost, and reconciliation.", ["process costing workspace", "departmental costing"], ["process costing", "workspace", "manufacturing"], "Process", true, ["process costing", "cost of production report", "departmental process costing"]),
+    feature("/accounting/cost-per-equivalent-unit", "Cost per Equivalent Unit", "Managerial & Cost", "Turn materials, labor, overhead, conversion, and transferred-in cost into method-aware cost per equivalent unit.", ["cost per equivalent unit", "cost per eup"], ["process costing", "equivalent units"], "Cost / EU", true, ["equivalent unit", "cost per equivalent unit", "process costing"]),
+    feature("/accounting/cost-of-production-report", "Cost of Production Report", "Managerial & Cost", "Generate a clean quantity, equivalent-unit, and cost-of-production schedule from one workspace.", ["production report", "cost of production report"], ["process costing", "report", "worksheet"], "Production Report", true, ["cost of production report", "production report", "process costing"]),
+    feature("/accounting/department-1-process-costing", "Department 1 Process Costing", "Managerial & Cost", "Department-1 process-costing schedule without transferred-in cost.", ["department 1 process costing", "dept 1 worksheet"], ["process costing", "department"], "Dept 1", true, ["department 1", "process costing", "equivalent units"]),
+    feature("/accounting/department-transferred-in-process-costing", "Department 2+ Process Costing", "Managerial & Cost", "Later-department worksheet with transferred-in cost and carry-forward checking.", ["department 2 process costing", "transferred in process costing"], ["process costing", "department", "transferred-in"], "Dept 2+", true, ["department 2", "transferred in", "process costing"]),
+    feature("/accounting/weighted-average-process-costing", "Weighted Average Process Costing", "Managerial & Cost", "Weighted-average process-costing workflow with ending-WIP and transferred-out cost assignment.", ["weighted average process costing"], ["process costing", "weighted average"], "WA Process", true, ["weighted average process costing", "ending wip", "transferred out"]),
+    feature("/accounting/fifo-process-costing", "FIFO Process Costing", "Managerial & Cost", "FIFO process-costing workflow with current-period equivalent units and beginning-WIP carry-forward.", ["fifo process costing"], ["process costing", "fifo"], "FIFO Process", true, ["fifo process costing", "beginning wip", "current period equivalent units"]),
+    feature("/accounting/cost-reconciliation-checker", "Cost Reconciliation Checker", "Managerial & Cost", "Check costs to be accounted for versus costs accounted for, with method-aware warnings.", ["cost reconciliation", "costs accounted for"], ["process costing", "reconciliation"], "Reconcile", true, ["cost reconciliation", "costs accounted for", "costs to be accounted for"]),
+    feature("/accounting/transferred-in-cost-helper", "Transferred-In Cost Helper", "Managerial & Cost", "Isolate transferred-in cost from current department additions and verify carry-forward logic.", ["transferred in cost helper"], ["process costing", "transferred-in"], "Transferred-In", true, ["transferred in", "department 2", "carry forward"]),
+    feature("/accounting/process-costing-practice-checker", "Process Costing Practice Checker", "Managerial & Cost", "Compare scanned or typed student answers against system process-costing totals.", ["process costing checker", "worksheet checker"], ["process costing", "scan review", "checker"], "Practice Check", true, ["practice problem checker", "process costing checker", "ocr worksheet checker"]),
     feature("/accounting/prime-conversion-cost", "Prime and Conversion Cost", "Managerial & Cost", "Prime cost and conversion cost.", ["prime cost", "conversion cost"], ["cost accounting"], undefined, true),
     feature("/accounting/materials-price-variance", "Materials Price Variance", "Managerial & Cost", "Direct materials price variance.", ["mpv", "material price variance"], ["variance"], undefined, true),
     feature("/accounting/materials-quantity-variance", "Materials Quantity Variance", "Managerial & Cost", "Direct materials quantity variance.", ["materials usage variance", "mqv"], ["variance"], undefined, true, ["materials quantity variance", "usage variance", "standard quantity"]),

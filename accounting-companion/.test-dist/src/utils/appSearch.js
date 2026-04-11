@@ -79,10 +79,10 @@ function scoreRoute(route, rawQuery) {
     const keywordTexts = route.keywords.map(normalizeText);
     const candidates = candidateTexts(route);
     if (label === query) {
-        return { score: 200, matchLabel: "exact title" };
+        return { score: 1000, matchLabel: "exact title" };
     }
     if (compactLabel === compactQuery || initialism(route.label) === compactQuery) {
-        return { score: 185, matchLabel: "abbreviation" };
+        return { score: 960, matchLabel: "abbreviation" };
     }
     if (label.startsWith(query)) {
         score += 145;
@@ -93,16 +93,14 @@ function scoreRoute(route, rawQuery) {
         matchLabel = "title";
     }
     if (aliasTexts.some((alias) => alias === query)) {
-        score += 110;
-        matchLabel = "alias";
+        return { score: 980, matchLabel: "alias" };
     }
     else if (aliasTexts.some((alias) => alias.startsWith(query))) {
         score += 95;
         matchLabel = "alias prefix";
     }
     if (tagTexts.some((tag) => tag === query) || keywordTexts.some((keyword) => keyword === query)) {
-        score += 80;
-        matchLabel = "tag";
+        return { score: 940, matchLabel: "tag" };
     }
     if (normalizeText(route.category) === query) {
         score += 60;

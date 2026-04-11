@@ -1,13 +1,13 @@
-import { percentToDecimal } from "./calc/percentUtils";
-import { roundTo } from "./calc/precision";
-import { sanitizeNumberOutput } from "./calc/numberSafety";
+import { percentToDecimal } from "./calc/percentUtils.js";
+import { roundTo } from "./calc/precision.js";
+import { sanitizeNumberOutput } from "./calc/numberSafety.js";
 import {
     safeAdd,
     safeDivide,
     safeMultiply,
     safePow,
     safeSubtract,
-} from "./calc/safeOperators";
+} from "./calc/safeOperators.js";
 
 type SimpleInterestParams = {
     principal: number;
@@ -42,6 +42,12 @@ type BreakEvenParams = {
 
 type TargetProfitParams = BreakEvenParams & {
     targetProfit: number;
+};
+
+type CvpAnalysisParams = BreakEvenParams & {
+    targetProfit: number;
+    expectedUnitSales: number;
+    sensitivityPercent?: number;
 };
 
 type MarkupMarginParams = {
@@ -109,6 +115,20 @@ type PartnershipRetirementBonusParams = {
     totalPartnershipCapital: number;
     retiringPartnerCapital: number;
     settlementPaid: number;
+};
+
+type PartnershipDissolutionPartnerInput = {
+    label: string;
+    capital: number;
+    ratio: number;
+};
+
+type PartnershipDissolutionParams = {
+    bookValueNoncashAssets: number;
+    cashFromRealization: number;
+    liabilitiesToSettle: number;
+    partners: PartnershipDissolutionPartnerInput[];
+    assumeDeficiencyInsolvent?: boolean;
 };
 
 type PartnerCapitalRollforwardParams = {
@@ -477,6 +497,100 @@ export function computeTargetProfit({
     };
 }
 
+export function computeCvpAnalysis({
+    fixedCosts,
+    sellingPricePerUnit,
+    variableCostPerUnit,
+    targetProfit,
+    expectedUnitSales,
+    sensitivityPercent = 10,
+}: CvpAnalysisParams) {
+    const contributionMarginPerUnit = safeSubtract(sellingPricePerUnit, variableCostPerUnit);
+    const contributionMarginRatio =
+        sellingPricePerUnit === 0 ? 0 : safeDivide(contributionMarginPerUnit, sellingPricePerUnit);
+    const breakEven = computeBreakEven({
+        fixedCosts,
+        sellingPricePerUnit,
+        variableCostPerUnit,
+    });
+    const target = computeTargetProfit({
+        fixedCosts,
+        targetProfit,
+        sellingPricePerUnit,
+        variableCostPerUnit,
+    });
+    const expectedSales = safeMultiply(expectedUnitSales, sellingPricePerUnit);
+    const expectedContributionMargin = safeMultiply(expectedUnitSales, contributionMarginPerUnit);
+    const operatingIncome = safeSubtract(expectedContributionMargin, fixedCosts);
+    const marginOfSafetyAmount = safeSubtract(expectedSales, breakEven.breakEvenSales);
+    const marginOfSafetyRatio =
+        expectedSales === 0 ? 0 : safeDivide(marginOfSafetyAmount, expectedSales);
+    const degreeOfOperatingLeverage =
+        operatingIncome <= 0 ? Infinity : safeDivide(expectedContributionMargin, operatingIncome);
+
+    const scenarioInputs = [
+        {
+            label: `Price +${sensitivityPercent}%`,
+            sellingPricePerUnit: sellingPricePerUnit * (1 + sensitivityPercent / 100),
+            variableCostPerUnit,
+            expectedUnitSales,
+        },
+        {
+            label: `Price -${sensitivityPercent}%`,
+            sellingPricePerUnit: sellingPricePerUnit * (1 - sensitivityPercent / 100),
+            variableCostPerUnit,
+            expectedUnitSales,
+        },
+        {
+            label: `Variable cost +${sensitivityPercent}%`,
+            sellingPricePerUnit,
+            variableCostPerUnit: variableCostPerUnit * (1 + sensitivityPercent / 100),
+            expectedUnitSales,
+        },
+        {
+            label: `Volume +${sensitivityPercent}%`,
+            sellingPricePerUnit,
+            variableCostPerUnit,
+            expectedUnitSales: expectedUnitSales * (1 + sensitivityPercent / 100),
+        },
+    ];
+
+    const scenarios = scenarioInputs.map((scenario) => {
+        const scenarioContributionPerUnit = safeSubtract(
+            scenario.sellingPricePerUnit,
+            scenario.variableCostPerUnit
+        );
+        const scenarioBreakEvenUnits =
+            scenarioContributionPerUnit <= 0
+                ? Infinity
+                : safeDivide(fixedCosts, scenarioContributionPerUnit);
+        const scenarioOperatingIncome =
+            safeMultiply(scenarioContributionPerUnit, scenario.expectedUnitSales) - fixedCosts;
+
+        return {
+            label: scenario.label,
+            breakEvenUnits: scenarioBreakEvenUnits,
+            operatingIncome: scenarioOperatingIncome,
+        };
+    });
+
+    return {
+        contributionMarginPerUnit,
+        contributionMarginRatio,
+        breakEvenUnits: breakEven.breakEvenUnits,
+        breakEvenSales: breakEven.breakEvenSales,
+        targetUnits: target.requiredUnits,
+        targetSales: target.requiredSales,
+        expectedSales,
+        expectedContributionMargin,
+        operatingIncome,
+        marginOfSafetyAmount,
+        marginOfSafetyRatio,
+        degreeOfOperatingLeverage,
+        scenarios,
+    };
+}
+
 export function computeMarkupMargin({ cost, sellingPrice }: MarkupMarginParams) {
     const profit = safeSubtract(sellingPrice, cost);
     const markup = safeMultiply(safeDivide(profit, cost), 100);
@@ -717,6 +831,81 @@ export function computePartnershipRetirementBonus({
                 : settlementDifference < 0
                   ? "bonus-to-remaining-partners"
                   : "no-bonus",
+    };
+}
+
+export function computePartnershipDissolution({
+    bookValueNoncashAssets,
+    cashFromRealization,
+    liabilitiesToSettle,
+    partners,
+    assumeDeficiencyInsolvent = false,
+}: PartnershipDissolutionParams) {
+    const totalRatio = partners.reduce((sum, partner) => sum + partner.ratio, 0);
+    const gainOrLossOnRealization = cashFromRealization - bookValueNoncashAssets;
+    const cashAvailableForPartners = cashFromRealization - liabilitiesToSettle;
+    const bookNetAssets = bookValueNoncashAssets - liabilitiesToSettle;
+    const capitalTotal = partners.reduce((sum, partner) => sum + partner.capital, 0);
+    const capitalConsistencyGap = capitalTotal - bookNetAssets;
+
+    const allocated = partners.map((partner) => {
+        const realizationShare =
+            totalRatio === 0 ? 0 : (gainOrLossOnRealization * partner.ratio) / totalRatio;
+        const adjustedCapital = partner.capital + realizationShare;
+
+        return {
+            ...partner,
+            realizationShare,
+            adjustedCapital,
+        };
+    });
+
+    const deficiencyPartners = allocated.filter((partner) => partner.adjustedCapital < 0);
+    const deficiencyTotal = Math.abs(
+        deficiencyPartners.reduce((sum, partner) => sum + partner.adjustedCapital, 0)
+    );
+    const solventPartners = allocated.filter((partner) => partner.adjustedCapital > 0);
+    const solventRatioTotal = solventPartners.reduce((sum, partner) => sum + partner.ratio, 0);
+
+    const finalPartners = allocated.map((partner) => {
+        if (
+            assumeDeficiencyInsolvent &&
+            deficiencyTotal > 0 &&
+            partner.adjustedCapital > 0 &&
+            solventRatioTotal > 0
+        ) {
+            const absorbedDeficiency = (deficiencyTotal * partner.ratio) / solventRatioTotal;
+            const finalCashDistribution = Math.max(0, partner.adjustedCapital - absorbedDeficiency);
+
+            return {
+                ...partner,
+                absorbedDeficiency,
+                finalCashDistribution,
+                contributionRequired: 0,
+            };
+        }
+
+        return {
+            ...partner,
+            absorbedDeficiency: 0,
+            finalCashDistribution: Math.max(0, partner.adjustedCapital),
+            contributionRequired: partner.adjustedCapital < 0 ? Math.abs(partner.adjustedCapital) : 0,
+        };
+    });
+
+    return {
+        gainOrLossOnRealization,
+        cashAvailableForPartners,
+        bookNetAssets,
+        capitalTotal,
+        capitalConsistencyGap,
+        deficiencyTotal,
+        finalDistributionTotal: finalPartners.reduce(
+            (sum, partner) => sum + partner.finalCashDistribution,
+            0
+        ),
+        finalPartners,
+        assumeDeficiencyInsolvent,
     };
 }
 

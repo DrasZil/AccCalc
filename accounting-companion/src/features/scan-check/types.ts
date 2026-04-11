@@ -51,6 +51,15 @@ export type StructuredScanField = {
     inferred?: boolean;
 };
 
+export type ScanRouteRecommendation = {
+    path: string;
+    label: string;
+    category: string;
+    reason: string;
+    score: number;
+    confidence: "high" | "moderate" | "low";
+};
+
 export type AccountingWorksheetExtraction = {
     topic: string;
     pageType: ScanPageType;
@@ -109,6 +118,9 @@ export type ParsedScanResult = {
     notes: string[];
     pageType?: ScanPageType;
     routeHint?: string;
+    routeReason?: string;
+    routeConfidence?: number;
+    recommendations?: ScanRouteRecommendation[];
     structuredFields?: StructuredScanField[];
     accounting?: AccountingWorksheetExtraction | null;
 };

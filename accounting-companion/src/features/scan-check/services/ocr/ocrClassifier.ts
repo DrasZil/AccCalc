@@ -1,33 +1,84 @@
 import type { ScanProblemKind } from "../../types";
 
+type KindScore = {
+    kind: ScanProblemKind;
+    score: number;
+};
+
+const KIND_PATTERNS: Record<ScanProblemKind, RegExp[]> = {
+    equation: [
+        /\bsolve for\b/i,
+        /\bevaluate\b/i,
+        /\bsimplify\b/i,
+        /\bfind x\b/i,
+        /[A-Za-z0-9)]\s*=\s*[A-Za-z0-9(]/,
+        /\d\s*[+\-*/]\s*\d/,
+    ],
+    "word-problem": [
+        /\bhow many\b/i,
+        /\bwhat is\b/i,
+        /\bdetermine\b/i,
+        /\bgiven\b/i,
+        /\bphp\b/i,
+        /\brate\b/i,
+        /\bunits?\b/i,
+    ],
+    "worked-solution": [
+        /\bsolution\b/i,
+        /\bstep\s*\d+\b/i,
+        /\btherefore\b/i,
+        /\banswer\b[:=]/i,
+        /\bcheck\b[:=]/i,
+    ],
+    "answer-check": [
+        /\bis it right\b/i,
+        /\bcompare\b/i,
+        /\bmy answer\b/i,
+        /\bcorrect answer\b/i,
+        /\bverify\b/i,
+    ],
+    "textbook-page": [
+        /\bchapter\b/i,
+        /\billustration\b/i,
+        /\bexercise\b/i,
+        /\bdiscussion\b/i,
+        /\btable of contents\b/i,
+    ],
+    "notes-reference": [
+        /\bnotes?\b/i,
+        /\bsummary\b/i,
+        /\bformula sheet\b/i,
+        /\bkey idea\b/i,
+        /\bmeaning\b/i,
+        /\bdefinition\b/i,
+    ],
+    "accounting-worksheet": [/^$/],
+    unknown: [/^$/],
+};
+
 export function classifyScanText(text: string): ScanProblemKind {
-    const normalized = text.toLowerCase();
+    const normalized = text.trim();
+    if (!normalized) return "unknown";
+
+    const scores: KindScore[] = (Object.entries(KIND_PATTERNS) as Array<
+        [ScanProblemKind, RegExp[]]
+    >)
+        .filter(([kind]) => kind !== "accounting-worksheet" && kind !== "unknown")
+        .map(([kind, patterns]) => ({
+            kind,
+            score: patterns.filter((pattern) => pattern.test(normalized)).length,
+        }))
+        .sort((left, right) => right.score - left.score);
+
+    const best = scores[0];
+    if (!best || best.score === 0) return "unknown";
 
     if (
-        /chapter|example|illustration|exercise|textbook|table of contents|discussion/i.test(text)
+        best.kind === "equation" &&
+        /\bchapter\b|\bdiscussion\b|\bsummary\b/i.test(normalized)
     ) {
-        return "textbook-page";
-    }
-
-    if (/notes?|formula sheet|reminder|key idea|summary/i.test(normalized)) {
         return "notes-reference";
     }
 
-    if (/[=+\-*/^]|solve for|find x|evaluate/.test(normalized)) {
-        return "equation";
-    }
-
-    if (/therefore|solution|step 1|step 2|answer:/i.test(text)) {
-        return "worked-solution";
-    }
-
-    if (/compare|correct answer|my answer|is it right/i.test(normalized)) {
-        return "answer-check";
-    }
-
-    if (/how many|what is|find the|given that|peso|php|rate|years/i.test(normalized)) {
-        return "word-problem";
-    }
-
-    return "unknown";
+    return best.kind;
 }

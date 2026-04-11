@@ -44,15 +44,14 @@ const SMART_PROMPT_EXAMPLES = [
 
 const FEATURED_PATHS = [
     "/scan-check",
+    "/business/cvp-analysis",
+    "/accounting/partnership-dissolution",
     "/accounting/process-costing-workspace",
-    "/accounting/cost-of-production-report",
     "/smart/solver",
     "/accounting/ratio-analysis-workspace",
-    "/business/break-even",
     "/finance/internal-rate-of-return",
     "/finance/capital-budgeting-comparison",
     "/accounting/common-size-income-statement",
-    "/accounting/adjusting-entries-workspace",
     "/economics/price-elasticity-demand",
     "/entrepreneurship/entrepreneurship-toolkit",
 ];
@@ -100,12 +99,23 @@ const WORKFLOW_COLLECTIONS = [
     },
     {
         title: "CVP planning",
-        description: "Go from contribution margin to multi-product break-even and target profit.",
+        description: "Move from a broad CVP read into contribution margin, break-even, target profit, and sales-mix analysis.",
         paths: [
+            "/business/cvp-analysis",
             "/business/contribution-margin",
             "/business/break-even",
             "/business/sales-mix-break-even",
             "/business/target-profit",
+        ],
+    },
+    {
+        title: "Partnership accounting",
+        description: "Move from allocation into retirement, dissolution, and capital rollforward work without leaving the app.",
+        paths: [
+            "/accounting/partnership-profit-sharing",
+            "/accounting/partnership-retirement-bonus",
+            "/accounting/partnership-dissolution",
+            "/accounting/partners-capital-statement",
         ],
     },
     {
@@ -253,10 +263,10 @@ export default function HomePage() {
                         </div>
 
                         <h1 className="mt-3.5 max-w-2xl text-[clamp(1.55rem,1.2rem+1.25vw,2.35rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Simpler scans, quicker starts.
+                            Solve faster, check carefully, learn deeper.
                         </h1>
                         <p className="app-body-md mt-2.5 max-w-2xl text-sm">
-                            Search, resume a workflow, or start with the new lighter Scan & Check flow. AccCalc now handles more of the OCR, classification, and routing automatically after upload.
+                            AccCalc helps you solve accounting and business problems, fact-check your answers, and study the procedure behind them. Start from Scan & Check, open Smart Solver, or jump straight into a focused calculator when you already know the topic.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2.5">
@@ -270,7 +280,13 @@ export default function HomePage() {
                                 to="/smart/solver"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open solver
+                                Open Smart Solver
+                            </Link>
+                            <Link
+                                to="/business/cvp-analysis"
+                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                            >
+                                Open CVP Analysis
                             </Link>
                             <Link
                                 to="/history"

@@ -1,4 +1,5 @@
-import Decimal from "decimal.js";
+import { Decimal } from "decimal.js";
+import type { Decimal as DecimalType } from "decimal.js";
 
 export function toFiniteNumber(value: unknown) {
     const parsed =
@@ -11,7 +12,7 @@ export function toFiniteNumber(value: unknown) {
     return Number.isFinite(parsed) ? parsed : null;
 }
 
-export function toDecimal(value: Decimal.Value) {
+export function toDecimal(value: DecimalType.Value) {
     const decimal = new Decimal(value);
     if (!decimal.isFinite()) {
         throw new Error("Calculation produced a non-finite result.");
@@ -30,4 +31,3 @@ export function sanitizeNumberOutput(value: number, fallback = 0) {
 export function clampNonNegative(value: number) {
     return value < 0 ? 0 : value;
 }
-

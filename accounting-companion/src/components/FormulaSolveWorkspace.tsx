@@ -149,7 +149,8 @@ export default function FormulaSolveWorkspace({
                             <div className="rounded-[1rem] app-subtle-surface px-3.5 py-3 text-sm leading-6">
                                 Enter {inputKeys.map((key) => definition.fields[key].label).join(", ")}.
                                 The selected target stays computed so the page can adapt the formula,
-                                interpretation, and checks for this exact question.
+                                interpretation, and checking notes for this exact question instead of
+                                showing a one-size-fits-all explanation.
                             </div>
                         </div>
                     </SectionCard>
