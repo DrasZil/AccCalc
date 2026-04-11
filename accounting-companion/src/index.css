@@ -4,9 +4,9 @@
     --app-header-height: 5rem;
     --app-mobile-nav-height: 0px;
     --app-keyboard-inset: 0px;
-    --app-page-max-width: 88rem;
-    --app-page-max-width-wide: 104rem;
-    --app-page-max-width-study: 96rem;
+    --app-page-max-width: 92rem;
+    --app-page-max-width-wide: 116rem;
+    --app-page-max-width-study: 108rem;
     --app-page-gap: clamp(0.8rem, 1.35vw, 1.05rem);
     --app-page-gap-lg: clamp(1rem, 1.7vw, 1.45rem);
     --app-radius-sm: 0.85rem;
@@ -382,6 +382,18 @@ a:active {
     min-width: 0;
 }
 
+.app-page-header__row,
+.app-page-header__intro,
+.app-page-header__meta {
+    min-width: 0;
+}
+
+.app-page-header__intro h1,
+.app-page-header__intro p,
+.app-page-header__meta > * {
+    min-width: 0;
+}
+
 .app-page-header__actions > * {
     min-width: 0;
 }
@@ -578,6 +590,40 @@ a:active {
     word-break: break-word;
 }
 
+mjx-container {
+    display: inline-block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    vertical-align: middle;
+}
+
+mjx-container[display="true"] {
+    display: block;
+    margin: 0;
+    overflow-x: auto;
+}
+
+mjx-container[jax="SVG"] > svg {
+    display: block;
+    max-width: 100%;
+    height: auto !important;
+}
+
+mjx-assistive-mml {
+    position: absolute !important;
+    inset: auto !important;
+    overflow: hidden !important;
+    clip: rect(1px, 1px, 1px, 1px) !important;
+    clip-path: inset(50%) !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+}
+
 .app-formula-structured {
     display: grid;
     gap: 0.9rem;
@@ -723,6 +769,73 @@ a:active {
 
 .app-related-link-grid--descriptive {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.app-back-link {
+    border: 1px solid var(--app-border-subtle);
+    background: linear-gradient(180deg, var(--app-field-bg-strong), var(--app-field-bg));
+    color: var(--app-text-secondary);
+    box-shadow: var(--app-shadow-sm);
+    width: fit-content;
+    max-width: 100%;
+}
+
+.app-back-link:hover {
+    border-color: var(--app-border-strong);
+    background: linear-gradient(180deg, var(--app-accent-soft), var(--app-field-bg));
+    color: var(--app-text);
+}
+
+.app-shell-header {
+    transition:
+        background-color 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+}
+
+.app-shell-header__bar,
+.app-shell-header__intro,
+.app-shell-header__actions,
+.app-shell-header__search,
+.app-shell-header__title,
+.app-shell-header__description,
+.app-shell-header__eyebrow {
+    min-width: 0;
+    transition:
+        opacity 200ms ease,
+        transform 220ms ease,
+        max-width 220ms ease,
+        font-size 220ms ease,
+        line-height 220ms ease,
+        margin 220ms ease,
+        padding 220ms ease;
+}
+
+.app-shell-header--condensed {
+    box-shadow: var(--app-shadow-sm);
+}
+
+.app-shell-header--condensed .app-shell-header__bar {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.app-shell-header--condensed .app-shell-header__eyebrow,
+.app-shell-header--condensed .app-shell-header__description {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(-0.35rem);
+    margin-top: 0 !important;
+}
+
+.app-shell-header--condensed .app-shell-header__title {
+    font-size: 0.94rem !important;
+    line-height: 1.2 !important;
+}
+
+.app-shell-header--condensed .app-shell-header__search {
+    max-width: 12rem;
 }
 
 .app-input-grid {
@@ -949,13 +1062,19 @@ html[data-contrast="high"] .app-sidebar-link {
     background: var(--app-field-bg);
     color: var(--app-text-secondary);
     max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.68rem;
     font-weight: 650;
     letter-spacing: 0.14em;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.35;
     text-transform: uppercase;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-align: center;
+    text-wrap: balance;
 }
 
 .app-chip-accent {
@@ -963,13 +1082,28 @@ html[data-contrast="high"] .app-sidebar-link {
     background: var(--app-accent-soft);
     color: var(--app-accent);
     max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.14em;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.35;
     text-transform: uppercase;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-align: center;
+    text-wrap: balance;
+}
+
+@media (max-width: 28rem) {
+    .app-chip,
+    .app-chip-accent {
+        max-width: 100%;
+        width: auto;
+        letter-spacing: 0.1em;
+    }
 }
 
 .app-badge-new {
@@ -1295,6 +1429,7 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-text);
     line-height: 1.35;
     overflow-wrap: anywhere;
+    word-break: break-word;
     text-wrap: pretty;
 }
 

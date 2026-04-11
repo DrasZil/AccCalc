@@ -30,6 +30,7 @@ import {
     computeInternalRateOfReturn,
     computeInventoryShrinkage,
     computeInventoryMethodComparison,
+    computeJobOrderCostSheet,
     computeLaborEfficiencyVariance,
     computeLoanAmortization,
     computeLoanAmortizationSchedule,
@@ -666,6 +667,21 @@ runTest("factory overhead variances separate variable and fixed overhead causes"
     assertClose(result.totalOverheadVariance, 24500);
 });
 
+runTest("job-order cost sheet keeps total, prime, conversion, and unit cost aligned", () => {
+    const result = computeJobOrderCostSheet({
+        directMaterialsUsed: 85000,
+        directLabor: 54000,
+        appliedManufacturingOverhead: 48600,
+        unitsInJob: 1200,
+    });
+
+    assertClose(result.primeCost, 139000);
+    assertClose(result.conversionCost, 102600);
+    assertClose(result.totalJobCost, 187600);
+    assertClose(result.unitCost, 156.3333333333, 1e-6);
+    assertClose(result.materialsShare, 45.3091684435, 1e-6);
+});
+
 runTest("ratio analysis workspace computes a coordinated ratio set", () => {
     const result = computeRatioAnalysisWorkspace({
         currentAssets: 420000,
@@ -976,6 +992,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const inventoryControlResults = searchAppRoutes("inventory shrinkage");
     const elasticityWorkspaceResults = searchAppRoutes("income elasticity");
     const toolkitResults = searchAppRoutes("owner split planner");
+    const jobOrderResults = searchAppRoutes("job order cost sheet");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1003,6 +1020,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(inventoryControlResults[0]?.path, "/accounting/inventory-control-workspace");
     assert.equal(elasticityWorkspaceResults[0]?.path, "/economics/economics-analysis-workspace");
     assert.equal(toolkitResults[0]?.path, "/entrepreneurship/entrepreneurship-toolkit");
+    assert.equal(jobOrderResults[0]?.path, "/accounting/job-order-cost-sheet");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {

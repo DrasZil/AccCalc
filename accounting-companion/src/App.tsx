@@ -30,6 +30,9 @@ const CashDiscountPage = lazy(() => import("./features/accounting/CashDiscountPa
 const CostOfGoodsManufacturedPage = lazy(
     () => import("./features/accounting/CostOfGoodsManufacturedPage")
 );
+const JobOrderCostSheetPage = lazy(
+    () => import("./features/accounting/JobOrderCostSheetPage")
+);
 const FactoryOverheadVariancePage = lazy(
     () => import("./features/accounting/FactoryOverheadVariancePage")
 );
@@ -433,6 +436,7 @@ export default function App() {
                         <Route path="accounting/partners-capital-statement" element={renderRoute("/accounting/partners-capital-statement", <PartnersCapitalStatementPage />)} />
                         <Route path="accounting/philippine-vat" element={renderRoute("/accounting/philippine-vat", <PhilippineVATPage />)} />
                         <Route path="accounting/cost-of-goods-manufactured" element={renderRoute("/accounting/cost-of-goods-manufactured", <CostOfGoodsManufacturedPage />)} />
+                        <Route path="accounting/job-order-cost-sheet" element={renderRoute("/accounting/job-order-cost-sheet", <JobOrderCostSheetPage />)} />
                         <Route path="accounting/factory-overhead-variance" element={renderRoute("/accounting/factory-overhead-variance", <FactoryOverheadVariancePage />)} />
                         <Route path="accounting/equivalent-units-weighted-average" element={renderRoute("/accounting/equivalent-units-weighted-average", <EquivalentUnitsWeightedAveragePage />)} />
                         <Route path="accounting/process-costing-workspace" element={renderRoute("/accounting/process-costing-workspace", <ProcessCostingWorkspaceEntryPage />)} />

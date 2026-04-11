@@ -2321,6 +2321,35 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "job-order-cost-sheet",
+        name: "Job Order Cost Sheet",
+        route: "/accounting/job-order-cost-sheet",
+        description:
+            "Best when the problem asks for total job cost, unit cost, prime cost, conversion cost, or applied overhead assigned to a specific job or batch.",
+        required: [
+            "directMaterialsUsed",
+            "directLabor",
+            "manufacturingOverhead",
+            "unitsProduced",
+        ],
+        aliases: [
+            "job order cost sheet",
+            "job cost sheet",
+            "job order costing",
+            "batch cost sheet",
+        ],
+        keywords: [
+            /job order cost(?:ing| sheet)?/i,
+            /job cost sheet/i,
+            /specific job/i,
+            /customer order/i,
+            /batch cost/i,
+            /applied manufacturing overhead/i,
+            /prime cost/i,
+            /conversion cost/i,
+        ],
+    },
+    {
         id: "equivalent-units-weighted-average",
         name: "Equivalent Units (Weighted Average)",
         route: "/accounting/equivalent-units-weighted-average",

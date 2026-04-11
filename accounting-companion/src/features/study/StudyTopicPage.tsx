@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
+import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
@@ -126,6 +127,8 @@ export default function StudyTopicPage() {
 
     return (
         <div className="app-page-stack">
+            <PageBackButton fallbackTo="/study" label="Back to Study Hub" />
+
             <PageHeader
                 badge={`${topic.category} | Study Hub`}
                 title={topic.title}
@@ -172,7 +175,7 @@ export default function StudyTopicPage() {
                 }
             />
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <section className="app-study-layout">
                 <SectionCard>
                     <p className="app-section-kicker text-[0.68rem]">Topic overview</p>
                     <div className="mt-4 space-y-3">
@@ -269,7 +272,6 @@ export default function StudyTopicPage() {
                             <p className="app-card-title text-sm">{formula.label}</p>
                             <div className="mt-3">
                                 <FormulaBlock
-                                    label={formula.label}
                                     text={formula.expression}
                                     supportingText={
                                         <p className="app-helper text-xs leading-5">
@@ -312,7 +314,7 @@ export default function StudyTopicPage() {
                 </ol>
             </TopicSectionCard>
 
-            <section className="grid gap-4 xl:grid-cols-2">
+            <section className="app-card-grid-readable">
                 <TopicSectionCard
                     topicId={topic.id}
                     topicPath={topicPath}
@@ -362,7 +364,7 @@ export default function StudyTopicPage() {
                 </TopicSectionCard>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-2">
+            <section className="app-card-grid-readable">
                 <TopicSectionCard
                     topicId={topic.id}
                     topicPath={topicPath}
@@ -430,7 +432,7 @@ export default function StudyTopicPage() {
                 </TopicSectionCard>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <section className="app-card-grid-readable">
                 <SectionCard>
                     <p className="app-section-kicker text-[0.68rem]">Practice next</p>
                     <h2 className="app-section-title mt-2">Mini quiz for this topic</h2>

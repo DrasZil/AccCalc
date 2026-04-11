@@ -56,6 +56,7 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/accounting/partnership-dissolution",
     "/study",
     "/study/practice",
+    "/accounting/job-order-cost-sheet",
 ]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Settings"],
@@ -377,6 +378,7 @@ export const APP_ROUTE_META = [
     feature("/entrepreneurship/cash-runway-planner", "Cash Runway Planner", "Entrepreneurship", "Estimate runway from current cash, recurring inflows, and recurring outflows.", ["runway calculator", "startup runway"], ["cash", "runway"], "Cash Runway", true, ["cash runway", "burn rate", "startup cash"]),
     feature("/entrepreneurship/entrepreneurship-toolkit", "Entrepreneurship Toolkit", "Entrepreneurship", "Use one workspace for pricing targets, owner splits, and customer payback checks.", ["pricing target toolkit", "owner split planner", "customer payback"], ["unit economics", "pricing", "planning", "toolkit"], "Toolkit", true, ["selling price", "owner split", "customer payback", "startup toolkit"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
+    feature("/accounting/job-order-cost-sheet", "Job Order Cost Sheet", "Managerial & Cost", "Assign direct materials, direct labor, and applied overhead to one job, then read total and per-unit job cost.", ["job order costing", "job cost sheet", "job order cost"], ["job order costing", "manufacturing", "cost accounting"], "Job Order", true, ["job order", "job cost sheet", "applied overhead", "unit cost"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),
     feature("/accounting/equivalent-units-weighted-average", "Equivalent Units (Weighted Average)", "Managerial & Cost", "Weighted-average process-costing equivalent units and cost assignment.", ["process costing weighted average", "equivalent units"], ["process costing", "equivalent units"], undefined, true, ["equivalent units", "weighted average", "process costing"]),
     feature("/accounting/process-costing-workspace", "Process Costing Workspace", "Managerial & Cost", "Configurable process-costing workspace for weighted average, FIFO, transferred-in cost, and reconciliation.", ["process costing workspace", "departmental costing"], ["process costing", "workspace", "manufacturing"], "Process", true, ["process costing", "cost of production report", "departmental process costing"]),

@@ -27,8 +27,8 @@ function TopicCard({
     bestScore: number | null;
 }) {
     return (
-        <div className="app-link-card rounded-[1.15rem] px-4 py-4">
-            <div className="flex flex-wrap items-center gap-2">
+        <div className="app-link-card min-w-0 rounded-[1.15rem] px-4 py-4">
+            <div className="flex min-w-0 flex-wrap items-start gap-2">
                 <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                     {topic.category}
                 </span>
@@ -44,7 +44,7 @@ function TopicCard({
                 ) : null}
             </div>
 
-            <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+            <h3 className="app-wrap-anywhere mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                 {topic.title}
             </h3>
             <p className="app-helper mt-1.5 text-xs leading-5">{topic.summary}</p>
@@ -151,7 +151,7 @@ export default function StudyHubPage() {
                 }
             />
 
-            <section className="grid gap-4 xl:grid-cols-3">
+            <section className="app-card-grid-readable--compact">
                 <SectionCard>
                     <p className="app-section-kicker text-[0.68rem]">Learn</p>
                     <p className="app-body-md mt-2 text-sm">
@@ -195,7 +195,7 @@ export default function StudyHubPage() {
                 </div>
             </SectionCard>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <section className="app-study-layout">
                 <SectionCard>
                     <div className="flex items-center justify-between gap-3">
                         <div>
@@ -207,7 +207,7 @@ export default function StudyHubPage() {
                         </span>
                     </div>
 
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <div className="mt-4 app-card-grid-readable">
                         {(recentTopics.length > 0 ? recentTopics : allTopics.slice(0, 4)).map((topic) => {
                             const topicRecord = studyProgress.topics[topic.id];
                             const quizRecord = studyProgress.quizzes[topic.id];
@@ -237,7 +237,7 @@ export default function StudyHubPage() {
                         </div>
                     </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="mt-4 app-card-grid-readable--compact">
                         <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                             <p className="app-metric-label">Topics opened</p>
                             <p className="app-metric-value mt-2">
@@ -285,13 +285,16 @@ export default function StudyHubPage() {
                                 <p className="app-helper mt-1 text-xs leading-5">
                                     {STUDY_CATEGORY_DETAILS[category as StudyTopicCategory].description}
                                 </p>
+                                <p className="app-helper mt-2 text-xs leading-5">
+                                    Focus: {STUDY_CATEGORY_DETAILS[category as StudyTopicCategory].emphasis}
+                                </p>
                             </div>
                             <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                                 {topics.length} topics
                             </span>
                         </div>
 
-                        <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                        <div className="mt-4 app-card-grid-readable">
                             {topics.map((topic) => {
                                 const topicRecord = studyProgress.topics[topic.id];
                                 const quizRecord = studyProgress.quizzes[topic.id];
@@ -324,7 +327,7 @@ export default function StudyHubPage() {
                     </p>
                 </div>
 
-                <div className="grid gap-4 xl:grid-cols-2">
+                <div className="app-card-grid-readable">
                     {calculatorGroups.map((group) => (
                         <RelatedLinksPanel
                             key={group.title}

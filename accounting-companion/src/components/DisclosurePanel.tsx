@@ -53,11 +53,11 @@ export default function DisclosurePanel({
                 aria-expanded={open}
                 aria-controls={contentId}
                 className={[
-                    "flex w-full items-start justify-between gap-4 text-left",
+                    "flex w-full min-w-0 flex-col items-stretch gap-3 text-left sm:flex-row sm:items-start sm:justify-between sm:gap-4",
                     compact ? "px-3.5 py-3 md:px-4 md:py-3.5" : "px-4 py-4 md:px-5",
                 ].join(" ")}
             >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <h3
                             className={[
@@ -76,7 +76,7 @@ export default function DisclosurePanel({
                     {summary ? <p className="app-helper mt-1.5 text-xs leading-5">{summary}</p> : null}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
                     {headerActions}
                     <span
                         className={[

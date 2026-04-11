@@ -18,6 +18,7 @@ export default function MathText({
 }: MathTextProps) {
     const shouldRenderMath = renderMode === "math" || (renderMode === "auto" && looksLikeMathText(text));
     const [html, setHtml] = useState<string | null>(null);
+    const Tag = block ? "div" : "span";
 
     useEffect(() => {
         let cancelled = false;
@@ -43,12 +44,12 @@ export default function MathText({
 
     if (html) {
         return (
-            <span
+            <Tag
                 className={className}
                 dangerouslySetInnerHTML={createSafeMarkup(html)}
             />
         );
     }
 
-    return <span className={className}>{polishMathText(text)}</span>;
+    return <Tag className={className}>{polishMathText(text)}</Tag>;
 }

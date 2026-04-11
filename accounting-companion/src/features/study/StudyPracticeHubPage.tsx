@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
 import {
@@ -25,6 +26,8 @@ export default function StudyPracticeHubPage() {
 
     return (
         <div className="app-page-stack">
+            <PageBackButton fallbackTo="/study" label="Back to Study Hub" />
+
             <PageHeader
                 badge="Study Hub | Practice"
                 title="Practice by topic and review with explanations"

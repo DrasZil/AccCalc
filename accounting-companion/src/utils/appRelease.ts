@@ -1,26 +1,33 @@
-export const APP_VERSION = "4.1.1";
+export const APP_VERSION = "4.2.0";
 export const APP_RELEASE_DATE = "2026-04-11";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Rendering routes are safer and more stable",
-        body: "Browser-unsafe MathJax version-loading paths were removed from the shared render flow so affected calculator and study routes can load normally again.",
+        title: "Study and calculator surfaces are more readable",
+        body: "Shared disclosure headers, formula cards, and narrow-width lesson layouts now reflow more safely so dense study content stops collapsing into brittle mobile layouts.",
     },
     {
-        title: "Study Hub browsing is cleaner on narrow widths",
-        body: "Dense calculator-family coverage now uses collapsible related-link panels with stronger wrapping and card-grid rules, which keeps Study Hub easier to scan on smaller screens.",
+        title: "Job-order costing is now part of the solve-check-learn flow",
+        body: "The new Job Order Cost Sheet calculator now connects to Study Hub coverage, smart-tool routing, and workbook-style learning support instead of living as a standalone page.",
     },
     {
-        title: "Related Tools now stays tucked away until needed",
-        body: "Shared collapsible Related Tools and Related Topics panels now reduce page length and content overload across calculator, study, and support surfaces.",
+        title: "Study Hub coverage is broader and more curriculum-linked",
+        body: "Managerial and cost-accounting coverage now reaches deeper into manufacturing-cost topics, with stronger ties between calculators, lesson pages, and quiz review paths.",
     },
     {
-        title: "Platform features fail more gracefully",
-        body: "Worker-backed scan and Smart Solver processing now recover more safely from worker errors, while formula blocks and page headers use stronger shared layout and text handling.",
+        title: "Smart routing understands more classroom wording",
+        body: "Solver matching now recognizes job-order costing vocabulary such as job cost sheets, applied overhead, prime cost, and conversion cost more reliably.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "4.2.0: Fixed the remaining narrow-width study-panel collapse by changing the shared disclosure-header layout so action clusters wrap instead of starving the summary column.",
+    "4.2.0: Hardened shared MathJax container styling and formula-card rendering so prose-heavy study content stays in readable UI text while symbolic equations remain in the math display path.",
+    "4.2.0: Removed duplicated formula heading output from study-topic formula cards and tightened mobile wrapping for formula, step, and explanatory content.",
+    "4.2.0: Added a new Job Order Cost Sheet calculator for direct materials, direct labor, applied overhead, total job cost, prime cost, conversion cost, and unit-cost reading.",
+    "4.2.0: Integrated Job Order Cost Sheet into Smart Solver routing so classroom wording like job cost sheet, batch cost, prime cost, and applied manufacturing overhead routes more accurately.",
+    "4.2.0: Added a full Study Hub lesson and quiz path for Job Order Costing Foundations, including worked examples, self-check prompts, and common-mistake guidance.",
+    "4.2.0: Connected the new job-order topic back to process costing, budgeting, and accounting-foundation review paths so manufacturing-cost learning flows stay linked instead of isolated.",
     "4.1.1: Fixed the runtime route failure caused by a browser-unsafe MathJax version-loading path so affected calculators can render without throwing 'require is not defined'.",
     "4.1.1: Hardened the shared math-render wrapper with an explicit browser-safe lazy load path and a typed fallback declaration for the shipped MathJax browser bundle.",
     "4.1.1: Added a reusable RelatedLinksPanel so Related tools, calculators, and topics can stay collapsible across calculator pages, study pages, and support panels.",

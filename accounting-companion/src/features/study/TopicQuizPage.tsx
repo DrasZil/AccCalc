@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import MathText from "../../components/math/MathText";
+import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
@@ -100,6 +101,8 @@ export default function TopicQuizPage() {
 
     return (
         <div className="app-page-stack">
+            <PageBackButton fallbackTo={topicPath} label="Back to lesson" />
+
             <PageHeader
                 badge={`${activeTopic.category} | Practice`}
                 title={activeTopic.quiz.title}

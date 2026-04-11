@@ -61,16 +61,29 @@ function buildStructuredStatements(text: string) {
     };
 }
 
+function shouldPreferStructuredFormula(statements: string[]) {
+    if (statements.length === 0) return false;
+
+    return statements.every((statement) => {
+        const wordCount = (statement.match(/[A-Za-z]{2,}/g) ?? []).length;
+        return /=/.test(statement) && wordCount >= 4;
+    });
+}
+
 export default function FormulaBlock({
     label = "Equation",
     text,
     supportingText,
     className,
 }: FormulaBlockProps) {
-    const renderMode = looksLikeStandaloneMathText(text) ? "math" : "plain";
     const structuredContent = buildStructuredStatements(text);
+    const shouldPreferStructured = shouldPreferStructuredFormula(structuredContent.statements);
+    const renderMode =
+        shouldPreferStructured || !looksLikeStandaloneMathText(text) ? "plain" : "math";
     const shouldRenderStructuredStatements =
-        renderMode === "plain" && structuredContent.statements.length >= 2;
+        renderMode === "plain" &&
+        (structuredContent.statements.length >= 2 ||
+            (shouldPreferStructured && structuredContent.statements.length >= 1));
 
     return (
         <div className={className}>

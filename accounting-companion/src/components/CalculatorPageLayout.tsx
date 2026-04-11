@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
+import PageBackButton from "./PageBackButton";
 import PageHeader from "./PageHeader";
 import RelatedLinksPanel from "./RelatedLinksPanel";
 import ToolAboutPanel from "./ToolAboutPanel";
@@ -27,6 +28,9 @@ type CalculatorPageLayoutProps = {
     pageWidth?: "default" | "study" | "wide";
     headerActions?: ReactNode;
     headerMeta?: ReactNode;
+    backButtonLabel?: string;
+    backButtonTo?: string;
+    showBackButton?: boolean;
 };
 
 type SectionKey = "inputs" | "results" | "learn";
@@ -62,6 +66,9 @@ export default function CalculatorPageLayout({
     pageWidth = "default",
     headerActions,
     headerMeta,
+    backButtonLabel = "Back",
+    backButtonTo = "/",
+    showBackButton = true,
 }: CalculatorPageLayoutProps) {
     const location = useLocation();
     const settings = useAppSettings();
@@ -185,6 +192,8 @@ export default function CalculatorPageLayout({
 
     return (
         <div className={["app-page-stack", pageWidthClass].join(" ").trim()}>
+            {showBackButton ? <PageBackButton fallbackTo={backButtonTo} label={backButtonLabel} /> : null}
+
             <PageHeader
                 badge={badge}
                 title={title}

@@ -71,9 +71,11 @@ function prettifyText(value: string) {
 }
 
 function polishNode(node: ReactNode, preferMath = false): ReactNode {
+    const renderPlainText = !preferMath;
+
     if (typeof node === "string") {
         const polished = formatGuideText(prettifyText(node));
-        const renderAsMath = preferMath || looksLikeStandaloneMathText(polished);
+        const renderAsMath = !renderPlainText && (preferMath || looksLikeStandaloneMathText(polished));
         return (
             <MathInline
                 text={polished}
@@ -152,7 +154,7 @@ export default function FormulaCard({
                                             {index + 1}
                                         </span>
                                         <div className="app-reading-content app-guide-step min-w-0 flex-1">
-                                            {polishNode(step)}
+                                            {polishNode(step, false)}
                                         </div>
                                     </div>
                                 </li>
@@ -176,7 +178,7 @@ export default function FormulaCard({
                                 >
                                     <p className="app-card-title text-sm">{item.term}</p>
                                     <p className="app-reading-content mt-1.5">
-                                        {polishNode(item.meaning)}
+                                        {polishNode(item.meaning, false)}
                                     </p>
                                 </div>
                             ))}
@@ -194,7 +196,7 @@ export default function FormulaCard({
                         <div className="app-tone-accent rounded-[1.15rem] px-5 py-4 md:px-6 md:py-5">
                             <p className="app-label mb-2">Key takeaway</p>
                             <div className="app-reading-content max-w-3xl app-reading-strong">
-                                {polishNode(interpretation)}
+                                {polishNode(interpretation, false)}
                             </div>
                         </div>
                     ),
@@ -213,7 +215,7 @@ export default function FormulaCard({
                                     key={`assumption-${index}`}
                                     className="app-tone-info rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    <div className="app-reading-content">{polishNode(assumption)}</div>
+                                    <div className="app-reading-content">{polishNode(assumption, false)}</div>
                                 </div>
                             ))}
                         </div>
@@ -233,7 +235,7 @@ export default function FormulaCard({
                                     key={`note-${index}`}
                                     className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    <div className="app-reading-content">{polishNode(note)}</div>
+                                    <div className="app-reading-content">{polishNode(note, false)}</div>
                                 </div>
                             ))}
                         </div>
@@ -253,7 +255,7 @@ export default function FormulaCard({
                                     key={`warning-${index}`}
                                     className="app-tone-warning rounded-[1.1rem] px-4 py-3.5 md:px-5"
                                 >
-                                    <div className="app-reading-content">{polishNode(warning)}</div>
+                                    <div className="app-reading-content">{polishNode(warning, false)}</div>
                                 </div>
                             ))}
                         </div>

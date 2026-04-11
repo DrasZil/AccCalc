@@ -653,7 +653,7 @@ const CORE_STUDY_TOPICS: StudyTopic[] = [
             "/accounting/fifo-process-costing",
             "/accounting/process-costing-practice-checker",
         ],
-        relatedTopicIds: ["cvp-core", "scan-review"],
+        relatedTopicIds: ["cvp-core", "job-order-costing", "scan-review"],
         quiz: {
             title: "Process Costing Quick Check",
             intro:
@@ -696,6 +696,193 @@ const CORE_STUDY_TOPICS: StudyTopic[] = [
                     placeholder: "Type a short diagnosis",
                     explanation:
                         "The denominator must reflect equivalent units, not just physical counts, when calculating cost per equivalent unit.",
+                },
+            ],
+        },
+    },
+    {
+        id: "job-order-costing",
+        title: "Job Order Costing Foundations",
+        shortTitle: "Job Order Costing",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Study job cost sheets, direct tracing, overhead application, prime cost, conversion cost, and unit-cost reading as one manufacturing-cost workflow.",
+        intro:
+            "Job-order costing is used when production is built around specific jobs, orders, or batches rather than a continuous department flow. Students need to trace direct cost correctly, apply overhead carefully, and explain what the resulting unit cost actually means before comparing jobs or quoting prices.",
+        whyItMatters: [
+            "It helps students separate job-specific manufacturing cost from period-wide factory totals.",
+            "It strengthens the difference between direct tracing and overhead application.",
+            "It prepares students for cost-of-goods-manufactured and manufacturing decision problems built from job data.",
+        ],
+        classContexts: [
+            "Job cost sheet exercises",
+            "Prime and conversion cost review",
+            "Manufacturing cost classification and unit-cost problems",
+        ],
+        whenToUse: [
+            "Use it when the problem identifies a specific job, work order, custom batch, or customer order.",
+            "Use it when direct materials, direct labor, and applied overhead are assigned to one job and the question asks for total or per-unit job cost.",
+            "Move to process costing instead when production is continuous and the problem depends on departments, equivalent units, or ending WIP percentages.",
+        ],
+        formulaOverview: [
+            {
+                label: "Total job cost",
+                expression: "Total job cost = Direct materials used + Direct labor + Applied manufacturing overhead",
+                explanation:
+                    "This collects the manufacturing costs assigned to one specific job or batch.",
+            },
+            {
+                label: "Prime cost",
+                expression: "Prime cost = Direct materials used + Direct labor",
+                explanation:
+                    "Prime cost captures the costs directly traceable to the product or job.",
+            },
+            {
+                label: "Conversion cost",
+                expression: "Conversion cost = Direct labor + Applied manufacturing overhead",
+                explanation:
+                    "Conversion cost focuses on the resources used to convert materials into finished output.",
+            },
+            {
+                label: "Unit cost for the job",
+                expression: "Unit cost = Total job cost / Units in the job",
+                explanation:
+                    "This translates the assigned cost of the job into a per-unit reading for pricing, valuation, or comparison.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "DM", meaning: "Direct materials used in the specific job" },
+            { symbol: "DL", meaning: "Direct labor assigned directly to the job" },
+            { symbol: "MOH", meaning: "Applied manufacturing overhead assigned to the job" },
+            { symbol: "Unit cost", meaning: "Assigned cost per unit within the job or batch" },
+        ],
+        procedure: [
+            "Confirm that the problem is job-specific rather than department-wide continuous production.",
+            "Identify direct materials used, direct labor, and the overhead applied to the job.",
+            "Add the three manufacturing-cost elements to compute total job cost.",
+            "Compute prime cost and conversion cost if the course asks for cost classification.",
+            "Divide total job cost by the units in the job only after confirming the denominator belongs to that specific job or batch.",
+        ],
+        workedExample: {
+            title: "Custom production job example",
+            scenario:
+                "A custom order uses 85,000 of direct materials, 54,000 of direct labor, and 48,600 of applied manufacturing overhead. The job contains 1,200 completed units.",
+            steps: [
+                "Prime cost = 85,000 + 54,000 = 139,000.",
+                "Conversion cost = 54,000 + 48,600 = 102,600.",
+                "Total job cost = 85,000 + 54,000 + 48,600 = 187,600.",
+                "Unit cost = 187,600 / 1,200 = 156.33 per unit, rounded to two decimals.",
+            ],
+            result:
+                "The job carries a total assigned manufacturing cost of 187,600 and a unit cost of 156.33.",
+            interpretation:
+                "The important lesson is not only the arithmetic. Students should also explain whether the unit cost is being driven mainly by materials, labor, or overhead before comparing the job to another order.",
+        },
+        checkpointExample: {
+            title: "Overhead application check",
+            scenario:
+                "A student uses total actual factory overhead for the month instead of the overhead applied to the specific job.",
+            steps: [
+                "Check whether the problem gives applied overhead directly or a predetermined rate that must be used first.",
+                "Exclude period-wide factory totals that belong to many jobs unless the case clearly says they are assigned to this one job.",
+                "Rebuild the job cost sheet using only the cost assigned to the job under review.",
+            ],
+            result:
+                "The original unit cost is overstated because the denominator is one job but the overhead input came from the whole period.",
+            interpretation:
+                "This is a classic wrong-basis error. The arithmetic may look neat while the cost assignment is conceptually wrong.",
+        },
+        interpretation: [
+            "A job cost sheet explains how cost is assigned to one identifiable job, not to the whole factory process.",
+            "Prime and conversion cost are classification tools that help students understand what part of the job cost is directly traced versus converted through manufacturing activity.",
+            "A unit-cost answer is only as trustworthy as the job-specific denominator and the overhead application basis behind it.",
+        ],
+        commonMistakes: [
+            "Using direct materials purchased instead of direct materials actually used in the job.",
+            "Using actual total factory overhead instead of applied overhead assigned to the job.",
+            "Dividing by the wrong unit base, such as planned output or total department units instead of units in the job.",
+            "Treating prime cost and conversion cost as interchangeable when they classify different cost combinations.",
+        ],
+        examTraps: [
+            "Problems often mention a predetermined overhead rate in one sentence and the activity base in another, so students may skip the overhead-application step.",
+            "A case may look like process costing if it mentions production, but the presence of one specific job or batch should redirect the method.",
+            "Some textbook questions ask for total job cost first and only later ask for unit cost, so premature division can create confusion.",
+        ],
+        selfCheck: [
+            "Why is applied overhead, not total actual factory overhead, the relevant amount for a job cost sheet?",
+            "How do prime cost and conversion cost differ even though both use direct labor?",
+            "What clue tells you to use job-order costing instead of process costing?",
+        ],
+        practiceCues: [
+            "Explain how you would compute applied overhead if the rate were given but the applied amount was missing.",
+            "Describe why a custom-order problem usually points to job-order costing.",
+            "Compare how unit cost could change if the same total job cost were spread over more units.",
+        ],
+        keywords: [
+            "job order costing",
+            "job cost sheet",
+            "applied overhead",
+            "prime cost",
+            "conversion cost",
+            "unit cost",
+        ],
+        scanSignals: [
+            "job cost sheet",
+            "work order",
+            "batch cost",
+            "applied overhead",
+            "prime cost",
+            "conversion cost",
+        ],
+        relatedCalculatorPaths: [
+            "/accounting/job-order-cost-sheet",
+            "/accounting/prime-conversion-cost",
+            "/accounting/cost-of-goods-manufactured",
+            "/accounting/process-costing-workspace",
+        ],
+        relatedTopicIds: ["process-costing", "budgeting-and-planning-review", "accounting-foundations-review"],
+        quiz: {
+            title: "Job Order Costing Check",
+            intro:
+                "Use this short set to verify whether you can identify the right cost-assignment logic before trusting the worksheet totals.",
+            questions: [
+                {
+                    id: "joc-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which cost should normally be added with direct materials and direct labor on a job cost sheet?",
+                    choices: [
+                        "Applied manufacturing overhead",
+                        "Consumer surplus",
+                        "Preferred dividends",
+                        "Deposits in transit",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "A job cost sheet combines direct materials, direct labor, and applied manufacturing overhead assigned to that job.",
+                },
+                {
+                    id: "joc-q2",
+                    kind: "true-false",
+                    prompt:
+                        "Job-order costing is generally the better fit when production is continuous and the problem focuses on equivalent units in departments.",
+                    answer: false,
+                    explanation:
+                        "Continuous production with equivalent units points toward process costing, not job-order costing.",
+                },
+                {
+                    id: "joc-q3",
+                    kind: "short-answer",
+                    prompt:
+                        "If a student uses total factory overhead instead of applied overhead for one job, what kind of mistake is that?",
+                    acceptedAnswers: [
+                        "wrong cost basis",
+                        "used total overhead instead of applied overhead",
+                        "wrong overhead basis",
+                    ],
+                    placeholder: "Type the likely mistake",
+                    explanation:
+                        "The student used a period-wide factory total instead of the amount assigned to the specific job, so the cost basis is wrong.",
                 },
             ],
         },

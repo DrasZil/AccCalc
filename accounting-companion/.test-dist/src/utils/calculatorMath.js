@@ -1399,6 +1399,24 @@ export function computeInventoryShrinkage({ bookUnits, physicalUnits, costPerUni
         shrinkageRate,
     };
 }
+export function computeJobOrderCostSheet({ directMaterialsUsed, directLabor, appliedManufacturingOverhead, unitsInJob, }) {
+    const primeCost = directMaterialsUsed + directLabor;
+    const conversionCost = directLabor + appliedManufacturingOverhead;
+    const totalJobCost = directMaterialsUsed + directLabor + appliedManufacturingOverhead;
+    const unitCost = unitsInJob <= 0 ? Infinity : totalJobCost / unitsInJob;
+    const materialsShare = totalJobCost === 0 ? 0 : (directMaterialsUsed / totalJobCost) * 100;
+    const laborShare = totalJobCost === 0 ? 0 : (directLabor / totalJobCost) * 100;
+    const overheadShare = totalJobCost === 0 ? 0 : (appliedManufacturingOverhead / totalJobCost) * 100;
+    return {
+        primeCost,
+        conversionCost,
+        totalJobCost,
+        unitCost,
+        materialsShare,
+        laborShare,
+        overheadShare,
+    };
+}
 export function computePrepaidExpenseAdjustment({ beginningPrepaid, endingPrepaid, }) {
     const expenseRecognized = beginningPrepaid - endingPrepaid;
     return {

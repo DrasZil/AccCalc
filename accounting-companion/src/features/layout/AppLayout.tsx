@@ -169,7 +169,15 @@ function prefersWidePageShell(pathname: string) {
         pathname === "/scan-check" ||
         pathname.startsWith("/study") ||
         pathname === "/history" ||
+        pathname === "/basic" ||
         pathname.startsWith("/smart/") ||
+        pathname.startsWith("/accounting/") ||
+        pathname.startsWith("/finance/") ||
+        pathname.startsWith("/business/") ||
+        pathname.startsWith("/economics/") ||
+        pathname.startsWith("/entrepreneurship/") ||
+        pathname.startsWith("/business-math/") ||
+        pathname.startsWith("/statistics/") ||
         pathname.includes("workspace") ||
         pathname.includes("analysis") ||
         pathname.includes("comparison") ||
@@ -700,12 +708,14 @@ export default function AppLayout() {
     const [feedbackVisible, setFeedbackVisible] = useState<boolean>(false);
     const [supportPromptVisible, setSupportPromptVisible] = useState<boolean>(false);
     const [sidebarResizeActive, setSidebarResizeActive] = useState<boolean>(false);
+    const [headerCondensed, setHeaderCondensed] = useState<boolean>(false);
 
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
     const noticeTimersRef = useRef<Record<string, number>>({});
     const previousOnlineRef = useRef<boolean>(network.online);
     const previousStandaloneRef = useRef<boolean>(install.isStandalone);
+    const lastScrollYRef = useRef(0);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
     const mobileSearchOpen = mobileSearchRoute === location.pathname;
@@ -756,6 +766,12 @@ export default function AppLayout() {
         [activity.seenNewPaths]
     );
 
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        lastScrollYRef.current = window.scrollY;
+        setHeaderCondensed(false);
+    }, [location.pathname]);
+
     function pushNotice(title: string, message: string, tone: Notice["tone"] = "info") {
         const existingId = `${title}:${message}`;
 
@@ -795,6 +811,49 @@ export default function AppLayout() {
             [groupTitle]: !current[groupTitle],
         }));
     }
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        if (
+            !settings.enableMotionEffects ||
+            mobileSidebarOpen ||
+            mobileSearchOpen ||
+            settingsPanelOpen
+        ) {
+            setHeaderCondensed(false);
+            return;
+        }
+
+        const handleScroll = () => {
+            const currentScrollY = Math.max(window.scrollY, 0);
+            const delta = currentScrollY - lastScrollYRef.current;
+
+            if (currentScrollY < 48) {
+                setHeaderCondensed(false);
+                lastScrollYRef.current = currentScrollY;
+                return;
+            }
+
+            if (delta > 12 && currentScrollY > 96) {
+                setHeaderCondensed(true);
+            } else if (delta < -10) {
+                setHeaderCondensed(false);
+            }
+
+            lastScrollYRef.current = currentScrollY;
+        };
+
+        handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [
+        mobileSearchOpen,
+        mobileSidebarOpen,
+        settings.enableMotionEffects,
+        settingsPanelOpen,
+    ]);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -1348,19 +1407,22 @@ export default function AppLayout() {
                 <div className="app-surface min-w-0 flex-1">
                     <header
                         ref={headerRef}
-                        className="sticky top-0 z-[90] border-b app-divider backdrop-blur-xl"
+                        className={[
+                            "app-shell-header sticky top-0 z-[90] border-b app-divider backdrop-blur-xl",
+                            headerCondensed ? "app-shell-header--condensed" : "",
+                        ].join(" ")}
                         style={{ background: "var(--app-header-bg)" }}
                     >
                         <div
                             className={[
-                                "flex items-center justify-between gap-3 md:px-5",
+                                "app-shell-header__bar flex items-center justify-between gap-3 md:px-5",
                                 settings.compactMobileChrome
                                     ? "px-3.5 py-1.75 md:py-2.25"
                                     : "px-4 py-2 md:py-2.5",
                             ].join(" ")}
                         >
-                            <div className="min-w-0 flex-1 pr-2">
-                                <div className="flex items-center gap-2">
+                            <div className="app-shell-header__intro min-w-0 flex-1 pr-2">
+                                <div className="app-shell-header__eyebrow flex items-center gap-2">
                                     <p className="app-kicker hidden text-[0.58rem] sm:block">
                                         {currentMeta?.category ?? "Accounting companion"}
                                     </p>
@@ -1373,17 +1435,17 @@ export default function AppLayout() {
                                         </Link>
                                     ) : null}
                                 </div>
-                                <h2 className="mt-0.5 truncate text-[0.98rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.08rem]">
+                                <h2 className="app-shell-header__title mt-0.5 truncate text-[0.98rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.08rem]">
                                     {currentMeta?.shortLabel ?? currentMeta?.label ?? "AccCalc"}
                                 </h2>
-                                <p className="app-clamp-1 mt-0.5 hidden text-[0.74rem] leading-5 app-helper xl:block">
+                                <p className="app-shell-header__description app-clamp-1 mt-0.5 hidden text-[0.74rem] leading-5 app-helper xl:block">
                                     {currentMeta?.description ??
                                         "Solve, check, and learn across accounting, finance, business, and related coursework from one clearer workspace."}
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <div className="hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]">
+                            <div className="app-shell-header__actions flex items-center gap-2">
+                                <div className="app-shell-header__search hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]">
                                     <FeatureSearch key={location.pathname} className="w-full" placeholder="Search" />
                                 </div>
 
