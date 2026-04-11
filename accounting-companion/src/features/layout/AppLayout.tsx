@@ -159,6 +159,21 @@ function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
     return groupTitle;
 }
 
+function prefersWidePageShell(pathname: string) {
+    return (
+        pathname === "/" ||
+        pathname === "/scan-check" ||
+        pathname === "/history" ||
+        pathname.startsWith("/smart/") ||
+        pathname.includes("workspace") ||
+        pathname.includes("analysis") ||
+        pathname.includes("comparison") ||
+        pathname.includes("dissolution") ||
+        pathname.includes("budget") ||
+        pathname.includes("schedule")
+    );
+}
+
 function getDraftFields(root: HTMLElement) {
     return Array.from(
         root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
@@ -702,6 +717,9 @@ export default function AppLayout() {
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
     const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
+    const pageShellClassName = prefersWidePageShell(location.pathname)
+        ? "app-page-shell app-page-shell-wide animate-[fade-rise_0.42s_ease-out]"
+        : "app-page-shell animate-[fade-rise_0.42s_ease-out]";
 
     const effectiveOpenGroups = useMemo(() => {
         if (!settings.autoExpandActiveNavGroup) {
@@ -799,6 +817,16 @@ export default function AppLayout() {
         if (typeof document === "undefined") return;
         document.body.dataset.motion = settings.enableMotionEffects ? "on" : "off";
     }, [settings.enableMotionEffects]);
+
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+
+        const pageTitle = currentMeta?.label ?? "AccCalc";
+        document.title =
+            location.pathname === "/"
+                ? `AccCalc ${APP_VERSION} | Solve, Check, Learn`
+                : `${pageTitle} | AccCalc ${APP_VERSION}`;
+    }, [currentMeta?.label, location.pathname]);
 
     useEffect(() => {
         if (typeof document === "undefined") return;
@@ -1481,7 +1509,7 @@ export default function AppLayout() {
                                 "calc(var(--app-mobile-nav-height, 0px) + env(safe-area-inset-bottom, 0px) + 0.85rem)",
                         }}
                     >
-                        <div className="app-page-shell animate-[fade-rise_0.42s_ease-out]">
+                        <div className={pageShellClassName}>
                             <Outlet />
                         </div>
                     </main>

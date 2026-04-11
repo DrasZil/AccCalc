@@ -22,6 +22,8 @@ type CalculatorPageLayoutProps = {
     resultSection?: ReactNode;
     explanationSection?: ReactNode;
     prioritizeResultSection?: boolean;
+    desktopLayout?: "balanced" | "result-focus";
+    pageWidth?: "default" | "study" | "wide";
     headerActions?: ReactNode;
     headerMeta?: ReactNode;
 };
@@ -55,6 +57,8 @@ export default function CalculatorPageLayout({
     resultSection,
     explanationSection,
     prioritizeResultSection = false,
+    desktopLayout = "balanced",
+    pageWidth = "default",
     headerActions,
     headerMeta,
 }: CalculatorPageLayoutProps) {
@@ -171,8 +175,15 @@ export default function CalculatorPageLayout({
         );
     }, [currentMeta, headerMeta, routeAvailability]);
 
+    const pageWidthClass =
+        pageWidth === "wide"
+            ? "app-page-shell-wide"
+            : pageWidth === "study"
+              ? "app-page-shell-study"
+              : "";
+
     return (
-        <div className="app-page-stack">
+        <div className={["app-page-stack", pageWidthClass].join(" ").trim()}>
             <PageHeader
                 badge={badge}
                 title={title}
@@ -260,54 +271,71 @@ export default function CalculatorPageLayout({
                 </div>
             ) : null}
 
-            <div className="hidden xl:grid xl:gap-[var(--app-page-gap-lg)]">
+            <div className="hidden xl:block">
                 {resultSection ? (
-                    <div className="grid gap-[var(--app-page-gap-lg)] xl:grid-cols-[minmax(0,1.06fr)_minmax(22rem,0.94fr)]">
-                        {prioritizeResultSection ? (
-                            <>
-                                <div className="space-y-[var(--app-page-gap-lg)]">
-                                    <LayoutSection label="Results" id="section-results">
-                                        {resultSection}
-                                    </LayoutSection>
-                                    <LayoutSection label="Inputs" id="section-inputs">
-                                        {inputSection}
-                                    </LayoutSection>
-                                </div>
-                                <div className="space-y-[var(--app-page-gap-lg)]">
-                                    {explanationSection ? (
-                                        <DisclosurePanel
-                                            title="Learn this method"
-                                            summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
-                                            badge="Details"
-                                        >
-                                            {explanationSection}
-                                        </DisclosurePanel>
-                                    ) : null}
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="space-y-[var(--app-page-gap-lg)]">
-                                    <LayoutSection label="Inputs" id="section-inputs">
-                                        {inputSection}
-                                    </LayoutSection>
-                                    {explanationSection ? (
-                                        <DisclosurePanel
-                                            title="Learn this method"
-                                            summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
-                                            badge="Details"
-                                        >
-                                            {explanationSection}
-                                        </DisclosurePanel>
-                                    ) : null}
-                                </div>
-                                <div className="space-y-[var(--app-page-gap)] xl:sticky xl:top-[calc(var(--app-header-height)+1rem)]">
-                                    <LayoutSection label="Results" id="section-results">
-                                        {resultSection}
-                                    </LayoutSection>
-                                </div>
-                            </>
-                        )}
+                    <div className="app-adaptive-layout">
+                        <div
+                            className={[
+                                "app-adaptive-main",
+                                desktopLayout === "result-focus"
+                                    ? "app-adaptive-main--result-focus"
+                                    : "app-adaptive-main--balanced",
+                            ].join(" ")}
+                        >
+                            {desktopLayout === "result-focus" ? (
+                                <>
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Inputs" id="section-inputs">
+                                            {inputSection}
+                                        </LayoutSection>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Results" id="section-results">
+                                            {resultSection}
+                                        </LayoutSection>
+                                    </div>
+                                </>
+                            ) : prioritizeResultSection ? (
+                                <>
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Results" id="section-results">
+                                            {resultSection}
+                                        </LayoutSection>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Inputs" id="section-inputs">
+                                            {inputSection}
+                                        </LayoutSection>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Inputs" id="section-inputs">
+                                            {inputSection}
+                                        </LayoutSection>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <LayoutSection label="Results" id="section-results">
+                                            {resultSection}
+                                        </LayoutSection>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {explanationSection ? (
+                            <div className="app-adaptive-support">
+                                <DisclosurePanel
+                                    title="Learn this method"
+                                    summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
+                                    badge="Details"
+                                >
+                                    {explanationSection}
+                                </DisclosurePanel>
+                            </div>
+                        ) : null}
                     </div>
                 ) : (
                     <>
@@ -346,7 +374,7 @@ export default function CalculatorPageLayout({
                     <div className="px-1">
                         <p className="app-section-kicker text-[0.68rem]">Related tools</p>
                     </div>
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="app-card-grid-readable">
                         {relatedRoutes.map((route) => (
                             <Link
                                 key={route.path}

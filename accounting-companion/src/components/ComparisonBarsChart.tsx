@@ -6,8 +6,10 @@ type ComparisonBarsChartProps = {
         value: number;
         accent?: "primary" | "secondary" | "highlight";
         note?: string;
+        emphasisLabel?: string;
     }>;
     formatter?: (value: number) => string;
+    caption?: string;
 };
 
 const ACCENT_CLASS_MAP = {
@@ -21,6 +23,7 @@ export default function ComparisonBarsChart({
     description,
     items,
     formatter = (value) => value.toLocaleString(),
+    caption,
 }: ComparisonBarsChartProps) {
     const maxValue = Math.max(...items.map((item) => Math.abs(item.value)), 1);
 
@@ -32,36 +35,50 @@ export default function ComparisonBarsChart({
                 <p className="app-body-md mt-2 text-sm">{description}</p>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="app-card-grid-readable mt-5">
                 {items.map((item) => {
-                    const width = `${Math.max(8, (Math.abs(item.value) / maxValue) * 100)}%`;
+                    const normalizedWidth = Math.abs(item.value) / maxValue;
+                    const width = `${Math.max(12, normalizedWidth * 100)}%`;
 
                     return (
-                        <div key={item.label} className="space-y-2">
+                        <div
+                            key={item.label}
+                            className="app-subtle-surface flex min-w-0 flex-col rounded-[1.1rem] px-4 py-4"
+                        >
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                    {item.label}
-                                </p>
-                                <p className="text-sm font-medium text-[color:var(--app-text-secondary)]">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {item.label}
+                                    </p>
+                                    <p className="app-helper mt-1 text-xs">
+                                        {item.emphasisLabel ??
+                                            `${Math.round(normalizedWidth * 100)}% of the largest current checkpoint.`}
+                                    </p>
+                                </div>
+                                <p className="shrink-0 text-sm font-medium text-[color:var(--app-text-secondary)]">
                                     {formatter(item.value)}
                                 </p>
                             </div>
                             <div className="app-subtle-surface overflow-hidden rounded-full px-1 py-1">
                                 <div
-                                    className="h-3 rounded-full"
+                                    className="relative h-3 rounded-full"
                                     style={{
                                         width,
                                         background: ACCENT_CLASS_MAP[item.accent ?? "primary"],
                                     }}
-                                />
+                                >
+                                    <span className="absolute inset-y-0 right-0 w-px bg-white/35" />
+                                </div>
                             </div>
                             {item.note ? (
-                                <p className="app-helper text-xs">{item.note}</p>
+                                <p className="app-helper mt-2 text-xs">{item.note}</p>
                             ) : null}
                         </div>
                     );
                 })}
             </div>
+
+            {caption ? <p className="app-helper mt-4 text-xs leading-5">{caption}</p> : null}
         </div>
     );
 }

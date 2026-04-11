@@ -11,7 +11,7 @@ import { recommendScanRoutes } from "./ocrRouting";
 function extractUnits(text: string) {
     const matches =
         text.match(
-            /\b(?:kg|g|cm|mm|m|km|%|days?|years?|months?|hours?|php|peso(?:s)?|units?)\b/gi
+            /\b(?:kg|g|cm|mm|m|km|%|days?|years?|months?|hours?|php|peso(?:s)?|units?)\b|₱/gi
         ) ?? [];
     return Array.from(new Set(matches.map((match) => match.toLowerCase())));
 }
@@ -19,7 +19,7 @@ function extractUnits(text: string) {
 function extractValues(text: string) {
     const matches =
         text.match(
-            /(?:PHP\s*)?-?\d[\d,.]*(?:\.\d+)?%?(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?/g
+            /(?:PHP\s*|₱\s*)?-?\d[\d,.]*(?:\.\d+)?%?(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?/g
         ) ?? [];
 
     return matches.slice(0, 8).map((match, index) => ({

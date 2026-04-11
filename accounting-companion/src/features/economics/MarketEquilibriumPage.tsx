@@ -132,6 +132,7 @@ export default function MarketEquilibriumPage() {
                                     {
                                         label: "Demand",
                                         accent: "primary",
+                                        note: `Demand falls by ${Number(demandSlope).toFixed(2)} price units for each added unit of quantity.`,
                                         points: [
                                             { x: 0, y: Number(demandIntercept) },
                                             { x: result.demandAtZeroPrice, y: 0 },
@@ -140,6 +141,7 @@ export default function MarketEquilibriumPage() {
                                     {
                                         label: "Supply",
                                         accent: "secondary",
+                                        note: `Supply rises by ${Number(supplySlope).toFixed(2)} price units for each added unit of quantity.`,
                                         points: [
                                             { x: 0, y: Number(supplyIntercept) },
                                             {
@@ -157,7 +159,9 @@ export default function MarketEquilibriumPage() {
                                     label: "Equilibrium",
                                     x: result.equilibriumQuantity,
                                     y: result.equilibriumPrice,
+                                    note: `Q = ${result.equilibriumQuantity.toFixed(2)}, P = ${result.equilibriumPrice.toFixed(2)}`,
                                 }}
+                                formatter={(value) => value.toFixed(2)}
                             />
                         ) : chartMode === "table" ? (
                             <SectionCard>

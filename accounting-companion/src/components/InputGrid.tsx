@@ -11,10 +11,10 @@ export default function InputGrid({
 }: InputGridProps) {
     const columnClass =
         columns === 1
-        ? "grid-cols-1"
-        : columns === 2
-        ? "sm:grid-cols-2"
-        : "sm:grid-cols-2 xl:grid-cols-3";
+            ? "app-input-grid--1"
+            : columns === 2
+              ? "app-input-grid--2"
+              : "app-input-grid--3";
 
-    return <div className={`grid gap-3 md:gap-4 ${columnClass}`}>{children}</div>;
+    return <div className={`app-input-grid ${columnClass}`}>{children}</div>;
 }

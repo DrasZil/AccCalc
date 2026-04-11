@@ -5,19 +5,20 @@ type CleanupResult = {
 };
 
 const COMMON_REPLACEMENTS: Array<[RegExp, string]> = [
-    [/ÃƒÆ’Ã‚Â·/g, "/"],
-    [/ÃƒÆ’Ã¢â‚¬â€/g, "×"],
-    [/[Ã¢â‚¬ÂÃ¢â‚¬â€˜Ã¢â‚¬â€™Ã¢â‚¬â€œÃ¢â‚¬â€]/g, "-"],
-    [/\bphp\b/gi, "PHP"],
-    [/\bpeso(?:s)?\b/gi, "PHP"],
-    [/[Ã¢â€šÂ±₱]\s*/g, "PHP "],
-    [/â€¢/g, "•"],
+    [/ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â·/g, "/"],
+    [/ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â|Ã—/g, "×"],
+    [/[ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ËœÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â]/g, "-"],
+    [/\bphp\b/gi, "₱"],
+    [/\bpeso(?:s)?\b/gi, "₱"],
+    [/[ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â±â‚±]\s*/g, "₱"],
+    [/Ã¢â‚¬Â¢/g, "•"],
 ];
 
 const LIST_LINE_PATTERN = /^((?:\d+|[A-Za-z])(?:[.)]|-))\s*/;
+const CURRENCY_PREFIX = /^(?:₱|[$€£¥₹₩])\s*/i;
 
 function isLikelyNumberToken(token: string) {
-    return /\d/.test(token) || /(?:PHP|[%$])/i.test(token);
+    return /\d/.test(token) || /(?:₱|[%$€£¥₹₩])/i.test(token);
 }
 
 function normalizeGroupedInteger(value: string) {
@@ -81,10 +82,10 @@ function normalizeNumericToken(
     const original = token;
     let next = token;
 
-    const prefixMatch = next.match(/^(PHP|[$])\s*/i);
-    const prefix = prefixMatch?.[0] ?? "";
+    const prefixMatch = next.match(CURRENCY_PREFIX);
+    const prefix = prefixMatch?.[0]?.trim() ?? "";
     if (prefix) {
-        next = next.slice(prefix.length);
+        next = next.slice(prefixMatch?.[0].length ?? 0);
     }
 
     const suffixMatch = next.match(/(%|units?|days?|years?|months?|hours?)$/i);
@@ -113,7 +114,7 @@ function normalizeNumericToken(
 
     next = normalizeDecimalStructure(next, confidence, flags);
 
-    const normalizedPrefix = prefix ? "PHP " : "";
+    const normalizedPrefix = prefix ? prefix : "";
     const normalizedSuffix = suffix ? (suffix === "%" ? "%" : ` ${suffix}`) : "";
     const result = `${normalizedPrefix}${next}${normalizedSuffix}`.trim();
 
@@ -127,10 +128,10 @@ function normalizeNumericToken(
 function normalizeLineSpacing(line: string) {
     return line
         .replace(/[^\S\r\n]+/g, " ")
-        .replace(/([A-Za-z])(?=PHP\b)/g, "$1 ")
-        .replace(/(?<=\d)(?=PHP\b)/g, " ")
-        .replace(/(?<=[A-Za-z])(?=\d{2,}\b)/g, " ")
+        .replace(/([A-Za-z])(?=[₱$€£¥₹₩])/g, "$1 ")
+        .replace(/(?<=\d)(?=[₱$€£¥₹₩])/g, " ")
         .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ")
+        .replace(/(?<=[A-Za-z])(?=\d{1,3}(?:[,.]\d{3})*(?:\.\d+)?\b)/g, " ")
         .replace(/\s*([:;])\s*/g, "$1 ")
         .replace(/\s*([=+×÷*/])\s*/g, " $1 ")
         .replace(/\s*-\s*(?=\d)/g, " - ")
@@ -166,7 +167,7 @@ function cleanLine(line: string, confidence: number, flags: Set<string>) {
 
     next = tokens
         .join(" ")
-        .replace(/\bPHP\s+PHP\b/g, "PHP")
+        .replace(/([₱$€£¥₹₩])\s+\1/g, "$1")
         .replace(/\s{2,}/g, " ")
         .replace(/\brequired\b:/i, "Required:")
         .replace(/\bsolution\b:/i, "Solution:")
@@ -224,7 +225,7 @@ export function cleanupMathLikeText(input: string, confidence = 70): CleanupResu
         "Cleaned obvious OCR spacing, punctuation, and line merges so the scan reads more like digital text."
     );
 
-    if (/\bPHP\s+\d/.test(cleanedText) || /%/.test(cleanedText)) {
+    if (/[₱$€£¥₹₩]/.test(cleanedText) || /%/.test(cleanedText)) {
         cleanupNotes.add(
             "Normalized currency, percentages, and operator spacing without forcing uncertain values into one interpretation."
         );

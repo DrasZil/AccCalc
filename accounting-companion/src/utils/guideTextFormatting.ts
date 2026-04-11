@@ -6,85 +6,71 @@ const GUIDE_WORDS = [
     "amount",
     "analysis",
     "assumption",
+    "available",
     "average",
     "balance",
-    "basis",
-    "bonus",
-    "book",
     "break",
     "budget",
     "capital",
-    "carrying",
     "cash",
     "change",
     "check",
-    "classification",
-    "collections",
+    "checkpoint",
+    "checkpoints",
     "common",
     "comparison",
-    "compound",
+    "confidence",
+    "connect",
     "contribution",
     "conversion",
     "cost",
     "current",
-    "days",
-    "debt",
     "decision",
     "deficiency",
     "depreciation",
-    "difference",
     "discount",
     "dissolution",
     "distribution",
-    "earnings",
-    "ending",
-    "entry",
     "equity",
-    "estimated",
+    "example",
     "expense",
+    "expected",
     "explanation",
     "fixed",
     "flow",
-    "forecast",
+    "for",
     "formula",
     "funding",
-    "future",
     "gain",
     "goodwill",
-    "gross",
+    "guide",
     "income",
     "interest",
     "inventory",
-    "investment",
-    "issue",
-    "label",
+    "interpretation",
     "learn",
     "liabilities",
     "liability",
     "liquidation",
+    "logic",
     "loss",
     "margin",
     "market",
     "meaning",
     "method",
-    "minimum",
-    "mix",
-    "months",
+    "mistake",
+    "mistakes",
     "multi",
-    "net",
     "notes",
+    "on",
     "operating",
-    "outstanding",
+    "or",
     "partnership",
-    "payable",
-    "payment",
     "percentage",
     "period",
     "planning",
     "point",
     "price",
-    "practical",
-    "present",
     "problem",
     "procedure",
     "process",
@@ -95,48 +81,60 @@ const GUIDE_WORDS = [
     "realization",
     "recommended",
     "reconciliation",
-    "remaining",
+    "related",
+    "results",
     "revenue",
+    "review",
     "risk",
     "sales",
     "schedule",
+    "self",
     "sensitivity",
-    "settlement",
     "share",
-    "sharing",
-    "solve",
     "solution",
     "startup",
-    "statement",
     "step",
+    "study",
     "subtotal",
+    "support",
     "target",
     "text",
     "tool",
+    "top",
+    "to",
     "total",
     "units",
+    "use",
     "value",
     "variable",
     "warning",
+    "warnings",
     "weighted",
-    "withdrawal",
-    "work",
-    "years",
+    "when",
+    "worked",
+    "workflow",
 ];
 
 const WORD_LOOKUP = new Set(GUIDE_WORDS);
-const NORMALIZATION_REPLACEMENTS: Array<[RegExp, string]> = [
+const CURRENCY_SYMBOLS = /[$€£¥₱₹₩]/;
+const OPERATOR_SPACING = /(?<=\S)\s*([=+*/×÷<>≤≥])\s*(?=\S)/g;
+const MOJIBAKE_REPLACEMENTS: Array<[RegExp, string]> = [
     [/Ã—/g, "×"],
     [/Ã·/g, "÷"],
     [/â‰¥/g, "≥"],
     [/â‰¤/g, "≤"],
-    [/â‰ /g, "≠"],
-    [/âˆ’/g, "-"],
+    [/â‰ "/g, "≠"],
     [/â€¢/g, "•"],
-    [/â‚±|₱/g, "PHP "],
-    [/\bpesos?\b/gi, "PHP"],
-    [/\bphp\b/gi, "PHP"],
+    [/â‚±/g, "₱"],
+    [/â€“|â€”/g, "-"],
 ];
+
+function normalizeEncodings(input: string) {
+    return MOJIBAKE_REPLACEMENTS.reduce(
+        (current, [pattern, replacement]) => current.replace(pattern, replacement),
+        input
+    );
+}
 
 function splitCamelAndPascalCase(input: string) {
     return input
@@ -145,28 +143,24 @@ function splitCamelAndPascalCase(input: string) {
 }
 
 function segmentLowercaseToken(token: string) {
-    if (!/^[a-z]{10,}$/.test(token)) return token;
+    if (!/^[a-z]{8,}$/.test(token)) return token;
 
-    const lower = token.toLowerCase();
     const best = new Map<number, string[] | null>();
 
     function solve(index: number): string[] | null {
-        if (index === lower.length) return [];
+        if (index === token.length) return [];
         if (best.has(index)) return best.get(index) ?? null;
 
         let answer: string[] | null = null;
 
-        for (let end = index + 2; end <= lower.length; end += 1) {
-            const part = lower.slice(index, end);
+        for (let end = index + 2; end <= token.length; end += 1) {
+            const part = token.slice(index, end);
             if (!WORD_LOOKUP.has(part)) continue;
 
             const tail = solve(end);
             if (!tail) continue;
 
             const candidate = [part, ...tail];
-            const coversWholeToken = candidate.join("").length === lower.length;
-            if (!coversWholeToken) continue;
-
             if (!answer || candidate.length < answer.length) {
                 answer = candidate;
             }
@@ -180,42 +174,40 @@ function segmentLowercaseToken(token: string) {
     return result && result.length > 1 ? result.join(" ") : token;
 }
 
-function normalizeKnownEncodings(input: string) {
-    return NORMALIZATION_REPLACEMENTS.reduce(
-        (current, [pattern, replacement]) => current.replace(pattern, replacement),
-        input
-    );
-}
-
 function normalizeTokenSpacing(token: string) {
     return token
-        .replace(/([A-Za-z])(?=PHP\b)/g, "$1 ")
-        .replace(/(?<=\d)(?=PHP\b)/g, " ")
-        .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ")
-        .replace(/(?<=[A-Za-z])(?=\d{2,}\b)/g, " ");
+        .replace(/\b(?:php|philippine peso(?:s)?|peso(?:s)?)\b/gi, "₱")
+        .replace(/([A-Za-z])(?=[$€£¥₱₹₩])/g, "$1 ")
+        .replace(/(?<=\d)(?=[$€£¥₱₹₩])/g, " ")
+        .replace(/(?<=[A-Za-z])(?=\d{1,3}(?:[,.]\d{3})*(?:\.\d+)?\b)/g, " ")
+        .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ");
 }
 
 export function formatGuideText(input: string) {
-    const normalized = normalizeKnownEncodings(input);
+    const normalized = normalizeEncodings(input)
+        .replace(/\r\n/g, "\n")
+        .replace(/\u00a0/g, " ")
+        .replace(/\bpesos?\b/gi, "₱")
+        .replace(/\bphp\b/gi, "₱");
 
     return normalized
         .split(/(\s+)/)
         .map((token) => {
             if (/^\s+$/.test(token)) return token;
 
-            const splitToken = splitCamelAndPascalCase(token);
-            return splitToken
+            return splitCamelAndPascalCase(token)
                 .split(" ")
-                .map((part) => normalizeTokenSpacing(segmentLowercaseToken(part)))
+                .map((part) => normalizeTokenSpacing(segmentLowercaseToken(part.toLowerCase() === part ? part : part)))
                 .join(" ");
         })
         .join("")
         .replace(/(?<=[:;,.])(?=\S)/g, " ")
-        .replace(/(?<=\S)\s*([=+*/×÷<>≤≥])\s*(?=\S)/g, " $1 ")
+        .replace(OPERATOR_SPACING, " $1 ")
         .replace(/(?<=\d)\s*-\s*(?=\d)/g, " - ")
         .replace(/(?<=\S)\s*•\s*(?=\S)/g, " • ")
         .replace(/\(\s+/g, "(")
         .replace(/\s+\)/g, ")")
         .replace(/\s{2,}/g, " ")
+        .replace(new RegExp(`(${CURRENCY_SYMBOLS.source})\\s+`, "g"), "$1")
         .trim();
 }

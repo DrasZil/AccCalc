@@ -20,7 +20,7 @@ export default function ScanProblemSessionPanel({
             defaultOpen={false}
         >
             <div className="space-y-4">
-                <div className="grid gap-3 xl:grid-cols-2">
+                <div className="app-card-grid-readable--compact">
                     {session.pageRoles.map((page) => (
                         <div
                             key={`${page.id}-${page.role}`}
@@ -34,7 +34,7 @@ export default function ScanProblemSessionPanel({
                     ))}
                 </div>
 
-                <div className="grid gap-3 xl:grid-cols-2">
+                <div className="app-card-grid-readable--compact">
                     {session.structuredFields.slice(0, 10).map((field) => (
                         <div
                             key={`${field.key}-${field.value}`}

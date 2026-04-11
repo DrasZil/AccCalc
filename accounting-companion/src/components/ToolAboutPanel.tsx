@@ -164,7 +164,7 @@ export default function ToolAboutPanel({
                     <InsightBlock label="What it solves" value={learning.whatItSolves} />
                 ) : null}
 
-                <div className="grid gap-3 xl:grid-cols-2">
+                <div className="app-card-grid-readable--compact">
                     <InsightBlock label="What this tool is" value={learning.whatItIs} />
                     <InsightBlock label="When to use it" value={learning.whenToUse} />
                     <InsightBlock label="Why it matters" value={learning.whyItMatters} />

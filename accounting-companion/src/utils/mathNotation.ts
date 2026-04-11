@@ -102,6 +102,15 @@ export function looksLikeStandaloneMathText(input: string) {
 
     const wordMatches = normalized.match(/[A-Za-z]{2,}/g) ?? [];
     const wordCount = wordMatches.length;
+    const clauseCount = normalized.split(/[;:]/).filter((part) => part.trim() !== "").length;
+    const looksInstructional =
+        (clauseCount >= 2 && wordCount >= 6) ||
+        /\b(core|logic|formula|procedure|meaning|assumption|warning|note|because|when|use)\b/iu.test(
+            normalized
+        );
+
+    if (looksInstructional && wordCount >= 5) return false;
+
     const hasStrongMathSignal =
         /[=^_]|<=|>=|!=|\bsqrt\b|\bpi\b|\btheta\b|\bsigma\b|\bdelta\b|\bmu\b|\bsum\b/iu.test(
             normalized

@@ -4,7 +4,9 @@
     --app-header-height: 5rem;
     --app-mobile-nav-height: 0px;
     --app-keyboard-inset: 0px;
-    --app-page-max-width: 82rem;
+    --app-page-max-width: 88rem;
+    --app-page-max-width-wide: 104rem;
+    --app-page-max-width-study: 96rem;
     --app-page-gap: clamp(0.8rem, 1.35vw, 1.05rem);
     --app-page-gap-lg: clamp(1rem, 1.7vw, 1.45rem);
     --app-radius-sm: 0.85rem;
@@ -357,6 +359,14 @@ a:active {
     margin-inline: auto;
 }
 
+.app-page-shell-wide {
+    max-width: var(--app-page-max-width-wide);
+}
+
+.app-page-shell-study {
+    max-width: var(--app-page-max-width-study);
+}
+
 .app-page-stack {
     display: grid;
     gap: var(--app-page-gap-lg);
@@ -450,11 +460,11 @@ a:active {
 }
 
 .app-formula-display {
-    font-family: var(--app-font-display);
+    font-family: var(--app-font-sans);
     font-size: clamp(0.92rem, 0.88rem + 0.28vw, 1.08rem);
-    font-weight: 640;
-    letter-spacing: 0.005em;
-    line-height: 1.75;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    line-height: 1.72;
     word-spacing: normal;
     color: var(--app-text);
     text-align: left;
@@ -482,7 +492,10 @@ a:active {
 }
 
 .app-formula-text {
-    font-family: var(--app-font-display);
+    font-family: var(--app-font-sans);
+    font-weight: 500;
+    line-height: 1.72;
+    color: var(--app-text-secondary);
 }
 
 .app-reading-content,
@@ -535,8 +548,49 @@ a:active {
 .app-reading-formula-inline {
     display: inline;
     max-width: 100%;
-    font-family: var(--app-font-display);
+    font-family: inherit;
+    font-weight: 600;
     font-style: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.app-formula-structured {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.app-formula-structured-list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.app-formula-structured-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    min-width: 0;
+}
+
+.app-formula-structured-marker {
+    margin-top: 0.42rem;
+    height: 0.55rem;
+    width: 0.55rem;
+    border-radius: 9999px;
+    background: var(--app-accent);
+    box-shadow: 0 0 0 4px var(--app-accent-soft);
+}
+
+.app-formula-statement {
+    display: block;
+    max-width: 100%;
+    font-family: var(--app-font-sans);
+    font-size: clamp(0.92rem, 0.9rem + 0.12vw, 1rem);
+    font-weight: 600;
+    line-height: 1.68;
+    letter-spacing: -0.012em;
+    color: var(--app-text);
     overflow-wrap: anywhere;
     word-break: break-word;
 }
@@ -588,6 +642,112 @@ a:active {
     flex: 1 1 7.5rem;
     white-space: normal;
     text-align: center;
+}
+
+.app-adaptive-layout {
+    display: grid;
+    gap: var(--app-page-gap-lg);
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.app-adaptive-layout > * {
+    min-width: 0;
+}
+
+.app-adaptive-main {
+    min-width: 0;
+    display: grid;
+    gap: var(--app-page-gap-lg);
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    container-type: inline-size;
+}
+
+.app-adaptive-support {
+    min-width: 0;
+    display: grid;
+    gap: var(--app-page-gap);
+    align-content: start;
+}
+
+.app-card-grid-readable {
+    display: grid;
+    gap: var(--app-page-gap);
+    min-width: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.app-card-grid-readable--compact {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.app-input-grid {
+    display: grid;
+    gap: var(--app-page-gap);
+    min-width: 0;
+}
+
+.app-input-grid--1 {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.app-input-grid--2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.app-input-grid--3 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.75rem), 1fr));
+}
+
+.app-study-layout {
+    display: grid;
+    gap: var(--app-page-gap-lg);
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.app-study-layout__primary,
+.app-study-layout__secondary {
+    min-width: 0;
+    display: grid;
+    gap: var(--app-page-gap);
+    align-content: start;
+}
+
+.app-formula-layout {
+    display: grid;
+    gap: var(--app-page-gap-lg);
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.app-formula-layout__primary,
+.app-formula-layout__secondary {
+    min-width: 0;
+    display: grid;
+    gap: var(--app-page-gap);
+    align-content: start;
+}
+
+@container (min-width: 70rem) {
+    .app-adaptive-main--balanced {
+        grid-template-columns: minmax(22rem, 0.96fr) minmax(25rem, 1.04fr);
+    }
+}
+
+@container (min-width: 76rem) {
+    .app-adaptive-main--result-focus {
+        grid-template-columns: minmax(24rem, 0.88fr) minmax(30rem, 1.12fr);
+    }
+
+    .app-study-layout {
+        grid-template-columns: minmax(0, 1.08fr) minmax(20rem, 0.92fr);
+    }
+
+    .app-formula-layout {
+        grid-template-columns: minmax(0, 1.06fr) minmax(20rem, 0.94fr);
+    }
 }
 
 .app-result-grid {
@@ -1361,5 +1521,44 @@ body[data-motion="off"] * {
         animation-iteration-count: 1 !important;
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+@media print {
+    :root {
+        --app-page-max-width: none;
+        --app-page-max-width-wide: none;
+        --app-page-max-width-study: none;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    body::before,
+    .app-backdrop,
+    .app-scrolltop,
+    .app-search-panel,
+    .app-icon-button,
+    .app-button-primary,
+    .app-button-secondary,
+    .app-button-ghost {
+        display: none !important;
+    }
+
+    .app-panel,
+    .app-panel-elevated,
+    .app-subtle-surface,
+    .app-input-shell {
+        box-shadow: none !important;
+        background: white !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    .app-page-shell,
+    .app-page-shell-wide,
+    .app-page-shell-study {
+        max-width: none !important;
     }
 }

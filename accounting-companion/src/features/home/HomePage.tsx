@@ -12,6 +12,7 @@ import {
     getRecommendedRoutes,
     useAppActivity,
 } from "../../utils/appActivity";
+import { useStudyProgress } from "../../utils/studyProgress";
 import {
     APP_NAV_GROUPS,
     APP_ROUTE_META_MAP,
@@ -193,6 +194,7 @@ const WORKFLOW_COLLECTIONS = [
 
 export default function HomePage() {
     const activity = useAppActivity();
+    const studyProgress = useStudyProgress();
     const settings = useAppSettings();
     const network = useNetworkStatus();
     const offlineBundle = useOfflineBundleStatus();
@@ -240,6 +242,21 @@ export default function HomePage() {
     );
 
     const quickStartRoutes = (pinnedRoutes.length > 0 ? pinnedRoutes : recommended).slice(0, 4);
+    const studyTopics = useMemo(
+        () =>
+            Object.values(studyProgress.topics)
+                .sort((left, right) => right.lastViewedAt - left.lastViewedAt)
+                .slice(0, 4)
+                .map((topic) => ({
+                    ...topic,
+                    route: APP_ROUTE_META_MAP.get(topic.path) ?? null,
+                })),
+        [studyProgress.topics]
+    );
+    const bookmarkedStudyTopics = useMemo(
+        () => studyTopics.filter((topic) => topic.bookmarked).slice(0, 3),
+        [studyTopics]
+    );
     const statusStats = [
         { label: "Pins", value: pinnedRoutes.length, helper: "Quick access" },
         { label: "Saved", value: activity.savedRecords.length, helper: "Stored prompts" },
@@ -452,6 +469,81 @@ export default function HomePage() {
                     </div>
                 </DisclosurePanel>
             </section>
+
+            {studyTopics.length > 0 ? (
+                <section className="grid gap-4 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
+                    <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="app-section-kicker text-[0.68rem]">Study</p>
+                                <h2 className="app-section-title mt-2">Continue learning</h2>
+                                <p className="app-helper mt-2 text-xs">
+                                    Topic study progress is stored locally on this device.
+                                </p>
+                            </div>
+                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                On-device
+                            </span>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            {studyTopics.map((topic) => (
+                                <Link
+                                    key={topic.id}
+                                    to={topic.path}
+                                    className="app-link-card rounded-[1.15rem] px-4 py-3.5"
+                                >
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            {topic.bookmarked ? "Bookmarked" : "Recent study"}
+                                        </span>
+                                        <span className="app-helper text-xs">
+                                            {topic.completedSections.length} reviewed
+                                        </span>
+                                    </div>
+                                    <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                        {topic.route?.shortLabel ?? topic.title}
+                                    </h3>
+                                    <p className="app-helper mt-1 text-xs leading-5">
+                                        {topic.route?.description ??
+                                            "Pick up the topic where you left off."}
+                                    </p>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <DisclosurePanel
+                        title="Bookmarked topics"
+                        summary="Topics you marked for return study, all stored locally."
+                        badge={bookmarkedStudyTopics.length > 0 ? `${bookmarkedStudyTopics.length} saved` : "Recent"}
+                    >
+                        <div className="grid gap-3">
+                            {(bookmarkedStudyTopics.length > 0 ? bookmarkedStudyTopics : studyTopics).map(
+                                (topic) => (
+                                    <Link
+                                        key={`study-${topic.id}`}
+                                        to={topic.path}
+                                        className="app-list-link rounded-[1rem] px-4 py-3"
+                                    >
+                                        <div className="flex items-center justify-between gap-3">
+                                            <span className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {topic.route?.shortLabel ?? topic.title}
+                                            </span>
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                                {topic.completedSections.length} reviewed
+                                            </span>
+                                        </div>
+                                        <p className="app-helper mt-1 text-xs leading-5">
+                                            {topic.route?.category ?? "Study topic"}
+                                        </p>
+                                    </Link>
+                                )
+                            )}
+                        </div>
+                    </DisclosurePanel>
+                </section>
+            ) : null}
 
             <section className="space-y-3">
                 <div className="flex items-end justify-between gap-3">

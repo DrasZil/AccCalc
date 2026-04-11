@@ -317,12 +317,12 @@ export default function FormulaCard({
             ) : null}
 
             <div className="mt-5 hidden space-y-4 lg:block">
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)]">
-                    <div className="space-y-4">
+                <div className="app-formula-layout">
+                    <div className="app-formula-layout__primary">
                         {sections.find((section) => section.key === "formula")?.content}
                         {sections.find((section) => section.key === "steps")?.content}
                     </div>
-                    <div className="space-y-4">
+                    <div className="app-formula-layout__secondary">
                         {sections.find((section) => section.key === "interpretation")?.content ?? (
                             <div className="app-subtle-surface rounded-[1.15rem] px-5 py-4">
                                 <p className="app-label mb-2">Learning support</p>
@@ -334,20 +334,22 @@ export default function FormulaCard({
                     </div>
                 </div>
 
-                {sections
-                    .filter(
-                        (section) =>
-                            !["formula", "steps", "interpretation"].includes(section.key)
-                    )
-                    .map((section) => (
-                        <DisclosurePanel
-                            key={section.key}
-                            title={section.label}
-                            summary={`Open ${section.shortLabel.toLowerCase()} when you need more depth for checking, studying, or interpretation.`}
-                        >
-                            {section.content}
-                        </DisclosurePanel>
-                    ))}
+                <div className="app-card-grid-readable">
+                    {sections
+                        .filter(
+                            (section) =>
+                                !["formula", "steps", "interpretation"].includes(section.key)
+                        )
+                        .map((section) => (
+                            <DisclosurePanel
+                                key={section.key}
+                                title={section.label}
+                                summary={`Open ${section.shortLabel.toLowerCase()} when you need more depth for checking, studying, or interpretation.`}
+                            >
+                                {section.content}
+                            </DisclosurePanel>
+                        ))}
+                </div>
             </div>
 
             {activeMobileSection ? (

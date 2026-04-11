@@ -21,6 +21,7 @@ import ScanProblemSessionPanel from "../components/ScanProblemSessionPanel";
 import ScanProgressPanel from "../components/ScanProgressPanel";
 import ScanResultOverview from "../components/ScanResultOverview";
 import ScanToast from "../components/ScanToast";
+import StudySupportPanel from "../../../components/StudySupportPanel";
 import { useImagePreprocess } from "../hooks/useImagePreprocess";
 import { useOcrWorker } from "../hooks/useOcrWorker";
 import { useScanQueue } from "../hooks/useScanQueue";
@@ -484,6 +485,8 @@ export default function ScanCheckPage() {
                 badge="Smart Tools / Scan & Check"
                 title="Scan & Check"
                 description="A cleaner browser-first scan flow for equations, textbook pages, worked solutions, and accounting worksheets. It now keeps your scan session on-device while using a lighter review experience across mobile and desktop."
+                desktopLayout="result-focus"
+                pageWidth="wide"
                 prioritizeResultSection
                 inputSection={
                     <div className="space-y-4">
@@ -515,7 +518,7 @@ export default function ScanCheckPage() {
                                 ))}
                             </div>
 
-                            <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(19rem,0.9fr)]">
+                            <div className="app-adaptive-main app-adaptive-main--balanced mt-4">
                                 <ScanDropzone onFiles={handleAddFiles} />
                                 <ScanCameraCapture
                                     onCapture={(file) => handleAddFiles([file])}
@@ -576,7 +579,7 @@ export default function ScanCheckPage() {
                                 badge="Preview"
                                 defaultOpen={false}
                             >
-                                <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+                                <div className="app-adaptive-main app-adaptive-main--balanced">
                                     <ScanPreprocessPreview
                                         originalUrl={activePreview.previewUrl}
                                         processedUrl={activePreview.processedPreviewUrl}
@@ -617,7 +620,7 @@ export default function ScanCheckPage() {
                 resultSection={
                     queue.items.length > 0 ? (
                         <div className="space-y-4">
-                            <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)]">
+                            <div className="app-adaptive-main app-adaptive-main--result-focus">
                                 <div className="min-w-0 space-y-4">
                                     <ScanResultOverview
                                         title={
@@ -778,6 +781,55 @@ export default function ScanCheckPage() {
                 }
                 explanationSection={
                     <div className="space-y-4">
+                        <StudySupportPanel
+                            topicId="study-scan-check"
+                            topicTitle="Scan & Check"
+                            intro="Scan & Check is a study workflow, not just an OCR utility. Use it to review uncertain text carefully, confirm the best next tool, and keep your scan session moving without pretending every extracted number is fully trustworthy."
+                            sections={[
+                                {
+                                    key: "purpose",
+                                    label: "What this tool is for",
+                                    summary: "Read, clean, review, and route messy problem text without hiding uncertainty.",
+                                    content: (
+                                        <p>
+                                            Use this page when a worksheet, screenshot, or photo needs to become workable digital text before you solve or verify it. The goal is not just to read the image, but to separate safe cleanup from risky correction and guide you into the next best tool.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "review-flow",
+                                    label: "How to review a scan",
+                                    summary: "Check the risky parts first instead of rereading everything.",
+                                    content: (
+                                        <ol className="list-decimal space-y-2 pl-5">
+                                            <li>Confirm the detected problem type and suggested route.</li>
+                                            <li>Review flagged numbers, percentages, and broken labels before anything else.</li>
+                                            <li>Open image-by-image review only for the pages that still look suspicious.</li>
+                                            <li>Continue into the suggested tool once the risky values make sense.</li>
+                                        </ol>
+                                    ),
+                                },
+                                {
+                                    key: "self-check",
+                                    label: "Self-check",
+                                    summary: "Quick prompts before trusting the route or the cleaned text.",
+                                    emphasis: "support",
+                                    tone: "info",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Do the cleaned values still match the image if you compare them line by line?</li>
+                                            <li>Does the suggested tool fit the actual topic words in the problem statement?</li>
+                                            <li>Would Smart Solver be safer if the scan still mixes multiple topics or partial pages?</li>
+                                        </ul>
+                                    ),
+                                },
+                            ]}
+                            relatedTools={[
+                                { path: "/smart/solver", label: "Smart Solver" },
+                                { path: "/business/cvp-analysis", label: "CVP Analysis" },
+                                { path: "/accounting/process-costing-workspace", label: "Process Costing Workspace" },
+                            ]}
+                        />
                         <ChartInsightPanel
                             title="Confidence-aware workflow"
                             meaning={buildComparisonNarrative(
@@ -800,7 +852,7 @@ export default function ScanCheckPage() {
                                 }))
                             )}
                         />
-                        <InterpretationBlock body="This update keeps Scan & Check browser-first and confidence-aware, but makes the flow more resilient: images fit better, sessions persist on-device, and the review surface is easier to read on narrow screens." />
+                        <InterpretationBlock body="This update keeps Scan & Check browser-first and confidence-aware, but makes the flow more resilient: images fit better, sessions persist on-device, and the review surface is easier to read on wide screens as well as narrow ones." />
                         <CommonMistakesBlock
                             mistakes={[
                                 "Dark handwritten worksheets can still confuse 0, 6, 8, comma placement, and percentage symbols.",
@@ -809,7 +861,7 @@ export default function ScanCheckPage() {
                             ]}
                         />
                         <StudyTipBlock body="If the scan looks mostly correct, focus on flagged lines first. Reviewing a few risky values is usually faster than rewriting the whole OCR output." />
-                        <PracticalMeaningBlock body="AccCalc now stores recent scan sessions locally so you can leave, come back, and keep working without restarting the OCR flow from scratch." />
+                        <PracticalMeaningBlock body="AccCalc stores recent scan sessions locally so you can leave, come back, and keep working without restarting the OCR flow from scratch." />
                     </div>
                 }
                 headerMeta={

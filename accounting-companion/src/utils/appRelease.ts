@@ -1,35 +1,30 @@
-export const APP_VERSION = "3.3.0";
+export const APP_VERSION = "3.3.3";
 export const APP_RELEASE_DATE = "2026-04-11";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Scan text is cleaner and safer",
-        body: "OCR cleanup now reconstructs spacing, punctuation, and currency more carefully while flagging uncertain numeric values instead of silently forcing risky corrections.",
+        title: "Desktop panels now reflow before they collapse",
+        body: "The shared layout system now prefers readable two-column or stacked sections over squeezing companion panels into skinny vertical rails.",
     },
     {
-        title: "Scan routing is smarter",
-        body: "Scan & Check now ranks best-fit tools with reasons, supports stronger CVP and partnership detection, and falls back to Smart Solver only when the text stays ambiguous.",
+        title: "Scan & Check reads like a real workspace",
+        body: "The scan review surface now keeps the main extraction area dominant while helper cards fall into readable rows or lower sections instead of collapsing.",
     },
     {
-        title: "Learn content is clearer across calculators",
-        body: "The old Guide language has been replaced with Learn-focused wording, formulas stay inside their cards more reliably, and explanatory sections read more like educational text instead of accidental math styling.",
+        title: "Formula and study text are cleaner",
+        body: "Shared formula rendering now separates prose from equations, structures long formula logic into readable statements, and fixes more merged-word output at the utility level.",
     },
     {
-        title: "CVP and partnership coverage expanded",
-        body: "AccCalc 3.3.0 adds a broader CVP Analysis page and a new Partnership Dissolution workflow while strengthening the existing CVP and partnership tool chain.",
-    },
-    {
-        title: "Notifications and support prompts are calmer",
-        body: "Global notices now deduplicate repeated events more reliably, and the optional donation prompt stays lightweight, dismissible, and separate from the main workflow.",
+        title: "Charts are less cluttered and more readable",
+        body: "Shared chart components now keep only the key point on the plot and move supporting detail into cleaner cards below the graph for both mobile and desktop.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "3.3.0: Upgraded OCR cleanup to recover spacing, punctuation, operator separation, and currency formatting more safely while exposing uncertain numeric values for review.",
-    "3.3.0: Added ranked scan-to-tool recommendations with reason text so Scan & Check can suggest the best-fit calculator or a short fallback list instead of a weak single guess.",
-    "3.3.0: Reworked shared formula and learning rendering so formulas wrap more safely, plain explanatory text stays readable, and Learn replaces the older Guide label across calculator flows.",
-    "3.3.0: Added a broader CVP Analysis page covering contribution margin, break-even, target profit, margin of safety, operating leverage, and quick sensitivity checks.",
-    "3.3.0: Added Partnership Dissolution support with realization gain or loss, liquidation cash, and deficiency-aware partner settlement guidance.",
-    "3.3.0: Rewrote the About page and refreshed the home messaging so AccCalc more clearly presents itself as a tool for solving, checking, and learning.",
-    "3.3.0: Hardened global notices to reduce duplicate toasts and added a respectful optional support prompt that routes users to the donation section without interrupting work.",
+    "3.3.3: Reworked shared desktop reflow logic so calculator, study, and scan companion panels wrap or drop below the main content instead of collapsing into unreadable rails.",
+    "3.3.3: Simplified Scan & Check desktop composition so preview, route guidance, summary, and next-step panels stay readable without forcing a brittle side column.",
+    "3.3.3: Refined shared formula detection and rendering so long instructional strings stop being treated like decorative equation blocks and semicolon-heavy logic becomes readable statements.",
+    "3.3.3: Rebuilt the guide-text normalizer to repair spacing, split more jammed labels, and keep currency-value text cleaner across learning cards, steps, and interpretations.",
+    "3.3.3: Cleaned up shared chart behavior so the plot highlights only the most important point directly while the rest of the meaning moves into clearer supporting cards.",
+    "3.3.3: Tightened shared input, related-tool, and study grids so wide screens use space better without creating mobile regressions.",
 ];

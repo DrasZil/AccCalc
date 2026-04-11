@@ -1,24 +1,5 @@
 import { readAppSettings } from "./appSettings.js";
-
-export type SupportedCurrencyCode =
-    | "PHP"
-    | "USD"
-    | "EUR"
-    | "GBP"
-    | "JPY"
-    | "CAD"
-    | "AUD"
-    | "SGD"
-    | "HKD"
-    | "CNY"
-    | "INR"
-    | "KRW"
-    | "AED";
-
-export const SUPPORTED_CURRENCIES: Array<{
-    code: SupportedCurrencyCode;
-    label: string;
-}> = [
+export const SUPPORTED_CURRENCIES = [
     { code: "PHP", label: "Philippine Peso" },
     { code: "USD", label: "US Dollar" },
     { code: "EUR", label: "Euro" },
@@ -33,10 +14,8 @@ export const SUPPORTED_CURRENCIES: Array<{
     { code: "KRW", label: "South Korean Won" },
     { code: "AED", label: "UAE Dirham" },
 ];
-
-const FALLBACK_CURRENCY: SupportedCurrencyCode = "PHP";
-
-const CURRENCY_HINTS: Array<[SupportedCurrencyCode, RegExp[]]> = [
+const FALLBACK_CURRENCY = "PHP";
+const CURRENCY_HINTS = [
     ["PHP", [/\bphp\b/i, /\bphilippine peso(s)?\b/i, /\bpeso(s)?\b/i, /\u20B1/]],
     ["USD", [/\busd\b/i, /\bus dollar(s)?\b/i, /\bdollar(s)?\b/i, /\$/]],
     ["EUR", [/\beur\b/i, /\beuro(s)?\b/i, /\u20AC/]],
@@ -51,8 +30,7 @@ const CURRENCY_HINTS: Array<[SupportedCurrencyCode, RegExp[]]> = [
     ["KRW", [/\bkrw\b/i, /\bwon\b/i, /\u20A9/]],
     ["AED", [/\baed\b/i, /\bdirham(s)?\b/i]],
 ];
-
-const SYMBOL_FALLBACKS: Record<SupportedCurrencyCode, string> = {
+const SYMBOL_FALLBACKS = {
     PHP: "₱",
     USD: "$",
     EUR: "€",
@@ -67,19 +45,15 @@ const SYMBOL_FALLBACKS: Record<SupportedCurrencyCode, string> = {
     KRW: "₩",
     AED: "د.إ",
 };
-
-export function getPreferredCurrency(): SupportedCurrencyCode {
-    if (typeof window === "undefined") return FALLBACK_CURRENCY;
+export function getPreferredCurrency() {
+    if (typeof window === "undefined")
+        return FALLBACK_CURRENCY;
     const preferred = readAppSettings().preferredCurrency;
-    return (
-        SUPPORTED_CURRENCIES.find((currency) => currency.code === preferred)?.code ??
-        FALLBACK_CURRENCY
-    );
+    return (SUPPORTED_CURRENCIES.find((currency) => currency.code === preferred)?.code ??
+        FALLBACK_CURRENCY);
 }
-
 export function getCurrencySymbol(currencyCode = getPreferredCurrency()) {
     const fallback = SYMBOL_FALLBACKS[currencyCode] ?? currencyCode;
-
     try {
         const parts = new Intl.NumberFormat("en", {
             style: "currency",
@@ -88,26 +62,16 @@ export function getCurrencySymbol(currencyCode = getPreferredCurrency()) {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).formatToParts(1);
-
         return parts.find((part) => part.type === "currency")?.value ?? fallback;
-    } catch {
+    }
+    catch {
         return fallback;
     }
 }
-
-export function formatCurrency(
-    value: number,
-    options?: {
-        currency?: SupportedCurrencyCode;
-        minimumFractionDigits?: number;
-        maximumFractionDigits?: number;
-        useCode?: boolean;
-    }
-) {
+export function formatCurrency(value, options) {
     const currencyCode = options?.currency ?? getPreferredCurrency();
     const minimumFractionDigits = options?.minimumFractionDigits ?? 2;
     const maximumFractionDigits = options?.maximumFractionDigits ?? 2;
-
     try {
         const formatter = new Intl.NumberFormat("en", {
             style: "currency",
@@ -116,18 +80,16 @@ export function formatCurrency(
             minimumFractionDigits,
             maximumFractionDigits,
         });
-
         if (options?.useCode) {
             return formatter.format(value);
         }
-
         const parts = formatter.formatToParts(value);
         const currencySymbol = getCurrencySymbol(currencyCode);
-
         return parts
             .map((part) => (part.type === "currency" ? currencySymbol : part.value))
             .join("");
-    } catch {
+    }
+    catch {
         const symbol = options?.useCode ? currencyCode : getCurrencySymbol(currencyCode);
         return `${symbol}${Number(value).toLocaleString("en", {
             minimumFractionDigits,
@@ -135,20 +97,14 @@ export function formatCurrency(
         })}`;
     }
 }
-
-export function detectCurrencyFromText(text: string): SupportedCurrencyCode | null {
+export function detectCurrencyFromText(text) {
     for (const [currencyCode, patterns] of CURRENCY_HINTS) {
         if (patterns.some((pattern) => pattern.test(text))) {
             return currencyCode;
         }
     }
-
     return null;
 }
-
-export function stripCurrencyMarkers(value: string): string {
-    return value.replace(
-        /\b(?:php|philippine peso(?:s)?|peso(?:s)?|usd|us dollar(?:s)?|dollar(?:s)?|eur|euro(?:s)?|gbp|pound(?: sterling|s)?|jpy|yen|cad|canadian dollar(?:s)?|aud|australian dollar(?:s)?|sgd|singapore dollar(?:s)?|hkd|hong kong dollar(?:s)?|cny|yuan|rmb|inr|rupee(?:s)?|krw|won|aed|dirham(?:s)?)\b/gi,
-        ""
-    );
+export function stripCurrencyMarkers(value) {
+    return value.replace(/\b(?:php|philippine peso(?:s)?|peso(?:s)?|usd|us dollar(?:s)?|dollar(?:s)?|eur|euro(?:s)?|gbp|pound(?: sterling|s)?|jpy|yen|cad|canadian dollar(?:s)?|aud|australian dollar(?:s)?|sgd|singapore dollar(?:s)?|hkd|hong kong dollar(?:s)?|cny|yuan|rmb|inr|rupee(?:s)?|krw|won|aed|dirham(?:s)?)\b/gi, "");
 }

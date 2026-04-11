@@ -50,7 +50,7 @@ export default function ScanResultOverview({
                 <p className="app-helper app-wrap-anywhere mt-3 text-xs">{confidenceSummary}</p>
             ) : null}
 
-            <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="app-card-grid-readable mt-4">
                 <div className="app-subtle-surface min-w-0 rounded-[1rem] px-4 py-3">
                     <p className="app-metric-label">Suggested next tool</p>
                     <p className="app-wrap-anywhere mt-2 text-sm font-semibold text-[color:var(--app-text)]">
@@ -110,7 +110,7 @@ export default function ScanResultOverview({
                 </div>
             ) : null}
 
-            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:max-w-xl">
+            <div className="app-card-grid-readable--compact mt-4 xl:max-w-3xl">
                 <button
                     type="button"
                     onClick={onPrimaryAction}

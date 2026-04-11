@@ -6,6 +6,7 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import StudySupportPanel from "../../components/StudySupportPanel";
 import formatPHP from "../../utils/formatPHP";
 import { computePartnershipDissolution } from "../../utils/calculatorMath";
 
@@ -103,6 +104,8 @@ export default function PartnershipDissolutionPage() {
             badge="Accounting | Partnership"
             title="Partnership Dissolution"
             description="Review realization gain or loss, liquidation cash available to partners, and capital-deficiency handling from one course-aligned dissolution workflow."
+            desktopLayout="result-focus"
+            pageWidth="wide"
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
@@ -131,7 +134,7 @@ export default function PartnershipDissolutionPage() {
                     <SectionCard>
                         <p className="app-card-title text-sm">Partners and ratios</p>
                         <p className="app-body-md mt-2 text-sm">
-                            Enter each partner's capital balance before dissolution and the
+                            Enter each partner&apos;s capital balance before dissolution and the
                             agreed profit-and-loss ratio used to allocate the realization gain or
                             loss.
                         </p>
@@ -283,51 +286,128 @@ export default function PartnershipDissolutionPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard
-                        formula="Gain or loss on realization = cash from realization - book value of noncash assets; adjusted capital = beginning capital + allocated realization gain or loss; cash available to partners = realized cash - liabilities settled."
-                        steps={[
-                            `Gain or loss on realization = ${formatPHP(Number(cashFromRealization || 0))} - ${formatPHP(Number(bookValueNoncashAssets || 0))} = ${formatPHP(result.gainOrLossOnRealization)}.`,
-                            `Cash available to partners = ${formatPHP(Number(cashFromRealization || 0))} - ${formatPHP(Number(liabilitiesToSettle || 0))} = ${formatPHP(result.cashAvailableForPartners)}.`,
-                            ...result.finalPartners.map(
-                                (partner) =>
-                                    `${partner.label}: capital ${formatPHP(partner.capital)} + realization share ${formatPHP(partner.realizationShare)} = adjusted capital ${formatPHP(partner.adjustedCapital)}.`
-                            ),
-                            assumeDeficiencyInsolvent && result.deficiencyTotal > 0
-                                ? `Because insolvency is assumed, the deficiency of ${formatPHP(result.deficiencyTotal)} is absorbed by the solvent partners based on their profit-and-loss ratio.`
-                                : result.deficiencyTotal > 0
-                                  ? `A deficiency of ${formatPHP(result.deficiencyTotal)} remains. Without an insolvency assumption, the deficient partner normally contributes cash or the problem must state how the deficiency is handled.`
-                                  : "No partner capital deficiency appears after allocating the realization gain or loss.",
-                        ]}
-                        glossary={[
-                            {
-                                term: "Realization gain or loss",
-                                meaning:
-                                    "The difference between the cash obtained from selling noncash assets and the book value of those assets before liquidation.",
-                            },
-                            {
-                                term: "Adjusted capital",
-                                meaning:
-                                    "The partner's capital after adding or subtracting the share of realization gain or loss. This is the amount used before final liquidation cash is distributed.",
-                            },
-                            {
-                                term: "Capital deficiency",
-                                meaning:
-                                    "A negative adjusted capital balance. It signals that the partner cannot fully absorb the allocated loss without contributing additional cash or triggering deficiency absorption by other partners if insolvency is assumed.",
-                            },
-                        ]}
-                        interpretation={`This dissolution schedule shows whether realization produced a gain or a loss, how much cash remains after paying outside liabilities, and how that cash should move through the partners' capital accounts. The result matters because dissolution is not just about one final amount; it is about following the proper liquidation order, allocating realization effects correctly, and explaining whether any deficiency changes the partners' final cash settlement.`}
-                        assumptions={[
-                            "This page assumes the entered capitals represent the partners' balances immediately before dissolution adjustments and that the stated ratio is the basis for allocating realization gain or loss.",
-                            "The workflow focuses on outside liabilities first, then partner capital settlement. Partner loans, safe installment schedules, and tax effects are outside this simplified dissolution view.",
-                        ]}
-                        notes={[
-                            "If the capital consistency gap is not zero, the entered capitals and net book assets do not reconcile cleanly. That usually means the problem contains omitted cash, partner loans, or incomplete balances.",
-                            "Use the insolvency toggle only when the problem explicitly says the deficient partner is insolvent or unable to contribute the shortage.",
-                        ]}
-                        warnings={[
-                            "Do not distribute cash to partners before settling outside liabilities unless the problem explicitly provides a safe-payment schedule.",
-                        ]}
-                    />
+                    <div className="space-y-4">
+                        <StudySupportPanel
+                            topicId="study-partnership-dissolution"
+                            topicTitle="Partnership Dissolution"
+                            intro="Use this study layer to keep the liquidation order, realization logic, deficiency treatment, and review questions attached to the dissolution workflow."
+                            sections={[
+                                {
+                                    key: "purpose",
+                                    label: "What this tool is for",
+                                    summary: "Turn a dissolution problem into a clear liquidation sequence.",
+                                    content: (
+                                        <p>
+                                            Partnership dissolution problems require more than one final figure. You need to measure the realization gain or loss, settle outside liabilities first, adjust the partners&apos; capital balances, and then determine the final cash distributions. This page keeps that sequence together.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "procedure",
+                                    label: "Procedure",
+                                    summary: "Follow the liquidation order the same way a textbook solution would.",
+                                    content: (
+                                        <ol className="list-decimal space-y-2 pl-5">
+                                            <li>Compare realized cash with book value of noncash assets.</li>
+                                            <li>Allocate the realization gain or loss using the profit-and-loss ratio.</li>
+                                            <li>Pay outside liabilities before partner distributions.</li>
+                                            <li>Check whether any partner has a capital deficiency.</li>
+                                            <li>Handle insolvency only if the problem explicitly says the deficient partner cannot contribute.</li>
+                                        </ol>
+                                    ),
+                                },
+                                {
+                                    key: "worked-example",
+                                    label: "Worked example",
+                                    summary: "A live explanation built from the numbers now on the page.",
+                                    content: (
+                                        <p>
+                                            The current liquidation produces a realization amount of {formatPHP(result.gainOrLossOnRealization)} and leaves {formatPHP(result.cashAvailableForPartners)} available after liabilities. From there, each partner&apos;s capital is adjusted by the allocated realization share before final distribution is determined.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "common-mistakes",
+                                    label: "Common mistakes",
+                                    summary: "Most dissolution errors come from sequence and assumption mistakes.",
+                                    emphasis: "support",
+                                    tone: "warning",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Distributing partner cash before settling outside liabilities.</li>
+                                            <li>Using capital balances without allocating realization gain or loss first.</li>
+                                            <li>Assuming insolvency when the problem never says the deficient partner cannot contribute.</li>
+                                            <li>Ignoring a capital consistency gap that suggests incomplete problem data.</li>
+                                        </ul>
+                                    ),
+                                },
+                                {
+                                    key: "self-check",
+                                    label: "Self-check",
+                                    summary: "Quick prompts for review after solving.",
+                                    emphasis: "support",
+                                    tone: "info",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Why must outside liabilities be handled before partner settlement?</li>
+                                            <li>What changes when a deficient partner is insolvent?</li>
+                                            <li>What does a non-zero capital consistency gap suggest about the data entered?</li>
+                                        </ul>
+                                    ),
+                                },
+                            ]}
+                            relatedTools={[
+                                { path: "/accounting/partnership-profit-sharing", label: "Profit Sharing" },
+                                { path: "/accounting/partnership-retirement-bonus", label: "Retirement Bonus" },
+                                { path: "/accounting/partners-capital-statement", label: "Partners Capital Statement" },
+                            ]}
+                        />
+                        <FormulaCard
+                            formula="Gain or loss on realization = cash from realization - book value of noncash assets; adjusted capital = beginning capital + allocated realization gain or loss; cash available to partners = realized cash - liabilities settled."
+                            steps={[
+                                `Gain or loss on realization = ${formatPHP(Number(cashFromRealization || 0))} - ${formatPHP(Number(bookValueNoncashAssets || 0))} = ${formatPHP(result.gainOrLossOnRealization)}.`,
+                                `Cash available to partners = ${formatPHP(Number(cashFromRealization || 0))} - ${formatPHP(Number(liabilitiesToSettle || 0))} = ${formatPHP(result.cashAvailableForPartners)}.`,
+                                ...result.finalPartners.map(
+                                    (partner) =>
+                                        `${partner.label}: capital ${formatPHP(partner.capital)} + realization share ${formatPHP(partner.realizationShare)} = adjusted capital ${formatPHP(partner.adjustedCapital)}.`
+                                ),
+                                assumeDeficiencyInsolvent && result.deficiencyTotal > 0
+                                    ? `Because insolvency is assumed, the deficiency of ${formatPHP(result.deficiencyTotal)} is absorbed by the solvent partners based on their profit-and-loss ratio.`
+                                    : result.deficiencyTotal > 0
+                                      ? `A deficiency of ${formatPHP(result.deficiencyTotal)} remains. Without an insolvency assumption, the deficient partner normally contributes cash or the problem must state how the deficiency is handled.`
+                                      : "No partner capital deficiency appears after allocating the realization gain or loss.",
+                            ]}
+                            glossary={[
+                                {
+                                    term: "Realization gain or loss",
+                                    meaning:
+                                        "The difference between the cash obtained from selling noncash assets and the book value of those assets before liquidation.",
+                                },
+                                {
+                                    term: "Adjusted capital",
+                                    meaning:
+                                        "The partner's capital after adding or subtracting the share of realization gain or loss. This is the amount used before final liquidation cash is distributed.",
+                                },
+                                {
+                                    term: "Capital deficiency",
+                                    meaning:
+                                        "A negative adjusted capital balance. It signals that the partner cannot fully absorb the allocated loss without contributing additional cash or triggering deficiency absorption by other partners if insolvency is assumed.",
+                                },
+                            ]}
+                            interpretation={`This dissolution schedule shows whether realization produced a gain or a loss, how much cash remains after paying outside liabilities, and how that cash should move through the partners' capital accounts. The result matters because dissolution is not just about one final amount; it is about following the proper liquidation order, allocating realization effects correctly, and explaining whether any deficiency changes the partners' final cash settlement.`}
+                            assumptions={[
+                                "This page assumes the entered capitals represent the partners' balances immediately before dissolution adjustments and that the stated ratio is the basis for allocating realization gain or loss.",
+                                "The workflow focuses on outside liabilities first, then partner capital settlement. Partner loans, safe installment schedules, and tax effects are outside this simplified dissolution view.",
+                            ]}
+                            notes={[
+                                "If the capital consistency gap is not zero, the entered capitals and net book assets do not reconcile cleanly. That usually means the problem contains omitted cash, partner loans, or incomplete balances.",
+                                "Use the insolvency toggle only when the problem explicitly says the deficient partner is insolvent or unable to contribute the shortage.",
+                            ]}
+                            warnings={[
+                                "Do not distribute cash to partners before settling outside liabilities unless the problem explicitly provides a safe-payment schedule.",
+                            ]}
+                        />
+                    </div>
                 ) : null
             }
         />
