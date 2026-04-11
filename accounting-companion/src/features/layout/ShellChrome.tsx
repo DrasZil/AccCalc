@@ -181,6 +181,18 @@ export function ShellIcon({
         );
     }
 
+    if (kind === "Study Hub") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M5.5 6.5A2.5 2.5 0 0 1 8 4h10v15H8A2.5 2.5 0 0 0 5.5 21Z" />
+                <path d="M8 4a2.5 2.5 0 0 0-2.5 2.5V21" />
+                <path d="M9.5 8h6" />
+                <path d="M9.5 12h6" />
+                <path d="M9.5 16h4" />
+            </svg>
+        );
+    }
+
     if (kind === "Finance") {
         return (
             <svg {...sharedProps}>

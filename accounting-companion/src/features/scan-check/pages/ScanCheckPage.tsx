@@ -176,6 +176,8 @@ export default function ScanCheckPage() {
     }, [queue.items]);
     const primaryRouteHint = accountingSession?.routeHint ?? primaryItem?.parsedResult?.routeHint ?? "/smart/solver";
     const scanRecommendations = primaryItem?.parsedResult?.recommendations ?? [];
+    const studyRecommendations = primaryItem?.parsedResult?.studyRecommendations ?? [];
+    const primaryStudyRecommendation = studyRecommendations[0] ?? null;
     const primaryActionLabel = accountingSession
         ? "Open suggested workspace"
         : primaryItem?.parsedResult?.suggestedIntent === "Check my solution"
@@ -680,6 +682,34 @@ export default function ScanCheckPage() {
                                 </div>
 
                                 <div className="min-w-0 space-y-4">
+                                    {primaryStudyRecommendation ? (
+                                        <SectionCard>
+                                            <p className="app-card-title text-sm">Study follow-up</p>
+                                            <p className="app-body-md mt-2 text-sm">
+                                                {primaryStudyRecommendation.title}
+                                            </p>
+                                            <p className="app-helper app-wrap-anywhere mt-2 text-xs leading-5">
+                                                {primaryStudyRecommendation.reason}
+                                            </p>
+                                            <div className="app-card-grid-readable--compact mt-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => navigate(primaryStudyRecommendation.path)}
+                                                    className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                                >
+                                                    Open lesson
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => navigate(primaryStudyRecommendation.quizPath)}
+                                                    className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                                >
+                                                    Practice quiz
+                                                </button>
+                                            </div>
+                                        </SectionCard>
+                                    ) : null}
+
                                     <SectionCard>
                                         <p className="app-card-title text-sm">After processing</p>
                                         <div className="mt-3 space-y-2">
@@ -782,8 +812,10 @@ export default function ScanCheckPage() {
                 explanationSection={
                     <div className="space-y-4">
                         <StudySupportPanel
-                            topicId="study-scan-check"
+                            topicId="scan-review"
                             topicTitle="Scan & Check"
+                            lessonPath="/study/topics/scan-review"
+                            quizPath="/study/quiz/scan-review"
                             intro="Scan & Check is a study workflow, not just an OCR utility. Use it to review uncertain text carefully, confirm the best next tool, and keep your scan session moving without pretending every extracted number is fully trustworthy."
                             sections={[
                                 {

@@ -18,6 +18,7 @@ import {
     APP_ROUTE_META_MAP,
     NEW_FEATURE_PATHS,
     getRouteAvailability,
+    getRouteMeta,
 } from "../../utils/appCatalog";
 import {
     APP_RELEASE_HIGHLIGHTS,
@@ -45,6 +46,8 @@ const SMART_PROMPT_EXAMPLES = [
 
 const FEATURED_PATHS = [
     "/scan-check",
+    "/study",
+    "/study/practice",
     "/business/cvp-analysis",
     "/accounting/partnership-dissolution",
     "/accounting/process-costing-workspace",
@@ -215,7 +218,7 @@ export default function HomePage() {
 
     const featuredRoutes = useMemo(
         () =>
-            FEATURED_PATHS.map((path) => APP_ROUTE_META_MAP.get(path)).filter(
+            FEATURED_PATHS.map((path) => getRouteMeta(path)).filter(
                 (item): item is NonNullable<typeof item> => Boolean(item)
             ),
         []
@@ -247,9 +250,9 @@ export default function HomePage() {
             Object.values(studyProgress.topics)
                 .sort((left, right) => right.lastViewedAt - left.lastViewedAt)
                 .slice(0, 4)
-                .map((topic) => ({
+                    .map((topic) => ({
                     ...topic,
-                    route: APP_ROUTE_META_MAP.get(topic.path) ?? null,
+                    route: getRouteMeta(topic.path),
                 })),
         [studyProgress.topics]
     );
@@ -288,6 +291,12 @@ export default function HomePage() {
 
                         <div className="mt-4 flex flex-wrap gap-2.5">
                             <Link
+                                to="/study"
+                                className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                            >
+                                Open Study Hub
+                            </Link>
+                            <Link
                                 to="/scan-check"
                                 className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
@@ -300,10 +309,10 @@ export default function HomePage() {
                                 Open Smart Solver
                             </Link>
                             <Link
-                                to="/business/cvp-analysis"
+                                to="/study/practice"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open CVP Analysis
+                                Practice quizzes
                             </Link>
                             <Link
                                 to="/history"

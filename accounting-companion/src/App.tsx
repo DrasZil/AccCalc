@@ -285,6 +285,10 @@ const StandardDeviationPage = lazy(
 const WeightedMeanPage = lazy(() => import("./features/businessMath/WeightedMeanPage"));
 const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
 const ScanCheckPage = lazy(() => import("./features/scan-check/pages/ScanCheckPage"));
+const StudyHubPage = lazy(() => import("./features/study/StudyHubPage"));
+const StudyPracticeHubPage = lazy(() => import("./features/study/StudyPracticeHubPage"));
+const StudyTopicPage = lazy(() => import("./features/study/StudyTopicPage"));
+const TopicQuizPage = lazy(() => import("./features/study/TopicQuizPage"));
 
 function RouteFallback() {
     return (
@@ -353,6 +357,10 @@ export default function App() {
                         <Route path="basic" element={renderRoute("/basic", <BasicCalculatorPage />)} />
                         <Route path="smart/solver" element={renderRoute("/smart/solver", <SmartSolverPage />)} />
                         <Route path="scan-check" element={renderRoute("/scan-check", <ScanCheckPage />)} />
+                        <Route path="study" element={renderRoute("/study", <StudyHubPage />)} />
+                        <Route path="study/practice" element={renderRoute("/study/practice", <StudyPracticeHubPage />)} />
+                        <Route path="study/topics/:topicId" element={renderRoute("/study", <StudyTopicPage />)} />
+                        <Route path="study/quiz/:topicId" element={renderRoute("/study/practice", <TopicQuizPage />)} />
 
                         <Route path="finance/simple-interest" element={renderRoute("/finance/simple-interest", <SimpleInterestPage />)} />
                         <Route path="finance/compound-interest" element={renderRoute("/finance/compound-interest", <CompoundInterestPage />)} />

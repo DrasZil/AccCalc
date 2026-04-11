@@ -7,6 +7,7 @@ import {
     normalizeAccountingWorksheetText,
 } from "../accounting/accountingFieldExtractor";
 import { recommendScanRoutes } from "./ocrRouting";
+import { recommendStudyTopicsFromText } from "../../../study/studyContent";
 
 function extractUnits(text: string) {
     const matches =
@@ -77,6 +78,10 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         accountingPageType
     );
     const primaryRecommendation = recommendations[0];
+    const studyRecommendations = recommendStudyTopicsFromText(
+        isAccountingWorksheet ? normalizedAccountingText : cleanedText,
+        primaryRecommendation?.path
+    );
     const parseConfidence = Math.max(
         25,
         Math.min(
@@ -145,6 +150,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         routeReason: primaryRecommendation?.reason,
         routeConfidence: primaryRecommendation?.score,
         recommendations,
+        studyRecommendations,
         structuredFields: isAccountingWorksheet ? accountingFields : undefined,
         accounting: isAccountingWorksheet
             ? {

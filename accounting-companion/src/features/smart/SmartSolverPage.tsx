@@ -6,7 +6,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
 import InputCard from "../../components/INputCard";
 import InputGrid from "../../components/InputGrid";
@@ -43,6 +43,11 @@ import { scoreSmartIntent } from "./utils/intentScoring";
 import { detectPromptMistakes } from "./utils/mistakeDetection";
 import { summarizeSolverConfidence } from "./utils/solverConfidence";
 import { summarizeExtractedValues } from "./utils/valueExtraction";
+import {
+    buildStudyQuizPath,
+    buildStudyTopicPath,
+    recommendStudyTopicsFromText,
+} from "../study/studyContent";
 
 const SMART_PROMPT_EXAMPLES = [
     "Customers still owe us 75,000 and we expect 4% to be uncollectible.",
@@ -311,6 +316,14 @@ export default function SmartSolverPage() {
             analysis.best
         );
     }, [analysis.best, analysis.ranked, hasAnyInput, selectedCalculatorId]);
+    const relatedStudyTopics = useMemo(
+        () =>
+            recommendStudyTopicsFromText(
+                deferredSmartInput,
+                selectedCalculator?.route ?? analysis.best?.route ?? null
+            ),
+        [analysis.best?.route, deferredSmartInput, selectedCalculator?.route]
+    );
 
     const selectedCalculatorRouteReady = Boolean(
         selectedCalculator &&
@@ -1042,6 +1055,40 @@ export default function SmartSolverPage() {
                                             ))}
                                         </div>
                                     ) : null}
+                                </div>
+                            ) : null}
+
+                            {relatedStudyTopics.length > 0 ? (
+                                <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Related lesson
+                                    </p>
+                                    <div className="mt-3 space-y-3">
+                                        {relatedStudyTopics.slice(0, 2).map((topic) => (
+                                            <div key={topic.id}>
+                                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                    {topic.title}
+                                                </p>
+                                                <p className="app-body-md mt-1 text-sm">
+                                                    {topic.reason}
+                                                </p>
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                    <Link
+                                                        to={buildStudyTopicPath(topic.id)}
+                                                        className="app-button-secondary rounded-full px-3 py-1.5 text-xs font-semibold"
+                                                    >
+                                                        Open lesson
+                                                    </Link>
+                                                    <Link
+                                                        to={buildStudyQuizPath(topic.id)}
+                                                        className="app-button-ghost rounded-full px-3 py-1.5 text-xs font-semibold"
+                                                    >
+                                                        Practice quiz
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             ) : null}
 

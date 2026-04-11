@@ -7,6 +7,7 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import StudySupportPanel from "../../components/StudySupportPanel";
+import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computePartnershipDissolution } from "../../utils/calculatorMath";
 
@@ -288,8 +289,10 @@ export default function PartnershipDissolutionPage() {
                 result && !("error" in result) ? (
                     <div className="space-y-4">
                         <StudySupportPanel
-                            topicId="study-partnership-dissolution"
+                            topicId="partnership-dissolution"
                             topicTitle="Partnership Dissolution"
+                            lessonPath={buildStudyTopicPath("partnership-dissolution")}
+                            quizPath={buildStudyQuizPath("partnership-dissolution")}
                             intro="Use this study layer to keep the liquidation order, realization logic, deficiency treatment, and review questions attached to the dissolution workflow."
                             sections={[
                                 {

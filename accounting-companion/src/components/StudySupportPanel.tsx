@@ -24,6 +24,8 @@ type StudySupportPanelProps = {
     intro: string;
     sections: StudySupportSection[];
     relatedTools?: Array<{ path: string; label: string }>;
+    lessonPath?: string;
+    quizPath?: string;
 };
 
 function getToneClass(tone: StudySupportSection["tone"]) {
@@ -45,10 +47,13 @@ export default function StudySupportPanel({
     intro,
     sections,
     relatedTools = [],
+    lessonPath,
+    quizPath,
 }: StudySupportPanelProps) {
     const location = useLocation();
     const studyProgress = useStudyProgress();
     const topicProgress = studyProgress.topics[topicId];
+    const progressPath = lessonPath ?? location.pathname;
     const [activeSection, setActiveSection] = useState(
         () => topicProgress?.lastSectionKey ?? sections[0]?.key ?? "overview"
     );
@@ -56,10 +61,10 @@ export default function StudySupportPanel({
     useEffect(() => {
         touchStudyTopic({
             id: topicId,
-            path: location.pathname,
+            path: progressPath,
             title: topicTitle,
         });
-    }, [location.pathname, topicId, topicTitle]);
+    }, [progressPath, topicId, topicTitle]);
 
     useEffect(() => {
         if (!sections.some((section) => section.key === activeSection)) {
@@ -86,7 +91,7 @@ export default function StudySupportPanel({
         markStudySectionComplete(
             {
                 id: topicId,
-                path: location.pathname,
+                path: progressPath,
                 title: topicTitle,
             },
             sectionKey
@@ -109,7 +114,7 @@ export default function StudySupportPanel({
                         onClick={() =>
                             toggleStudyBookmark({
                                 id: topicId,
-                                path: location.pathname,
+                                path: progressPath,
                                 title: topicTitle,
                             })
                         }
@@ -124,6 +129,27 @@ export default function StudySupportPanel({
                     </button>
                 </div>
             </div>
+
+            {lessonPath || quizPath ? (
+                <div className="app-card-grid-readable--compact mt-4">
+                    {lessonPath ? (
+                        <Link
+                            to={lessonPath}
+                            className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                        >
+                            Open full lesson
+                        </Link>
+                    ) : null}
+                    {quizPath ? (
+                        <Link
+                            to={quizPath}
+                            className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                        >
+                            Practice quiz
+                        </Link>
+                    ) : null}
+                </div>
+            ) : null}
 
             {sections.length > 1 ? (
                 <div className="mt-5 lg:hidden">

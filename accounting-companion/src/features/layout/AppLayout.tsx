@@ -55,6 +55,7 @@ const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
     General: false,
     "Core Tools": false,
     "Smart Tools": false,
+    "Study Hub": true,
     Accounting: false,
     Finance: false,
     "Managerial & Cost": false,
@@ -80,6 +81,8 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
             return "linear-gradient(135deg, rgba(28, 121, 204, 0.24), rgba(14, 148, 136, 0.08))";
         case "Smart Tools":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(14, 148, 136, 0.1))";
+        case "Study Hub":
+            return "linear-gradient(135deg, rgba(69, 210, 175, 0.22), rgba(28, 121, 204, 0.08))";
         case "Accounting":
             return "linear-gradient(135deg, rgba(14, 148, 136, 0.24), rgba(28, 121, 204, 0.08))";
         case "Finance":
@@ -153,6 +156,7 @@ function getNavLabel(route: { label: string; shortLabel?: string }) {
 function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
     if (groupTitle === "Core Tools") return "Core";
     if (groupTitle === "Smart Tools") return "Smart";
+    if (groupTitle === "Study Hub") return "Study";
     if (groupTitle === "Managerial & Cost") return "Mgmt & Cost";
     if (groupTitle === "Entrepreneurship") return "Startup";
     if (groupTitle === "Business Math") return "Business Math";
@@ -163,6 +167,7 @@ function prefersWidePageShell(pathname: string) {
     return (
         pathname === "/" ||
         pathname === "/scan-check" ||
+        pathname.startsWith("/study") ||
         pathname === "/history" ||
         pathname.startsWith("/smart/") ||
         pathname.includes("workspace") ||

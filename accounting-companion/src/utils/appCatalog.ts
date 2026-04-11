@@ -1,3 +1,10 @@
+import {
+    buildStudyQuizPath,
+    buildStudyTopicPath,
+    getStudyQuizTopicByPath,
+    getStudyTopicByPath,
+} from "../features/study/studyContent.js";
+
 export type AppNavItem = {
     label: string;
     path: string;
@@ -12,6 +19,7 @@ export type AppNavGroupTitle =
     | "General"
     | "Core Tools"
     | "Smart Tools"
+    | "Study Hub"
     | "Accounting"
     | "Finance"
     | "Managerial & Cost"
@@ -63,13 +71,14 @@ const GROUP_CONFIG: Record<
     General: { hint: "Home and activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
     "Core Tools": { hint: "Everyday calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
     "Smart Tools": { hint: "Prompt routing", tone: "from-amber-300/15 to-transparent", order: 2 },
-    Accounting: { hint: "Reporting, valuation, and review", tone: "from-green-400/20 to-transparent", order: 3 },
-    Finance: { hint: "Time value, lending, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 4 },
-    "Managerial & Cost": { hint: "CVP, budgets, costing, and variances", tone: "from-orange-400/15 to-transparent", order: 5 },
-    Economics: { hint: "Elasticity, markets, and macro basics", tone: "from-teal-400/15 to-transparent", order: 6 },
-    Entrepreneurship: { hint: "Startup planning and small-business decisions", tone: "from-amber-400/15 to-transparent", order: 7 },
-    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 8 },
-    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 9 },
+    "Study Hub": { hint: "Lessons, quizzes, and review flow", tone: "from-emerald-300/20 to-transparent", order: 3 },
+    Accounting: { hint: "Reporting, valuation, and review", tone: "from-green-400/20 to-transparent", order: 4 },
+    Finance: { hint: "Time value, lending, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 5 },
+    "Managerial & Cost": { hint: "CVP, budgets, costing, and variances", tone: "from-orange-400/15 to-transparent", order: 6 },
+    Economics: { hint: "Elasticity, markets, and macro basics", tone: "from-teal-400/15 to-transparent", order: 7 },
+    Entrepreneurship: { hint: "Startup planning and small-business decisions", tone: "from-amber-400/15 to-transparent", order: 8 },
+    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 9 },
+    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 10 },
 };
 
 function feature(
@@ -125,12 +134,15 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/cash-runway-planner",
     "/business/cvp-analysis",
     "/accounting/partnership-dissolution",
+    "/study",
+    "/study/practice",
 ]);
 
 const SUBTOPIC_ORDER: Partial<Record<AppNavGroupTitle, string[]>> = {
     General: ["Workspace", "Settings"],
     "Core Tools": ["Calculator"],
     "Smart Tools": ["Solver"],
+    "Study Hub": ["Learning Center", "Practice"],
     Accounting: [
         "Fundamentals",
         "Receivables & Cash",
@@ -169,6 +181,10 @@ function inferSubtopic(
             return "Calculator";
         case "Smart Tools":
             return "Solver";
+        case "Study Hub":
+            return path.includes("/quiz/") || path.includes("/practice")
+                ? "Practice"
+                : "Learning Center";
         case "Accounting":
             if (
                 haystack.includes("equation") ||
@@ -406,6 +422,8 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/basic", "Scientific Calculator", "Core Tools", "Expression calculator with scientific functions, memory, and keyboard support.", ["basic calc", "standard calculator", "scientific calculator"], ["calculator", "scientific"], "Calculator"),
     feature("/smart/solver", "Smart Solver", "Smart Tools", "Natural-language routing into the right tool.", ["prompt solver", "smart search"], ["smart", "routing"], "Solver"),
     feature("/scan-check", "Scan & Check", "Smart Tools", "Browser-first OCR review for equations, textbook problems, worked solutions, and answer checking.", ["ocr scan", "camera solve", "image to text math"], ["scan", "ocr", "review"], "Scan", true, ["ocr", "scan", "camera", "extract equation", "check solution"]),
+    feature("/study", "Study Hub", "Study Hub", "Browse topic lessons, continue learning, and move into quiz-based practice from one structured review space.", ["learning center", "study topics", "review hub"], ["study", "learn", "quiz"], "Study", true, ["study hub", "topic review", "quiz mode", "learning center"]),
+    feature("/study/practice", "Practice Hub", "Study Hub", "Mini quizzes and review sets by topic with local progress tracking and answer explanations.", ["quiz hub", "practice mode"], ["study", "quiz", "practice"], "Practice", true, ["practice quiz", "topic quiz", "self check"]),
 
     feature("/accounting/accounting-equation", "Accounting Equation", "Accounting", "Solve assets, liabilities, or equity.", ["assets liabilities equity", "ale"], ["fundamentals"]),
     feature("/accounting/notes-interest", "Notes Interest", "Accounting", "Compute note interest and maturity value.", ["note receivable interest", "maturity value"], ["notes", "interest"]),
@@ -572,5 +590,50 @@ export const APP_NAV_GROUPS: AppNavGroup[] = Object.entries(GROUP_CONFIG)
     .filter((group) => group.items.length > 0);
 
 export function getRouteMeta(path: string): RouteMeta | null {
-    return APP_ROUTE_META_MAP.get(path) ?? null;
+    const exact = APP_ROUTE_META_MAP.get(path);
+    if (exact) return exact;
+
+    const studyTopic = getStudyTopicByPath(path);
+    if (studyTopic) {
+        return {
+            path: buildStudyTopicPath(studyTopic.id),
+            label: studyTopic.title,
+            category: "Study Hub",
+            subtopic: "Learning Center",
+            description: studyTopic.summary,
+            shortLabel: studyTopic.shortTitle,
+            aliases: [studyTopic.shortTitle.toLowerCase(), `${studyTopic.title.toLowerCase()} lesson`],
+            keywords: studyTopic.keywords,
+            tags: ["study", "lesson", studyTopic.category.toLowerCase(), studyTopic.id],
+            offlineSupport: "full",
+            offlineSummary:
+                "Topic lessons, explanations, and quiz links stay available offline after the current release is cached.",
+            offlineDetail:
+                "Study Hub lessons and practice links are browser-local after caching, with bookmarks, notes, and progress stored on this device.",
+            isNew: true,
+        };
+    }
+
+    const studyQuizTopic = getStudyQuizTopicByPath(path);
+    if (studyQuizTopic) {
+        return {
+            path: buildStudyQuizPath(studyQuizTopic.id),
+            label: `${studyQuizTopic.title} Quiz`,
+            category: "Study Hub",
+            subtopic: "Practice",
+            description: `Mini practice set for ${studyQuizTopic.title} with explanations and local progress tracking.`,
+            shortLabel: `${studyQuizTopic.shortTitle} Quiz`,
+            aliases: [`${studyQuizTopic.title.toLowerCase()} quiz`, `${studyQuizTopic.shortTitle.toLowerCase()} practice`],
+            keywords: [...studyQuizTopic.keywords, "quiz", "practice", "self check"],
+            tags: ["study", "quiz", "practice", studyQuizTopic.id],
+            offlineSupport: "full",
+            offlineSummary:
+                "Topic quizzes and answer explanations remain available offline after the current release is cached.",
+            offlineDetail:
+                "Practice mode runs locally in the browser, with attempts and scores saved on this device without a backend account.",
+            isNew: true,
+        };
+    }
+
+    return null;
 }

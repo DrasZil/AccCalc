@@ -60,6 +60,17 @@ export type ScanRouteRecommendation = {
     confidence: "high" | "moderate" | "low";
 };
 
+export type ScanStudyRecommendation = {
+    id: string;
+    title: string;
+    path: string;
+    quizPath: string;
+    category: string;
+    reason: string;
+    score: number;
+    confidence: "high" | "moderate" | "low";
+};
+
 export type AccountingWorksheetExtraction = {
     topic: string;
     pageType: ScanPageType;
@@ -121,6 +132,7 @@ export type ParsedScanResult = {
     routeReason?: string;
     routeConfidence?: number;
     recommendations?: ScanRouteRecommendation[];
+    studyRecommendations?: ScanStudyRecommendation[];
     structuredFields?: StructuredScanField[];
     accounting?: AccountingWorksheetExtraction | null;
 };

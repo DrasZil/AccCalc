@@ -9,6 +9,7 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import StudySupportPanel from "../../components/StudySupportPanel";
+import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import { getCurrencySymbol } from "../../utils/currency";
 import formatPHP from "../../utils/formatPHP";
 import { computeCvpAnalysis } from "../../utils/calculatorMath";
@@ -295,8 +296,10 @@ export default function CvpAnalysisPage() {
                 result && !("error" in result) ? (
                     <div className="space-y-4">
                         <StudySupportPanel
-                            topicId="study-cvp-analysis"
+                            topicId="cvp-core"
                             topicTitle="CVP Analysis"
+                            lessonPath={buildStudyTopicPath("cvp-core")}
+                            quizPath={buildStudyQuizPath("cvp-core")}
                             intro="Use this study layer to connect the calculator with the classroom procedure. It keeps the purpose, procedure, worked example, mistakes, and quick review prompts attached to the same topic."
                             sections={[
                                 {
