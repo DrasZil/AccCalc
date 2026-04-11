@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { readIndexedValue, writeIndexedValue } from "../services/storage/indexedKeyValue";
 import { getRouteMeta } from "./appCatalog.js";
 
 export type StudyTopicRecord = {
@@ -24,22 +25,29 @@ export type StudyQuizRecord = {
 };
 
 export type StudyProgressState = {
-    version: 2;
+    version: 3;
     topics: Record<string, StudyTopicRecord>;
     quizzes: Record<string, StudyQuizRecord>;
 };
 
 const STORAGE_KEY = "accalc-study-progress";
+const INDEXED_DB_KEY = "study-progress";
 const UPDATED_EVENT = "accalc-study-progress-updated";
 
 const DEFAULT_STUDY_PROGRESS: StudyProgressState = {
-    version: 2,
+    version: 3,
     topics: {},
     quizzes: {},
 };
 
 let cachedRaw: string | null | undefined;
 let cachedSnapshot: StudyProgressState = DEFAULT_STUDY_PROGRESS;
+let hydrationStarted = false;
+
+function emitUpdate() {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new Event(UPDATED_EVENT));
+}
 
 function sanitizeStudyProgress(
     value: Partial<StudyProgressState> | null | undefined
@@ -123,10 +131,53 @@ function sanitizeStudyProgress(
     );
 
     return {
-        version: 2,
+        version: 3,
         topics,
         quizzes,
     };
+}
+
+function persistSnapshot(nextValue: StudyProgressState) {
+    if (typeof window === "undefined") return;
+
+    const serialized = JSON.stringify(nextValue);
+    cachedRaw = serialized;
+    cachedSnapshot = nextValue;
+    window.localStorage.setItem(STORAGE_KEY, serialized);
+    void writeIndexedValue(INDEXED_DB_KEY, nextValue);
+    emitUpdate();
+}
+
+function ensureHydration() {
+    if (
+        hydrationStarted ||
+        typeof window === "undefined" ||
+        typeof indexedDB === "undefined"
+    ) {
+        return;
+    }
+
+    hydrationStarted = true;
+
+    void readIndexedValue<StudyProgressState>(INDEXED_DB_KEY)
+        .then((indexedState) => {
+            if (indexedState) {
+                const sanitized = sanitizeStudyProgress(indexedState);
+                const indexedRaw = JSON.stringify(sanitized);
+                if (indexedRaw !== cachedRaw) {
+                    cachedRaw = indexedRaw;
+                    cachedSnapshot = sanitized;
+                    window.localStorage.setItem(STORAGE_KEY, indexedRaw);
+                    emitUpdate();
+                }
+                return;
+            }
+
+            if (cachedRaw) {
+                void writeIndexedValue(INDEXED_DB_KEY, cachedSnapshot);
+            }
+        })
+        .catch(() => undefined);
 }
 
 export function readStudyProgress(): StudyProgressState {
@@ -135,12 +186,14 @@ export function readStudyProgress(): StudyProgressState {
     try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
         if (raw === cachedRaw) {
+            ensureHydration();
             return cachedSnapshot;
         }
 
         if (!raw) {
             cachedRaw = raw;
             cachedSnapshot = DEFAULT_STUDY_PROGRESS;
+            ensureHydration();
             return cachedSnapshot;
         }
 
@@ -148,34 +201,27 @@ export function readStudyProgress(): StudyProgressState {
         cachedSnapshot = sanitizeStudyProgress(
             JSON.parse(raw) as Partial<StudyProgressState>
         );
+        ensureHydration();
         return cachedSnapshot;
     } catch {
         cachedRaw = null;
         cachedSnapshot = DEFAULT_STUDY_PROGRESS;
+        ensureHydration();
         return cachedSnapshot;
     }
-}
-
-function writeStudyProgress(nextValue: StudyProgressState) {
-    if (typeof window === "undefined") return;
-
-    const serialized = JSON.stringify(nextValue);
-    cachedRaw = serialized;
-    cachedSnapshot = nextValue;
-    window.localStorage.setItem(STORAGE_KEY, serialized);
-    window.dispatchEvent(new Event(UPDATED_EVENT));
 }
 
 export function updateStudyProgress(
     updater: (current: StudyProgressState) => StudyProgressState
 ) {
     if (typeof window === "undefined") return;
-    writeStudyProgress(updater(readStudyProgress()));
+    persistSnapshot(updater(readStudyProgress()));
 }
 
 function subscribe(callback: () => void) {
     if (typeof window === "undefined") return () => undefined;
 
+    ensureHydration();
     const handle = () => callback();
     window.addEventListener("storage", handle);
     window.addEventListener(UPDATED_EVENT, handle);

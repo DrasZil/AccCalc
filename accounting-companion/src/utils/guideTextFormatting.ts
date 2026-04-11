@@ -116,17 +116,17 @@ const GUIDE_WORDS = [
 ];
 
 const WORD_LOOKUP = new Set(GUIDE_WORDS);
-const CURRENCY_SYMBOLS = /[$€£¥₱₹₩]/;
-const OPERATOR_SPACING = /(?<=\S)\s*([=+*/×÷<>≤≥])\s*(?=\S)/g;
+const CURRENCY_SYMBOLS = /[$\u20ac\u00a3\u00a5\u20b1\u20b9\u20a9]/;
+const OPERATOR_SPACING = /(?<=\S)\s*([=+*/\u00d7\u00f7<>\u2264\u2265])\s*(?=\S)/g;
 const MOJIBAKE_REPLACEMENTS: Array<[RegExp, string]> = [
-    [/Ã—/g, "×"],
-    [/Ã·/g, "÷"],
-    [/â‰¥/g, "≥"],
-    [/â‰¤/g, "≤"],
-    [/â‰ "/g, "≠"],
-    [/â€¢/g, "•"],
-    [/â‚±/g, "₱"],
-    [/â€“|â€”/g, "-"],
+    [/Ãƒâ€”/g, "\u00d7"],
+    [/ÃƒÂ·/g, "\u00f7"],
+    [/Ã¢â€°Â¥/g, "\u2265"],
+    [/Ã¢â€°Â¤/g, "\u2264"],
+    [/Ã¢â€° "/g, "\u2260"],
+    [/Ã¢â‚¬Â¢/g, "\u2022"],
+    [/Ã¢â€šÂ±/g, "\u20b1"],
+    [/Ã¢â‚¬â€œ|Ã¢â‚¬â€/g, "-"],
 ];
 
 function normalizeEncodings(input: string) {
@@ -176,9 +176,9 @@ function segmentLowercaseToken(token: string) {
 
 function normalizeTokenSpacing(token: string) {
     return token
-        .replace(/\b(?:php|philippine peso(?:s)?|peso(?:s)?)\b/gi, "₱")
-        .replace(/([A-Za-z])(?=[$€£¥₱₹₩])/g, "$1 ")
-        .replace(/(?<=\d)(?=[$€£¥₱₹₩])/g, " ")
+        .replace(/\b(?:php|philippine peso(?:s)?|peso(?:s)?)\b/gi, "\u20b1")
+        .replace(/([A-Za-z])(?=[$\u20ac\u00a3\u00a5\u20b1\u20b9\u20a9])/g, "$1 ")
+        .replace(/(?<=\d)(?=[$\u20ac\u00a3\u00a5\u20b1\u20b9\u20a9])/g, " ")
         .replace(/(?<=[A-Za-z])(?=\d{1,3}(?:[,.]\d{3})*(?:\.\d+)?\b)/g, " ")
         .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ");
 }
@@ -187,8 +187,8 @@ export function formatGuideText(input: string) {
     const normalized = normalizeEncodings(input)
         .replace(/\r\n/g, "\n")
         .replace(/\u00a0/g, " ")
-        .replace(/\bpesos?\b/gi, "₱")
-        .replace(/\bphp\b/gi, "₱");
+        .replace(/\bpesos?\b/gi, "\u20b1")
+        .replace(/\bphp\b/gi, "\u20b1");
 
     return normalized
         .split(/(\s+)/)
@@ -197,14 +197,18 @@ export function formatGuideText(input: string) {
 
             return splitCamelAndPascalCase(token)
                 .split(" ")
-                .map((part) => normalizeTokenSpacing(segmentLowercaseToken(part.toLowerCase() === part ? part : part)))
+                .map((part) =>
+                    normalizeTokenSpacing(
+                        segmentLowercaseToken(part.toLowerCase() === part ? part : part)
+                    )
+                )
                 .join(" ");
         })
         .join("")
         .replace(/(?<=[:;,.])(?=\S)/g, " ")
         .replace(OPERATOR_SPACING, " $1 ")
         .replace(/(?<=\d)\s*-\s*(?=\d)/g, " - ")
-        .replace(/(?<=\S)\s*•\s*(?=\S)/g, " • ")
+        .replace(/(?<=\S)\s*\u2022\s*(?=\S)/g, " \u2022 ")
         .replace(/\(\s+/g, "(")
         .replace(/\s+\)/g, ")")
         .replace(/\s{2,}/g, " ")

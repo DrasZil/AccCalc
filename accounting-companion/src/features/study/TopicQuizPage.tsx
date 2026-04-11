@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import DisclosurePanel from "../../components/DisclosurePanel";
+import MathText from "../../components/math/MathText";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
+import TransitionLink from "../../components/TransitionLink";
 import {
     buildStudyTopicPath,
     getStudyTopic,
@@ -103,12 +106,12 @@ export default function TopicQuizPage() {
                 description={activeTopic.quiz.intro}
                 actions={
                     <>
-                        <Link
+                        <TransitionLink
                             to={topicPath}
                             className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
                             Return to lesson
-                        </Link>
+                        </TransitionLink>
                         <button
                             type="button"
                             onClick={submitted ? handleRetake : handleSubmit}
@@ -190,9 +193,9 @@ export default function TopicQuizPage() {
                                 ) : null}
                             </div>
 
-                            <p className="mt-4 text-sm font-semibold text-[color:var(--app-text)]">
-                                {question.prompt}
-                            </p>
+                            <div className="mt-4 text-sm font-semibold text-[color:var(--app-text)]">
+                                <MathText text={question.prompt} renderMode="auto" />
+                            </div>
 
                             {question.kind === "multiple-choice" ? (
                                 <div className="mt-4 grid gap-2">
@@ -253,19 +256,23 @@ export default function TopicQuizPage() {
                             ) : null}
 
                             {submitted ? (
-                                <div
-                                    className={[
-                                        "mt-4 rounded-[1rem] px-4 py-3.5",
-                                        isCorrect ? "app-tone-info" : "app-tone-warning",
-                                    ].join(" ")}
+                                <DisclosurePanel
+                                    title={isCorrect ? "Why this is correct" : "Why this needs review"}
+                                    summary="Open the explanation after you have checked your own reasoning first."
+                                    defaultOpen
+                                    className="mt-4"
                                 >
-                                    <p className="app-card-title text-sm">
-                                        {isCorrect ? "Why this is correct" : "Why this needs review"}
-                                    </p>
-                                    <p className="app-body-md mt-2 text-sm">
-                                        {question.explanation}
-                                    </p>
-                                </div>
+                                    <div
+                                        className={[
+                                            "rounded-[1rem] px-4 py-3.5",
+                                            isCorrect ? "app-tone-info" : "app-tone-warning",
+                                        ].join(" ")}
+                                    >
+                                        <div className="app-body-md text-sm">
+                                            <MathText text={question.explanation} renderMode="auto" />
+                                        </div>
+                                    </div>
+                                </DisclosurePanel>
                             ) : null}
                         </SectionCard>
                     );

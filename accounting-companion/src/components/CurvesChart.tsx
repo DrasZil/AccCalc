@@ -1,3 +1,5 @@
+import { useElementSize } from "../hooks/useElementSize";
+
 type CurvePoint = {
     x: number;
     y: number;
@@ -92,9 +94,13 @@ export default function CurvesChart({
     yLabel = "Value",
     formatter = (value) => value.toLocaleString(),
 }: CurvesChartProps) {
+    const { ref, width } = useElementSize<HTMLDivElement>();
     const allPoints = series.flatMap((entry) => entry.points);
     const scale = buildScale(allPoints, referenceLines, highlightPoint);
-    const yTicks = [0, 0.33, 0.66, 1].map((fraction) => scale.minY + scale.rangeY * fraction);
+    const isCompact = width > 0 && width < 430;
+    const yTicks = (isCompact ? [0, 0.5, 1] : [0, 0.33, 0.66, 1]).map(
+        (fraction) => scale.minY + scale.rangeY * fraction
+    );
 
     const highlightCoordinates = highlightPoint
         ? {
@@ -118,7 +124,7 @@ export default function CurvesChart({
         calloutLineEndX === null ? null : calloutLineEndX + (calloutDirection === "left" ? -1.5 : 1.5);
 
     return (
-        <div className="app-panel rounded-[var(--app-radius-lg)] p-5 md:p-6">
+        <div ref={ref} className="app-panel rounded-[var(--app-radius-lg)] p-5 md:p-6">
             <div className="max-w-2xl">
                 <p className="app-section-kicker">Visual</p>
                 <h3 className="app-section-title mt-2 text-xl">{title}</h3>
@@ -126,7 +132,11 @@ export default function CurvesChart({
             </div>
 
             <div className="app-subtle-surface mt-5 rounded-[1.35rem] p-4 md:p-5">
-                <svg viewBox="0 0 100 68" className="h-56 w-full md:h-64" preserveAspectRatio="xMidYMid meet">
+                <svg
+                    viewBox="0 0 100 68"
+                    className={isCompact ? "h-48 w-full" : "h-56 w-full md:h-64"}
+                    preserveAspectRatio="xMidYMid meet"
+                >
                     <path
                         d={`M${PLOT_BOUNDS.left} ${PLOT_BOUNDS.top}v${PLOT_BOUNDS.bottom - PLOT_BOUNDS.top}`}
                         stroke="var(--app-border-subtle)"
@@ -185,7 +195,11 @@ export default function CurvesChart({
                         />
                     ))}
 
-                    {highlightCoordinates && highlightPoint && calloutLineEndX !== null && calloutTextX !== null ? (
+                    {highlightCoordinates &&
+                    highlightPoint &&
+                    calloutLineEndX !== null &&
+                    calloutTextX !== null &&
+                    !isCompact ? (
                         <>
                             <circle
                                 cx={highlightCoordinates.x}
@@ -272,6 +286,20 @@ export default function CurvesChart({
                         </div>
                     ))}
                 </div>
+
+                {highlightPoint && isCompact ? (
+                    <div className="app-tone-accent mt-4 rounded-[1rem] px-4 py-3">
+                        <p className="app-card-title text-sm">{highlightPoint.label}</p>
+                        <p className="app-helper mt-2 text-xs leading-5">
+                            {formatter(highlightPoint.y)} at {highlightPoint.x.toFixed(2)} units
+                        </p>
+                        {highlightPoint.note ? (
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {highlightPoint.note}
+                            </p>
+                        ) : null}
+                    </div>
+                ) : null}
             </div>
         </div>
     );

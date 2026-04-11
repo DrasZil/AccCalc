@@ -1,8 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageHeader from "./PageHeader";
+import RelatedLinksPanel from "./RelatedLinksPanel";
 import ToolAboutPanel from "./ToolAboutPanel";
 import ToolPinButton from "./ToolPinButton";
 import {
@@ -369,29 +370,17 @@ export default function CalculatorPageLayout({
                 )}
             </div>
 
-            {relatedRoutes.length > 0 ? (
-                <section className="space-y-3">
-                    <div className="px-1">
-                        <p className="app-section-kicker text-[0.68rem]">Related tools</p>
-                    </div>
-                    <div className="app-card-grid-readable">
-                        {relatedRoutes.map((route) => (
-                            <Link
-                                key={route.path}
-                                to={route.path}
-                                className="app-list-link rounded-[1.1rem] px-4 py-3"
-                            >
-                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                    {route.shortLabel ?? route.label}
-                                </p>
-                                <p className="app-helper mt-1 hidden text-xs md:block">
-                                    {route.description}
-                                </p>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            ) : null}
+            <RelatedLinksPanel
+                title="Related tools"
+                summary="Keep follow-up routes collapsed until you need the next calculator, checker, or lesson."
+                badge={`${relatedRoutes.length} tools`}
+                items={relatedRoutes.map((route) => ({
+                    path: route.path,
+                    label: route.shortLabel ?? route.label,
+                    description: route.description,
+                }))}
+                showDescriptions
+            />
         </div>
     );
 }

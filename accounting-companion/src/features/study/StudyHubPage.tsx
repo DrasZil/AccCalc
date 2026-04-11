@@ -1,7 +1,9 @@
 import { useDeferredValue, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader";
+import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
+import TransitionLink from "../../components/TransitionLink";
+import { APP_NAV_GROUPS } from "../../utils/appCatalog";
 import {
     STUDY_CATEGORY_DETAILS,
     buildStudyQuizPath,
@@ -52,18 +54,18 @@ function TopicCard({
             </div>
 
             <div className="app-card-grid-readable--compact mt-4">
-                <Link
+                <TransitionLink
                     to={buildStudyTopicPath(topic.id)}
                     className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
                 >
                     Open lesson
-                </Link>
-                <Link
+                </TransitionLink>
+                <TransitionLink
                     to={buildStudyQuizPath(topic.id)}
                     className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
                 >
                     Practice quiz
-                </Link>
+                </TransitionLink>
             </div>
         </div>
     );
@@ -114,6 +116,15 @@ export default function StudyHubPage() {
     );
 
     const quizCount = Object.keys(studyProgress.quizzes).length;
+    const calculatorGroups = useMemo(
+        () =>
+            APP_NAV_GROUPS.filter(
+                (group) =>
+                    group.title !== "Study Hub" &&
+                    group.items.length > 0
+            ),
+        []
+    );
 
     return (
         <div className="app-page-stack">
@@ -121,20 +132,21 @@ export default function StudyHubPage() {
                 badge="Study Hub"
                 title="Browse lessons, review procedures, and practice by topic"
                 description="Use the Study Hub as the learning center of AccCalc. Open topic lessons, revisit bookmarked subjects, continue where you stopped, and move into quiz mode when you want active practice instead of passive reading."
+                compactDescriptionOnMobile
                 actions={
                     <>
-                        <Link
+                        <TransitionLink
                             to="/study/practice"
                             className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
                             Open practice mode
-                        </Link>
-                        <Link
+                        </TransitionLink>
+                        <TransitionLink
                             to="/smart/solver"
                             className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
                             Ask Smart Solver
-                        </Link>
+                        </TransitionLink>
                     </>
                 }
             />
@@ -301,6 +313,38 @@ export default function StudyHubPage() {
                         </div>
                     </SectionCard>
                 ))}
+            </section>
+
+            <section className="space-y-4">
+                <div>
+                    <p className="app-section-kicker text-[0.68rem]">Calculator coverage</p>
+                    <h2 className="app-section-title mt-2">Study Hub now spans every current calculator family</h2>
+                    <p className="app-body-md mt-2 text-sm">
+                        Use these groups when you want to move from topic study into the exact calculator or workspace that matches your assignment, check, or review set.
+                    </p>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                    {calculatorGroups.map((group) => (
+                        <RelatedLinksPanel
+                            key={group.title}
+                            title={group.title}
+                            summary={
+                                group.items.length > 8
+                                    ? `${group.hint}. The most-used routes are surfaced first to keep narrow-width browsing cleaner.`
+                                    : group.hint
+                            }
+                            badge={`${group.items.length} tools`}
+                            items={group.items.slice(0, 8).map((item) => ({
+                                path: item.path,
+                                label: item.shortLabel ?? item.label,
+                                description: item.description,
+                            }))}
+                            compact
+                            defaultOpen={group.items.length <= 4}
+                        />
+                    ))}
+                </div>
             </section>
         </div>
     );

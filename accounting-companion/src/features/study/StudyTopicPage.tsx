@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
+import DisclosurePanel from "../../components/DisclosurePanel";
 import PageHeader from "../../components/PageHeader";
+import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
+import TransitionLink from "../../components/TransitionLink";
+import FormulaBlock from "../../components/math/FormulaBlock";
 import { getRouteMeta } from "../../utils/appCatalog";
 import {
     buildStudyQuizPath,
@@ -22,6 +26,8 @@ type TopicSectionCardProps = {
     topicTitle: string;
     sectionKey: string;
     title: string;
+    summary?: string;
+    defaultOpen?: boolean;
     children: ReactNode;
     reviewed: boolean;
 };
@@ -32,21 +38,27 @@ function TopicSectionCard({
     topicTitle,
     sectionKey,
     title,
+    summary,
+    defaultOpen = false,
     children,
     reviewed,
 }: TopicSectionCardProps) {
     return (
-        <SectionCard>
-            <div className="flex items-start justify-between gap-3">
-                <p className="app-card-title text-base">{title}</p>
+        <DisclosurePanel
+            title={title}
+            summary={summary}
+            defaultOpen={defaultOpen}
+            badge={reviewed ? "Reviewed" : "Lesson"}
+            headerActions={
                 <button
                     type="button"
-                    onClick={() =>
+                    onClick={(event) => {
+                        event.stopPropagation();
                         markStudySectionComplete(
                             { id: topicId, path: topicPath, title: topicTitle },
                             sectionKey
-                        )
-                    }
+                        );
+                    }}
                     className={[
                         "rounded-full px-3 py-1 text-[0.62rem] font-semibold",
                         reviewed ? "app-button-primary" : "app-button-secondary",
@@ -54,9 +66,10 @@ function TopicSectionCard({
                 >
                     {reviewed ? "Reviewed" : "Mark reviewed"}
                 </button>
-            </div>
-            <div className="app-reading-content mt-4 space-y-3">{children}</div>
-        </SectionCard>
+            }
+        >
+            <div className="app-reading-content space-y-3">{children}</div>
+        </DisclosurePanel>
     );
 }
 
@@ -137,12 +150,12 @@ export default function StudyTopicPage() {
                         >
                             {topicRecord?.bookmarked ? "Bookmarked" : "Bookmark topic"}
                         </button>
-                        <Link
+                        <TransitionLink
                             to={buildStudyQuizPath(topic.id)}
                             className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
                             Start quiz
-                        </Link>
+                        </TransitionLink>
                     </>
                 }
                 meta={
@@ -216,20 +229,23 @@ export default function StudyTopicPage() {
                             </p>
                         </div>
 
-                        <div className="app-card-grid-readable--compact">
-                            {topic.relatedCalculatorPaths.map((path) => {
+                        <RelatedLinksPanel
+                            title="Related calculators"
+                            summary="Keep calculator follow-ups tucked away until you need the exact workspace for this topic."
+                            badge={`${topic.relatedCalculatorPaths.length} tools`}
+                            items={topic.relatedCalculatorPaths.map((path) => {
                                 const routeMeta = getRouteMeta(path);
-                                return (
-                                    <Link
-                                        key={path}
-                                        to={path}
-                                        className="app-list-link rounded-[1rem] px-4 py-3 text-sm font-medium"
-                                    >
-                                        {routeMeta?.shortLabel ?? routeMeta?.label ?? "Open related calculator"}
-                                    </Link>
-                                );
+                                return {
+                                    path,
+                                    label:
+                                        routeMeta?.shortLabel ??
+                                        routeMeta?.label ??
+                                        "Open related calculator",
+                                    description: routeMeta?.description,
+                                };
                             })}
-                        </div>
+                            compact
+                        />
                     </div>
                 </SectionCard>
             </section>
@@ -240,6 +256,8 @@ export default function StudyTopicPage() {
                 topicTitle={topic.title}
                 sectionKey="formula"
                 title="Formula overview"
+                summary="Open the key equations, variable meaning, and what each formula is actually measuring."
+                defaultOpen
                 reviewed={reviewedSections.has("formula")}
             >
                 <div className="grid gap-3 xl:grid-cols-2">
@@ -249,12 +267,17 @@ export default function StudyTopicPage() {
                             className="app-subtle-surface rounded-[1rem] px-4 py-3.5"
                         >
                             <p className="app-card-title text-sm">{formula.label}</p>
-                            <p className="app-reading-content mt-2 text-sm font-semibold">
-                                {formula.expression}
-                            </p>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                {formula.explanation}
-                            </p>
+                            <div className="mt-3">
+                                <FormulaBlock
+                                    label={formula.label}
+                                    text={formula.expression}
+                                    supportingText={
+                                        <p className="app-helper text-xs leading-5">
+                                            {formula.explanation}
+                                        </p>
+                                    }
+                                />
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -278,6 +301,8 @@ export default function StudyTopicPage() {
                 topicTitle={topic.title}
                 sectionKey="procedure"
                 title="Procedure and solving method"
+                summary="Use this when you need the order of operations, not just the final formula."
+                defaultOpen
                 reviewed={reviewedSections.has("procedure")}
             >
                 <ol className="list-decimal space-y-2 pl-5 text-sm">
@@ -294,6 +319,7 @@ export default function StudyTopicPage() {
                     topicTitle={topic.title}
                     sectionKey="worked-example"
                     title={topic.workedExample.title}
+                    summary="A full worked example for the topic, with the reasoning attached to each step."
                     reviewed={reviewedSections.has("worked-example")}
                 >
                     <p className="text-sm">{topic.workedExample.scenario}</p>
@@ -317,6 +343,7 @@ export default function StudyTopicPage() {
                     topicTitle={topic.title}
                     sectionKey="checkpoint"
                     title={topic.checkpointExample.title}
+                    summary="A shorter checkpoint example to confirm whether the method still holds with different numbers."
                     reviewed={reviewedSections.has("checkpoint")}
                 >
                     <p className="text-sm">{topic.checkpointExample.scenario}</p>
@@ -342,6 +369,7 @@ export default function StudyTopicPage() {
                     topicTitle={topic.title}
                     sectionKey="mistakes"
                     title="Common mistakes and exam traps"
+                    summary="Use this before quizzes or answer-checking so recurring errors do not survive into the final result."
                     reviewed={reviewedSections.has("mistakes")}
                 >
                     <div className="grid gap-3 lg:grid-cols-2">
@@ -370,6 +398,7 @@ export default function StudyTopicPage() {
                     topicTitle={topic.title}
                     sectionKey="interpretation"
                     title="Interpretation, self-check, and practice cues"
+                    summary="Keep the meaning first, then open the self-check and practice prompts when you want active review."
                     reviewed={reviewedSections.has("interpretation")}
                 >
                     <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
@@ -407,12 +436,12 @@ export default function StudyTopicPage() {
                     <h2 className="app-section-title mt-2">Mini quiz for this topic</h2>
                     <p className="app-body-md mt-2 text-sm">{topic.quiz.intro}</p>
                     <div className="mt-4 flex flex-wrap gap-3">
-                        <Link
+                        <TransitionLink
                             to={buildStudyQuizPath(topic.id)}
                             className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
                             Open {topic.quiz.title}
-                        </Link>
+                        </TransitionLink>
                         {quizRecord ? (
                             <span className="app-chip rounded-full px-3 py-1 text-xs">
                                 Last score {quizRecord.lastScore}/{quizRecord.totalQuestions}
@@ -421,25 +450,17 @@ export default function StudyTopicPage() {
                     </div>
                 </SectionCard>
 
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Related topics</p>
-                    <div className="mt-4 grid gap-3">
-                        {relatedTopics.map((relatedTopic) => (
-                            <Link
-                                key={relatedTopic.id}
-                                to={`/study/topics/${relatedTopic.id}`}
-                                className="app-link-card rounded-[1rem] px-4 py-3.5"
-                            >
-                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                    {relatedTopic.title}
-                                </p>
-                                <p className="app-helper mt-1 text-xs leading-5">
-                                    {relatedTopic.summary}
-                                </p>
-                            </Link>
-                        ))}
-                    </div>
-                </SectionCard>
+                <RelatedLinksPanel
+                    title="Related topics"
+                    summary="Open connected lessons only when you want the next concept bridge or review path."
+                    badge={`${relatedTopics.length} topics`}
+                    items={relatedTopics.map((relatedTopic) => ({
+                        path: `/study/topics/${relatedTopic.id}`,
+                        label: relatedTopic.title,
+                        description: relatedTopic.summary,
+                    }))}
+                    showDescriptions
+                />
             </section>
         </div>
     );

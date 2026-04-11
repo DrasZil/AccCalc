@@ -6,7 +6,7 @@ import "katex/dist/katex.min.css";
 import { initializeAppUpdateLifecycle } from "./utils/appUpdate";
 import { APP_VERSION } from "./utils/appRelease";
 import { initializeOfflineStatusLifecycle } from "./utils/offlineStatus";
-const SW_URL = `${import.meta.env.BASE_URL}sw.js`;
+const SW_URL = `${import.meta.env.BASE_URL}service-worker.js`;
 
 if (typeof window !== "undefined" && !window.location.hash.startsWith("#/")) {
     const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin);

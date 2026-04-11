@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
+import RelatedLinksPanel from "./RelatedLinksPanel";
 import type { RouteAvailability, RouteMeta } from "../utils/appCatalog";
 
 type ToolAboutPanelProps = {
@@ -189,22 +189,17 @@ export default function ToolAboutPanel({
                     </div>
                 ) : null}
 
-                {relatedRoutes.length > 0 ? (
-                    <div className="space-y-2">
-                        <p className="app-label text-[0.66rem]">Related tools</p>
-                        <div className="flex flex-wrap gap-2">
-                            {relatedRoutes.map((relatedRoute) => (
-                                <Link
-                                    key={relatedRoute.path}
-                                    to={relatedRoute.path}
-                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
-                                >
-                                    {relatedRoute.shortLabel ?? relatedRoute.label}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                ) : null}
+                <RelatedLinksPanel
+                    title="Related tools"
+                    summary="Keep follow-up tools collapsed until you actually need the next route."
+                    badge={`${relatedRoutes.length} tools`}
+                    items={relatedRoutes.map((relatedRoute) => ({
+                        path: relatedRoute.path,
+                        label: relatedRoute.shortLabel ?? relatedRoute.label,
+                        description: relatedRoute.description,
+                    }))}
+                    compact
+                />
             </div>
         </DisclosurePanel>
     );

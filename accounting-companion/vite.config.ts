@@ -1,6 +1,12 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+
+const packageJson = JSON.parse(
+    readFileSync(resolve(__dirname, "package.json"), "utf8")
+) as { version: string };
 
 function acccalcAssetManifestPlugin(): Plugin {
     return {
@@ -20,7 +26,11 @@ function acccalcAssetManifestPlugin(): Plugin {
 
                     return [];
                 })
-                .filter((assetPath) => assetPath !== "/asset-manifest.json")
+                .filter(
+                    (assetPath) =>
+                        assetPath !== "/asset-manifest.json" &&
+                        assetPath !== "/service-worker.js"
+                )
                 .toSorted();
 
             this.emitFile({
@@ -40,5 +50,24 @@ function acccalcAssetManifestPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+    define: {
+        PACKAGE_VERSION: JSON.stringify(packageJson.version),
+    },
     plugins: [react(), tailwindcss(), acccalcAssetManifestPlugin()],
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, "index.html"),
+                serviceWorker: resolve(__dirname, "src/service-worker.ts"),
+            },
+            output: {
+                entryFileNames: (chunkInfo) =>
+                    chunkInfo.name === "serviceWorker"
+                        ? "service-worker.js"
+                        : "assets/[name]-[hash].js",
+                chunkFileNames: "assets/[name]-[hash].js",
+                assetFileNames: "assets/[name]-[hash][extname]",
+            },
+        },
+    },
 });

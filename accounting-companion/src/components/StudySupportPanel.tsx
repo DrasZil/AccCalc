@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
+import RelatedLinksPanel from "./RelatedLinksPanel";
 import SectionCard from "./SectionCard";
 import {
     markStudySectionComplete,
@@ -240,22 +241,13 @@ export default function StudySupportPanel({
                             </div>
                         ) : null}
 
-                        {relatedTools.length > 0 ? (
-                            <div className="app-subtle-surface rounded-[1.15rem] px-4 py-4">
-                                <p className="app-card-title text-sm">Related tools</p>
-                                <div className="app-card-grid-readable--compact mt-3">
-                                    {relatedTools.map((tool) => (
-                                        <Link
-                                            key={tool.path}
-                                            to={tool.path}
-                                            className="app-list-link rounded-[1rem] px-3.5 py-3 text-sm font-medium"
-                                        >
-                                            {tool.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : null}
+                        <RelatedLinksPanel
+                            title="Related tools"
+                            summary="Keep follow-up routes collapsed until you want the next calculator or lesson."
+                            badge={`${relatedTools.length} tools`}
+                            items={relatedTools}
+                            compact
+                        />
                     </div>
                 </div>
             </div>
@@ -290,22 +282,13 @@ export default function StudySupportPanel({
                         </div>
                     </div>
 
-                    {relatedTools.length > 0 ? (
-                        <div className="app-subtle-surface rounded-[1.15rem] px-4 py-4">
-                            <p className="app-card-title text-sm">Related tools</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {relatedTools.map((tool) => (
-                                    <Link
-                                        key={tool.path}
-                                        to={tool.path}
-                                        className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
-                                    >
-                                        {tool.label}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
+                    <RelatedLinksPanel
+                        title="Related tools"
+                        summary="Keep follow-up routes collapsed until you want the next calculator or lesson."
+                        badge={`${relatedTools.length} tools`}
+                        items={relatedTools}
+                        compact
+                    />
                 </div>
             ) : null}
         </SectionCard>

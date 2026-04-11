@@ -442,7 +442,7 @@ export function initializeAppUpdateLifecycle(swUrl: string, version: string) {
 
     window.addEventListener("load", () => {
         navigator.serviceWorker
-            .register(swUrl, { updateViaCache: "none" })
+            .register(swUrl, { type: "module", updateViaCache: "none" })
             .then((registration) => {
                 serviceWorkerRegistration = registration;
                 patchState({ supported: true, phase: "idle" });

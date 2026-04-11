@@ -28,7 +28,7 @@ import { useScanQueue } from "../hooks/useScanQueue";
 import { buildAccountingProblemSession } from "../services/accounting/accountingProblemSession";
 import { explainConfidence, getConfidenceLevel } from "../services/ocr/ocrConfidence";
 import { mergeSelectedOcrText } from "../services/ocr/ocrMerge";
-import { parseOcrText } from "../services/ocr/ocrParser";
+import { parseScanTextInBackground } from "../services/ocr/scanProcessingClient";
 import type { ScanImageItem, ScanProcessingPhase, StructuredScanField } from "../types";
 
 function prefillFromStructuredFields(fields: StructuredScanField[]) {
@@ -342,7 +342,10 @@ export default function ScanCheckPage() {
                         processingSummary: "Detecting worksheet or problem type",
                         ocrResult,
                     }));
-                    const parsed = parseOcrText(ocrResult.text, ocrResult.confidence);
+                    const parsed = await parseScanTextInBackground(
+                        ocrResult.text,
+                        ocrResult.confidence
+                    );
                     queue.updateItem(item.id, (current) => ({
                         ...current,
                         status: "extracting",

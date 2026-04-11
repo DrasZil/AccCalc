@@ -8,6 +8,7 @@ import {
 } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
+import DisclosurePanel from "../../components/DisclosurePanel";
 import InputCard from "../../components/INputCard";
 import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
@@ -33,11 +34,11 @@ import {
     FIELD_META,
     INITIAL_FIELDS,
     CALCULATORS,
-    analyzeSmartInput,
     makePrefill,
 } from "./smartSolver.engine";
 import type { SmartSolverRouteState } from "./smartSolver.connector";
 import { suggestSolveTarget } from "./smartSolver.targets";
+import { useSmartSolverAnalysis } from "./useSmartSolverAnalysis";
 import { buildExtractedInputReview } from "./utils/extractedInputReview";
 import { scoreSmartIntent } from "./utils/intentScoring";
 import { detectPromptMistakes } from "./utils/mistakeDetection";
@@ -203,10 +204,7 @@ export default function SmartSolverPage() {
         setFields((prev) => ({ ...prev, [key]: value }));
     };
 
-    const analysis = useMemo(() => analyzeSmartInput(fields, deferredSmartInput), [
-        deferredSmartInput,
-        fields,
-    ]);
+    const { analysis, pendingAnalysis } = useSmartSolverAnalysis(fields, deferredSmartInput);
     const intentScores = useMemo(
         () => scoreSmartIntent(deferredSmartInput, analysis),
         [analysis, deferredSmartInput]
@@ -1008,13 +1006,18 @@ export default function SmartSolverPage() {
                                 </button>
                             </div>
 
-                            <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-4 text-sm leading-6">
-                                {guidanceMode === "compute"
-                                    ? solverInterpretation.compute
-                                    : guidanceMode === "beginner"
-                                      ? solverInterpretation.beginner
-                                      : solverInterpretation.professional}
-                            </div>
+                                <div className="app-subtle-surface mt-4 rounded-2xl px-4 py-4 text-sm leading-6">
+                                    {guidanceMode === "compute"
+                                        ? solverInterpretation.compute
+                                        : guidanceMode === "beginner"
+                                          ? solverInterpretation.beginner
+                                          : solverInterpretation.professional}
+                                </div>
+                            {pendingAnalysis ? (
+                                <p className="app-helper mt-3 text-xs">
+                                    Refreshing the best calculator match in the background.
+                                </p>
+                            ) : null}
 
                             <div className="mt-4 grid gap-3 md:grid-cols-2">
                                 <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
@@ -1093,21 +1096,26 @@ export default function SmartSolverPage() {
                             ) : null}
 
                             {solverInterpretation.relatedTools.length > 0 ? (
-                                <div className="mt-4">
-                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
-                                        Related next tools
-                                    </p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
+                                <DisclosurePanel
+                                    title="Related next tools"
+                                    summary="Keep follow-up tool suggestions collapsed until you want the next route."
+                                    badge={`${solverInterpretation.relatedTools.length} tools`}
+                                    compact
+                                    className="mt-4"
+                                >
+                                    <div className="app-related-link-grid app-related-link-grid--compact">
                                         {solverInterpretation.relatedTools.map((toolName) => (
-                                            <span
+                                            <div
                                                 key={toolName}
-                                                className="app-list-link rounded-full px-3 py-1 text-xs font-medium"
+                                                className="app-list-link app-related-link rounded-[1rem] px-3.5 py-3"
                                             >
-                                                {toolName}
-                                            </span>
+                                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                    {toolName}
+                                                </p>
+                                            </div>
                                         ))}
                                     </div>
-                                </div>
+                                </DisclosurePanel>
                             ) : null}
                         </CollapsibleSection>
                     ) : null}

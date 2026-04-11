@@ -1,3 +1,5 @@
+import { useElementSize } from "../hooks/useElementSize";
+
 type ComparisonBarsChartProps = {
     title: string;
     description: string;
@@ -25,10 +27,12 @@ export default function ComparisonBarsChart({
     formatter = (value) => value.toLocaleString(),
     caption,
 }: ComparisonBarsChartProps) {
+    const { ref, width } = useElementSize<HTMLDivElement>();
     const maxValue = Math.max(...items.map((item) => Math.abs(item.value)), 1);
+    const isCompact = width > 0 && width < 420;
 
     return (
-        <div className="app-panel rounded-[var(--app-radius-lg)] p-5 md:p-6">
+        <div ref={ref} className="app-panel rounded-[var(--app-radius-lg)] p-5 md:p-6">
             <div className="max-w-2xl">
                 <p className="app-section-kicker">Chart</p>
                 <h3 className="app-section-title mt-2 text-xl">{title}</h3>
@@ -52,7 +56,9 @@ export default function ComparisonBarsChart({
                                     </p>
                                     <p className="app-helper mt-1 text-xs">
                                         {item.emphasisLabel ??
-                                            `${Math.round(normalizedWidth * 100)}% of the largest current checkpoint.`}
+                                            (isCompact
+                                                ? `${Math.round(normalizedWidth * 100)}% of the largest checkpoint.`
+                                                : `${Math.round(normalizedWidth * 100)}% of the largest current checkpoint.`)}
                                     </p>
                                 </div>
                                 <p className="shrink-0 text-sm font-medium text-[color:var(--app-text-secondary)]">

@@ -1,8 +1,28 @@
-const APP_VERSION = "3.1.0";
+/// <reference lib="webworker" />
+
+import { APP_VERSION } from "./utils/appRelease";
+import { clientsClaim } from "workbox-core";
+import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { ExpirationPlugin } from "workbox-expiration";
+import { registerRoute } from "workbox-routing";
+import { NetworkFirst, StaleWhileRevalidate } from "workbox-strategies";
+
+declare const self: ServiceWorkerGlobalScope;
+
+type CacheStatusMessage = {
+    type: "SW_CACHE_STATUS" | "SW_ASSETS_READY";
+    version: string;
+    ready: boolean;
+    assetCount: number;
+    failedCount?: number;
+    checkedAt?: number;
+};
+
 const CACHE_PREFIX = "acccalc-v";
 const CACHE_VERSION = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
+const MEDIA_CACHE = `${CACHE_VERSION}-media`;
 const META_CACHE = `${CACHE_VERSION}-meta`;
 const CACHE_STATUS_URL = `https://acccalc.local/__cache-status__/${APP_VERSION}`;
 const APP_SCOPE_URL = new URL(self.registration.scope);
@@ -17,6 +37,44 @@ const APP_SHELL_URLS = [
     new URL("icon-512.png", APP_SCOPE_URL).toString(),
 ].map((url) => url.toString());
 
+const shellStrategy = new NetworkFirst({
+    cacheName: APP_SHELL_CACHE,
+    networkTimeoutSeconds: 4,
+    plugins: [
+        new CacheableResponsePlugin({
+            statuses: [200],
+        }),
+    ],
+});
+
+const assetStrategy = new StaleWhileRevalidate({
+    cacheName: ASSET_CACHE,
+    plugins: [
+        new CacheableResponsePlugin({
+            statuses: [200],
+        }),
+        new ExpirationPlugin({
+            maxEntries: 80,
+            maxAgeSeconds: 60 * 60 * 24 * 14,
+        }),
+    ],
+});
+
+const mediaStrategy = new StaleWhileRevalidate({
+    cacheName: MEDIA_CACHE,
+    plugins: [
+        new CacheableResponsePlugin({
+            statuses: [200],
+        }),
+        new ExpirationPlugin({
+            maxEntries: 80,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+        }),
+    ],
+});
+
+clientsClaim();
+
 self.addEventListener("install", (event) => {
     event.waitUntil(
         (async () => {
@@ -24,7 +82,7 @@ self.addEventListener("install", (event) => {
             await shellCache.addAll(APP_SHELL_URLS);
 
             const assets = await loadAssetManifest();
-            const precacheResult = await precacheAssets(assets);
+            const precacheResult = await warmAssetCache(assets);
             await writeCacheStatus(precacheResult);
 
             await broadcastMessage({
@@ -44,24 +102,24 @@ self.addEventListener("activate", (event) => {
     event.waitUntil(
         (async () => {
             const cacheNames = await caches.keys();
-            const preservedAssetCaches = getPreservedAssetCaches(cacheNames);
-
             await Promise.all(
                 cacheNames.map((cacheName) => {
                     if (
                         cacheName === APP_SHELL_CACHE ||
                         cacheName === ASSET_CACHE ||
-                        cacheName === META_CACHE ||
-                        preservedAssetCaches.has(cacheName)
+                        cacheName === MEDIA_CACHE ||
+                        cacheName === META_CACHE
                     ) {
+                        return Promise.resolve();
+                    }
+
+                    if (!cacheName.startsWith(CACHE_PREFIX)) {
                         return Promise.resolve();
                     }
 
                     return caches.delete(cacheName);
                 })
             );
-
-            await self.clients.claim();
 
             const cacheStatus = await readCacheStatus();
             await broadcastMessage({
@@ -97,113 +155,48 @@ self.addEventListener("message", (event) => {
                     assetCount: cacheStatus.assetCount,
                     failedCount: cacheStatus.failedCount,
                     checkedAt: cacheStatus.checkedAt,
-                });
+                } satisfies CacheStatusMessage);
             })()
         );
     }
 });
 
-self.addEventListener("fetch", (event) => {
-    const { request } = event;
-    if (request.method !== "GET") return;
-
-    const requestUrl = new URL(request.url);
-    if (requestUrl.origin !== self.location.origin) return;
-
-    if (request.mode === "navigate") {
-        event.respondWith(handleNavigationRequest());
-        return;
-    }
-
-    const destination = request.destination;
-    if (destination === "script" || destination === "style") {
-        event.respondWith(handleImmutableAssetRequest(request));
-        return;
-    }
-
-    if (["image", "font", "manifest"].includes(destination)) {
-        event.respondWith(staleWhileRevalidate(request));
-    }
-});
-
-async function handleNavigationRequest() {
-    try {
-        const networkResponse = await fetch(SHELL_URL, { cache: "no-store" });
-        if (!networkResponse.ok) {
-            throw new Error(`Navigation failed with status ${networkResponse.status}.`);
+registerRoute(
+    ({ request }) => request.mode === "navigate",
+    async ({ event, request }) => {
+        try {
+            return await shellStrategy.handle({ event, request });
+        } catch {
+            return (await caches.match(OFFLINE_URL)) ?? Response.error();
         }
-
-        const cache = await caches.open(APP_SHELL_CACHE);
-        await cache.put(SHELL_URL, networkResponse.clone());
-        return networkResponse;
-    } catch {
-        const cachedShell = await caches.match(SHELL_URL);
-        if (cachedShell) return cachedShell;
-
-        const offlinePage = await caches.match(OFFLINE_URL);
-        if (offlinePage) return offlinePage;
-
-        return new Response("Offline", {
-            status: 503,
-            statusText: "Offline",
-            headers: { "Content-Type": "text/plain; charset=utf-8" },
-        });
     }
-}
+);
 
-async function handleImmutableAssetRequest(request) {
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-        return cachedResponse;
-    }
-
-    try {
-        const networkResponse = await fetch(request, { cache: "no-store" });
-        if (networkResponse.ok) {
-            const cache = await caches.open(ASSET_CACHE);
-            await cache.put(request, networkResponse.clone());
-            return networkResponse;
-        }
-
-        if (isVersionedAssetRequest(request)) {
-            await broadcastMessage({
-                type: "SW_DEPLOYMENT_MISMATCH",
-                url: request.url,
-            });
-        }
-
-        return networkResponse;
-    } catch (error) {
-        if (cachedResponse) {
-            return cachedResponse;
-        }
-
-        if (isVersionedAssetRequest(request)) {
-            await broadcastMessage({
-                type: "SW_DEPLOYMENT_MISMATCH",
-                url: request.url,
-            });
-        }
-
-        throw error;
-    }
-}
-
-async function staleWhileRevalidate(request) {
-    const cache = await caches.open(ASSET_CACHE);
-    const cachedResponse = await caches.match(request);
-
-    const networkPromise = fetch(request)
-        .then((networkResponse) => {
-            if (networkResponse.ok) {
-                cache.put(request, networkResponse.clone());
+registerRoute(
+    ({ request }) => request.destination === "script" || request.destination === "style",
+    async ({ request, event }) => {
+        try {
+            return await assetStrategy.handle({ request, event });
+        } catch (error) {
+            if (isVersionedAssetRequest(request)) {
+                await broadcastMessage({
+                    type: "SW_DEPLOYMENT_MISMATCH",
+                    url: request.url,
+                });
             }
-            return networkResponse;
-        })
-        .catch(() => cachedResponse);
+            throw error;
+        }
+    }
+);
 
-    return cachedResponse || networkPromise;
-}
+registerRoute(
+    ({ request, url }) =>
+        request.destination === "image" ||
+        request.destination === "font" ||
+        request.destination === "manifest" ||
+        url.pathname.endsWith("/asset-manifest.json"),
+    ({ request, event }) => mediaStrategy.handle({ request, event })
+);
 
 async function loadAssetManifest() {
     try {
@@ -212,8 +205,10 @@ async function loadAssetManifest() {
             throw new Error(`Asset manifest failed with status ${response.status}.`);
         }
 
-        const manifest = await response.json();
-        if (!manifest || !Array.isArray(manifest.assets)) {
+        const manifest = (await response.json()) as {
+            assets?: string[];
+        };
+        if (!manifest.assets || !Array.isArray(manifest.assets)) {
             return [];
         }
 
@@ -226,14 +221,14 @@ async function loadAssetManifest() {
     }
 }
 
-async function precacheAssets(assets) {
+async function warmAssetCache(assets: string[]) {
     const assetCache = await caches.open(ASSET_CACHE);
     const results = await Promise.allSettled(
         assets.map(async (assetUrl) => {
             const request = new Request(assetUrl, { cache: "no-store" });
             const response = await fetch(request);
             if (!response.ok) {
-                throw new Error(`Failed to precache ${assetUrl} (${response.status}).`);
+                throw new Error(`Failed to cache ${assetUrl} (${response.status}).`);
             }
 
             await assetCache.put(request, response.clone());
@@ -243,14 +238,19 @@ async function precacheAssets(assets) {
 
     const failedCount = results.filter((result) => result.status === "rejected").length;
     return {
-        ready: assets.length > 0 && failedCount === 0,
+        ready: failedCount === 0,
         assetCount: assets.length - failedCount,
         failedCount,
         checkedAt: Date.now(),
     };
 }
 
-async function writeCacheStatus(status) {
+async function writeCacheStatus(status: {
+    ready: boolean;
+    assetCount: number;
+    failedCount: number;
+    checkedAt: number;
+}) {
     const metaCache = await caches.open(META_CACHE);
     await metaCache.put(
         CACHE_STATUS_URL,
@@ -273,7 +273,12 @@ async function readCacheStatus() {
     }
 
     try {
-        const parsed = await response.json();
+        const parsed = (await response.json()) as {
+            ready?: boolean;
+            assetCount?: number;
+            failedCount?: number;
+            checkedAt?: number;
+        };
         return {
             ready: Boolean(parsed.ready),
             assetCount: typeof parsed.assetCount === "number" ? parsed.assetCount : 0,
@@ -290,53 +295,12 @@ async function readCacheStatus() {
     }
 }
 
-function isVersionedAssetRequest(request) {
+function isVersionedAssetRequest(request: Request) {
     const requestUrl = new URL(request.url);
-    return (
-        requestUrl.pathname.includes("/assets/") &&
-        /\.(js|css)$/i.test(requestUrl.pathname)
-    );
+    return requestUrl.pathname.includes("/assets/") && /\.(js|css)$/i.test(requestUrl.pathname);
 }
 
-function getPreservedAssetCaches(cacheNames) {
-    const assetCaches = cacheNames
-        .filter(
-            (cacheName) =>
-                cacheName.startsWith(CACHE_PREFIX) &&
-                cacheName.endsWith("-assets") &&
-                cacheName !== ASSET_CACHE
-        )
-        .sort(compareCacheVersions)
-        .reverse()
-        .slice(0, 1);
-
-    return new Set(assetCaches);
-}
-
-function compareCacheVersions(left, right) {
-    const leftVersion = extractCacheVersion(left);
-    const rightVersion = extractCacheVersion(right);
-    const maxLength = Math.max(leftVersion.length, rightVersion.length);
-
-    for (let index = 0; index < maxLength; index += 1) {
-        const leftPart = leftVersion[index] ?? 0;
-        const rightPart = rightVersion[index] ?? 0;
-
-        if (leftPart !== rightPart) {
-            return leftPart - rightPart;
-        }
-    }
-
-    return left.localeCompare(right);
-}
-
-function extractCacheVersion(cacheName) {
-    const match = cacheName.match(/acccalc-v(\d+(?:\.\d+)*)/i);
-    if (!match) return [0];
-    return match[1].split(".").map((value) => Number(value) || 0);
-}
-
-async function broadcastMessage(message) {
+async function broadcastMessage(message: Record<string, unknown>) {
     const clients = await self.clients.matchAll({
         type: "window",
         includeUncontrolled: true,

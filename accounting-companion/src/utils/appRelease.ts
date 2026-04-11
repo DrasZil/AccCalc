@@ -1,34 +1,44 @@
-export const APP_VERSION = "4.0.0";
+export const APP_VERSION = "4.1.1";
 export const APP_RELEASE_DATE = "2026-04-11";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Study Hub is now a first-class learning center",
-        body: "AccCalc now includes a dedicated Study Hub with structured topic browsing, full lesson pages, bookmarks, recent-study flow, and local progress tracking.",
+        title: "Rendering routes are safer and more stable",
+        body: "Browser-unsafe MathJax version-loading paths were removed from the shared render flow so affected calculator and study routes can load normally again.",
     },
     {
-        title: "Topic lessons now go beyond helper cards",
-        body: "Major topics now open into deeper lesson pages with formula overviews, variable meaning, procedures, worked examples, common mistakes, self-check prompts, and related calculator links.",
+        title: "Study Hub browsing is cleaner on narrow widths",
+        body: "Dense calculator-family coverage now uses collapsible related-link panels with stronger wrapping and card-grid rules, which keeps Study Hub easier to scan on smaller screens.",
     },
     {
-        title: "Practice mode adds quiz-based review",
-        body: "Students can now take short topic quizzes with explanations, review scores locally, and use practice as part of the solve-check-learn cycle.",
+        title: "Related Tools now stays tucked away until needed",
+        body: "Shared collapsible Related Tools and Related Topics panels now reduce page length and content overload across calculator, study, and support surfaces.",
     },
     {
-        title: "Scan and Smart Solver now point into learning too",
-        body: "Problem routing now suggests relevant study lessons and quiz follow-ups when the scanned or typed problem clearly matches a topic.",
+        title: "Platform features fail more gracefully",
+        body: "Worker-backed scan and Smart Solver processing now recover more safely from worker errors, while formula blocks and page headers use stronger shared layout and text handling.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "4.0.0: Added a first-class Study Hub with structured topic browsing, category grouping, search, bookmarks, recent study, and on-device progress persistence.",
-    "4.0.0: Added full topic lesson pages for major subjects such as CVP, partnership dissolution, process costing, elasticity, equilibrium, capital budgeting, startup planning, and scan review.",
-    "4.0.0: Added practice mode with topic quizzes, answer explanations, retry flow, local score tracking, and topic-linked review paths.",
-    "4.0.0: Extended the shared study-progress store into a versioned local study system with lesson progress, bookmarks, local notes, and quiz attempt history.",
-    "4.0.0: Upgraded StudySupportPanel so calculator-side learning previews can open a full lesson or quiz instead of stopping at an in-place helper card.",
-    "4.0.0: Connected CVP Analysis, Partnership Dissolution, and Scan & Check into the new study system with lesson and quiz deep links.",
-    "4.0.0: Expanded Smart Solver mistake diagnosis and added lesson recommendations so typed prompts can route into topic study when concept review is the better next step.",
-    "4.0.0: Added scan-to-learn recommendations so OCR results can suggest both a calculator route and a relevant lesson or practice follow-up.",
-    "4.0.0: Updated home and About surfaces so AccCalc reads clearly as a free solve-check-learn workspace with respectful local-first study support.",
-    "4.0.0: Preserved the recent responsive and rendering fixes while layering the new learning system onto the existing static-site-friendly architecture.",
+    "4.1.1: Fixed the runtime route failure caused by a browser-unsafe MathJax version-loading path so affected calculators can render without throwing 'require is not defined'.",
+    "4.1.1: Hardened the shared math-render wrapper with an explicit browser-safe lazy load path and a typed fallback declaration for the shipped MathJax browser bundle.",
+    "4.1.1: Added a reusable RelatedLinksPanel so Related tools, calculators, and topics can stay collapsible across calculator pages, study pages, and support panels.",
+    "4.1.1: Replaced always-open Study Hub calculator-family pill walls with collapsible related-link grids so narrow widths stop feeling crowded and brittle.",
+    "4.1.1: Fixed the compact readable-card grid primitive at the shared CSS layer so compact card groups actually render as grids instead of inheriting broken narrow-width behavior.",
+    "4.1.1: Hardened shared list-link, page-header, and grid min-width rules so dense card rows, wrapped controls, and narrow-width action clusters stay readable.",
+    "4.1.1: Reworked FormulaBlock statement normalization so bullet-separated formula explanations split into readable instructional lines instead of one jammed decorative block.",
+    "4.1.1: Added stronger worker failure cleanup for Scan parsing and Smart Solver analysis so a crashed worker no longer leaves the browser session stuck on a poisoned instance.",
+    "4.1.1: Preserved the existing 4.1.0 MathJax, service-worker, worker, IndexedDB, and Study Hub layers while tightening the shared integration boundaries that sit underneath them.",
+    "4.1.0: Added a reusable MathJax-based formula rendering layer so lessons, formula cards, and quiz explanations can show cleaner textbook-style equations without forcing prose into math styling.",
+    "4.1.0: Reworked dynamic math markup through one controlled rendering path to reduce ad-hoc HTML injection and keep math-vs-prose rendering explicit.",
+    "4.1.0: Replaced the old static service worker with a module-built Workbox service worker that preserves AccCalc's existing update messaging while improving offline route reliability and asset caching.",
+    "4.1.0: Kept the existing update and offline-status lifecycle intact, but upgraded it to work with a safer service-worker build path and app-shell warming strategy.",
+    "4.1.0: Moved scan parsing and Smart Solver matching into typed background-worker adapters with graceful direct fallbacks so large OCR and routing tasks stop competing with the main UI thread.",
+    "4.1.0: Upgraded Study Hub progress persistence to an IndexedDB-backed local store with localStorage mirroring so bookmarks, notes, reviewed sections, and quiz history survive more reliably.",
+    "4.1.0: Added ResizeObserver-backed chart sizing so chart labels, callouts, and comparison bars adapt better to their actual containers instead of relying on coarse viewport assumptions.",
+    "4.1.0: Reworked Study Hub lesson pages into progressive-disclosure reading surfaces so large topics, worked examples, and review sections stay easier to digest on both mobile and desktop.",
+    "4.1.0: Added transition-safe lesson and quiz navigation polish for the Study Hub flow while respecting reduced-motion users and unsupported browsers.",
+    "4.1.0: Expanded Study Hub coverage at the system level by surfacing calculator-family coverage directly from the app catalog so every current calculator family is reachable from the learning center.",
+    "4.1.0: Preserved the existing 4.0.0 Study Hub, quiz, bookmark, scan-to-learn, and layout fixes while layering the new platform features behind shared abstractions instead of page-specific rewrites.",
 ];

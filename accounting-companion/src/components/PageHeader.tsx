@@ -20,10 +20,10 @@ export default function PageHeader({
     compactDescriptionOnMobile = false,
 }: PageHeaderProps) {
     return (
-        <div className="app-panel rounded-[var(--app-radius-xl)] p-3.5 md:p-5">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0 max-w-3xl">
-                    <div className="flex flex-wrap items-center gap-2">
+        <div className="app-page-header app-panel rounded-[var(--app-radius-xl)] p-3.5 md:p-5">
+            <div className="app-page-header__row flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="app-page-header__intro min-w-0 max-w-3xl">
+                    <div className="app-page-header__meta flex flex-wrap items-center gap-2">
                         {badge ? (
                             <p className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
                                 {badge}
@@ -48,7 +48,7 @@ export default function PageHeader({
                 </div>
 
                 {actions ? (
-                    <div className="flex shrink-0 flex-wrap items-center gap-1.5 lg:justify-end">
+                    <div className="app-page-header__actions flex flex-wrap items-center gap-1.5 lg:justify-end">
                         {actions}
                     </div>
                 ) : null}

@@ -53,19 +53,19 @@ const CURRENCY_HINTS: Array<[SupportedCurrencyCode, RegExp[]]> = [
 ];
 
 const SYMBOL_FALLBACKS: Record<SupportedCurrencyCode, string> = {
-    PHP: "₱",
+    PHP: "\u20b1",
     USD: "$",
-    EUR: "€",
-    GBP: "£",
-    JPY: "¥",
+    EUR: "\u20ac",
+    GBP: "\u00a3",
+    JPY: "\u00a5",
     CAD: "CA$",
     AUD: "A$",
     SGD: "S$",
     HKD: "HK$",
-    CNY: "¥",
-    INR: "₹",
-    KRW: "₩",
-    AED: "د.إ",
+    CNY: "\u00a5",
+    INR: "\u20b9",
+    KRW: "\u20a9",
+    AED: "\u062f.\u0625",
 };
 
 export function getPreferredCurrency(): SupportedCurrencyCode {

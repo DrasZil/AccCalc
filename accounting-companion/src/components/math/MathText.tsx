@@ -1,6 +1,7 @@
-import { useMemo } from "react";
-import katex from "katex";
-import { looksLikeMathText, plainTextToLatex, polishMathText } from "../../utils/mathNotation";
+import { startTransition, useEffect, useState } from "react";
+import { createSafeMarkup } from "../../utils/trustedHtml";
+import { renderMathMarkupAsync } from "../../utils/mathRender";
+import { looksLikeMathText, polishMathText } from "../../utils/mathNotation";
 
 type MathTextProps = {
     text: string;
@@ -9,19 +10,6 @@ type MathTextProps = {
     renderMode?: "auto" | "plain" | "math";
 };
 
-function tryRenderKatex(source: string, displayMode: boolean) {
-    try {
-        return katex.renderToString(source, {
-            throwOnError: false,
-            strict: "ignore",
-            displayMode,
-            trust: false,
-        });
-    } catch {
-        return null;
-    }
-}
-
 export default function MathText({
     text,
     block = false,
@@ -29,20 +17,38 @@ export default function MathText({
     renderMode = "auto",
 }: MathTextProps) {
     const shouldRenderMath = renderMode === "math" || (renderMode === "auto" && looksLikeMathText(text));
-    const html = useMemo(() => {
-        if (!shouldRenderMath) return null;
-        return tryRenderKatex(plainTextToLatex(text), block);
+    const [html, setHtml] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!shouldRenderMath) {
+            setHtml(null);
+            return;
+        }
+
+        setHtml(null);
+
+        void renderMathMarkupAsync(text, { block }).then((nextHtml) => {
+            if (cancelled) return;
+            startTransition(() => {
+                setHtml(nextHtml);
+            });
+        });
+
+        return () => {
+            cancelled = true;
+        };
     }, [block, shouldRenderMath, text]);
 
     if (html) {
         return (
             <span
                 className={className}
-                dangerouslySetInnerHTML={{ __html: html }}
+                dangerouslySetInnerHTML={createSafeMarkup(html)}
             />
         );
     }
 
     return <span className={className}>{polishMathText(text)}</span>;
 }
-

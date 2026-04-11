@@ -151,7 +151,7 @@ export function buildStudyQuizPath(topicId: string) {
     return `/study/quiz/${topicId}`;
 }
 
-const STUDY_TOPICS: StudyTopic[] = [
+const CORE_STUDY_TOPICS: StudyTopic[] = [
     {
         id: "cvp-core",
         title: "CVP Core Logic",
@@ -1535,6 +1535,1099 @@ const STUDY_TOPICS: StudyTopic[] = [
         },
     },
 ];
+
+const STUDY_HUB_EXPANSION_TOPICS: StudyTopic[] = [
+    {
+        id: "accounting-foundations-review",
+        title: "Accounting Foundations Review",
+        shortTitle: "Accounting Foundations",
+        category: "Financial Accounting",
+        summary:
+            "Study the accounting equation, account classification, trial-balance logic, and adjusting entries as one connected review flow.",
+        intro:
+            "Foundational accounting problems are really classification and timing problems. This lesson connects transaction effects, normal balances, and end-of-period adjustments so students can explain why an entry is correct instead of memorizing debit-credit patterns blindly.",
+        whyItMatters: [
+            "These ideas support later reporting, worksheet, and error-checking topics.",
+            "A strong foundation makes trial-balance and adjustment errors easier to diagnose.",
+            "Students who understand period-end logic usually make fewer concept mistakes later.",
+        ],
+        classContexts: [
+            "Accounting equation exercises",
+            "Trial balance and account classification drills",
+            "Adjusting entries for prepaids, accruals, and unearned items",
+        ],
+        whenToUse: [
+            "Use this topic when the problem asks how a transaction affects assets, liabilities, or equity.",
+            "Use it when you need to classify an account before posting or checking normal balance.",
+            "Use it when the instructor asks for the period-end adjustment rather than the original entry.",
+        ],
+        formulaOverview: [
+            {
+                label: "Accounting equation",
+                expression: "Assets = Liabilities + Owner's Equity",
+                explanation:
+                    "Every transaction analysis should still preserve this relationship after the entry is recorded.",
+            },
+            {
+                label: "Adjusted balance logic",
+                expression:
+                    "Ending balance = Unadjusted balance + Increase adjustments - Decrease adjustments",
+                explanation:
+                    "This helps explain why the adjustment entry changes the reported ending amount.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "A", meaning: "Assets controlled by the business" },
+            { symbol: "L", meaning: "Liabilities or obligations owed" },
+            { symbol: "OE", meaning: "Owner's or stockholders' equity" },
+            { symbol: "Adj.", meaning: "End-of-period adjustment needed for proper reporting" },
+        ],
+        procedure: [
+            "Read the fact pattern and identify the accounts involved.",
+            "Classify each account before deciding whether it normally increases on the debit or credit side.",
+            "Decide whether the event is an original transaction or an adjusting entry at period-end.",
+            "Check the effect on the accounting equation and verify that debits still equal credits.",
+            "Interpret the corrected balance as a reporting decision, not only a bookkeeping step.",
+        ],
+        workedExample: {
+            title: "Prepaid insurance adjustment",
+            scenario:
+                "A company paid 24,000 for a one-year insurance policy on October 1. At December 31, the student must prepare the adjustment.",
+            steps: [
+                "The original payment created Prepaid Insurance, which is an asset.",
+                "Three of twelve months have expired by December 31, so expired cost is 24,000 x 3 / 12 = 6,000.",
+                "Debit Insurance Expense for 6,000 and credit Prepaid Insurance for 6,000.",
+            ],
+            result:
+                "The correct adjustment recognizes 6,000 of insurance expense and reduces prepaid insurance by the same amount.",
+            interpretation:
+                "The entry does not create new cash movement. It corrects reporting so the remaining asset reflects only the unexpired portion.",
+        },
+        checkpointExample: {
+            title: "Trial-balance quick check",
+            scenario:
+                "A student lists Accounts Receivable as a credit balance and Unearned Revenue as an asset. Decide what to review first.",
+            steps: [
+                "Classify Accounts Receivable as an asset with a normal debit balance.",
+                "Classify Unearned Revenue as a liability, not an asset.",
+                "Correct classification before checking arithmetic totals.",
+            ],
+            result: "The first issue is conceptual classification, not addition.",
+            interpretation:
+                "A worksheet can look balanced while still being wrong if the accounts are classified incorrectly.",
+        },
+        interpretation: [
+            "Foundational accounting answers should be read as classification-and-reporting decisions, not only as debit-credit routines.",
+            "Adjustments improve statement accuracy by matching revenues and expenses to the correct period.",
+            "Trial-balance problems can fail because of wrong direction, omitted balances, or classification errors.",
+        ],
+        commonMistakes: [
+            "Writing an adjusting entry that duplicates the original cash transaction.",
+            "Checking totals before fixing account classification errors.",
+            "Confusing unearned revenue with accrued revenue because both involve timing.",
+        ],
+        examTraps: [
+            "Teachers often mix original transaction facts with period-end adjustment language in the same paragraph.",
+            "Normal-balance errors can look small but usually signal a deeper classification misunderstanding.",
+            "A balanced trial balance does not guarantee correct statements.",
+        ],
+        selfCheck: [
+            "Why is an adjusting entry different from the original cash transaction entry?",
+            "What should you verify before trusting a trial balance that adds correctly?",
+            "How does an accrued expense affect the accounting equation?",
+        ],
+        practiceCues: [
+            "Explain how a prepaid asset becomes expense over time.",
+            "List three accounts and state their classification and normal balance.",
+            "Describe why a trial-balance error can be conceptual before it becomes arithmetic.",
+        ],
+        keywords: [
+            "accounting equation",
+            "adjusting entries",
+            "trial balance",
+            "account classification",
+            "normal balance",
+        ],
+        scanSignals: ["debit", "credit", "trial balance", "prepaid", "accrued", "unearned"],
+        relatedCalculatorPaths: [
+            "/accounting/accounting-equation",
+            "/accounting/account-classification",
+            "/accounting/trial-balance-checker",
+            "/accounting/debit-credit-trainer",
+            "/accounting/adjusting-entries-workspace",
+        ],
+        relatedTopicIds: ["scan-review"],
+        quiz: {
+            title: "Accounting Foundations Check",
+            intro:
+                "Use this set to verify whether you can connect transaction logic, account type, and period-end adjustments.",
+            questions: [
+                {
+                    id: "afr-q1",
+                    kind: "multiple-choice",
+                    prompt: "Which account normally carries a credit balance?",
+                    choices: [
+                        "Prepaid Insurance",
+                        "Accounts Receivable",
+                        "Unearned Revenue",
+                        "Supplies",
+                    ],
+                    answerIndex: 2,
+                    explanation:
+                        "Unearned Revenue is a liability, and liabilities normally carry credit balances.",
+                },
+                {
+                    id: "afr-q2",
+                    kind: "true-false",
+                    prompt:
+                        "An adjusting entry usually records new cash received or paid on the adjustment date.",
+                    answer: false,
+                    explanation:
+                        "Most adjusting entries reclassify timing effects so balances match the correct period; they usually do not create new cash movement.",
+                },
+                {
+                    id: "afr-q3",
+                    kind: "short-answer",
+                    prompt: "What is the main purpose of an end-of-period adjustment?",
+                    acceptedAnswers: [
+                        "proper period reporting",
+                        "match revenues and expenses",
+                        "correct balances for the period",
+                    ],
+                    placeholder: "Type the main purpose",
+                    explanation:
+                        "Adjustments make reported amounts reflect the correct accounting period and improve statement accuracy.",
+                },
+            ],
+        },
+    },
+    {
+        id: "inventory-and-ratio-review",
+        title: "Inventory, Liquidity, and Ratio Review",
+        shortTitle: "Inventory and Ratios",
+        category: "Financial Accounting",
+        summary:
+            "Connect inventory valuation, working-capital logic, liquidity ratios, turnover measures, and statement analysis in one review lesson.",
+        intro:
+            "Many accounting problems ask for a ratio or inventory amount, but the deeper skill is understanding what the value says about control, liquidity, and operating efficiency. This lesson ties inventory methods and ratio analysis back to decision reading.",
+        whyItMatters: [
+            "Inventory method choices affect cost of goods sold, ending inventory, and gross profit.",
+            "Liquidity and turnover ratios help explain whether short-term operations are healthy or strained.",
+            "Statement analysis becomes stronger when calculations are linked to what changed operationally.",
+        ],
+        classContexts: [
+            "FIFO versus weighted-average inventory exercises",
+            "Working capital and operating-cycle analysis",
+            "Liquidity, solvency, profitability, and turnover ratio assignments",
+        ],
+        whenToUse: [
+            "Use this topic when the problem asks for inventory valuation, NRV comparison, or method effects.",
+            "Use it when ratio outputs need explanation instead of only computation.",
+            "Use it when working capital, operating cycle, or cash conversion cycle must be read together.",
+        ],
+        formulaOverview: [
+            {
+                label: "Current ratio",
+                expression: "Current ratio = Current assets / Current liabilities",
+                explanation:
+                    "This measures short-term coverage, but it is stronger when read with inventory quality and receivable speed.",
+            },
+            {
+                label: "Inventory turnover",
+                expression: "Inventory turnover = Cost of goods sold / Average inventory",
+                explanation:
+                    "This shows how quickly inventory is sold relative to its average carrying amount.",
+            },
+            {
+                label: "Cash conversion cycle",
+                expression:
+                    "Cash conversion cycle = Days in inventory + Collection period - Payment period",
+                explanation:
+                    "This estimates how long cash stays tied up in operating activity.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "CA", meaning: "Current assets" },
+            { symbol: "CL", meaning: "Current liabilities" },
+            { symbol: "COGS", meaning: "Cost of goods sold" },
+            { symbol: "Avg Inv", meaning: "Average inventory for the period" },
+            { symbol: "CCC", meaning: "Cash conversion cycle" },
+        ],
+        procedure: [
+            "Identify whether the question is about valuation, turnover speed, or short-term solvency.",
+            "Use the correct inventory amount basis before calculating a ratio: beginning, ending, or average as required.",
+            "Check whether the ratio should be interpreted as stronger or weaker based on context, not in isolation.",
+            "For working-capital analysis, connect inventory days, collection period, and payment period instead of reading one metric alone.",
+            "Explain what changed operationally to produce the computed value.",
+        ],
+        workedExample: {
+            title: "Working-capital reading example",
+            scenario:
+                "A business has current assets of 420,000, current liabilities of 210,000, days in inventory of 58, collection period of 34 days, and payment period of 26 days.",
+            steps: [
+                "Current ratio = 420,000 / 210,000 = 2.00.",
+                "Cash conversion cycle = 58 + 34 - 26 = 66 days.",
+                "Read the ratio and the cycle together instead of treating them as unrelated outputs.",
+            ],
+            result:
+                "The company reports a current ratio of 2.00 and a cash conversion cycle of 66 days.",
+            interpretation:
+                "Short-term coverage looks reasonable, but cash is still tied up in operations for more than two months, so inventory and collection discipline still matter.",
+        },
+        checkpointExample: {
+            title: "Inventory method checkpoint",
+            scenario:
+                "Under rising costs, compare FIFO with weighted average for ending inventory and cost of goods sold.",
+            steps: [
+                "FIFO tends to leave newer, higher costs in ending inventory.",
+                "That usually produces lower cost of goods sold than a later average that blends more recent costs into units sold.",
+                "Interpret the difference through gross profit and asset valuation, not just inventory amount.",
+            ],
+            result:
+                "Under rising prices, FIFO typically reports higher ending inventory and lower cost of goods sold than weighted average.",
+            interpretation:
+                "That can improve gross profit and liquidity-looking figures, but it does not automatically mean operations improved.",
+        },
+        interpretation: [
+            "A ratio becomes useful only when linked to operating meaning, not just benchmark memorization.",
+            "Inventory valuation methods affect reported profit and balance-sheet amounts, especially when costs are changing.",
+            "Working capital is healthiest when liquidity, turnover, and payment timing are read together.",
+        ],
+        commonMistakes: [
+            "Using ending balances when the question requires average balances for turnover ratios.",
+            "Calling a ratio good or bad without considering inventory quality or collection speed.",
+            "Treating NRV write-down questions like ordinary cost-flow assumptions.",
+        ],
+        examTraps: [
+            "Some problems hide average-balance requirements inside the narrative instead of the formula line.",
+            "A stronger current ratio can still coexist with weak operating cash discipline.",
+            "Inventory comparison questions often expect qualitative interpretation after the numbers.",
+        ],
+        selfCheck: [
+            "Why should current ratio and cash conversion cycle often be read together?",
+            "What usually happens to FIFO ending inventory during rising costs?",
+            "Which turnover formulas usually need average balances rather than ending balances?",
+        ],
+        practiceCues: [
+            "Explain what a long cash conversion cycle says about operations.",
+            "Compare inventory method effects on COGS and ending inventory in one paragraph.",
+            "Describe why turnover ratios lose value when the wrong inventory basis is used.",
+        ],
+        keywords: [
+            "inventory methods",
+            "current ratio",
+            "cash conversion cycle",
+            "ratio analysis",
+            "working capital",
+        ],
+        scanSignals: [
+            "fifo",
+            "weighted average inventory",
+            "current ratio",
+            "quick ratio",
+            "operating cycle",
+            "working capital",
+        ],
+        relatedCalculatorPaths: [
+            "/accounting/fifo-inventory",
+            "/accounting/weighted-average-inventory",
+            "/accounting/inventory-method-comparison",
+            "/accounting/gross-profit-method",
+            "/accounting/lower-of-cost-or-nrv",
+            "/accounting/current-ratio",
+            "/accounting/quick-ratio",
+            "/accounting/working-capital-cycle",
+            "/accounting/cash-ratio",
+            "/accounting/cash-conversion-cycle",
+            "/accounting/receivables-turnover",
+            "/accounting/inventory-turnover",
+            "/accounting/accounts-payable-turnover",
+            "/accounting/debt-to-equity",
+            "/accounting/debt-ratio",
+            "/accounting/return-on-assets",
+            "/accounting/asset-turnover",
+            "/accounting/return-on-equity",
+            "/accounting/ratio-analysis-workspace",
+            "/accounting/times-interest-earned",
+            "/accounting/earnings-per-share",
+            "/accounting/book-value-per-share",
+            "/accounting/equity-multiplier",
+            "/accounting/horizontal-analysis",
+            "/accounting/common-size-income-statement",
+            "/accounting/common-size-balance-sheet",
+            "/accounting/vertical-analysis",
+            "/accounting/working-capital-planner",
+            "/accounting/inventory-control-workspace",
+        ],
+        relatedTopicIds: ["accounting-foundations-review", "capital-budgeting", "scan-review"],
+        quiz: {
+            title: "Inventory and Ratio Review Check",
+            intro:
+                "Use this quiz to check whether you can connect valuation and analysis instead of treating them as separate chapters.",
+            questions: [
+                {
+                    id: "irr-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which ratio most directly measures short-term coverage using current assets and current liabilities?",
+                    choices: [
+                        "Debt ratio",
+                        "Current ratio",
+                        "Return on assets",
+                        "Asset turnover",
+                    ],
+                    answerIndex: 1,
+                    explanation:
+                        "The current ratio is the standard short-term coverage measure using current assets over current liabilities.",
+                },
+                {
+                    id: "irr-q2",
+                    kind: "true-false",
+                    prompt: "Inventory turnover usually uses ending inventory only.",
+                    answer: false,
+                    explanation:
+                        "Inventory turnover is typically based on average inventory, not just the ending balance.",
+                },
+                {
+                    id: "irr-q3",
+                    kind: "short-answer",
+                    prompt: "What operating idea does a long cash conversion cycle usually signal?",
+                    acceptedAnswers: [
+                        "cash tied up in operations",
+                        "cash remains tied up longer",
+                        "slower operating cash recovery",
+                    ],
+                    placeholder: "Type the operating idea",
+                    explanation:
+                        "A longer cycle usually means operating cash stays committed for a longer period before it returns through collections.",
+                },
+            ],
+        },
+    },
+    {
+        id: "finance-time-value-review",
+        title: "Time Value, Loans, and Investment Review",
+        shortTitle: "Time Value Review",
+        category: "Business Math / Finance",
+        summary:
+            "Review simple interest, compound growth, present value, future value, annuities, loans, and investment-decision logic as one finance pathway.",
+        intro:
+            "Finance questions often look different on the surface, but many of them are still time-value questions. This lesson links single-sum growth, discounting, annuity cash flows, loan schedules, and project evaluation so the student sees one coherent framework.",
+        whyItMatters: [
+            "It helps students choose the correct factor logic instead of memorizing disconnected formulas.",
+            "Loan, annuity, and project answers all depend on understanding time and rate bases correctly.",
+            "Small mistakes in compounding frequency or cash-flow timing can change the answer materially.",
+        ],
+        classContexts: [
+            "Simple and compound interest exercises",
+            "Present-value and future-value word problems",
+            "Loan payment, annuity, NPV, IRR, and payback assignments",
+        ],
+        whenToUse: [
+            "Use this topic when the problem involves growth, discounting, loan payments, or recurring deposits.",
+            "Use it when a project evaluation requires reading discounted cash flows instead of simple arithmetic totals.",
+            "Use it when the rate basis, compounding frequency, or annuity timing is easy to misread.",
+        ],
+        formulaOverview: [
+            {
+                label: "Simple interest",
+                expression: "I = P r t",
+                explanation:
+                    "Simple interest uses principal, rate, and time without compounding between subperiods.",
+            },
+            {
+                label: "Future value of a single sum",
+                expression: "FV = PV (1 + i)^n",
+                explanation:
+                    "This measures how one present amount grows across compounding periods.",
+            },
+            {
+                label: "Present value of a single sum",
+                expression: "PV = FV / (1 + i)^n",
+                explanation:
+                    "This discounts a future amount back to today's value.",
+            },
+            {
+                label: "Net present value",
+                expression: "NPV = Present value of inflows - Initial investment",
+                explanation:
+                    "A positive NPV means the project adds value at the chosen discount rate.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "P or PV", meaning: "Present value or principal today" },
+            { symbol: "FV", meaning: "Future value after compounding" },
+            { symbol: "i", meaning: "Periodic interest or discount rate" },
+            { symbol: "n", meaning: "Number of compounding or payment periods" },
+            { symbol: "NPV", meaning: "Net present value of the project" },
+        ],
+        procedure: [
+            "Determine whether the cash flow is a single sum, a series, a loan, or a project decision.",
+            "Convert the stated rate and time into a consistent periodic basis before calculating.",
+            "Identify whether the problem requires growth forward or discounting backward.",
+            "Use annuity logic for equal recurring payments, then move to loan or sinking-fund interpretation if relevant.",
+            "For project decisions, interpret the discounted result instead of stopping at the computed amount.",
+        ],
+        workedExample: {
+            title: "Present-value decision example",
+            scenario:
+                "A project requires an initial investment of 180,000 and is expected to generate discounted inflows totaling 212,000 at the required rate.",
+            steps: [
+                "Compute NPV as 212,000 - 180,000 = 32,000.",
+                "Read the sign of the result before trying to interpret it.",
+                "Connect the positive NPV to value creation at the required return.",
+            ],
+            result: "The project has a positive NPV of 32,000.",
+            interpretation:
+                "At the chosen discount rate, the inflows more than recover the investment and required return, so the project is financially acceptable under NPV logic.",
+        },
+        checkpointExample: {
+            title: "Rate-basis checkpoint",
+            scenario:
+                "A nominal annual rate is quoted with monthly compounding, but the student uses the annual rate directly for a monthly annuity formula.",
+            steps: [
+                "The annual rate must be converted to a monthly periodic rate.",
+                "The number of periods must match the same monthly basis.",
+                "Recompute only after rate basis and time basis agree.",
+            ],
+            result:
+                "The original answer is unreliable because the rate and period bases are inconsistent.",
+            interpretation:
+                "Many finance mistakes are not arithmetic errors. They are basis errors involving time and compounding.",
+        },
+        interpretation: [
+            "Time-value results explain whether money is being grown or discounted across periods.",
+            "Loan and annuity answers should always be interpreted with timing and payment structure in mind.",
+            "Capital-budgeting outputs are decision tools, not just finance formulas.",
+        ],
+        commonMistakes: [
+            "Using an annual rate with monthly periods without conversion.",
+            "Confusing ordinary annuity timing with an annuity-due setup.",
+            "Treating payback or NPV as if they answer the same question.",
+        ],
+        examTraps: [
+            "Problems often hide compounding frequency in a phrase rather than a visible variable line.",
+            "Loan payment questions may mix total payments, periodic payments, and total interest in the same paragraph.",
+            "A project can have attractive payback but still fail a discounted measure.",
+        ],
+        selfCheck: [
+            "When should present value be used instead of future value?",
+            "Why must rate basis and period basis match?",
+            "What does a positive NPV say at the required rate of return?",
+        ],
+        practiceCues: [
+            "Explain the difference between compounding and discounting.",
+            "Describe how an annuity differs from a single-sum problem.",
+            "State why NPV is a decision measure rather than a raw arithmetic total.",
+        ],
+        keywords: [
+            "simple interest",
+            "present value",
+            "future value",
+            "loan amortization",
+            "npv",
+        ],
+        scanSignals: ["interest", "discount rate", "annuity", "loan payment", "npv", "irr"],
+        relatedCalculatorPaths: [
+            "/finance/simple-interest",
+            "/finance/compound-interest",
+            "/finance/future-value",
+            "/finance/present-value",
+            "/finance/future-value-annuity",
+            "/finance/present-value-annuity",
+            "/finance/effective-interest-rate",
+            "/finance/sinking-fund-deposit",
+            "/finance/loan-amortization",
+            "/finance/npv",
+            "/finance/capital-budgeting-comparison",
+            "/finance/internal-rate-of-return",
+            "/finance/profitability-index",
+            "/finance/payback-period",
+            "/finance/discounted-payback-period",
+        ],
+        relatedTopicIds: ["capital-budgeting", "cvp-core", "startup-cost-planning"],
+        quiz: {
+            title: "Time Value Review Check",
+            intro:
+                "Use this set to check your rate-basis discipline and investment interpretation.",
+            questions: [
+                {
+                    id: "tvr-q1",
+                    kind: "multiple-choice",
+                    prompt: "Which formula best represents a single-sum future value model?",
+                    choices: [
+                        "FV = PV (1 + i)^n",
+                        "I = P + r + t",
+                        "NPV = Initial investment - FV",
+                        "CCC = Days in inventory + Collection period - Payment period",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "A single present amount grows to future value through compounding: FV = PV (1 + i)^n.",
+                },
+                {
+                    id: "tvr-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A positive NPV usually means the project fails to earn the required return.",
+                    answer: false,
+                    explanation:
+                        "A positive NPV means the project exceeds the required return at the discount rate used.",
+                },
+                {
+                    id: "tvr-q3",
+                    kind: "short-answer",
+                    prompt: "What must match before applying a time-value formula correctly?",
+                    acceptedAnswers: [
+                        "rate basis and period basis",
+                        "rate and time basis",
+                        "periodic rate and number of periods",
+                    ],
+                    placeholder: "Type what must match",
+                    explanation:
+                        "Time-value formulas are reliable only when the interest-rate basis and the period basis are consistent.",
+                },
+            ],
+        },
+    },
+    {
+        id: "budgeting-and-planning-review",
+        title: "Budgeting, Forecasting, and Planning Review",
+        shortTitle: "Budgeting Review",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Study cash collections, cash disbursements, cash budgets, flexible budgets, and planning-based entrepreneurship tools from one structured lesson.",
+        intro:
+            "Planning tools are connected because each one turns assumptions about sales, collections, payments, and operating activity into a decision-ready plan. This lesson ties those flows together instead of treating each schedule as an isolated form.",
+        whyItMatters: [
+            "Students need to see how sales assumptions move into collections, disbursements, and financing needs.",
+            "Budgeting topics are more accurate when connected to timing patterns instead of isolated schedules.",
+            "Planning logic also supports entrepreneurship tools such as startup budgets, forecasts, and cash runway.",
+        ],
+        classContexts: [
+            "Cash-collections and cash-disbursements schedules",
+            "Cash-budget and flexible-budget assignments",
+            "Startup planning, sales forecasting, and runway estimation",
+        ],
+        whenToUse: [
+            "Use this topic when the question asks for a schedule, budget, or planning interpretation over time.",
+            "Use it when sales are given in one period but cash moves in later periods.",
+            "Use it when a startup or small-business case needs cash-planning interpretation rather than only arithmetic output.",
+        ],
+        formulaOverview: [
+            {
+                label: "Cash budget ending balance",
+                expression:
+                    "Ending cash = Beginning cash + Cash collections - Cash disbursements +/- Financing",
+                explanation:
+                    "This is the final planning view after operating receipts, payments, and required financing are considered.",
+            },
+            {
+                label: "Flexible budget cost pattern",
+                expression:
+                    "Flexible budget = Fixed cost + (Variable rate x Actual activity)",
+                explanation:
+                    "This separates activity-driven changes from pure spending variance.",
+            },
+            {
+                label: "Cash runway",
+                expression: "Runway = Available cash / Net monthly cash burn",
+                explanation:
+                    "This estimates how long current cash can support operations when outflows exceed inflows.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Beg Cash", meaning: "Cash available at the start of the period" },
+            { symbol: "Collections", meaning: "Cash expected from current and prior sales" },
+            { symbol: "Disbursements", meaning: "Cash payments expected for purchases and expenses" },
+            { symbol: "Activity", meaning: "Actual units, hours, or other driver used in a flexible budget" },
+            { symbol: "Burn", meaning: "Net monthly cash outflow when a venture spends more than it receives" },
+        ],
+        procedure: [
+            "Identify the time structure first: month-based schedules, activity-based budgets, or startup planning horizon.",
+            "Separate sales or expense assumptions from actual cash timing before preparing a cash figure.",
+            "Build supporting schedules first when the cash budget depends on collection or payment lags.",
+            "Interpret whether the plan shows surplus cash, financing need, or weak operating flexibility.",
+            "For startup or forecasting problems, connect the budget result to viability and decision follow-up.",
+        ],
+        workedExample: {
+            title: "Cash-budget planning example",
+            scenario:
+                "A company starts the month with 40,000 cash, expects 180,000 collections, 205,000 disbursements, and wants a minimum cash balance of 25,000.",
+            steps: [
+                "Preliminary ending cash = 40,000 + 180,000 - 205,000 = 15,000.",
+                "Compare the preliminary balance with the required minimum of 25,000.",
+                "Required financing is 10,000 to restore the ending balance to the minimum.",
+            ],
+            result: "The budget shows a 10,000 financing need for the period.",
+            interpretation:
+                "The issue is timing. Collections and disbursements do not line up closely enough to maintain the required cash floor.",
+        },
+        checkpointExample: {
+            title: "Flexible-budget checkpoint",
+            scenario:
+                "Actual units are lower than planned, and the student compares actual total variable cost only to the static budget.",
+            steps: [
+                "Static-budget comparison mixes activity change with spending discipline.",
+                "Restate variable cost at actual activity using the flexible budget.",
+                "Only then judge whether cost control was favorable or unfavorable.",
+            ],
+            result:
+                "The original comparison is incomplete because it ignores activity-level adjustment.",
+            interpretation:
+                "Flexible budgets separate volume effects from spending performance, which is why they are more useful for control.",
+        },
+        interpretation: [
+            "Schedules explain cash timing, while budgets explain planning sufficiency and control.",
+            "A financing need can arise from timing pressure even when total sales appear healthy.",
+            "Forecast and runway tools should be interpreted as planning discipline, not guaranteed prediction.",
+        ],
+        commonMistakes: [
+            "Treating sales as if they equal collections in the same month.",
+            "Comparing actual cost only to a static budget when activity changed materially.",
+            "Ignoring minimum cash requirements or financing assumptions in a budget question.",
+        ],
+        examTraps: [
+            "Collection and payment lags are often buried in the narrative instead of shown in a table.",
+            "A cash budget may require supporting schedules before any final cash answer is possible.",
+            "Startup forecast questions may mix growth assumptions and cash-burn logic in one case.",
+        ],
+        selfCheck: [
+            "Why should cash collections be prepared before the cash budget when timing lags exist?",
+            "What is the main purpose of a flexible budget?",
+            "What does runway measure in a startup or planning setting?",
+        ],
+        practiceCues: [
+            "Explain why strong sales do not always prevent a cash shortage.",
+            "Describe how a flexible budget improves interpretation over a static budget.",
+            "State what a short runway implies for planning urgency.",
+        ],
+        keywords: [
+            "cash budget",
+            "cash collections",
+            "cash disbursements",
+            "flexible budget",
+            "runway",
+        ],
+        scanSignals: [
+            "cash budget",
+            "collections schedule",
+            "disbursements schedule",
+            "flexible budget",
+            "sales forecast",
+            "cash runway",
+        ],
+        relatedCalculatorPaths: [
+            "/business/cash-collections-schedule",
+            "/business/cash-disbursements-schedule",
+            "/business/cash-budget",
+            "/business/flexible-budget",
+            "/entrepreneurship/startup-cost-planner",
+            "/entrepreneurship/unit-economics",
+            "/entrepreneurship/sales-forecast-planner",
+            "/entrepreneurship/cash-runway-planner",
+            "/entrepreneurship/entrepreneurship-toolkit",
+        ],
+        relatedTopicIds: ["cvp-core", "finance-time-value-review", "startup-cost-planning"],
+        quiz: {
+            title: "Budgeting and Planning Review Check",
+            intro:
+                "Use this set to check whether you can connect timing, control, and planning interpretation.",
+            questions: [
+                {
+                    id: "bpr-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "What should usually be prepared before a final cash budget when sales are collected over time?",
+                    choices: [
+                        "Statement of partners' capital",
+                        "Cash collections schedule",
+                        "Depreciation method comparison",
+                        "Price elasticity table",
+                    ],
+                    answerIndex: 1,
+                    explanation:
+                        "A cash collections schedule is usually needed first because sales and cash receipts often occur in different periods.",
+                },
+                {
+                    id: "bpr-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A flexible budget is designed to separate activity effects from spending effects.",
+                    answer: true,
+                    explanation:
+                        "That separation is the main reason a flexible budget is more useful for control than a static plan alone.",
+                },
+                {
+                    id: "bpr-q3",
+                    kind: "short-answer",
+                    prompt: "What does a short cash runway usually suggest?",
+                    acceptedAnswers: [
+                        "limited time before cash runs out",
+                        "urgent cash planning need",
+                        "cash may run out soon",
+                    ],
+                    placeholder: "Type what it suggests",
+                    explanation:
+                        "A short runway usually means available cash can support operations for only a limited period unless conditions change.",
+                },
+            ],
+        },
+    },
+    {
+        id: "entrepreneurship-planning-review",
+        title: "Entrepreneurship and Unit Economics Review",
+        shortTitle: "Entrepreneurship Review",
+        category: "Entrepreneurship",
+        summary:
+            "Study startup cost planning, unit economics, pricing, sales forecasting, owner splits, and cash runway as one entrepreneurial decision set.",
+        intro:
+            "Startup planning still depends on disciplined contribution logic, pricing assumptions, forecast structure, and cash survival. This lesson connects those ideas into one review path instead of treating entrepreneurship as soft narrative content.",
+        whyItMatters: [
+            "It helps users explain whether a business idea is financially workable, not only interesting.",
+            "It connects startup decisions to contribution, pricing, and runway discipline already used in other calculators.",
+            "It makes entrepreneurship tools feel like decision aids instead of disconnected checklists.",
+        ],
+        classContexts: [
+            "Startup cost and feasibility exercises",
+            "Unit economics and pricing decision questions",
+            "Sales forecasting, owner-split, and runway planning cases",
+        ],
+        whenToUse: [
+            "Use this topic when a business case asks whether a venture can launch, scale, or survive financially.",
+            "Use it when contribution and pricing logic must be tied to customer or unit-level interpretation.",
+            "Use it when forecast, cash runway, or founder-split decisions need explanation, not just output.",
+        ],
+        formulaOverview: [
+            {
+                label: "Unit contribution",
+                expression: "Unit contribution = Selling price per unit - Variable cost per unit",
+                explanation:
+                    "This shows what each sale contributes toward fixed costs, owner return, or growth capacity.",
+            },
+            {
+                label: "Gross margin percentage",
+                expression: "Gross margin % = Gross profit / Sales",
+                explanation:
+                    "This gives a quick view of pricing strength after direct cost coverage.",
+            },
+            {
+                label: "Cash runway",
+                expression: "Runway = Available cash / Net monthly burn",
+                explanation:
+                    "This estimates survival time when current cash must support ongoing operations.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "SP", meaning: "Selling price per unit or per customer" },
+            { symbol: "VC", meaning: "Variable or directly attributable cost per unit" },
+            { symbol: "CM", meaning: "Contribution margin available after variable costs" },
+            { symbol: "Burn", meaning: "Net cash outflow per month" },
+            { symbol: "Runway", meaning: "Estimated months before cash is exhausted" },
+        ],
+        procedure: [
+            "Clarify whether the question is about launch cost, ongoing unit economics, forecast growth, or cash survival.",
+            "Compute unit contribution before making pricing or customer-value interpretations.",
+            "Check whether the forecast assumptions are realistic and internally consistent with capacity and cash needs.",
+            "Review owner-split or toolkit outputs in light of fairness and sustainability, not only arithmetic division.",
+            "Interpret the final result as a viability or planning signal, then decide what assumption matters most.",
+        ],
+        workedExample: {
+            title: "Unit-economics viability example",
+            scenario:
+                "A small venture sells a service package for 1,200 and incurs variable cost of 720 per customer. Fixed monthly costs are 48,000.",
+            steps: [
+                "Unit contribution = 1,200 - 720 = 480 per customer.",
+                "Break-even customer volume = 48,000 / 480 = 100 customers.",
+                "Interpret whether current forecasted volume is strong enough to support the business.",
+            ],
+            result:
+                "The venture needs about 100 customers per month to cover fixed costs.",
+            interpretation:
+                "The key decision is not only whether 100 customers is possible, but whether the forecast, acquisition effort, and available cash make that target realistic.",
+        },
+        checkpointExample: {
+            title: "Forecast realism checkpoint",
+            scenario:
+                "A startup forecast shows rapid revenue growth, but cash runway is under three months and fixed costs are rising.",
+            steps: [
+                "Compare the optimistic sales forecast with the short runway.",
+                "Check whether pricing and contribution logic support the growth assumption.",
+                "Flag the need to verify cash timing and customer acquisition assumptions before trusting the forecast.",
+            ],
+            result:
+                "The forecast may be too optimistic relative to current cash survival limits.",
+            interpretation:
+                "Planning is not only about projected sales. It is also about whether the business can stay alive long enough to reach those sales.",
+        },
+        interpretation: [
+            "Entrepreneurship outputs are strongest when tied to pricing realism, contribution quality, and cash survival.",
+            "A strong sales forecast is weak evidence if unit economics and runway do not support it.",
+            "Startup planning should move from feasibility to verification, not from optimism to overconfidence.",
+        ],
+        commonMistakes: [
+            "Treating revenue growth as if it automatically means a strong cash position.",
+            "Ignoring customer-level or unit-level variable costs when pricing.",
+            "Using startup totals without separating one-time launch cost from recurring operating cost.",
+        ],
+        examTraps: [
+            "Cases often mix launch spending and recurring monthly spending in one paragraph.",
+            "Students may focus on sales growth while ignoring whether contribution is actually strong enough.",
+            "Owner-split or pricing questions may still require fairness or sustainability interpretation after the numbers.",
+        ],
+        selfCheck: [
+            "Why is unit contribution important before interpreting a startup forecast?",
+            "What does runway add that a sales forecast alone does not show?",
+            "Why should one-time startup cost be separated from recurring operating cost?",
+        ],
+        practiceCues: [
+            "Explain how unit economics supports startup feasibility.",
+            "Describe why a short runway can weaken a strong-looking forecast.",
+            "State how pricing, contribution, and burn rate interact in a startup case.",
+        ],
+        keywords: [
+            "startup cost",
+            "unit economics",
+            "sales forecast",
+            "cash runway",
+            "pricing",
+        ],
+        scanSignals: ["startup", "launch cost", "forecast", "runway", "unit economics", "owner split"],
+        relatedCalculatorPaths: [
+            "/entrepreneurship/startup-cost-planner",
+            "/entrepreneurship/unit-economics",
+            "/entrepreneurship/sales-forecast-planner",
+            "/entrepreneurship/cash-runway-planner",
+            "/entrepreneurship/entrepreneurship-toolkit",
+            "/business/markup-margin",
+            "/business/profit-loss",
+            "/business/net-profit-margin",
+        ],
+        relatedTopicIds: ["budgeting-and-planning-review", "cvp-core", "finance-time-value-review"],
+        quiz: {
+            title: "Entrepreneurship Review Check",
+            intro:
+                "Use this set to verify whether you can connect pricing, contribution, and runway into one business reading.",
+            questions: [
+                {
+                    id: "epr-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "What should usually be computed before deciding whether pricing can support a startup?",
+                    choices: [
+                        "Unit contribution",
+                        "Consumer surplus",
+                        "Inventory turnover",
+                        "Bond premium amortization",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Unit contribution is a core starting point because it shows how much each sale leaves after variable cost coverage.",
+                },
+                {
+                    id: "epr-q2",
+                    kind: "true-false",
+                    prompt: "A fast sales forecast always guarantees a healthy runway.",
+                    answer: false,
+                    explanation:
+                        "Runway depends on cash burn and timing, not just on projected sales growth.",
+                },
+                {
+                    id: "epr-q3",
+                    kind: "short-answer",
+                    prompt: "Why should startup launch cost be separated from recurring monthly cost?",
+                    acceptedAnswers: [
+                        "they affect planning differently",
+                        "one-time and recurring costs are different",
+                        "launch cost is not the same as operating cost",
+                    ],
+                    placeholder: "Type why they should be separated",
+                    explanation:
+                        "One-time launch spending and recurring operating costs affect feasibility, pricing, and runway in different ways, so they should not be merged carelessly.",
+                },
+            ],
+        },
+    },
+    {
+        id: "partnership-cycle-review",
+        title: "Partnership Capital Cycle Review",
+        shortTitle: "Partnership Cycle",
+        category: "Partnership Accounting",
+        summary:
+            "Review profit sharing, salary and interest allowances, admission, retirement, dissolution, and capital rollforward as one partnership workflow.",
+        intro:
+            "Partnership accounting is easiest to understand when capital balances are treated as a living cycle. Partners share profit, admit or retire members, and eventually liquidate the business through procedures that all affect capital logic in different ways.",
+        whyItMatters: [
+            "It helps students stop memorizing isolated bonus and goodwill cases without understanding capital continuity.",
+            "It connects partnership allocation rules to later admission, retirement, and liquidation procedures.",
+            "It makes dissolution easier because the earlier capital logic is already clear.",
+        ],
+        classContexts: [
+            "Profit-sharing and salary-interest allowance exercises",
+            "Admission and retirement bonus or goodwill cases",
+            "Statement of partners' capital and dissolution review",
+        ],
+        whenToUse: [
+            "Use this topic when a partnership problem changes ownership, capital balances, or sharing rules.",
+            "Use it when the case mentions salary allowances, interest on capital, bonus, goodwill, or deficiency handling.",
+            "Use it when the instructor expects procedural reasoning instead of only one final capital amount.",
+        ],
+        formulaOverview: [
+            {
+                label: "Remainder allocation logic",
+                expression:
+                    "Net income - Salary allowances - Interest allowances = Remainder to be shared",
+                explanation:
+                    "The remainder is distributed using the agreed residual ratio after stated allowances are applied.",
+            },
+            {
+                label: "Capital settlement logic",
+                expression:
+                    "Ending capital = Beginning capital + Investments + Share of income - Drawings +/- Admission or retirement effects",
+                explanation:
+                    "This summarizes how capital changes across the partnership life cycle before final liquidation.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Beg Cap", meaning: "Beginning capital balance of the partner" },
+            { symbol: "Allowances", meaning: "Salary or interest amounts used in income sharing" },
+            { symbol: "Remainder ratio", meaning: "Residual profit or loss sharing ratio after allowances" },
+            { symbol: "Settlement", meaning: "Cash or capital adjustment upon admission, retirement, or liquidation" },
+        ],
+        procedure: [
+            "Identify whether the problem is about income sharing, admission, retirement, capital statement, or dissolution.",
+            "Compute income-sharing allowances first when salary and interest provisions exist.",
+            "Track capital continuity before and after any bonus, goodwill, settlement, or realization effect.",
+            "For dissolution, separate realization gain or loss, liquidation cash, and deficiency handling in the correct order.",
+            "Interpret the result as a capital-allocation procedure, not only as a final cash figure.",
+        ],
+        workedExample: {
+            title: "Salary and interest allocation example",
+            scenario:
+                "Partners A and B divide net income of 180,000 with salary allowances of 30,000 and 20,000, interest allowances of 10,000 and 8,000, and a remainder ratio of 3:2.",
+            steps: [
+                "Total allowances = 30,000 + 20,000 + 10,000 + 8,000 = 68,000.",
+                "Remainder = 180,000 - 68,000 = 112,000.",
+                "Share the remainder 3:2, then add each partner's salary and interest allowance to get final income share.",
+            ],
+            result:
+                "The partners first receive stated allowances, then divide the remaining 112,000 using the residual ratio.",
+            interpretation:
+                "This structure prevents students from distributing the entire income by ratio before honoring the agreement's salary and interest provisions.",
+        },
+        checkpointExample: {
+            title: "Admission versus dissolution checkpoint",
+            scenario:
+                "A student uses liquidation logic in a partner-admission case because the capital balances are changing.",
+            steps: [
+                "Admission changes ownership but does not automatically mean realization and liquidation are occurring.",
+                "Check whether the business continues after the new partner enters.",
+                "Use bonus or goodwill logic only if the case is an admission or retirement scenario, not final liquidation.",
+            ],
+            result:
+                "The original approach is incorrect because the procedure depends on whether the partnership continues or liquidates.",
+            interpretation:
+                "Capital change alone does not determine the method. The continuity of the partnership matters.",
+        },
+        interpretation: [
+            "Partnership answers are strongest when capital continuity is visible from start to finish.",
+            "Allowances affect profit-sharing order, while admission and retirement affect ownership structure and capital settlement.",
+            "Dissolution is the final procedural stage, not the default method for every capital change.",
+        ],
+        commonMistakes: [
+            "Splitting total income by ratio before applying salary and interest allowances.",
+            "Using dissolution logic in an admission or retirement problem.",
+            "Forgetting that capital statements track drawings, investments, and allocated income together.",
+        ],
+        examTraps: [
+            "Partnership problems often hide whether the business continues after a capital change.",
+            "Students may confuse partner bonus with goodwill because both change capital balances.",
+            "Deficiency and liquidation cases require procedural order, not just a ratio.",
+        ],
+        selfCheck: [
+            "Why should salary and interest allowances be applied before the residual ratio?",
+            "What tells you that a problem is dissolution instead of admission?",
+            "Why is capital continuity important in partnership accounting?",
+        ],
+        practiceCues: [
+            "Explain the difference between admission and dissolution.",
+            "Describe how a capital statement helps check partnership changes across a period.",
+            "State why allowance order matters in profit-sharing problems.",
+        ],
+        keywords: [
+            "partnership",
+            "salary allowance",
+            "interest allowance",
+            "admission",
+            "retirement",
+            "capital statement",
+        ],
+        scanSignals: [
+            "partners capital",
+            "bonus method",
+            "goodwill method",
+            "salary allowance",
+            "interest on capital",
+            "dissolution",
+        ],
+        relatedCalculatorPaths: [
+            "/accounting/partnership-profit-sharing",
+            "/accounting/partnership-salary-interest",
+            "/accounting/partnership-admission-bonus",
+            "/accounting/partnership-admission-goodwill",
+            "/accounting/partnership-retirement-bonus",
+            "/accounting/partnership-dissolution",
+            "/accounting/partners-capital-statement",
+        ],
+        relatedTopicIds: ["partnership-dissolution", "accounting-foundations-review", "scan-review"],
+        quiz: {
+            title: "Partnership Cycle Review Check",
+            intro:
+                "Use this set to verify whether you can distinguish sharing, capital changes, and final liquidation.",
+            questions: [
+                {
+                    id: "pcr-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "What should be applied before the residual profit-sharing ratio in a salary-and-interest agreement?",
+                    choices: [
+                        "Consumer surplus",
+                        "Salary and interest allowances",
+                        "Depreciation expense only",
+                        "Cash budget financing",
+                    ],
+                    answerIndex: 1,
+                    explanation:
+                        "The agreement's salary and interest allowances are applied first, then the remaining profit or loss is shared by ratio.",
+                },
+                {
+                    id: "pcr-q2",
+                    kind: "true-false",
+                    prompt:
+                        "Every partnership capital change should automatically be handled as a dissolution problem.",
+                    answer: false,
+                    explanation:
+                        "Admission and retirement can change capital without liquidating the business. Dissolution is a specific final procedure.",
+                },
+                {
+                    id: "pcr-q3",
+                    kind: "short-answer",
+                    prompt: "Why is a statement of partners' capital useful?",
+                    acceptedAnswers: [
+                        "it shows capital changes over the period",
+                        "it tracks capital continuity",
+                        "it summarizes investments drawings and income shares",
+                    ],
+                    placeholder: "Type why it is useful",
+                    explanation:
+                        "The statement helps students and instructors follow how each partner's capital changes across the period.",
+                },
+            ],
+        },
+    },
+];
+
+const STUDY_TOPICS: StudyTopic[] = [...CORE_STUDY_TOPICS, ...STUDY_HUB_EXPANSION_TOPICS];
 
 export const STUDY_TOPICS_BY_ID = new Map(STUDY_TOPICS.map((topic) => [topic.id, topic]));
 

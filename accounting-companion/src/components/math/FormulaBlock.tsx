@@ -18,7 +18,7 @@ function sentenceCase(input: string) {
 
 function buildStructuredStatements(text: string) {
     const normalized = formatGuideText(text)
-        .replace(/\s*[•·]\s*/g, "; ")
+        .replace(/\s*(?:\u2022|\u00b7)\s*/g, "; ")
         .replace(/\s*;\s*/g, "; ")
         .replace(/\s{2,}/g, " ")
         .trim();
@@ -42,10 +42,7 @@ function buildStructuredStatements(text: string) {
             ? sentenceCase(labelMatch[1])
             : null;
 
-    const statements = (labelMatch && lead
-        ? [labelMatch[2], ...split.slice(1)]
-        : split
-    )
+    const statements = (labelMatch && lead ? [labelMatch[2], ...split.slice(1)] : split)
         .map((entry) =>
             sentenceCase(
                 entry
@@ -113,9 +110,7 @@ export default function FormulaBlock({
                     />
                 </div>
             )}
-            {supportingText ? (
-                <div className="app-reading-content mt-3">{supportingText}</div>
-            ) : null}
+            {supportingText ? <div className="app-reading-content mt-3">{supportingText}</div> : null}
         </div>
     );
 }
