@@ -210,6 +210,9 @@ const CashDisbursementsSchedulePage = lazy(
 );
 const CashBudgetPage = lazy(() => import("./features/business/CashBudgetPage"));
 const FlexibleBudgetPage = lazy(() => import("./features/business/FlexibleBudgetPage"));
+const CapacityUtilizationPage = lazy(
+    () => import("./features/business/CapacityUtilizationPage")
+);
 const ProfitLossPage = lazy(() => import("./features/business/ProfitLossPage"));
 const TargetProfitPage = lazy(() => import("./features/business/TargetProfitPage"));
 const LaborEfficiencyVariancePage = lazy(
@@ -284,6 +287,9 @@ const CashRunwayPlannerPage = lazy(
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
     () => import("./features/statistics/StandardDeviationPage")
+);
+const CoefficientVariationPage = lazy(
+    () => import("./features/statistics/CoefficientVariationPage")
 );
 const WeightedMeanPage = lazy(() => import("./features/businessMath/WeightedMeanPage"));
 const SmartSolverPage = lazy(() => import("./features/smart/SmartSolverPage"));
@@ -395,6 +401,7 @@ export default function App() {
                         <Route path="business/cash-disbursements-schedule" element={renderRoute("/business/cash-disbursements-schedule", <CashDisbursementsSchedulePage />)} />
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
                         <Route path="business/flexible-budget" element={renderRoute("/business/flexible-budget", <FlexibleBudgetPage />)} />
+                        <Route path="business/capacity-utilization" element={renderRoute("/business/capacity-utilization", <CapacityUtilizationPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
                         <Route path="economics/price-elasticity-demand" element={renderRoute("/economics/price-elasticity-demand", <PriceElasticityPage />)} />
@@ -484,6 +491,7 @@ export default function App() {
                         <Route path="accounting/trial-balance-checker" element={renderRoute("/accounting/trial-balance-checker", <TrialBalanceCheckerPage />)} />
 
                         <Route path="statistics/standard-deviation" element={renderRoute("/statistics/standard-deviation", <StandardDeviationPage />)} />
+                        <Route path="statistics/coefficient-of-variation" element={renderRoute("/statistics/coefficient-of-variation", <CoefficientVariationPage />)} />
 
                         <Route path="settings" element={renderRoute("/settings", <SettingsPage />)} />
                         <Route path="settings/about" element={renderRoute("/settings/about", <AboutPage />)} />

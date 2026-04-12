@@ -10,6 +10,7 @@ import FormulaBlock from "../../components/math/FormulaBlock";
 import { getRouteMeta } from "../../utils/appCatalog";
 import {
     buildStudyQuizPath,
+    buildStudyTopicPath,
     getRelatedStudyTopics,
     getStudyTopic,
 } from "./studyContent";
@@ -231,6 +232,26 @@ export default function StudyTopicPage() {
                                 Notes are stored only on this device.
                             </p>
                         </div>
+
+                        <RelatedLinksPanel
+                            title="Study next"
+                            summary="Move from this lesson into practice, a nearby lesson, or the most relevant calculator without losing the study flow."
+                            badge={`${Math.min(1 + relatedTopics.length, 4)} study moves`}
+                            items={[
+                                {
+                                    path: buildStudyQuizPath(topic.id),
+                                    label: `${topic.shortTitle} practice`,
+                                    description: topic.quiz.intro,
+                                },
+                                ...relatedTopics.slice(0, 3).map((relatedTopic) => ({
+                                    path: buildStudyTopicPath(relatedTopic.id),
+                                    label: relatedTopic.title,
+                                    description: relatedTopic.summary,
+                                })),
+                            ]}
+                            compact
+                            showDescriptions
+                        />
 
                         <RelatedLinksPanel
                             title="Related calculators"

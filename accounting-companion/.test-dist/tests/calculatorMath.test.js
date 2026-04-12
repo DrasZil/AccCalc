@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCustomerPayback, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeInternalRateOfReturn, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBondAmortizationSchedule, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCapacityUtilization, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeInternalRateOfReturn, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeReceivablesAgingSchedule, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
 import { breakEvenSolveDefinition, currentRatioSolveDefinition, priceCostMarginSolveDefinition, simpleInterestSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
@@ -278,6 +278,12 @@ runTest("weighted mean and standard deviation cover quantitative basics", () => 
     assertClose(populationSd.standardDeviation, 3.4292856399, 1e-6);
     assertClose(sampleSd.standardDeviation, 3.8340579025, 1e-6);
 });
+runTest("coefficient of variation compares relative spread safely", () => {
+    const result = computeCoefficientOfVariation([10, 20, 30], false);
+    assertClose(result.mean, 20);
+    assertClose(result.standardDeviation, 8.1649658093, 1e-6);
+    assertClose(result.coefficientOfVariation, 40.8248290464, 1e-6);
+});
 runTest("trial balance tolerance keeps tiny rounding differences balanced", () => {
     const balanced = computeTrialBalance(100.003, 100);
     const unbalanced = computeTrialBalance(250000, 249500);
@@ -424,6 +430,18 @@ runTest("cash and flexible budgets separate financing and variance logic", () =>
     assertClose(cashBudget.endingCashAfterFinancing, 25000);
     assertClose(flexibleBudget.flexibleBudget, 414000);
     assertClose(flexibleBudget.spendingVariance, 8000);
+});
+runTest("capacity utilization keeps idle and strained capacity visible", () => {
+    const result = computeCapacityUtilization({
+        actualUnits: 8400,
+        practicalCapacityUnits: 10000,
+    });
+    assertClose(result.utilizationRate, 84);
+    assertClose(result.idleCapacityUnits, 1600);
+    assertClose(result.idleCapacityRate, 16);
+    assertClose(result.remainingCapacityUnits, 1600);
+    assertClose(result.overCapacityUnits, 0);
+    assert.equal(result.status, "moderate capacity use");
 });
 runTest("collections and disbursements schedules respect lag patterns", () => {
     const collections = computeCashCollectionsSchedule({
@@ -788,6 +806,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const paymentScheduleResults = searchAppRoutes("purchases payment schedule");
     const workingCapitalControlResults = searchAppRoutes("working capital control");
     const physicalCountResults = searchAppRoutes("book versus physical inventory");
+    const relativeVariationResults = searchAppRoutes("relative variability");
+    const capacityResults = searchAppRoutes("practical capacity");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -820,6 +840,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(paymentScheduleResults[0]?.path, "/business/cash-disbursements-schedule");
     assert.equal(workingCapitalControlResults[0]?.path, "/accounting/working-capital-planner");
     assert.equal(physicalCountResults[0]?.path, "/accounting/inventory-control-workspace");
+    assert.equal(relativeVariationResults[0]?.path, "/statistics/coefficient-of-variation");
+    assert.equal(capacityResults[0]?.path, "/business/capacity-utilization");
 });
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
     assert.equal(suggestSolveTarget("simple-interest", "find the principal"), "principal");

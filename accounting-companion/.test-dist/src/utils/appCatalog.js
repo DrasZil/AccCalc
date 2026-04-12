@@ -53,10 +53,12 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/sales-forecast-planner",
     "/entrepreneurship/cash-runway-planner",
     "/business/cvp-analysis",
+    "/business/capacity-utilization",
     "/accounting/partnership-dissolution",
     "/study",
     "/study/practice",
     "/accounting/job-order-cost-sheet",
+    "/statistics/coefficient-of-variation",
 ]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Settings"],
@@ -76,6 +78,7 @@ const SUBTOPIC_ORDER = {
     "Managerial & Cost": [
         "CVP & Decisions",
         "Budgeting",
+        "Planning & Operations",
         "Manufacturing Costs",
         "Variances",
         "Depreciation",
@@ -151,6 +154,12 @@ function inferSubtopic(category, path, tags, label) {
                 haystack.includes("cash receipts") ||
                 haystack.includes("cash payments")) {
                 return "Budgeting";
+            }
+            if (haystack.includes("capacity") ||
+                haystack.includes("utilization") ||
+                haystack.includes("throughput") ||
+                haystack.includes("scheduling")) {
+                return "Planning & Operations";
             }
             if (haystack.includes("variance"))
                 return "Variances";
@@ -352,10 +361,10 @@ export const APP_ROUTE_META = [
     feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
     feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
     feature("/finance/discounted-payback-period", "Discounted Payback Period", "Finance", "Discounted recovery period using the time value of money.", ["discounted payback", "discounted recovery period"], ["capital budgeting"], undefined, true, ["discounted payback", "discounted recovery"]),
-    feature("/business/profit-loss", "Profit and Loss", "Business Math", "Solve for profit, revenue, or cost from the same worksheet.", ["profit or loss", "gain or loss"], ["commercial math", "solve-for"], undefined, true, ["profit", "loss", "revenue", "cost"]),
-    feature("/business/markup-margin", "Price and Margin Planner", "Business Math", "Solve for price, cost, profit, or margin from the same pricing workspace.", ["gross margin", "markup percentage"], ["pricing", "solve-for"], "Planner", true, ["selling price", "margin", "markup", "cost"]),
+    feature("/business/profit-loss", "Profit and Loss", "Business Math", "Solve for profit, revenue, or cost from the same worksheet.", ["profit or loss", "gain or loss", "loss or profit", "gross profit check"], ["commercial math", "solve-for"], undefined, true, ["profit", "loss", "revenue", "cost", "gross profit"]),
+    feature("/business/markup-margin", "Price and Margin Planner", "Business Math", "Solve for price, cost, profit, or margin from the same pricing workspace.", ["gross margin", "markup percentage", "selling price planning", "pricing worksheet"], ["pricing", "solve-for"], "Planner", true, ["selling price", "margin", "markup", "cost", "pricing"]),
     feature("/business/net-profit-margin", "Net Profit Margin", "Business Math", "Net income per peso of net sales.", ["net margin"], ["profitability"]),
-    feature("/business-math/weighted-mean", "Weighted Mean", "Business Math", "Weighted mean from values and weights.", ["weighted average", "average with weights"], ["statistics"], undefined, true),
+    feature("/business-math/weighted-mean", "Weighted Mean", "Business Math", "Weighted mean from values and weights.", ["weighted average", "average with weights", "weighted average grade", "weighted score"], ["statistics", "business analytics"], undefined, true, ["weighted mean", "weighted average", "weights", "average"]),
     feature("/business/contribution-margin", "Contribution Margin", "Managerial & Cost", "Solve for sales, variable costs, or contribution margin.", ["cm ratio"], ["cvp", "solve-for"], undefined, true, ["contribution margin", "sales", "variable costs"]),
     feature("/business/break-even", "Break-even Point", "Managerial & Cost", "Solve for break-even units, fixed costs, selling price, or variable cost.", ["break even", "be point"], ["cvp", "solve-for"], undefined, true, ["break even", "fixed cost", "target price"]),
     feature("/business/target-profit", "Target Profit", "Managerial & Cost", "Required units and sales for a target profit.", ["target income"], ["cvp"]),
@@ -367,6 +376,7 @@ export const APP_ROUTE_META = [
     feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule", "accounts payable payment schedule", "purchases payment schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule", "payment lag", "accounts payable schedule", "purchases timing"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget", "minimum cash planning", "cash budget with financing"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash", "ending cash balance", "financing need"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
+    feature("/business/capacity-utilization", "Capacity Utilization", "Managerial & Cost", "Compare actual output with practical capacity so idle or strained capacity stays visible.", ["capacity usage", "practical capacity", "idle capacity", "capacity rate"], ["operations", "capacity", "planning"], undefined, true, ["capacity utilization", "practical capacity", "idle capacity", "operating capacity", "capacity planning"]),
     feature("/economics/price-elasticity-demand", "Price Elasticity of Demand", "Economics", "Midpoint elasticity, revenue movement, and demand classification.", ["ped", "demand elasticity"], ["elasticity", "microeconomics"], "Elasticity", true, ["price elasticity", "elastic demand", "inelastic demand"]),
     feature("/economics/market-equilibrium", "Market Equilibrium", "Economics", "Solve equilibrium price and quantity from linear demand and supply equations.", ["supply and demand equilibrium", "equilibrium price"], ["market", "equilibrium"], "Equilibrium", true, ["equilibrium", "supply and demand", "market clearing"]),
     feature("/economics/surplus-analysis", "Consumer and Producer Surplus", "Economics", "Estimate welfare gains from trade at a known equilibrium.", ["consumer surplus", "producer surplus"], ["surplus", "microeconomics"], "Surplus", true, ["consumer surplus", "producer surplus", "total surplus"]),
@@ -400,7 +410,8 @@ export const APP_ROUTE_META = [
     feature("/accounting/declining-balance-depreciation", "Declining Balance Depreciation", "Managerial & Cost", "Double declining balance depreciation.", ["ddb", "double declining balance"], ["depreciation"]),
     feature("/accounting/units-of-production-depreciation", "Units of Production Depreciation", "Managerial & Cost", "Depreciation based on actual output.", ["units of activity depreciation"], ["depreciation"], undefined, true),
     feature("/accounting/depreciation-schedule-comparison", "Depreciation Schedule Comparison", "Managerial & Cost", "Compare straight-line and double-declining schedules across an asset's life.", ["depreciation comparison", "compare depreciation methods"], ["depreciation", "analysis"], undefined, true),
-    feature("/statistics/standard-deviation", "Standard Deviation", "Statistics", "Mean, variance, and standard deviation for a list of values.", ["sd", "variance"], ["statistics", "analytics"], undefined, true),
+    feature("/statistics/standard-deviation", "Standard Deviation", "Statistics", "Mean, variance, and standard deviation for a list of values.", ["sd", "variance", "dispersion", "spread of data"], ["statistics", "analytics"], undefined, true, ["standard deviation", "variance", "dispersion", "spread", "volatility"]),
+    feature("/statistics/coefficient-of-variation", "Coefficient of Variation", "Statistics", "Relative variability from standard deviation and mean.", ["cv statistics", "relative variation", "relative variability"], ["statistics", "analytics", "variation"], "CV", true, ["coefficient of variation", "relative variability", "relative variation", "variation rate"]),
 ];
 export const APP_ROUTE_META_MAP = new Map(APP_ROUTE_META.map((item) => [item.path, item]));
 export const NEW_FEATURE_PATHS = new Set(APP_ROUTE_META.filter((item) => item.isNew).map((item) => item.path));

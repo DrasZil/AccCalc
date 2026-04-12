@@ -1,26 +1,33 @@
-export const APP_VERSION = "4.4.0";
+export const APP_VERSION = "4.5.0";
 export const APP_RELEASE_DATE = "2026-04-12";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Laptop and desktop layouts now reflow more intelligently",
-        body: "Shared adaptive shells now keep support panels, dense cards, and result workspaces inside readable bounds on laptop-width screens instead of wasting space or pushing content off-frame.",
+        title: "Category coverage is more balanced across calculators and lessons",
+        body: "Statistics, business-math, entrepreneurship, and operations-sensitive planning now have stronger calculator coverage, deeper Study Hub lessons, and cleaner links back into guided solving flow.",
     },
     {
-        title: "Scan & Check now works more like a horizontal review workspace",
-        body: "The scan result surface now keeps the main understanding panel, merged text review, study follow-up, alternate routes, and session guidance connected in one stronger adaptive workspace.",
+        title: "Guided study follow-ups now sit directly inside calculator workflows",
+        body: "Shared calculator pages can now surface matching lessons and quiz-entry links automatically, so solving, concept review, and short practice stay connected instead of isolated.",
     },
     {
-        title: "Budgeting and control tools now guide the next step more clearly",
-        body: "Cash collections, cash disbursements, and inventory control now connect directly into lesson-and-quiz study flows so solving, checking, and review stay linked instead of isolated.",
+        title: "Laptop-width layouts waste less space and protect dense content better",
+        body: "Shared grid thresholds, chip wrapping, and support-card sizing now behave more predictably on laptop and mid-desktop widths so dense pages stay readable without overflow or dead-space-heavy shells.",
     },
     {
-        title: "Study Hub coverage deepens into working-capital control",
-        body: "A new topic on working capital, inventory control, and cash-cycle reading broadens the curriculum path behind liquidity, payables, inventory shrinkage, and control interpretation.",
+        title: "New operations and analytics tools deepen curriculum coverage",
+        body: "Capacity Utilization and Coefficient of Variation add practical planning and analytics support, then connect back into lesson families that explain when and why those readings matter.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "4.5.0: Expanded category parity by adding new capacity-utilization and coefficient-of-variation calculators, then connected them to stronger study-topic coverage in operations planning, descriptive statistics, business math, finance, and entrepreneurship review paths.",
+    "4.5.0: Added shared calculator-to-study follow-up links so calculator pages can surface the most relevant lesson and practice set for the current route without relying on page-specific wiring.",
+    "4.5.0: Added stronger study-next guidance inside topic pages so lessons can lead directly into practice, adjacent lessons, and related calculators instead of ending as isolated reading surfaces.",
+    "4.5.0: Expanded Study Hub category metadata so users can see lesson, quiz, and linked-calculator coverage at the category level while browsing the learning center.",
+    "4.5.0: Hardened shared laptop-width layout behavior by tightening adaptive grid thresholds, support-card minimum widths, and chip/button wrapping so dense pages stay readable at common 1280-1536px widths.",
+    "4.5.0: Strengthened curriculum coverage for weaker categories with new lesson families on descriptive statistics, pricing and weighted mean, annuities and loans, cash planning and runway, and operating capacity and planning.",
+    "4.5.0: Broadened route and Smart Solver coverage for capacity-planning and relative-variability wording so classroom phrases like practical capacity and relative variability route more accurately.",
     "4.4.0: Reworked shared adaptive layout behavior so laptop-width screens keep support panels and dense result surfaces readable without pushing content off-screen or wasting large empty columns.",
     "4.4.0: Added a dedicated workspace grid pattern and applied it to Scan & Check so extracted text, route understanding, study follow-up, and review controls share space more intelligently on laptop and desktop.",
     "4.4.0: Moved the merged extracted-text editor into the main Scan workspace so OCR cleanup, route review, and next-step actions now happen in one connected review surface.",

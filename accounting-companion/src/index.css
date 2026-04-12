@@ -483,6 +483,7 @@ a:active {
     font-size: 0.79rem;
     line-height: 1.55;
     color: var(--app-text-muted);
+    overflow-wrap: anywhere;
 }
 
 .app-label {
@@ -781,7 +782,7 @@ mjx-assistive-mml {
     display: grid;
     gap: var(--app-page-gap);
     min-width: 0;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
 }
 
 .app-card-grid-readable--compact {
@@ -790,7 +791,7 @@ mjx-assistive-mml {
     min-width: 0;
     align-items: start;
     grid-auto-flow: row dense;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
 }
 
 .app-related-link-grid {
@@ -801,7 +802,7 @@ mjx-assistive-mml {
 }
 
 .app-related-link-grid--compact {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.75rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
 }
 
 .app-related-link-grid--descriptive {
@@ -988,13 +989,13 @@ mjx-assistive-mml {
     }
 }
 
-@container (min-width: 84rem) {
+@container (min-width: 80rem) {
     .app-adaptive-layout {
-        grid-template-columns: minmax(0, 1.18fr) minmax(20rem, 0.82fr);
+        grid-template-columns: minmax(0, 1.2fr) minmax(19rem, 0.8fr);
     }
 
     .app-workspace-grid {
-        grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+        grid-template-columns: minmax(0, 1.22fr) minmax(19rem, 0.78fr);
     }
 }
 
@@ -1004,13 +1005,13 @@ mjx-assistive-mml {
     }
 }
 
-@container (min-width: 88rem) {
+@container (min-width: 82rem) {
     .app-study-layout {
-        grid-template-columns: minmax(0, 1.16fr) minmax(21rem, 0.84fr);
+        grid-template-columns: minmax(0, 1.18fr) minmax(19rem, 0.82fr);
     }
 
     .app-formula-layout {
-        grid-template-columns: minmax(0, 1.14fr) minmax(21rem, 0.86fr);
+        grid-template-columns: minmax(0, 1.16fr) minmax(19rem, 0.84fr);
     }
 }
 
@@ -1195,8 +1196,12 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-text-secondary);
     max-width: 100%;
     display: inline-flex;
+    min-width: 0;
     align-items: center;
     justify-content: center;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
     font-size: 0.68rem;
     font-weight: 650;
     letter-spacing: 0.14em;
@@ -1215,8 +1220,12 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-accent);
     max-width: 100%;
     display: inline-flex;
+    min-width: 0;
     align-items: center;
     justify-content: center;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1266,6 +1275,11 @@ html[data-contrast="high"] .app-sidebar-link {
     box-shadow: 0 12px 28px rgba(73, 138, 255, 0.22);
     font-weight: 650;
     letter-spacing: -0.01em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    text-align: center;
 }
 
 .app-button-primary:hover {
@@ -1280,6 +1294,11 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-text);
     font-weight: 600;
     letter-spacing: -0.01em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    text-align: center;
 }
 
 .app-button-secondary:hover,
@@ -1586,7 +1605,7 @@ html[data-contrast="high"] .app-sidebar-link {
     .app-page-shell-wide,
     .app-page-shell-study,
     .app-page-shell-data {
-        max-width: min(100%, 86rem);
+        max-width: min(100%, 88rem);
     }
 }
 

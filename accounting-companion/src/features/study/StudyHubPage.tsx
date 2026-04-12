@@ -114,6 +114,35 @@ export default function StudyHubPage() {
             }, {} as Record<StudyTopicCategory, StudyTopic[]>),
         [visibleTopics]
     );
+    const categoryCoverage = useMemo(
+        () =>
+            allTopics.reduce<
+                Record<
+                    StudyTopicCategory,
+                    { topicCount: number; calculatorCount: number; quizCount: number }
+                >
+            >((groups, topic) => {
+                const current = groups[topic.category] ?? {
+                    topicCount: 0,
+                    calculatorCount: 0,
+                    quizCount: 0,
+                };
+
+                return {
+                    ...groups,
+                    [topic.category]: {
+                        topicCount: current.topicCount + 1,
+                        calculatorCount:
+                            current.calculatorCount + topic.relatedCalculatorPaths.length,
+                        quizCount: current.quizCount + 1,
+                    },
+                };
+            }, {} as Record<
+                StudyTopicCategory,
+                { topicCount: number; calculatorCount: number; quizCount: number }
+            >),
+        [allTopics]
+    );
 
     const quizCount = Object.keys(studyProgress.quizzes).length;
     const calculatorGroups = useMemo(
@@ -288,6 +317,17 @@ export default function StudyHubPage() {
                                 <p className="app-helper mt-2 text-xs leading-5">
                                     Focus: {STUDY_CATEGORY_DETAILS[category as StudyTopicCategory].emphasis}
                                 </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {categoryCoverage[category as StudyTopicCategory]?.topicCount ?? 0} lessons
+                                    </span>
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {categoryCoverage[category as StudyTopicCategory]?.quizCount ?? 0} quizzes
+                                    </span>
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {categoryCoverage[category as StudyTopicCategory]?.calculatorCount ?? 0} linked calculators
+                                    </span>
+                                </div>
                             </div>
                             <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                                 {topics.length} topics

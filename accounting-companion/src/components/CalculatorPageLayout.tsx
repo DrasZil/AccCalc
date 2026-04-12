@@ -15,6 +15,11 @@ import {
 import { useAppSettings } from "../utils/appSettings";
 import { useNetworkStatus } from "../utils/networkStatus";
 import { useOfflineBundleStatus } from "../utils/offlineStatus";
+import {
+    buildStudyQuizPath,
+    buildStudyTopicPath,
+    getStudyTopicsForRoute,
+} from "../features/study/studyContent";
 
 type CalculatorPageLayoutProps = {
     badge?: string;
@@ -114,6 +119,24 @@ export default function CalculatorPageLayout({
             .slice(0, 4)
             .map((entry) => entry.route);
     }, [currentMeta]);
+    const relatedStudyLinks = useMemo(
+        () =>
+            getStudyTopicsForRoute(location.pathname)
+                .flatMap((topic) => [
+                    {
+                        path: buildStudyTopicPath(topic.id),
+                        label: `${topic.shortTitle} lesson`,
+                        description: topic.summary,
+                    },
+                    {
+                        path: buildStudyQuizPath(topic.id),
+                        label: `${topic.shortTitle} practice`,
+                        description: topic.quiz.intro,
+                    },
+                ])
+                .slice(0, 4),
+        [location.pathname]
+    );
 
     const combinedHeaderActions = useMemo(() => {
         if (!currentMeta || currentMeta.path === "/" || currentMeta.path.startsWith("/settings")) {
@@ -380,6 +403,14 @@ export default function CalculatorPageLayout({
                     ) : null
                 )}
             </div>
+
+            <RelatedLinksPanel
+                title="Related study"
+                summary="Open the matching lesson or short practice set when you need concept review after solving."
+                badge={`${relatedStudyLinks.length} study links`}
+                items={relatedStudyLinks}
+                showDescriptions
+            />
 
             <RelatedLinksPanel
                 title="Related tools"

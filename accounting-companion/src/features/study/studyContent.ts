@@ -4,6 +4,7 @@ export type StudyTopicCategory =
     | "Partnership Accounting"
     | "CVP / Decision Support"
     | "Business Math / Finance"
+    | "Statistics / Analytics"
     | "Economics"
     | "Entrepreneurship"
     | "Smart Tools / Scan Support";
@@ -125,6 +126,11 @@ export const STUDY_CATEGORY_DETAILS: Record<
         description:
             "Time value, project evaluation, and quantitative business topics used for decisions and long-form problems.",
         emphasis: "Rate basis, time basis, and decision reading",
+    },
+    "Statistics / Analytics": {
+        description:
+            "Quantitative topics that help students read spread, variation, weighting, and business-use comparisons more carefully.",
+        emphasis: "Dispersion, relative variability, and interpretation",
     },
     Economics: {
         description:
@@ -3183,6 +3189,886 @@ const STUDY_HUB_EXPANSION_TOPICS: StudyTopic[] = [
                     placeholder: "Type why it is useful",
                     explanation:
                         "The statement helps students and instructors follow how each partner's capital changes across the period.",
+                },
+            ],
+        },
+    },
+    {
+        id: "descriptive-statistics-review",
+        title: "Descriptive Statistics and Relative Variation Review",
+        shortTitle: "Statistics Review",
+        category: "Statistics / Analytics",
+        summary:
+            "Study mean, weighted mean, standard deviation, and coefficient of variation as one analytics toolkit for business comparisons.",
+        intro:
+            "Descriptive statistics become more useful when students connect the average, the spread, and the relative size of that spread. This topic keeps those measures together so results are interpreted instead of recited.",
+        whyItMatters: [
+            "It helps compare datasets that differ in both average level and volatility.",
+            "It keeps weighted averages separate from simple averages when observations do not carry equal importance or frequency.",
+            "It turns standard deviation into a decision aid instead of a memorized formula.",
+        ],
+        classContexts: [
+            "Business analytics and introductory statistics exercises",
+            "Weighted-score and weighted-price review sets",
+            "Comparing variation across products, branches, or scenarios",
+        ],
+        whenToUse: [
+            "Use weighted mean when the observations do not all carry the same importance or frequency.",
+            "Use standard deviation when the question asks how far values typically spread around the mean.",
+            "Use coefficient of variation when two datasets have different means and you need a relative comparison of spread.",
+        ],
+        formulaOverview: [
+            {
+                label: "Weighted mean",
+                expression: "Weighted mean = Sum of value x weight / Sum of weights",
+                explanation:
+                    "This average gives larger influence to values with larger assigned weights or frequencies.",
+            },
+            {
+                label: "Standard deviation",
+                expression: "Standard deviation = Square root of variance",
+                explanation:
+                    "This turns average squared spread back into the original unit of measure.",
+            },
+            {
+                label: "Coefficient of variation",
+                expression: "Coefficient of variation = (Standard deviation / Mean) x 100",
+                explanation:
+                    "This compares variation relative to the average level instead of only in raw units.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "x", meaning: "Observed value in the dataset" },
+            { symbol: "w", meaning: "Assigned weight or frequency of a value" },
+            { symbol: "x̄", meaning: "Arithmetic mean of the dataset" },
+            { symbol: "s or σ", meaning: "Sample or population standard deviation" },
+            { symbol: "CV", meaning: "Coefficient of variation" },
+        ],
+        procedure: [
+            "Decide whether the dataset needs a simple average, a weighted average, or both.",
+            "Compute the mean first because every spread measure depends on the center of the dataset.",
+            "Compute variance and standard deviation when the question asks about spread.",
+            "Use coefficient of variation only after confirming the mean is not zero and a relative comparison is needed.",
+            "Interpret what the statistic says about consistency, volatility, or comparison quality.",
+        ],
+        workedExample: {
+            title: "Relative-variation comparison example",
+            scenario:
+                "Branch A has a mean weekly sale of 500 with a standard deviation of 50. Branch B has a mean weekly sale of 200 with a standard deviation of 30. The instructor asks which branch is relatively more variable.",
+            steps: [
+                "Compute coefficient of variation for Branch A: 50 / 500 x 100 = 10%.",
+                "Compute coefficient of variation for Branch B: 30 / 200 x 100 = 15%.",
+                "Compare the percentages instead of only the raw standard deviations.",
+            ],
+            result:
+                "Branch B is relatively more variable because 15% exceeds 10%.",
+            interpretation:
+                "Even though Branch B has a smaller raw standard deviation, its variation is larger relative to its average level.",
+        },
+        checkpointExample: {
+            title: "Weighted-average checkpoint",
+            scenario:
+                "A student averages exam scores equally even though the exams carry different weights.",
+            steps: [
+                "Check whether each observation has the same importance.",
+                "If weights differ, multiply each score by its weight before summing.",
+                "Divide by total weight, not by the number of items alone.",
+            ],
+            result:
+                "The simple average is inappropriate because the observations do not carry equal weight.",
+            interpretation:
+                "Weighted mean protects the result from being distorted by unequal importance.",
+        },
+        interpretation: [
+            "The mean describes the center, while standard deviation describes spread around that center.",
+            "Coefficient of variation is especially useful when comparing variability across different scales.",
+            "A weighted mean answers a different question from a simple average.",
+        ],
+        commonMistakes: [
+            "Using a simple average when the values clearly have different weights.",
+            "Comparing raw standard deviations across datasets with very different means.",
+            "Using coefficient of variation when the mean is zero or near zero.",
+        ],
+        examTraps: [
+            "Weights may be hidden as frequencies, percentages, or contribution shares instead of being labeled directly.",
+            "A question may ask for sample dispersion, not population dispersion.",
+            "The dataset with the bigger standard deviation is not always the relatively more variable dataset.",
+        ],
+        selfCheck: [
+            "Why is coefficient of variation more informative than standard deviation in some comparisons?",
+            "When should weighted mean replace a simple average?",
+            "What does standard deviation measure in plain language?",
+        ],
+        practiceCues: [
+            "Explain why relative variation matters for comparing different branches or products.",
+            "State the difference between a raw spread measure and a relative spread measure.",
+            "Describe how weights change the meaning of an average.",
+        ],
+        keywords: [
+            "statistics",
+            "weighted mean",
+            "standard deviation",
+            "coefficient of variation",
+            "relative variability",
+        ],
+        scanSignals: [
+            "weighted average",
+            "standard deviation",
+            "variance",
+            "coefficient of variation",
+            "relative variability",
+        ],
+        relatedCalculatorPaths: [
+            "/statistics/standard-deviation",
+            "/statistics/coefficient-of-variation",
+            "/business-math/weighted-mean",
+        ],
+        relatedTopicIds: ["pricing-and-weighted-mean-review"],
+        quiz: {
+            title: "Descriptive Statistics Check",
+            intro:
+                "Use this short set to confirm whether you can choose the right statistic before touching the calculator.",
+            questions: [
+                {
+                    id: "stats-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which measure is best when two datasets have different means and you want a relative comparison of spread?",
+                    choices: [
+                        "Weighted mean",
+                        "Coefficient of variation",
+                        "Median only",
+                        "Total frequency",
+                    ],
+                    answerIndex: 1,
+                    explanation:
+                        "Coefficient of variation scales the spread to the mean, making relative comparison possible.",
+                },
+                {
+                    id: "stats-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A weighted mean should be used only when the values are already percentages.",
+                    answer: false,
+                    explanation:
+                        "Weighted means are used whenever observations have different importance or frequency, not only when the values are percentages.",
+                },
+                {
+                    id: "stats-q3",
+                    kind: "short-answer",
+                    prompt:
+                        "What does standard deviation describe?",
+                    acceptedAnswers: [
+                        "how far values spread around the mean",
+                        "spread around the mean",
+                        "dispersion around the mean",
+                    ],
+                    placeholder: "Type what it describes",
+                    explanation:
+                        "Standard deviation describes how far the values typically spread around the mean.",
+                },
+            ],
+        },
+    },
+    {
+        id: "pricing-and-weighted-mean-review",
+        title: "Pricing, Margin, and Weighted Mean Review",
+        shortTitle: "Pricing Review",
+        category: "Business Math / Finance",
+        summary:
+            "Connect profit and loss, markup, margin, net profit margin, and weighted mean to the pricing decisions students actually face in classwork.",
+        intro:
+            "Business math topics are easiest to remember when price, cost, margin, and weighted averages are treated as one connected decision set. This topic ties those formulas to the meaning behind pricing and performance results.",
+        whyItMatters: [
+            "It prevents students from mixing up markup and margin even when the arithmetic is close.",
+            "It shows how weighted averages can support sales mix, grade weighting, or price-comparison work.",
+            "It links simple profit formulas to more meaningful profitability interpretation.",
+        ],
+        classContexts: [
+            "Pricing and commercial-math exercises",
+            "Weighted-score and weighted-price problems",
+            "Profitability and net-margin interpretation questions",
+        ],
+        whenToUse: [
+            "Use it when a question asks for selling price, cost, markup, margin, or net profit percentage.",
+            "Use weighted mean when several values contribute unequally to one combined result.",
+            "Use net profit margin when the question asks how much of net sales remains as final profit.",
+        ],
+        formulaOverview: [
+            {
+                label: "Profit",
+                expression: "Profit = Revenue - Cost",
+                explanation:
+                    "This basic relationship supports pricing, margin, and break-even style reasoning.",
+            },
+            {
+                label: "Markup",
+                expression: "Markup % = Profit / Cost x 100",
+                explanation:
+                    "Markup uses cost as the base, which is why it differs from margin.",
+            },
+            {
+                label: "Margin",
+                expression: "Margin % = Profit / Selling price x 100",
+                explanation:
+                    "Margin uses selling price as the base and is therefore not interchangeable with markup.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Revenue", meaning: "Selling amount or total sales generated" },
+            { symbol: "Cost", meaning: "Amount sacrificed to obtain or produce the item" },
+            { symbol: "Profit", meaning: "Excess of revenue over cost" },
+            { symbol: "Markup", meaning: "Profit relative to cost" },
+            { symbol: "Margin", meaning: "Profit relative to selling price or sales" },
+        ],
+        procedure: [
+            "Decide whether the base is cost, selling price, or net sales before selecting a percentage formula.",
+            "Compute profit first whenever markup or margin depends on the same price-cost relationship.",
+            "Use weighted mean when multiple prices, scores, or contributions must be combined unequally.",
+            "Interpret the result as a pricing or profitability signal, not only as a percentage.",
+            "Check whether the question uses gross-profit language or net-profit language before naming the answer.",
+        ],
+        workedExample: {
+            title: "Markup-versus-margin example",
+            scenario:
+                "An item costs 500 and sells for 800. The instructor asks for profit, markup, and margin.",
+            steps: [
+                "Profit = 800 - 500 = 300.",
+                "Markup = 300 / 500 x 100 = 60%.",
+                "Margin = 300 / 800 x 100 = 37.5%.",
+            ],
+            result:
+                "The item earns 300 in profit, a 60% markup, and a 37.5% margin.",
+            interpretation:
+                "Markup and margin are both correct, but they answer different base questions and must not be reported interchangeably.",
+        },
+        checkpointExample: {
+            title: "Weighted-price checkpoint",
+            scenario:
+                "Three product groups have different sales shares, and the teacher asks for one combined average price.",
+            steps: [
+                "Use each group's price and sales share as a weighted-mean pair.",
+                "Multiply each price by its weight, then sum the products.",
+                "Divide by total weight to avoid over- or underrepresenting a group.",
+            ],
+            result:
+                "The correct answer is a weighted average, not a simple arithmetic average.",
+            interpretation:
+                "The larger groups should influence the combined price more heavily than the smaller groups.",
+        },
+        interpretation: [
+            "Markup explains how much profit sits on top of cost, while margin explains how much of the selling price remains as profit.",
+            "Weighted means are often hidden inside business problems that ask for one combined rate, price, or score.",
+            "Net profit margin should be read as a profitability outcome, not as a pricing formula by itself.",
+        ],
+        commonMistakes: [
+            "Using selling price as the base when markup is requested.",
+            "Using cost as the base when margin is requested.",
+            "Applying a simple average when a weighted average is the correct business reading.",
+        ],
+        examTraps: [
+            "Questions often use the word margin when they actually mean markup, so students must read the base carefully.",
+            "Gross profit and net profit are not interchangeable.",
+            "Weighted questions may hide the weights as proportions, contribution shares, or category sizes.",
+        ],
+        selfCheck: [
+            "Why are markup and margin different even when the same profit amount is used?",
+            "When should weighted mean be used in pricing work?",
+            "What does net profit margin tell you about a business result?",
+        ],
+        practiceCues: [
+            "Explain the base difference between markup and margin.",
+            "Describe how weighted mean helps in sales-mix or weighted-grade settings.",
+            "State what net profit margin says about final profitability.",
+        ],
+        keywords: [
+            "markup",
+            "margin",
+            "profit and loss",
+            "weighted mean",
+            "net profit margin",
+        ],
+        scanSignals: [
+            "markup",
+            "margin",
+            "weighted average",
+            "profit and loss",
+            "net profit margin",
+        ],
+        relatedCalculatorPaths: [
+            "/business/profit-loss",
+            "/business/markup-margin",
+            "/business/net-profit-margin",
+            "/business-math/weighted-mean",
+        ],
+        relatedTopicIds: ["descriptive-statistics-review", "startup-cost-planning"],
+        quiz: {
+            title: "Pricing and Margin Check",
+            intro:
+                "Use this set to verify whether you can identify the right base before relying on the calculator.",
+            questions: [
+                {
+                    id: "pricing-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which base is used when markup percentage is requested?",
+                    choices: ["Cost", "Selling price", "Net sales", "Net income"],
+                    answerIndex: 0,
+                    explanation:
+                        "Markup uses cost as the denominator, while margin uses selling price or sales as the denominator.",
+                },
+                {
+                    id: "pricing-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A weighted mean is appropriate only when every observation has the same importance.",
+                    answer: false,
+                    explanation:
+                        "A weighted mean is used precisely because the observations do not all carry equal importance.",
+                },
+                {
+                    id: "pricing-q3",
+                    kind: "short-answer",
+                    prompt: "Why is margin not the same as markup?",
+                    acceptedAnswers: [
+                        "they use different bases",
+                        "markup uses cost and margin uses selling price",
+                        "they have different denominators",
+                    ],
+                    placeholder: "Type the reason",
+                    explanation:
+                        "Markup uses cost as the base, while margin uses selling price or sales as the base.",
+                },
+            ],
+        },
+    },
+    {
+        id: "annuity-and-loan-review",
+        title: "Annuities, Loans, and Periodic-Payment Review",
+        shortTitle: "Annuities & Loans",
+        category: "Business Math / Finance",
+        summary:
+            "Review loan amortization, present and future value of annuities, sinking funds, and effective-rate logic as one payment-planning family.",
+        intro:
+            "Many finance problems change only one thing: whether the regular cash flow is being accumulated, discounted, repaid, or compared across compounding methods. This topic keeps those ideas in one place.",
+        whyItMatters: [
+            "It helps students distinguish lump-sum time-value work from periodic-payment work.",
+            "It reduces confusion between loan repayment and investment accumulation formulas.",
+            "It keeps rate basis and period basis consistent across annuity problems.",
+        ],
+        classContexts: [
+            "Loan amortization and installment-payment exercises",
+            "Present-value and future-value annuity problems",
+            "Sinking-fund and effective-rate comparisons",
+        ],
+        whenToUse: [
+            "Use it when cash flows repeat each month, quarter, or year instead of occurring only once.",
+            "Use it when the question asks for payment amount, present worth, accumulation amount, or required deposit.",
+            "Check that the interest rate and the number of periods use the same time basis before solving.",
+        ],
+        formulaOverview: [
+            {
+                label: "Future value of an ordinary annuity",
+                expression: "FV of annuity = Payment x [((1 + i)^n - 1) / i]",
+                explanation:
+                    "Use this when equal deposits accumulate forward in time.",
+            },
+            {
+                label: "Present value of an ordinary annuity",
+                expression: "PV of annuity = Payment x [1 - (1 + i)^(-n)] / i",
+                explanation:
+                    "Use this when equal future payments are discounted back to today.",
+            },
+            {
+                label: "Effective annual rate",
+                expression: "EAR = (1 + nominal rate / m)^m - 1",
+                explanation:
+                    "Use this to compare compounding structures on one annual basis.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Payment", meaning: "Equal cash flow each period" },
+            { symbol: "i", meaning: "Periodic interest rate" },
+            { symbol: "n", meaning: "Number of periods" },
+            { symbol: "EAR", meaning: "Effective annual rate" },
+        ],
+        procedure: [
+            "Identify whether the problem is a loan repayment, an annuity accumulation, or an annuity discounting problem.",
+            "Convert the nominal rate into a periodic rate when compounding is more frequent than annually.",
+            "Match the number of periods to the payment frequency.",
+            "Apply the appropriate ordinary-annuity or amortization relationship.",
+            "Interpret the result as a payment-planning decision, not just a formula output.",
+        ],
+        workedExample: {
+            title: "Loan-versus-sinking-fund example",
+            scenario:
+                "A student wants to understand why a sinking-fund deposit and a loan payment are not the same even when the amount and rate are similar.",
+            steps: [
+                "A loan payment must cover both interest and principal reduction on an existing balance.",
+                "A sinking-fund deposit grows forward toward a future target instead of paying down a present obligation.",
+                "Because the cash-flow direction differs, the formulas and interpretations also differ.",
+            ],
+            result:
+                "Loan payments and sinking-fund deposits solve different finance questions even when the inputs look similar.",
+            interpretation:
+                "Students should identify the direction of the cash-flow problem before choosing a formula.",
+        },
+        checkpointExample: {
+            title: "Rate-basis checkpoint",
+            scenario:
+                "A nominal annual rate is paired with monthly payments, but the student uses the annual rate directly in the annuity formula.",
+            steps: [
+                "Check whether the payment frequency matches the rate basis.",
+                "Convert the nominal annual rate into a monthly periodic rate before using monthly periods.",
+                "Recompute using the aligned rate and period basis.",
+            ],
+            result:
+                "The original answer is incorrect because the rate basis and period basis were inconsistent.",
+            interpretation:
+                "Rate-basis errors are among the most common reasons otherwise-correct annuity work fails.",
+        },
+        interpretation: [
+            "Annuity problems are strongest when payment timing and rate timing are aligned first.",
+            "Loan amortization explains repayment structure, while annuity formulas explain value equivalence across time.",
+            "Effective rate exists to make compounding comparisons fair and readable.",
+        ],
+        commonMistakes: [
+            "Using an annual rate directly with monthly periods.",
+            "Using a loan formula for a sinking-fund problem or vice versa.",
+            "Treating present value and future value annuities as the same direction of cash-flow problem.",
+        ],
+        examTraps: [
+            "The problem may mention ordinary annuity implicitly without naming it directly.",
+            "Compounding frequency can be hidden in wording such as monthly installment or quarterly deposit.",
+            "A question may ask for the rate comparison rather than the payment amount.",
+        ],
+        selfCheck: [
+            "Why must rate basis and period basis match in annuity problems?",
+            "What is the difference between a loan payment and a sinking-fund deposit?",
+            "Why is effective annual rate useful?",
+        ],
+        practiceCues: [
+            "Explain the difference between discounting an annuity and accumulating an annuity.",
+            "State why the nominal rate usually needs conversion before use.",
+            "Describe what an amortization schedule is trying to show.",
+        ],
+        keywords: [
+            "annuity",
+            "loan amortization",
+            "sinking fund",
+            "effective annual rate",
+            "payment planning",
+        ],
+        scanSignals: [
+            "installment",
+            "monthly payment",
+            "annuity",
+            "sinking fund",
+            "effective annual rate",
+        ],
+        relatedCalculatorPaths: [
+            "/finance/loan-amortization",
+            "/finance/future-value-annuity",
+            "/finance/present-value-annuity",
+            "/finance/sinking-fund-deposit",
+            "/finance/effective-interest-rate",
+        ],
+        relatedTopicIds: ["finance-time-value-review", "capital-budgeting"],
+        quiz: {
+            title: "Annuities and Loans Check",
+            intro:
+                "Use this set to verify whether you can choose the correct periodic-payment model before solving.",
+            questions: [
+                {
+                    id: "annuity-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which issue should be checked first in a monthly annuity problem?",
+                    choices: [
+                        "Whether the rate basis matches the payment period",
+                        "Whether the dataset is weighted",
+                        "Whether the balance sheet balances",
+                        "Whether profit margin is above markup",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Monthly payments require a monthly-period rate basis before the formula can be used correctly.",
+                },
+                {
+                    id: "annuity-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A sinking-fund deposit and a loan payment solve the same cash-flow direction problem.",
+                    answer: false,
+                    explanation:
+                        "A sinking fund accumulates toward a future target, while a loan payment repays a present obligation.",
+                },
+                {
+                    id: "annuity-q3",
+                    kind: "short-answer",
+                    prompt: "Why is effective annual rate useful?",
+                    acceptedAnswers: [
+                        "it compares compounding fairly",
+                        "it puts different compounding methods on one annual basis",
+                        "it shows the true annual rate",
+                    ],
+                    placeholder: "Type why it is useful",
+                    explanation:
+                        "Effective annual rate converts compounding structures into one comparable annual reading.",
+                },
+            ],
+        },
+    },
+    {
+        id: "cash-planning-and-runway-review",
+        title: "Cash Planning, Runway, and Forecast Review",
+        shortTitle: "Cash Planning",
+        category: "Entrepreneurship",
+        summary:
+            "Study startup cost planning, sales forecasting, unit economics, and cash runway as one early-stage planning sequence.",
+        intro:
+            "Entrepreneurship tools are most useful when startup cost, sales forecast, unit economics, and cash runway are read as one planning chain. This topic keeps those ideas connected so feasibility stays disciplined.",
+        whyItMatters: [
+            "It shows that early growth plans fail when cash timing is ignored.",
+            "It helps students connect pricing, contribution, and runway instead of reading each result in isolation.",
+            "It turns entrepreneurship tools into planning logic rather than guesswork.",
+        ],
+        classContexts: [
+            "Startup feasibility and launch-planning exercises",
+            "Sales forecast and runway review",
+            "Small-business planning and pitch-style assignments",
+        ],
+        whenToUse: [
+            "Use startup-cost planning when launch spending must be structured before operations begin.",
+            "Use sales forecasting and unit economics when the question asks whether the model can scale sensibly.",
+            "Use cash runway when the key concern is how long current cash can support planned operations.",
+        ],
+        formulaOverview: [
+            {
+                label: "Monthly net cash flow",
+                expression: "Monthly net cash flow = Average inflows - Average outflows",
+                explanation:
+                    "This is the operating cash movement that drives runway interpretation.",
+            },
+            {
+                label: "Cash runway",
+                expression: "Runway (months) = Opening cash / Monthly burn",
+                explanation:
+                    "Use this only when monthly burn is positive and recurring.",
+            },
+            {
+                label: "Unit contribution",
+                expression: "Unit contribution = Selling price - Variable cost per unit",
+                explanation:
+                    "This links startup pricing to whether growth adds cash or only activity.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Opening cash", meaning: "Available cash at the start of the planning horizon" },
+            { symbol: "Burn", meaning: "Net cash outflow per month" },
+            { symbol: "Forecast sales", meaning: "Projected sales based on a planning assumption" },
+            { symbol: "Unit contribution", meaning: "Contribution available from each sale before fixed costs" },
+        ],
+        procedure: [
+            "Separate one-time startup spending from recurring operating cash flow.",
+            "Build a sales forecast that is grounded in an explicit growth assumption.",
+            "Check whether unit economics remain positive before assuming scale solves the problem.",
+            "Estimate runway using recurring inflows, recurring outflows, and current cash.",
+            "Interpret whether the plan is feasible, fragile, or undercapitalized.",
+        ],
+        workedExample: {
+            title: "Runway interpretation example",
+            scenario:
+                "A startup has 600,000 in opening cash, expected monthly inflows of 120,000, and monthly outflows of 180,000.",
+            steps: [
+                "Monthly burn = 180,000 - 120,000 = 60,000.",
+                "Runway = 600,000 / 60,000 = 10 months.",
+                "Interpret whether that runway is comfortable given launch risk and forecast uncertainty.",
+            ],
+            result:
+                "The plan has 10 months of runway under the current assumptions.",
+            interpretation:
+                "The number is only useful if the inflow and outflow assumptions are realistic and updated as new information arrives.",
+        },
+        checkpointExample: {
+            title: "Forecast caution checkpoint",
+            scenario:
+                "A student projects aggressive sales growth without checking whether unit economics remain positive.",
+            steps: [
+                "Review unit contribution before assuming higher sales fix the problem.",
+                "If each unit contributes weakly or negatively, more volume can worsen cash stress.",
+                "Pair the forecast with runway and contribution checks before accepting the plan.",
+            ],
+            result:
+                "The plan is incomplete because growth alone does not guarantee sustainability.",
+            interpretation:
+                "Forecasts must be tested against contribution and cash logic, not only optimism.",
+        },
+        interpretation: [
+            "Cash runway is a timing measure, not a profitability measure by itself.",
+            "Good unit economics can still fail under poor cash timing.",
+            "A sales forecast is useful only when it stays tied to defensible assumptions.",
+        ],
+        commonMistakes: [
+            "Combining startup costs and recurring monthly costs as if they were the same planning variable.",
+            "Treating forecast growth as proof of feasibility without checking cash burn.",
+            "Ignoring unit contribution when interpreting runway or funding need.",
+        ],
+        examTraps: [
+            "Problems may bury one-time launch costs inside recurring expenses.",
+            "Runway can look long only because inflows are unrealistically assumed.",
+            "Students may confuse contribution with net profit after all fixed costs.",
+        ],
+        selfCheck: [
+            "Why should startup costs be separated from monthly operating costs?",
+            "Why is runway not the same as profitability?",
+            "How do unit economics support or weaken a forecast?",
+        ],
+        practiceCues: [
+            "Explain why cash timing matters even when profit looks positive.",
+            "State what a strong runway interpretation should still verify.",
+            "Describe how forecast quality affects planning quality.",
+        ],
+        keywords: [
+            "cash runway",
+            "startup planning",
+            "sales forecast",
+            "unit economics",
+            "cash planning",
+        ],
+        scanSignals: [
+            "runway",
+            "burn rate",
+            "sales forecast",
+            "startup cost",
+            "monthly cash flow",
+        ],
+        relatedCalculatorPaths: [
+            "/entrepreneurship/startup-cost-planner",
+            "/entrepreneurship/sales-forecast-planner",
+            "/entrepreneurship/unit-economics",
+            "/entrepreneurship/cash-runway-planner",
+            "/entrepreneurship/entrepreneurship-toolkit",
+        ],
+        relatedTopicIds: ["startup-cost-planning", "cvp-core"],
+        quiz: {
+            title: "Cash Planning and Runway Check",
+            intro:
+                "Use this set to confirm whether you can read runway and forecast outputs as planning signals instead of isolated numbers.",
+            questions: [
+                {
+                    id: "runway-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which value is most directly used to compute runway months?",
+                    choices: [
+                        "Monthly burn",
+                        "Markup percentage",
+                        "Debt ratio",
+                        "Price elasticity",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Runway depends on opening cash and the monthly burn or net outflow assumption.",
+                },
+                {
+                    id: "runway-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A long runway always means the business model is profitable.",
+                    answer: false,
+                    explanation:
+                        "Runway measures time supported by cash assumptions. Profitability and cash timing are related but not identical.",
+                },
+                {
+                    id: "runway-q3",
+                    kind: "short-answer",
+                    prompt: "Why should forecast growth be checked against unit economics?",
+                    acceptedAnswers: [
+                        "growth can fail if unit economics are weak",
+                        "more sales do not help if contribution is weak",
+                        "volume alone does not guarantee sustainability",
+                    ],
+                    placeholder: "Type the reason",
+                    explanation:
+                        "Growth should be tested against contribution and cash logic because more volume does not automatically improve viability.",
+                },
+            ],
+        },
+    },
+    {
+        id: "operating-capacity-and-planning-review",
+        title: "Operating Capacity and Planning Review",
+        shortTitle: "Capacity Planning",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Review capacity utilization, idle capacity, flexible budgets, and cash-planning follow-up as one operations-sensitive planning path.",
+        intro:
+            "Managers do not only ask whether output happened. They ask whether the operation used capacity wisely, whether cost behavior adjusted properly, and whether the plan should be revised. This topic ties those decisions together.",
+        whyItMatters: [
+            "It connects operating volume with planning interpretation instead of treating utilization as a raw percentage only.",
+            "It helps explain why idle capacity and activity variance are related but not identical ideas.",
+            "It links operations-sensitive readings to the next budgeting step a student should review.",
+        ],
+        classContexts: [
+            "Capacity utilization and production planning review",
+            "Flexible-budget interpretation questions",
+            "Operations and managerial-accounting control discussions",
+        ],
+        whenToUse: [
+            "Use capacity utilization when actual output must be compared with practical capacity.",
+            "Use flexible budgets when the problem asks whether cost differences came from activity level or spending behavior.",
+            "Move to cash planning when capacity decisions influence near-term financing or operating cash needs.",
+        ],
+        formulaOverview: [
+            {
+                label: "Capacity utilization",
+                expression: "Capacity utilization = Actual output / Practical capacity",
+                explanation:
+                    "This shows how much of realistic available capacity the operation used.",
+            },
+            {
+                label: "Idle capacity",
+                expression: "Idle capacity = Practical capacity - Actual output",
+                explanation:
+                    "This shows the portion of available capacity that stayed unused.",
+            },
+            {
+                label: "Flexible budget",
+                expression: "Flexible budget = Fixed costs + (Actual units x Variable cost per unit)",
+                explanation:
+                    "This updates the cost expectation to the actual activity level before spending is judged.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Actual output", meaning: "Units actually produced or serviced during the period" },
+            { symbol: "Practical capacity", meaning: "Realistic available capacity after allowing for normal downtime" },
+            { symbol: "Idle capacity", meaning: "Unused portion of practical capacity" },
+            { symbol: "Flexible budget", meaning: "Cost expectation adjusted to actual activity level" },
+        ],
+        procedure: [
+            "Measure actual output against practical capacity first.",
+            "Read whether the operation is lightly used, moderately used, or near strain.",
+            "If cost interpretation is required, rebuild the budget to the actual activity level.",
+            "Separate activity effects from spending effects before calling a variance favorable or unfavorable.",
+            "Suggest the next planning action, such as schedule adjustment, cost review, or cash planning.",
+        ],
+        workedExample: {
+            title: "Utilization and budget example",
+            scenario:
+                "Actual output is 8,400 units against practical capacity of 10,000 units. The teacher then asks whether a flexible-budget review is the right next step.",
+            steps: [
+                "Capacity utilization = 8,400 / 10,000 = 84%.",
+                "Idle capacity = 10,000 - 8,400 = 1,600 units.",
+                "Because output differs from available capacity, a flexible budget can help explain whether cost behavior matched the activity level.",
+            ],
+            result:
+                "The operation used 84% of practical capacity and still has 1,600 units of idle capacity.",
+            interpretation:
+                "The next useful question is not only how much capacity is unused, but whether costs behaved appropriately at that activity level.",
+        },
+        checkpointExample: {
+            title: "Idle-capacity checkpoint",
+            scenario:
+                "A student treats unused capacity as automatically unfavorable performance in every context.",
+            steps: [
+                "Check demand conditions and strategic reserve capacity before judging the result.",
+                "Some idle capacity can be planned or temporary instead of wasteful.",
+                "Pair utilization with budget and demand interpretation before making a conclusion.",
+            ],
+            result:
+                "Idle capacity is a signal that requires context, not an automatic verdict.",
+            interpretation:
+                "A utilization result becomes meaningful only after demand, cost, and planning context are considered together.",
+        },
+        interpretation: [
+            "Capacity utilization is a planning signal, not a standalone performance grade.",
+            "Idle capacity and flexible-budget variance answer different questions and should not be merged casually.",
+            "Operations review becomes stronger when the next budgeting or cash-planning step is explicit.",
+        ],
+        commonMistakes: [
+            "Treating practical capacity like a guaranteed target instead of an available operating ceiling.",
+            "Calling idle capacity automatically bad without context.",
+            "Using static-budget interpretation when the question requires flexible-budget logic.",
+        ],
+        examTraps: [
+            "Problems may hide practical capacity under wording such as available operating hours or service capacity.",
+            "Students may compare actual cost directly with static budget without adjusting to actual activity.",
+            "A utilization percentage alone may look strong while the operation still faces bottlenecks or poor scheduling.",
+        ],
+        selfCheck: [
+            "Why does capacity utilization not automatically tell you whether the operation performed well?",
+            "When should flexible budgeting follow a utilization result?",
+            "What is the difference between idle capacity and spending variance?",
+        ],
+        practiceCues: [
+            "Explain why practical capacity is a better comparison base than ideal capacity in many classroom settings.",
+            "Describe the next budgeting question after reading utilization.",
+            "State why unused capacity can still require context before judgment.",
+        ],
+        keywords: [
+            "capacity utilization",
+            "idle capacity",
+            "flexible budget",
+            "activity variance",
+            "planning review",
+        ],
+        scanSignals: [
+            "practical capacity",
+            "idle capacity",
+            "capacity utilization",
+            "activity variance",
+            "flexible budget",
+        ],
+        relatedCalculatorPaths: [
+            "/business/capacity-utilization",
+            "/business/flexible-budget",
+            "/business/cash-budget",
+            "/business/cash-collections-schedule",
+            "/business/cash-disbursements-schedule",
+        ],
+        relatedTopicIds: ["budgeting-and-planning-review", "working-capital-and-control-review"],
+        quiz: {
+            title: "Operating Capacity Check",
+            intro:
+                "Use this set to verify whether you can interpret utilization as part of a planning process instead of reading it in isolation.",
+            questions: [
+                {
+                    id: "capacity-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "What does idle capacity represent?",
+                    choices: [
+                        "The portion of available capacity not used during the period",
+                        "Only the number of defective units",
+                        "Profit divided by sales",
+                        "The total fixed cost budget",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Idle capacity is the available practical capacity that stayed unused during the period.",
+                },
+                {
+                    id: "capacity-q2",
+                    kind: "true-false",
+                    prompt:
+                        "A high utilization rate always means the operation is in the best possible condition.",
+                    answer: false,
+                    explanation:
+                        "Very high utilization can also signal strain, bottlenecks, or weak operational slack.",
+                },
+                {
+                    id: "capacity-q3",
+                    kind: "short-answer",
+                    prompt: "Why can a flexible budget be the right next step after a utilization reading?",
+                    acceptedAnswers: [
+                        "it adjusts cost expectations to actual activity",
+                        "it separates activity and spending effects",
+                        "it helps explain cost behavior at the actual volume",
+                    ],
+                    placeholder: "Type the reason",
+                    explanation:
+                        "Flexible budgets update the cost expectation to actual activity so cost interpretation becomes fairer.",
                 },
             ],
         },

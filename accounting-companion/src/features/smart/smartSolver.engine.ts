@@ -202,7 +202,14 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "number",
         group: "business",
         visibleInManualInputs: false,
-        aliases: ["budgeted units", "planned units", "static budget units"],
+        aliases: [
+            "budgeted units",
+            "planned units",
+            "static budget units",
+            "practical capacity",
+            "capacity units",
+            "available capacity",
+        ],
     },
 
     actualUnits: {
@@ -211,7 +218,13 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         kind: "number",
         group: "business",
         visibleInManualInputs: false,
-        aliases: ["actual units", "actual output", "units actually produced"],
+        aliases: [
+            "actual units",
+            "actual output",
+            "units actually produced",
+            "actual volume",
+            "actual activity",
+        ],
     },
 
     actualCost: {
@@ -1841,6 +1854,30 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
     },
 
     {
+        id: "capacity-utilization",
+        name: "Capacity Utilization",
+        route: "/business/capacity-utilization",
+        description:
+        "Best when the user compares actual output with practical or available capacity and wants idle-capacity interpretation.",
+        required: ["actualUnits", "budgetedUnits"],
+        aliases: [
+        "capacity utilization",
+        "capacity usage",
+        "practical capacity",
+        "idle capacity",
+        "capacity planning",
+        ],
+        keywords: [
+        /capacity utilization/i,
+        /capacity usage/i,
+        /practical capacity/i,
+        /idle capacity/i,
+        /available capacity/i,
+        /capacity planning/i,
+        ],
+    },
+
+    {
         id: "markup-margin",
         name: "Markup & Margin Calculator",
         route: "/business/markup-margin",
@@ -1856,6 +1893,66 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /profit percentage/i,
         /markup percentage/i,
         /margin percentage/i,
+        ],
+    },
+
+    {
+        id: "weighted-mean",
+        name: "Weighted Mean",
+        route: "/business-math/weighted-mean",
+        description:
+        "Best when the user needs a weighted average from values with different frequencies, shares, or importance.",
+        required: [],
+        aliases: [
+        "weighted mean",
+        "weighted average",
+        "weighted score",
+        "weighted grade",
+        ],
+        keywords: [
+        /weighted mean/i,
+        /weighted average/i,
+        /weighted score/i,
+        /weighted grade/i,
+        /weights/i,
+        ],
+    },
+
+    {
+        id: "standard-deviation",
+        name: "Standard Deviation",
+        route: "/statistics/standard-deviation",
+        description:
+        "Best when the user asks for variance, standard deviation, dispersion, or spread of a numeric dataset.",
+        required: [],
+        aliases: ["standard deviation", "variance", "dispersion", "spread of data"],
+        keywords: [
+        /standard deviation/i,
+        /\bvariance\b/i,
+        /dispersion/i,
+        /spread of data/i,
+        /dataset spread/i,
+        ],
+    },
+
+    {
+        id: "coefficient-of-variation",
+        name: "Coefficient of Variation",
+        route: "/statistics/coefficient-of-variation",
+        description:
+        "Best when the user wants relative variability or a spread comparison across datasets with different means.",
+        required: [],
+        aliases: [
+        "coefficient of variation",
+        "relative variation",
+        "relative variability",
+        "cv statistics",
+        ],
+        keywords: [
+        /coefficient of variation/i,
+        /relative variability/i,
+        /relative variation/i,
+        /\bcv\b/i,
         ],
     },
 

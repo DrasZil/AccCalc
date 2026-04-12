@@ -700,6 +700,16 @@ export function computeWeightedMean(values, weights) {
         weightedMean: weightedSum / totalWeight,
     };
 }
+export function computeCoefficientOfVariation(values, sample = false) {
+    const standardDeviationResult = computeStandardDeviation(values, sample);
+    const coefficientOfVariation = standardDeviationResult.mean === 0
+        ? Infinity
+        : (standardDeviationResult.standardDeviation / Math.abs(standardDeviationResult.mean)) * 100;
+    return {
+        ...standardDeviationResult,
+        coefficientOfVariation,
+    };
+}
 export function computeStandardDeviation(values, sample = false) {
     const count = values.length;
     const mean = values.reduce((sum, value) => sum + value, 0) / count;
@@ -712,6 +722,27 @@ export function computeStandardDeviation(values, sample = false) {
         sumOfSquaredDeviations,
         variance,
         standardDeviation: Math.sqrt(variance),
+    };
+}
+export function computeCapacityUtilization({ actualUnits, practicalCapacityUnits, }) {
+    const utilizationRate = practicalCapacityUnits === 0 ? 0 : (actualUnits / practicalCapacityUnits) * 100;
+    const idleCapacityUnits = practicalCapacityUnits - actualUnits;
+    const idleCapacityRate = 100 - utilizationRate;
+    return {
+        utilizationRate,
+        idleCapacityUnits,
+        idleCapacityRate,
+        remainingCapacityUnits: Math.max(practicalCapacityUnits - actualUnits, 0),
+        overCapacityUnits: Math.max(actualUnits - practicalCapacityUnits, 0),
+        status: actualUnits > practicalCapacityUnits
+            ? "above practical capacity"
+            : actualUnits === practicalCapacityUnits
+                ? "at practical capacity"
+                : utilizationRate >= 85
+                    ? "strong capacity use"
+                    : utilizationRate >= 60
+                        ? "moderate capacity use"
+                        : "light capacity use",
     };
 }
 export function computeTrialBalance(totalDebits, totalCredits) {
