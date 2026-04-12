@@ -6,6 +6,8 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import StudySupportPanel from "../../components/StudySupportPanel";
+import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computeCashDisbursementsSchedule } from "../../utils/calculatorMath";
 
@@ -113,6 +115,8 @@ export default function CashDisbursementsSchedulePage() {
             badge="Managerial & Cost / Budgeting"
             title="Cash Disbursements Schedule"
             description="Translate planned purchases and payment lags into a clean cash-disbursement schedule for budgeting, payables planning, and working-capital control."
+            desktopLayout="result-focus"
+            pageWidth="data"
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
@@ -182,7 +186,7 @@ export default function CashDisbursementsSchedulePage() {
                                                 inputMode="text"
                                             />
                                             <InputCard
-                                                label="Purchases"
+                                                label="Purchases Subject to Payment Pattern"
                                                 value={period.amount}
                                                 onChange={(value) =>
                                                     updatePeriod(period.id, { amount: value })
@@ -329,47 +333,88 @@ export default function CashDisbursementsSchedulePage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard
-                        formula="Cash disbursements for a period equal the sum of the payment percentages that fall into that period from current and prior purchases."
-                        steps={[
-                            `Beginning payables paid in period 1 = ${formatPHP(
-                                Number(beginningPayables || 0)
-                            )}.`,
-                            ...result.rows.map(
-                                (row) =>
-                                    `${row.label}: ${row.contributions
-                                        .map(
-                                            (contribution) =>
-                                                `${contribution.sourceLabel} at ${contribution.percent.toFixed(2)}% = ${formatPHP(contribution.amount)}`
-                                        )
-                                        .join(" + ")} = ${formatPHP(row.totalScheduled)}`
-                            ),
-                            `Ending payables after the displayed periods = ${formatPHP(result.endingPayables)}.`,
-                        ]}
-                        glossary={[
-                            {
-                                term: "Lag period",
-                                meaning:
-                                    "How many periods pass before part of one period's purchases is paid.",
-                            },
-                            {
-                                term: "Ending payables",
-                                meaning:
-                                    "Purchases not yet paid by the end of the displayed schedule horizon.",
-                            },
-                        ]}
-                        interpretation={`The schedule converts ${formatPHP(result.totalPurchases)} of purchases into ${formatPHP(result.totalDisbursements)} of cash disbursements across the displayed periods and leaves ${formatPHP(result.endingPayables)} payable after the schedule horizon.`}
-                        assumptions={[
-                            "The same payment pattern is applied to each listed period unless you change the lag percentages.",
-                            "The beginning payables input is treated as a carryover amount paid in the first displayed period.",
-                        ]}
-                        notes={[
-                            "Use this schedule as the cash disbursements input to the Cash Budget page when your budget needs a month-by-month payment build-up instead of a one-line estimate.",
-                        ]}
-                        warnings={[
-                            "If the payment pattern total is less than 100%, some purchases remain in ending payables after the displayed periods.",
-                        ]}
-                    />
+                    <div className="space-y-4">
+                        <FormulaCard
+                            formula="Cash disbursements for a period equal the sum of the payment percentages that fall into that period from current and prior purchases."
+                            steps={[
+                                `Beginning payables paid in period 1 = ${formatPHP(
+                                    Number(beginningPayables || 0)
+                                )}.`,
+                                ...result.rows.map(
+                                    (row) =>
+                                        `${row.label}: ${row.contributions
+                                            .map(
+                                                (contribution) =>
+                                                    `${contribution.sourceLabel} at ${contribution.percent.toFixed(2)}% = ${formatPHP(contribution.amount)}`
+                                            )
+                                            .join(" + ")} = ${formatPHP(row.totalScheduled)}`
+                                ),
+                                `Ending payables after the displayed periods = ${formatPHP(result.endingPayables)}.`,
+                            ]}
+                            glossary={[
+                                {
+                                    term: "Lag period",
+                                    meaning:
+                                        "How many periods pass before part of one period's purchases is paid.",
+                                },
+                                {
+                                    term: "Ending payables",
+                                    meaning:
+                                        "Purchases not yet paid by the end of the displayed schedule horizon.",
+                                },
+                            ]}
+                            interpretation={`The schedule converts ${formatPHP(result.totalPurchases)} of purchases into ${formatPHP(result.totalDisbursements)} of cash disbursements across the displayed periods and leaves ${formatPHP(result.endingPayables)} payable after the schedule horizon.`}
+                            assumptions={[
+                                "The same payment pattern is applied to each listed period unless you change the lag percentages.",
+                                "The beginning payables input is treated as a carryover amount paid in the first displayed period.",
+                            ]}
+                            notes={[
+                                "Use this schedule as the cash disbursements input to the Cash Budget page when your budget needs a month-by-month payment build-up instead of a one-line estimate.",
+                            ]}
+                            warnings={[
+                                "If the payment pattern total is less than 100%, some purchases remain in ending payables after the displayed periods.",
+                            ]}
+                        />
+
+                        <StudySupportPanel
+                            topicId="budgeting-and-planning-review"
+                            topicTitle="Budgeting, Forecasting, and Planning Review"
+                            lessonPath={buildStudyTopicPath("budgeting-and-planning-review")}
+                            quizPath={buildStudyQuizPath("budgeting-and-planning-review")}
+                            intro="Cash disbursements translates purchase timing into actual cash outflow timing. Use the wider lesson flow when you need to connect payment lags, ending payables, and cash-budget financing pressure."
+                            sections={[
+                                {
+                                    key: "what-this-schedule-tells-you",
+                                    label: "What this schedule tells you",
+                                    summary: "It explains when purchases become cash outflows, not just how much was purchased.",
+                                    content: (
+                                        <p>
+                                            A purchases figure by itself is not yet a cash-payment figure. This schedule turns supplier terms and payment lags into the actual disbursement pattern that a cash budget needs.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "payables-discipline",
+                                    label: "Payables discipline check",
+                                    summary: "Ending payables may be normal timing or a signal of cash pressure.",
+                                    emphasis: "support",
+                                    tone: "info",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Ending payables are not always bad, but they should match the stated payment pattern.</li>
+                                            <li>A lag pattern below 100% means some obligations remain beyond the visible schedule horizon.</li>
+                                            <li>Use the cash budget next when you need to judge whether payment timing creates a financing need.</li>
+                                        </ul>
+                                    ),
+                                },
+                            ]}
+                            relatedTools={[
+                                { path: "/business/cash-budget", label: "Cash Budget" },
+                                { path: "/business/cash-collections-schedule", label: "Cash Collections Schedule" },
+                                { path: "/accounting/working-capital-planner", label: "Working Capital Planner" },
+                            ]}
+                        />
+                    </div>
                 ) : null
             }
         />

@@ -6,6 +6,8 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import StudySupportPanel from "../../components/StudySupportPanel";
+import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computeCashCollectionsSchedule } from "../../utils/calculatorMath";
 
@@ -113,6 +115,8 @@ export default function CashCollectionsSchedulePage() {
             badge="Managerial & Cost / Budgeting"
             title="Cash Collections Schedule"
             description="Lay out period sales and collection lags into a month-based schedule that ties directly into cash-budget planning and receivables control."
+            desktopLayout="result-focus"
+            pageWidth="data"
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
@@ -182,7 +186,7 @@ export default function CashCollectionsSchedulePage() {
                                                 inputMode="text"
                                             />
                                             <InputCard
-                                                label="Sales Subject to Collection"
+                                                label="Sales Subject to Collection Pattern"
                                                 value={period.amount}
                                                 onChange={(value) =>
                                                     updatePeriod(period.id, { amount: value })
@@ -329,47 +333,88 @@ export default function CashCollectionsSchedulePage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard
-                        formula="Cash collections for a period equal the sum of the collection percentages that fall into that period from current and prior sales."
-                        steps={[
-                            `Beginning receivables collected in period 1 = ${formatPHP(
-                                Number(beginningReceivables || 0)
-                            )}.`,
-                            ...result.rows.map(
-                                (row) =>
-                                    `${row.label}: ${row.contributions
-                                        .map(
-                                            (contribution) =>
-                                                `${contribution.sourceLabel} at ${contribution.percent.toFixed(2)}% = ${formatPHP(contribution.amount)}`
-                                        )
-                                        .join(" + ")} = ${formatPHP(row.totalScheduled)}`
-                            ),
-                            `Ending receivables after the displayed periods = ${formatPHP(result.endingReceivables)}.`,
-                        ]}
-                        glossary={[
-                            {
-                                term: "Lag period",
-                                meaning:
-                                    "How many periods pass before a portion of one month's sales is collected.",
-                            },
-                            {
-                                term: "Ending receivables",
-                                meaning:
-                                    "Sales not yet collected by the end of the displayed schedule horizon.",
-                            },
-                        ]}
-                        interpretation={`This schedule converts ${formatPHP(result.totalSales)} of sales into ${formatPHP(result.totalCollections)} of cash collections across the displayed periods and leaves ${formatPHP(result.endingReceivables)} in receivables for later collection or follow-up.`}
-                        assumptions={[
-                            "The same collection pattern is applied to every listed period unless you change the percentages.",
-                            "The beginning receivables input is treated as a carryover amount collected in the first displayed period.",
-                        ]}
-                        notes={[
-                            "Use this schedule as a direct input to the Cash Budget page when you need a cleaner receipts line instead of a one-number estimate.",
-                        ]}
-                        warnings={[
-                            "If the collection pattern total is less than 100%, the uncollected remainder stays in ending receivables after the displayed schedule.",
-                        ]}
-                    />
+                    <div className="space-y-4">
+                        <FormulaCard
+                            formula="Cash collections for a period equal the sum of the collection percentages that fall into that period from current and prior sales."
+                            steps={[
+                                `Beginning receivables collected in period 1 = ${formatPHP(
+                                    Number(beginningReceivables || 0)
+                                )}.`,
+                                ...result.rows.map(
+                                    (row) =>
+                                        `${row.label}: ${row.contributions
+                                            .map(
+                                                (contribution) =>
+                                                    `${contribution.sourceLabel} at ${contribution.percent.toFixed(2)}% = ${formatPHP(contribution.amount)}`
+                                            )
+                                            .join(" + ")} = ${formatPHP(row.totalScheduled)}`
+                                ),
+                                `Ending receivables after the displayed periods = ${formatPHP(result.endingReceivables)}.`,
+                            ]}
+                            glossary={[
+                                {
+                                    term: "Lag period",
+                                    meaning:
+                                        "How many periods pass before a portion of one month's sales is collected.",
+                                },
+                                {
+                                    term: "Ending receivables",
+                                    meaning:
+                                        "Sales not yet collected by the end of the displayed schedule horizon.",
+                                },
+                            ]}
+                            interpretation={`This schedule converts ${formatPHP(result.totalSales)} of sales into ${formatPHP(result.totalCollections)} of cash collections across the displayed periods and leaves ${formatPHP(result.endingReceivables)} in receivables for later collection or follow-up.`}
+                            assumptions={[
+                                "The same collection pattern is applied to every listed period unless you change the percentages.",
+                                "The beginning receivables input is treated as a carryover amount collected in the first displayed period.",
+                            ]}
+                            notes={[
+                                "Use this schedule as a direct input to the Cash Budget page when you need a cleaner receipts line instead of a one-number estimate.",
+                            ]}
+                            warnings={[
+                                "If the collection pattern total is less than 100%, the uncollected remainder stays in ending receivables after the displayed schedule.",
+                            ]}
+                        />
+
+                        <StudySupportPanel
+                            topicId="budgeting-and-planning-review"
+                            topicTitle="Budgeting, Forecasting, and Planning Review"
+                            lessonPath={buildStudyTopicPath("budgeting-and-planning-review")}
+                            quizPath={buildStudyQuizPath("budgeting-and-planning-review")}
+                            intro="Cash collections is usually the first planning schedule in a budget workflow because it converts sales timing into actual cash timing. Use the deeper lesson when you need to connect this schedule to cash budgets, financing need, and planning interpretation."
+                            sections={[
+                                {
+                                    key: "when-to-build",
+                                    label: "When to build this schedule",
+                                    summary: "Prepare it before the cash budget whenever revenue and cash do not happen in the same period.",
+                                    content: (
+                                        <p>
+                                            This schedule belongs early in the workflow. Once sales timing separates from collection timing, the cash budget depends on a clean receipts schedule rather than on sales totals alone.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "mistake-check",
+                                    label: "Common mistake check",
+                                    summary: "Sales are not automatically collections in the same period.",
+                                    emphasis: "support",
+                                    tone: "warning",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Do not treat the sales figure as cash if the problem gives collection lags.</li>
+                                            <li>Check whether beginning receivables belong in the first displayed period.</li>
+                                            <li>Confirm whether the pattern totals 100% or leaves ending receivables beyond the visible schedule horizon.</li>
+                                        </ul>
+                                    ),
+                                },
+                            ]}
+                            relatedTools={[
+                                { path: "/business/cash-budget", label: "Cash Budget" },
+                                { path: "/business/cash-disbursements-schedule", label: "Cash Disbursements Schedule" },
+                                { path: "/smart/solver", label: "Smart Solver" },
+                            ]}
+                        />
+                    </div>
                 ) : null
             }
         />

@@ -995,6 +995,9 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const jobOrderResults = searchAppRoutes("job order cost sheet");
     const bankReconResults = searchAppRoutes("adjusted cash balance");
     const collectionLagResults = searchAppRoutes("collection lag schedule");
+    const paymentScheduleResults = searchAppRoutes("purchases payment schedule");
+    const workingCapitalControlResults = searchAppRoutes("working capital control");
+    const physicalCountResults = searchAppRoutes("book versus physical inventory");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1025,6 +1028,9 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(jobOrderResults[0]?.path, "/accounting/job-order-cost-sheet");
     assert.equal(bankReconResults[0]?.path, "/accounting/bank-reconciliation");
     assert.equal(collectionLagResults[0]?.path, "/business/cash-collections-schedule");
+    assert.equal(paymentScheduleResults[0]?.path, "/business/cash-disbursements-schedule");
+    assert.equal(workingCapitalControlResults[0]?.path, "/accounting/working-capital-planner");
+    assert.equal(physicalCountResults[0]?.path, "/accounting/inventory-control-workspace");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {

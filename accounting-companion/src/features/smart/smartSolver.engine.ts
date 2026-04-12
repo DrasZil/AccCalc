@@ -1771,6 +1771,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         "collections schedule",
         "receivables collection schedule",
         "collections lag schedule",
+        "receipts timing schedule",
         ],
         keywords: [
         /cash collections schedule/i,
@@ -1789,7 +1790,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         description:
         "Best when the user is laying out cash payments from current and lagged payment percentages by month or period.",
         required: [],
-        aliases: ["schedule of cash disbursements", "cash payments schedule", "disbursements schedule"],
+        aliases: ["schedule of cash disbursements", "cash payments schedule", "disbursements schedule", "purchases payment schedule", "accounts payable schedule"],
         keywords: [
         /cash disbursements schedule/i,
         /schedule of cash disbursements/i,
@@ -1810,7 +1811,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         "cashDisbursements",
         "minimumCashBalance",
         ],
-        aliases: ["cash budget", "cash planning", "cash receipts and disbursements budget"],
+        aliases: ["cash budget", "cash planning", "cash receipts and disbursements budget", "cash budget with financing", "minimum cash budget"],
         keywords: [
         /cash budget/i,
         /cash planning/i,
@@ -2850,7 +2851,7 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         description:
             "Best when the user wants current ratio, operating cycle, receivables days, inventory days, or cash conversion cycle in one planner.",
         required: [],
-        aliases: ["working capital planner", "operating cycle planner", "ccc planner"],
+        aliases: ["working capital planner", "operating cycle planner", "ccc planner", "working capital control"],
         keywords: [
             /working capital planner/i,
             /operating cycle/i,
@@ -2873,6 +2874,8 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             "inventory shrinkage",
             "shrinkage analysis",
             "purchase discount control",
+            "stock shrinkage review",
+            "book versus physical inventory",
         ],
         keywords: [
             /inventory control/i,
@@ -2880,6 +2883,8 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /shrinkage/i,
             /purchase discount/i,
             /discount discipline/i,
+            /physical count/i,
+            /book inventory/i,
         ],
     },
     {

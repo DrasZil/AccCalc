@@ -8,6 +8,7 @@ import CommonMistakesBlock from "../../../components/notes/CommonMistakesBlock";
 import InterpretationBlock from "../../../components/notes/InterpretationBlock";
 import PracticalMeaningBlock from "../../../components/notes/PracticalMeaningBlock";
 import StudyTipBlock from "../../../components/notes/StudyTipBlock";
+import RelatedLinksPanel from "../../../components/RelatedLinksPanel";
 import { buildChartHighlights } from "../../../utils/charts/chartHighlights";
 import { buildComparisonNarrative } from "../../../utils/charts/chartNarratives";
 import ScanActionBar from "../components/ScanActionBar";
@@ -491,7 +492,7 @@ export default function ScanCheckPage() {
                 title="Scan & Check"
                 description="A cleaner browser-first scan flow for equations, textbook pages, worked solutions, and accounting worksheets. It now keeps your scan session on-device while using a lighter review experience across mobile and desktop."
                 desktopLayout="result-focus"
-                pageWidth="wide"
+                pageWidth="data"
                 prioritizeResultSection
                 inputSection={
                     <div className="space-y-4">
@@ -625,8 +626,8 @@ export default function ScanCheckPage() {
                 resultSection={
                     queue.items.length > 0 ? (
                         <div className="space-y-4">
-                            <div className="app-adaptive-main app-adaptive-main--result-focus">
-                                <div className="min-w-0 space-y-4">
+                            <div className="app-workspace-grid app-workspace-grid--scan">
+                                <div className="app-workspace-main">
                                     <ScanResultOverview
                                         title={
                                             accountingSession
@@ -682,9 +683,18 @@ export default function ScanCheckPage() {
                                                 : "AccCalc picked one next action. Open the deeper review only when you want to inspect or correct details."
                                         }
                                     />
+
+                                    <ScanExtractedTextPanel
+                                        items={queue.items}
+                                        mergedText={mergedText || queue.mergedSelectedText}
+                                        onMergedTextChange={(value) => {
+                                            setMergedText(value);
+                                            setMergedTextDirty(true);
+                                        }}
+                                    />
                                 </div>
 
-                                <div className="min-w-0 space-y-4">
+                                <div className="app-workspace-side">
                                     {primaryStudyRecommendation ? (
                                         <SectionCard>
                                             <p className="app-card-title text-sm">Study follow-up</p>
@@ -713,25 +723,57 @@ export default function ScanCheckPage() {
                                         </SectionCard>
                                     ) : null}
 
-                                    <SectionCard>
-                                        <p className="app-card-title text-sm">After processing</p>
-                                        <div className="mt-3 space-y-2">
-                                            <p className="app-helper app-wrap-anywhere text-xs">
-                                                1. Glance at the detected type and suggested route.
-                                            </p>
-                                            <p className="app-helper app-wrap-anywhere text-xs">
-                                                2. If warnings appear, review only the flagged values first.
-                                            </p>
-                                            <p className="app-helper app-wrap-anywhere text-xs">
-                                                3. Continue into the suggested workspace or SmartSolver when the extraction looks right.
-                                            </p>
-                                        </div>
-                                    </SectionCard>
+                                    <div className="app-workspace-side-grid">
+                                        <SectionCard>
+                                            <p className="app-card-title text-sm">After processing</p>
+                                            <div className="mt-3 space-y-2">
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    1. Confirm the detected topic, then verify only flagged values first.
+                                                </p>
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    2. Use the merged text editor when the OCR is mostly right but still needs cleanup.
+                                                </p>
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    3. Continue into the suggested workspace, lesson, or quiz once the risky lines make sense.
+                                                </p>
+                                            </div>
+                                        </SectionCard>
+
+                                        <SectionCard>
+                                            <p className="app-card-title text-sm">Recommended workflow</p>
+                                            <div className="mt-3 space-y-2">
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    Best next tool: {getRouteLabel(primaryRouteHint)}.
+                                                </p>
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    Study follow-up: {primaryStudyRecommendation?.title ?? "Open Smart Solver if the topic still feels mixed or incomplete."}
+                                                </p>
+                                                <p className="app-helper app-wrap-anywhere text-xs">
+                                                    Practice step: {primaryStudyRecommendation ? "Use the topic quiz after checking the extracted values." : "Open a related route or Smart Solver after reviewing the session summary."}
+                                                </p>
+                                            </div>
+                                        </SectionCard>
+                                    </div>
 
                                     <ScanProblemSessionPanel
                                         session={accountingSession}
                                         onOpenWorkspace={openProcessCostingWorkspace}
                                     />
+
+                                    {scanRecommendations.length > 0 ? (
+                                        <RelatedLinksPanel
+                                            title="Other suggested tools"
+                                            summary="Keep alternate calculators tucked away until you want to compare a second route or open a follow-up workspace."
+                                            badge={`${scanRecommendations.length} routes`}
+                                            showDescriptions
+                                            compact
+                                            items={scanRecommendations.map((entry) => ({
+                                                path: entry.path,
+                                                label: entry.label,
+                                                description: entry.reason,
+                                            }))}
+                                        />
+                                    ) : null}
                                 </div>
                             </div>
 
@@ -790,14 +832,6 @@ export default function ScanCheckPage() {
                                 />
                             </DisclosurePanel>
 
-                            <ScanExtractedTextPanel
-                                items={queue.items}
-                                mergedText={mergedText || queue.mergedSelectedText}
-                                onMergedTextChange={(value) => {
-                                    setMergedText(value);
-                                    setMergedTextDirty(true);
-                                }}
-                            />
                         </div>
                     ) : (
                         <SectionCard>

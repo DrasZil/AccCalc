@@ -1,26 +1,33 @@
-export const APP_VERSION = "4.3.0";
+export const APP_VERSION = "4.4.0";
 export const APP_RELEASE_DATE = "2026-04-12";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Navigation now frees reading space more intelligently",
-        body: "The mobile bottom navigation now hides on downward scroll and returns on upward scroll, while the shared page shell uses desktop width more intentionally for dense workspaces and study pages.",
+        title: "Laptop and desktop layouts now reflow more intelligently",
+        body: "Shared adaptive shells now keep support panels, dense cards, and result workspaces inside readable bounds on laptop-width screens instead of wasting space or pushing content off-frame.",
     },
     {
-        title: "Formula and disclosure rendering are harder to break",
-        body: "Shared formula, disclosure, and narrow-width card styling now handle long headings, action clusters, and KaTeX accessibility markup more safely so lesson and calculator surfaces stay readable.",
+        title: "Scan & Check now works more like a horizontal review workspace",
+        body: "The scan result surface now keeps the main understanding panel, merged text review, study follow-up, alternate routes, and session guidance connected in one stronger adaptive workspace.",
     },
     {
-        title: "Study Hub coverage now reaches deeper into cash-control learning",
-        body: "Bank reconciliation now has a full topic lesson, quiz path, calculator-study linkage, and smarter search/routing vocabulary instead of living as a formula-only page.",
+        title: "Budgeting and control tools now guide the next step more clearly",
+        body: "Cash collections, cash disbursements, and inventory control now connect directly into lesson-and-quiz study flows so solving, checking, and review stay linked instead of isolated.",
     },
     {
-        title: "Labels and planning terminology are more consistent",
-        body: "CVP wording now aligns more closely across formulas, lessons, and results by using clearer planning language such as required units for target profit instead of mixed labels.",
+        title: "Study Hub coverage deepens into working-capital control",
+        body: "A new topic on working capital, inventory control, and cash-cycle reading broadens the curriculum path behind liquidity, payables, inventory shrinkage, and control interpretation.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "4.4.0: Reworked shared adaptive layout behavior so laptop-width screens keep support panels and dense result surfaces readable without pushing content off-screen or wasting large empty columns.",
+    "4.4.0: Added a dedicated workspace grid pattern and applied it to Scan & Check so extracted text, route understanding, study follow-up, and review controls share space more intelligently on laptop and desktop.",
+    "4.4.0: Moved the merged extracted-text editor into the main Scan workspace so OCR cleanup, route review, and next-step actions now happen in one connected review surface.",
+    "4.4.0: Expanded budgeting workflows by linking Cash Collections Schedule and Cash Disbursements Schedule into StudySupportPanel lesson-and-quiz paths instead of leaving them as isolated schedule calculators.",
+    "4.4.0: Added a new Study Hub lesson and quiz path for Working Capital, Inventory Control, and Cash Cycle Review, then linked inventory-control workflows back into that deeper study flow.",
+    "4.4.0: Strengthened budgeting, working-capital, inventory-control, and payables-related route aliases so search and Smart Solver handle more classroom-style wording and next-step hints.",
+    "4.4.0: Hardened shared list-link, workspace-grid, and support-column wrapping so chips, tool links, and side cards stay readable inside narrower calculator and study containers.",
     "4.3.0: Added bottom-navigation hide-on-scroll behavior so mobile reading surfaces gain space on downward scroll and restore navigation predictably on upward scroll.",
     "4.3.0: Added a new data-dense page-shell mode and widened shared desktop layout rules so analysis, scan, quiz, schedule, and workspace routes use wide screens more intelligently.",
     "4.3.0: Hardened shared disclosure-panel headers so titles, summaries, pills, and action buttons wrap instead of crushing the summary column on narrow widths.",

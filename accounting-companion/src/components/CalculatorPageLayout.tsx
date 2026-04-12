@@ -25,7 +25,7 @@ type CalculatorPageLayoutProps = {
     explanationSection?: ReactNode;
     prioritizeResultSection?: boolean;
     desktopLayout?: "balanced" | "result-focus";
-    pageWidth?: "default" | "study" | "wide";
+    pageWidth?: "default" | "study" | "wide" | "data";
     headerActions?: ReactNode;
     headerMeta?: ReactNode;
     backButtonLabel?: string;
@@ -184,7 +184,9 @@ export default function CalculatorPageLayout({
     }, [currentMeta, headerMeta, routeAvailability]);
 
     const pageWidthClass =
-        pageWidth === "wide"
+        pageWidth === "data"
+            ? "app-page-shell-data"
+            : pageWidth === "wide"
             ? "app-page-shell-wide"
             : pageWidth === "study"
               ? "app-page-shell-study"
