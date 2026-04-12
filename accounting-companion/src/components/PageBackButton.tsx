@@ -31,25 +31,29 @@ export default function PageBackButton({
         <button
             type="button"
             onClick={handleClick}
+            title={label}
+            aria-label={label}
             className={[
                 "app-back-link inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium",
                 className,
             ].join(" ")}
         >
-            <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-4 w-4 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-                <path d="M15 6l-6 6 6 6" />
-                <path d="M9 12h10" />
-            </svg>
-            <span>{label}</span>
+            <span className="app-back-link__icon-shell inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <path d="M15 6l-6 6 6 6" />
+                    <path d="M9 12h10" />
+                </svg>
+            </span>
+            <span className="app-back-link__label">{label}</span>
         </button>
     );
 }

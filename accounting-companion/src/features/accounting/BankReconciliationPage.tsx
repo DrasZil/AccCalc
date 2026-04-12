@@ -6,6 +6,8 @@ import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import StudySupportPanel from "../../components/StudySupportPanel";
+import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computeBankReconciliation } from "../../utils/calculatorMath";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
@@ -302,13 +304,65 @@ export default function BankReconciliationPage() {
             }
             explanationSection={
                 result && !("error" in result) ? (
-                    <FormulaCard
-                        formula={result.formula}
-                        steps={result.steps}
-                        glossary={result.glossary}
-                        interpretation={result.interpretation}
-                        assumptions={result.assumptions}
-                    />
+                    <div className="space-y-4">
+                        <StudySupportPanel
+                            topicId="bank-reconciliation-review"
+                            topicTitle="Bank Reconciliation"
+                            lessonPath={buildStudyTopicPath("bank-reconciliation-review")}
+                            quizPath={buildStudyQuizPath("bank-reconciliation-review")}
+                            intro="Use this study layer to keep item classification, timing-difference logic, and cash-control interpretation attached to the reconciliation itself."
+                            sections={[
+                                {
+                                    key: "classification",
+                                    label: "Classify the items first",
+                                    summary: "The strongest reconciliation habit is sorting bank-side and book-side items before calculating.",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Deposits in transit and outstanding checks usually explain the bank side.</li>
+                                            <li>Service charges, NSF checks, bank collections, and unrecorded interest usually update the book side.</li>
+                                            <li>Errors belong on the side where the mistake occurred.</li>
+                                        </ul>
+                                    ),
+                                },
+                                {
+                                    key: "why-it-matters",
+                                    label: "Why the reconciliation matters",
+                                    summary: "Cash is only trustworthy after timing differences and recording gaps have been explained.",
+                                    content: (
+                                        <p>
+                                            A bank reconciliation supports the reliability of cash before reports are finalized. The point is not only to match two numbers, but to identify whether the difference is timing-related, a missing book entry, or an error that still needs correction.
+                                        </p>
+                                    ),
+                                },
+                                {
+                                    key: "self-check",
+                                    label: "Self-check",
+                                    summary: "Use these prompts before you accept a final balance.",
+                                    emphasis: "support",
+                                    tone: "info",
+                                    content: (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            <li>Did I place timing differences on the bank side only?</li>
+                                            <li>Did I treat book-side items as updates to the accounting records?</li>
+                                            <li>If the balances still disagree, what item or sign should I review first?</li>
+                                        </ul>
+                                    ),
+                                },
+                            ]}
+                            relatedTools={[
+                                { path: "/accounting/adjusting-entries-workspace", label: "Adjusting Entries Workspace" },
+                                { path: "/accounting/working-capital-planner", label: "Working Capital Planner" },
+                                { path: "/scan-check", label: "Scan & Check" },
+                            ]}
+                        />
+                        <FormulaCard
+                            formula={result.formula}
+                            steps={result.steps}
+                            glossary={result.glossary}
+                            interpretation={result.interpretation}
+                            assumptions={result.assumptions}
+                        />
+                    </div>
                 ) : null
             }
         />

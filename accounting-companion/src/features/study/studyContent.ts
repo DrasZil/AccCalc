@@ -190,8 +190,8 @@ const CORE_STUDY_TOPICS: StudyTopic[] = [
                     "This is the unit volume where operating income is zero.",
             },
             {
-                label: "Target-profit units",
-                expression: "Target units = (Fixed costs + Target profit) / CM per unit",
+                label: "Required units for target profit",
+                expression: "Required units = (Fixed costs + Target profit) / CM per unit",
                 explanation:
                     "This extends break-even logic by adding the desired operating profit.",
             },
@@ -219,11 +219,11 @@ const CORE_STUDY_TOPICS: StudyTopic[] = [
         workedExample: {
             title: "Single-product planning example",
             scenario:
-                "A product sells for 120 per unit, variable cost is 70 per unit, and fixed costs are 150,000. The instructor asks for break-even units and target units for a 60,000 profit.",
+                "A product sells for 120 per unit, variable cost is 70 per unit, and fixed costs are 150,000. The instructor asks for break-even units and the required units for a 60,000 target profit.",
             steps: [
                 "Compute contribution margin per unit: 120 - 70 = 50.",
                 "Break-even units = 150,000 / 50 = 3,000 units.",
-                "Target units = (150,000 + 60,000) / 50 = 4,200 units.",
+                "Required units = (150,000 + 60,000) / 50 = 4,200 units.",
                 "Interpret the answers as planning thresholds, not just arithmetic outputs.",
             ],
             result:
@@ -1843,7 +1843,7 @@ const STUDY_HUB_EXPANSION_TOPICS: StudyTopic[] = [
             "/accounting/debit-credit-trainer",
             "/accounting/adjusting-entries-workspace",
         ],
-        relatedTopicIds: ["scan-review"],
+        relatedTopicIds: ["bank-reconciliation-review", "scan-review"],
         quiz: {
             title: "Accounting Foundations Check",
             intro:
@@ -2046,7 +2046,12 @@ const STUDY_HUB_EXPANSION_TOPICS: StudyTopic[] = [
             "/accounting/working-capital-planner",
             "/accounting/inventory-control-workspace",
         ],
-        relatedTopicIds: ["accounting-foundations-review", "capital-budgeting", "scan-review"],
+        relatedTopicIds: [
+            "accounting-foundations-review",
+            "bank-reconciliation-review",
+            "capital-budgeting",
+            "scan-review",
+        ],
         quiz: {
             title: "Inventory and Ratio Review Check",
             intro:
@@ -2087,6 +2092,189 @@ const STUDY_HUB_EXPANSION_TOPICS: StudyTopic[] = [
                     placeholder: "Type the operating idea",
                     explanation:
                         "A longer cycle usually means operating cash stays committed for a longer period before it returns through collections.",
+                },
+            ],
+        },
+    },
+    {
+        id: "bank-reconciliation-review",
+        title: "Bank Reconciliation and Cash Control Review",
+        shortTitle: "Bank Reconciliation",
+        category: "Financial Accounting",
+        summary:
+            "Study adjusted bank balance, adjusted book balance, timing differences, bank-side items, and cash-control interpretation as one disciplined reconciliation workflow.",
+        intro:
+            "Bank reconciliation is not just a mechanical check. It is a cash-control process that explains why the bank statement and the company's cash record differ, which items are only timing differences, and which items require immediate book adjustment.",
+        whyItMatters: [
+            "It protects the reliability of cash balances before financial statements are finalized.",
+            "It separates timing differences from errors and unrecorded bank activity.",
+            "It helps students justify adjusting entries instead of only copying the final reconciled amount.",
+        ],
+        classContexts: [
+            "Bank reconciliation worksheets",
+            "Cash-control and internal-control discussions",
+            "Adjusting-entry questions tied to bank statements",
+        ],
+        whenToUse: [
+            "Use this topic when the problem gives balance per bank and balance per books with reconciling items.",
+            "Use it when the question asks which items affect the bank side, the book side, or both.",
+            "Use it when the result must be explained in terms of cash control instead of only a final adjusted balance.",
+        ],
+        formulaOverview: [
+            {
+                label: "Adjusted bank balance",
+                expression:
+                    "Adjusted bank balance = Bank statement balance + Deposits in transit - Outstanding checks +/- Bank error",
+                explanation:
+                    "The bank side is corrected for timing differences and any identified bank error.",
+            },
+            {
+                label: "Adjusted book balance",
+                expression:
+                    "Adjusted book balance = Book cash balance - Bank charges - NSF checks + Interest income + Notes collected by bank +/- Book error",
+                explanation:
+                    "The book side includes items the bank already knows about but the company has not yet recorded correctly.",
+            },
+            {
+                label: "Reconciled cash",
+                expression: "Reconciled cash = Adjusted bank balance = Adjusted book balance",
+                explanation:
+                    "A finished reconciliation ends with one corrected cash amount that both sides support.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Balance per bank", meaning: "Cash balance shown by the bank statement." },
+            { symbol: "Balance per books", meaning: "Cash balance in the company's accounting records." },
+            { symbol: "DIT", meaning: "Deposits in transit that the company recorded before the bank did." },
+            { symbol: "OC", meaning: "Outstanding checks already issued but not yet cleared by the bank." },
+            { symbol: "NSF", meaning: "A dishonored customer check that reduces the book-side cash balance." },
+        ],
+        procedure: [
+            "Start with the bank statement balance and the book cash balance separately.",
+            "Place deposits in transit and outstanding checks on the bank side because they explain timing differences between the statement and the company's record.",
+            "Place service charges, NSF checks, interest income, and notes collected by the bank on the book side because they require updating the accounting records.",
+            "Apply any error adjustment to the side where the error happened.",
+            "Compare the adjusted bank and adjusted book balances. If they do not match, a reconciling item is missing or a sign was reversed.",
+        ],
+        workedExample: {
+            title: "Monthly cash-control example",
+            scenario:
+                "Balance per bank is 52,000 and balance per books is 49,800. Deposits in transit are 6,000, outstanding checks are 4,200, service charges are 300, NSF checks are 700, interest income is 450, and notes collected by the bank are 1,750.",
+            steps: [
+                "Adjusted bank balance = 52,000 + 6,000 - 4,200 = 53,800.",
+                "Adjusted book balance = 49,800 - 300 - 700 + 450 + 1,750 = 51,000.",
+                "The two adjusted balances do not yet agree, so a reconciling item or error adjustment is still missing.",
+            ],
+            result:
+                "The preliminary reconciliation shows that the current item list is incomplete because the adjusted balances still differ.",
+            interpretation:
+                "A mismatch after adjustment is useful evidence. It means the worksheet is still protecting the integrity of cash by forcing another review before the balance is trusted.",
+        },
+        checkpointExample: {
+            title: "Timing versus book-entry checkpoint",
+            scenario:
+                "A deposit was recorded by the company on June 30 but did not appear on the bank statement until July 2.",
+            steps: [
+                "This is a timing difference rather than a mistake.",
+                "The item belongs on the bank side as a deposit in transit.",
+                "No new book entry is needed just because the bank statement is later.",
+            ],
+            result: "The item is a bank-side timing difference, not a new book adjustment.",
+            interpretation:
+                "The key distinction is whether the company already recorded the item correctly. If it did, the bank side explains the difference.",
+        },
+        interpretation: [
+            "A completed reconciliation supports the reliability of cash, not just a worksheet requirement.",
+            "Timing differences do not automatically require journal entries, but book-side omissions and errors usually do.",
+            "If the adjusted balances still disagree, the correct response is review and verification, not forced acceptance of one side.",
+        ],
+        commonMistakes: [
+            "Placing deposits in transit or outstanding checks on the book side instead of the bank side.",
+            "Adding service charges or NSF checks instead of subtracting them from the book side.",
+            "Forgetting that a note collected by the bank increases the book-side balance.",
+        ],
+        examTraps: [
+            "Problems often mix timing differences and actual book adjustments in one list to test classification skill.",
+            "An item described as 'recorded by the bank' usually affects the book side because the company still has to update its records.",
+            "Some worksheets hide an error adjustment inside the narrative instead of labeling it directly.",
+        ],
+        selfCheck: [
+            "Which reconciling items usually belong on the bank side only?",
+            "Why do service charges and NSF checks affect the book side?",
+            "What does a remaining difference after adjustment usually mean?",
+        ],
+        practiceCues: [
+            "Classify each reconciling item first before calculating.",
+            "Explain whether the item is a timing difference, an omitted book entry, or an error correction.",
+            "State whether the reconciliation is complete or still missing support.",
+        ],
+        keywords: [
+            "bank reconciliation",
+            "cash control",
+            "deposits in transit",
+            "outstanding checks",
+            "adjusted cash balance",
+        ],
+        scanSignals: [
+            "balance per bank",
+            "balance per books",
+            "deposits in transit",
+            "outstanding checks",
+            "nsf",
+            "service charges",
+        ],
+        relatedCalculatorPaths: [
+            "/accounting/bank-reconciliation",
+            "/accounting/working-capital-planner",
+            "/accounting/adjusting-entries-workspace",
+            "/accounting/inventory-control-workspace",
+        ],
+        relatedTopicIds: [
+            "accounting-foundations-review",
+            "inventory-and-ratio-review",
+            "scan-review",
+        ],
+        quiz: {
+            title: "Bank Reconciliation Check",
+            intro:
+                "Use this short set to verify whether you can classify reconciling items correctly before trusting the adjusted cash balance.",
+            questions: [
+                {
+                    id: "br-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which item normally appears on the bank side of a reconciliation because it is a timing difference already recorded by the company?",
+                    choices: [
+                        "Service charges",
+                        "Deposits in transit",
+                        "NSF checks",
+                        "Interest income collected by the bank",
+                    ],
+                    answerIndex: 1,
+                    explanation:
+                        "Deposits in transit were already recorded by the company but not yet by the bank, so they explain the bank-side difference.",
+                },
+                {
+                    id: "br-q2",
+                    kind: "true-false",
+                    prompt: "Notes collected by the bank usually increase the adjusted book balance.",
+                    answer: true,
+                    explanation:
+                        "The bank already added the collection, so the company usually needs to increase its book-side cash balance for the same item.",
+                },
+                {
+                    id: "br-q3",
+                    kind: "short-answer",
+                    prompt:
+                        "If the adjusted bank and adjusted book balances still do not match, what does that usually mean?",
+                    acceptedAnswers: [
+                        "a reconciling item is missing",
+                        "an error is still uncorrected",
+                        "the reconciliation is incomplete",
+                    ],
+                    placeholder: "State the likely issue",
+                    explanation:
+                        "A remaining difference usually means at least one reconciling item or error adjustment is still missing or signed incorrectly.",
                 },
             ],
         },

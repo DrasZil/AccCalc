@@ -167,7 +167,6 @@ function prefersWidePageShell(pathname: string) {
     return (
         pathname === "/" ||
         pathname === "/scan-check" ||
-        pathname.startsWith("/study") ||
         pathname === "/history" ||
         pathname === "/basic" ||
         pathname.startsWith("/smart/") ||
@@ -184,6 +183,22 @@ function prefersWidePageShell(pathname: string) {
         pathname.includes("dissolution") ||
         pathname.includes("budget") ||
         pathname.includes("schedule")
+    );
+}
+
+function prefersStudyPageShell(pathname: string) {
+    return pathname.startsWith("/study");
+}
+
+function prefersDataDensePageShell(pathname: string) {
+    return (
+        pathname === "/scan-check" ||
+        pathname.includes("workspace") ||
+        pathname.includes("analysis") ||
+        pathname.includes("comparison") ||
+        pathname.includes("schedule") ||
+        pathname.includes("budget") ||
+        pathname.includes("quiz")
     );
 }
 
@@ -709,6 +724,7 @@ export default function AppLayout() {
     const [supportPromptVisible, setSupportPromptVisible] = useState<boolean>(false);
     const [sidebarResizeActive, setSidebarResizeActive] = useState<boolean>(false);
     const [headerCondensed, setHeaderCondensed] = useState<boolean>(false);
+    const [mobileNavHidden, setMobileNavHidden] = useState<boolean>(false);
 
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
@@ -732,9 +748,23 @@ export default function AppLayout() {
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
     const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
-    const pageShellClassName = prefersWidePageShell(location.pathname)
-        ? "app-page-shell app-page-shell-wide animate-[fade-rise_0.42s_ease-out]"
-        : "app-page-shell animate-[fade-rise_0.42s_ease-out]";
+    const pageShellClassName = useMemo(() => {
+        const baseClassName = "app-page-shell animate-[fade-rise_0.42s_ease-out]";
+
+        if (prefersDataDensePageShell(location.pathname)) {
+            return `${baseClassName} app-page-shell-data`;
+        }
+
+        if (prefersStudyPageShell(location.pathname)) {
+            return `${baseClassName} app-page-shell-study`;
+        }
+
+        if (prefersWidePageShell(location.pathname)) {
+            return `${baseClassName} app-page-shell-wide`;
+        }
+
+        return baseClassName;
+    }, [location.pathname]);
 
     const effectiveOpenGroups = useMemo(() => {
         if (!settings.autoExpandActiveNavGroup) {
@@ -770,6 +800,7 @@ export default function AppLayout() {
         if (typeof window === "undefined") return;
         lastScrollYRef.current = window.scrollY;
         setHeaderCondensed(false);
+        setMobileNavHidden(false);
     }, [location.pathname]);
 
     function pushNotice(title: string, message: string, tone: Notice["tone"] = "info") {
@@ -822,6 +853,7 @@ export default function AppLayout() {
             settingsPanelOpen
         ) {
             setHeaderCondensed(false);
+            setMobileNavHidden(false);
             return;
         }
 
@@ -831,14 +863,17 @@ export default function AppLayout() {
 
             if (currentScrollY < 48) {
                 setHeaderCondensed(false);
+                setMobileNavHidden(false);
                 lastScrollYRef.current = currentScrollY;
                 return;
             }
 
             if (delta > 12 && currentScrollY > 96) {
                 setHeaderCondensed(true);
+                setMobileNavHidden(true);
             } else if (delta < -10) {
                 setHeaderCondensed(false);
+                setMobileNavHidden(false);
             }
 
             lastScrollYRef.current = currentScrollY;
@@ -1610,7 +1645,8 @@ export default function AppLayout() {
             <div
                 ref={mobileNavRef}
                 className={[
-                    "fixed inset-x-0 bottom-0 z-[95] border-t app-divider backdrop-blur-xl xl:hidden",
+                    "app-bottom-nav fixed inset-x-0 bottom-0 z-[95] border-t app-divider backdrop-blur-xl xl:hidden",
+                    mobileNavHidden ? "app-bottom-nav--hidden" : "",
                     mobileSearchOpen ? "pointer-events-none opacity-0" : "",
                 ].join(" ")}
                 style={{ background: "var(--app-header-bg)" }}

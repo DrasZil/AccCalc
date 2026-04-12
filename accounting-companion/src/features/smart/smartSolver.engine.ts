@@ -1622,13 +1622,21 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         description:
         "Best when the user wants the required units or sales needed to reach a target profit.",
         required: ["fixedCosts", "targetProfit", "sellingPricePerUnit", "variableCostPerUnit"],
-        aliases: ["required profit", "desired profit", "sales for target profit"],
+        aliases: [
+        "required profit",
+        "desired profit",
+        "sales for target profit",
+        "required units for target profit",
+        "required sales for target profit",
+        ],
         keywords: [
         /target profit/i,
         /desired profit/i,
         /required profit/i,
         /required sales/i,
         /required units/i,
+        /sales needed for target profit/i,
+        /units needed for target profit/i,
         ],
     },
     {
@@ -1757,13 +1765,21 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         description:
         "Best when the user is laying out cash receipts from current and lagged collection percentages by month or period.",
         required: [],
-        aliases: ["schedule of cash collections", "cash receipts schedule", "collections schedule"],
+        aliases: [
+        "schedule of cash collections",
+        "cash receipts schedule",
+        "collections schedule",
+        "receivables collection schedule",
+        "collections lag schedule",
+        ],
         keywords: [
         /cash collections schedule/i,
         /schedule of cash collections/i,
         /cash receipts schedule/i,
         /collections schedule/i,
         /collection pattern/i,
+        /receivables collection/i,
+        /collections lag/i,
         ],
     },
     {
@@ -1802,6 +1818,8 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /cash disbursements/i,
         /minimum cash/i,
         /financing needed/i,
+        /ending cash balance/i,
+        /borrow to maintain minimum cash/i,
         ],
     },
     {
@@ -2100,6 +2118,11 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         description:
         "Reconcile bank and book balances using deposits in transit, outstanding checks, bank charges, NSF checks, interest income, collections by bank, and errors.",
         required: ["bankBalance", "bookBalance"],
+        aliases: [
+        "balance per bank and balance per books",
+        "adjusted cash balance",
+        "reconciling items",
+        ],
         keywords: [
         /bank reconciliation/i,
         /reconcile bank/i,
@@ -2113,6 +2136,9 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /notes? collected by bank/i,
         /dishonored checks?/i,
         /balance per bank/i,
+        /balance per books/i,
+        /adjusted cash balance/i,
+        /reconciling items?/i,
         /balance per books/i,
         ],
     },

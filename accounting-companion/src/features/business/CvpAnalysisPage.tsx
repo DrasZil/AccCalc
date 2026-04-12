@@ -185,7 +185,7 @@ export default function CvpAnalysisPage() {
                                 value={result.breakEvenUnits.toFixed(2)}
                             />
                             <ResultCard
-                                title="Target Units"
+                                title="Required Units"
                                 value={result.targetUnits.toFixed(2)}
                             />
                             <ResultCard
@@ -216,7 +216,7 @@ export default function CvpAnalysisPage() {
                                     note: "This is the sales level where operating income is exactly zero.",
                                 },
                                 {
-                                    label: "Target-profit sales",
+                                    label: "Required sales for target profit",
                                     value: result.targetSales,
                                     accent: "highlight",
                                     emphasisLabel: `${result.targetUnits.toFixed(2)} units`,
@@ -369,11 +369,11 @@ export default function CvpAnalysisPage() {
                             ]}
                         />
                         <FormulaCard
-                            formula="Core CVP logic: contribution margin = selling price per unit - variable cost per unit; break-even units = fixed costs / contribution margin per unit; target units = (fixed costs + target profit) / contribution margin per unit."
+                            formula="Core CVP logic: contribution margin per unit = selling price per unit - variable cost per unit; break-even units = fixed costs / contribution margin per unit; required units for target profit = (fixed costs + target profit) / contribution margin per unit."
                             steps={[
                                 `Contribution margin per unit = ${formatPHP(Number(sellingPricePerUnit || 0))} - ${formatPHP(Number(variableCostPerUnit || 0))} = ${formatPHP(result.contributionMarginPerUnit)}.`,
                                 `Break-even units = ${formatPHP(Number(fixedCosts || 0))} / ${formatPHP(result.contributionMarginPerUnit)} = ${result.breakEvenUnits.toFixed(2)} units.`,
-                                `Target units = (${formatPHP(Number(fixedCosts || 0))} + ${formatPHP(Number(targetProfit || 0))}) / ${formatPHP(result.contributionMarginPerUnit)} = ${result.targetUnits.toFixed(2)} units.`,
+                                `Required units for target profit = (${formatPHP(Number(fixedCosts || 0))} + ${formatPHP(Number(targetProfit || 0))}) / ${formatPHP(result.contributionMarginPerUnit)} = ${result.targetUnits.toFixed(2)} units.`,
                                 `Expected sales = ${Number(expectedUnitSales || 0).toFixed(2)} x ${formatPHP(Number(sellingPricePerUnit || 0))} = ${formatPHP(result.expectedSales)}.`,
                                 `Margin of safety = ${formatPHP(result.expectedSales)} - ${formatPHP(result.breakEvenSales)} = ${formatPHP(result.marginOfSafetyAmount)}.`,
                                 Number.isFinite(result.degreeOfOperatingLeverage)

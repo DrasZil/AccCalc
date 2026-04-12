@@ -32,12 +32,12 @@ export default function PageHeader({
                         <div className="md:hidden">{mobileMeta}</div>
                         <div className="hidden flex-wrap items-center gap-2 md:flex">{meta}</div>
                     </div>
-                    <h1 className="mt-2.5 max-w-3xl text-[clamp(1.2rem,1.04rem+1vw,2.15rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                    <h1 className="app-wrap-anywhere mt-2.5 max-w-3xl text-[clamp(1.2rem,1.04rem+1vw,2.15rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                         {title}
                     </h1>
                     <p
                         className={[
-                            "app-body-md max-w-2xl text-sm",
+                            "app-body-md app-wrap-anywhere max-w-2xl text-sm",
                             compactDescriptionOnMobile
                                 ? "mt-1.5 hidden md:block"
                                 : "app-clamp-2 mt-2",

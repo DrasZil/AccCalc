@@ -783,6 +783,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const elasticityWorkspaceResults = searchAppRoutes("income elasticity");
     const toolkitResults = searchAppRoutes("owner split planner");
     const jobOrderResults = searchAppRoutes("job order cost sheet");
+    const bankReconResults = searchAppRoutes("adjusted cash balance");
+    const collectionLagResults = searchAppRoutes("collection lag schedule");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -810,6 +812,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(elasticityWorkspaceResults[0]?.path, "/economics/economics-analysis-workspace");
     assert.equal(toolkitResults[0]?.path, "/entrepreneurship/entrepreneurship-toolkit");
     assert.equal(jobOrderResults[0]?.path, "/accounting/job-order-cost-sheet");
+    assert.equal(bankReconResults[0]?.path, "/accounting/bank-reconciliation");
+    assert.equal(collectionLagResults[0]?.path, "/business/cash-collections-schedule");
 });
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
     assert.equal(suggestSolveTarget("simple-interest", "find the principal"), "principal");
