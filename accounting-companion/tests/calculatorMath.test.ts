@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import {
     computeBreakEven,
     computeBankReconciliation,
+    computeBookTaxDifference,
     computeBondAmortizationSchedule,
+    computeBusinessCombination,
     computeCashDiscount,
     computeCashBudget,
     computeCashCollectionsSchedule,
@@ -20,6 +22,7 @@ import {
     computeDepreciationComparisonSchedule,
     computeDiscountedPaybackPeriod,
     computeDoubleDecliningBalance,
+    computeEconomicOrderQuantity,
     computeEffectiveAnnualRate,
     computeEquivalentUnitsWeightedAverage,
     computeEquityMultiplier,
@@ -29,6 +32,7 @@ import {
     computeFactoryOverheadVariances,
     computeGrossProfitRate,
     computeHorizontalAnalysisWorkspace,
+    computeHighLowCostEstimation,
     computeInternalRateOfReturn,
     computeInventoryShrinkage,
     computeInventoryMethodComparison,
@@ -57,6 +61,7 @@ import {
     computeQuickRatio,
     computeRealInterestRate,
     computeRatioAnalysisWorkspace,
+    computeRoiRiEva,
     computeReceivablesAgingSchedule,
     computeAccruedExpenseAdjustment,
     computeAccruedRevenueAdjustment,
@@ -922,6 +927,56 @@ runTest("capital budgeting comparison combines project metrics", () => {
     assertClose(result.profitabilityIndex.profitabilityIndex, 1.276449754, 1e-6);
 });
 
+runTest("4.5 curriculum helpers support cost, performance, audit, tax, afar, and operations expansion", () => {
+    const highLow = computeHighLowCostEstimation({
+        highActivityUnits: 18000,
+        highTotalCost: 420000,
+        lowActivityUnits: 12000,
+        lowTotalCost: 315000,
+        expectedActivityUnits: 15000,
+    });
+    const performance = computeRoiRiEva({
+        operatingIncome: 240000,
+        investedCapital: 1500000,
+        targetRatePercent: 12,
+        sales: 3200000,
+    });
+    const eoq = computeEconomicOrderQuantity({
+        annualDemandUnits: 24000,
+        orderingCostPerOrder: 1200,
+        annualCarryingCostPerUnit: 18,
+        dailyDemandUnits: 80,
+        leadTimeDays: 6,
+        safetyStockUnits: 120,
+    });
+    const tax = computeBookTaxDifference({
+        accountingIncomeBeforeTax: 1850000,
+        permanentDifferences: 120000,
+        temporaryDifferences: -80000,
+        taxRatePercent: 25,
+    });
+    const combination = computeBusinessCombination({
+        considerationTransferred: 4500000,
+        netIdentifiableAssetsFairValue: 5200000,
+        ownershipPercent: 80,
+        nonControllingInterestMeasurement: "fair-value",
+        nonControllingInterestFairValue: 1180000,
+    });
+
+    assertClose(highLow.variableCostPerUnit, 17.5, 1e-9);
+    assertClose(highLow.fixedCostEstimate, 105000, 1e-6);
+    assertClose(highLow.estimatedTotalCost ?? 0, 367500, 1e-6);
+    assertClose(performance.roi, 16, 1e-9);
+    assertClose(performance.capitalCharge, 180000, 1e-6);
+    assertClose(performance.residualIncome, 60000, 1e-6);
+    assertClose(eoq.eoq, 1788.854382, 1e-3);
+    assertClose(eoq.reorderPointUnits, 600, 1e-6);
+    assertClose(tax.taxableIncome, 1890000, 1e-6);
+    assertClose(tax.currentTaxExpense, 472500, 1e-6);
+    assertClose(combination.nonControllingInterest, 1180000, 1e-6);
+    assertClose(combination.goodwill, 480000, 1e-6);
+});
+
 runTest("solve-for definitions reverse simple-interest targets safely", () => {
     const result = simpleInterestSolveDefinition.solve("principal", {
         interest: 2400,
@@ -1024,6 +1079,13 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const physicalCountResults = searchAppRoutes("book versus physical inventory");
     const relativeVariationResults = searchAppRoutes("relative variability");
     const capacityResults = searchAppRoutes("practical capacity");
+    const auditResults = searchAppRoutes("planning materiality");
+    const eoqResults = searchAppRoutes("economic order quantity");
+    const taxBridgeResults = searchAppRoutes("temporary differences");
+    const afarResults = searchAppRoutes("non controlling interest");
+    const aisResults = searchAppRoutes("it governance");
+    const lawResults = searchAppRoutes("contracts review");
+    const strategicResults = searchAppRoutes("board review integration");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1059,6 +1121,13 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(physicalCountResults[0]?.path, "/accounting/inventory-control-workspace");
     assert.equal(relativeVariationResults[0]?.path, "/statistics/coefficient-of-variation");
     assert.equal(capacityResults[0]?.path, "/business/capacity-utilization");
+    assert.equal(auditResults[0]?.path, "/audit/audit-planning-workspace");
+    assert.equal(eoqResults[0]?.path, "/operations/eoq-and-reorder-point");
+    assert.equal(taxBridgeResults[0]?.path, "/tax/book-tax-difference-workspace");
+    assert.equal(afarResults[0]?.path, "/afar/business-combination-analysis");
+    assert.equal(aisResults[0]?.path, "/ais/it-control-matrix");
+    assert.equal(lawResults[0]?.path, "/rfbt/business-law-review");
+    assert.equal(strategicResults[0]?.path, "/strategic/integrative-case-mapper");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {

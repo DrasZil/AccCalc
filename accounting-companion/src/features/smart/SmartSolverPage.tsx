@@ -133,6 +133,18 @@ function collapseButtonLabel(open: boolean) {
     return open ? "Hide" : "Show";
 }
 
+function isFarLikeRoute(category: string) {
+    return category === "FAR" || category === "AFAR";
+}
+
+function isQuantitativeRoute(category: string) {
+    return category === "Finance / Econ / Math";
+}
+
+function isStrategicRoute(category: string) {
+    return category === "Strategic & Integrative";
+}
+
 function CollapsibleSection({
     title,
     description,
@@ -400,23 +412,23 @@ export default function SmartSolverPage() {
                 ? `Smart Solver detected a missing-variable intent and prepared the route to solve for ${suggestedSolveTarget}.`
                 : selectedCalculator.description;
         const studyTip =
-            routeCategory === "Accounting"
+            isFarLikeRoute(routeCategory)
                 ? "Check whether the problem uses ending balances, average balances, or adjustment-style estimates before you finalize the answer."
-                : routeCategory === "Finance"
+                : isQuantitativeRoute(routeCategory)
                   ? "Match the rate basis, compounding basis, and time basis before trusting the result."
-                  : routeCategory === "Economics"
-                    ? "Keep the model visible. Many economics formulas depend on midpoint, linearity, or equilibrium assumptions."
-                    : routeCategory === "Entrepreneurship"
+                : routeCategory === "Operations & Supply Chain"
+                    ? "Keep the operating assumptions visible. Inventory, capacity, and reorder tools depend on demand, lead-time, and policy assumptions."
+                    : isStrategicRoute(routeCategory)
                       ? "Use the result as a planning signal, then pressure-test it with a realistic scenario before making a real decision."
                       : "Verify units, period bases, and sign conventions before relying on the answer.";
         const practicalNote =
-            routeCategory === "Accounting"
+            isFarLikeRoute(routeCategory)
                 ? "This route fits worksheet-style answers that still need a defensible interpretation."
-                : routeCategory === "Finance"
+                : isQuantitativeRoute(routeCategory)
                   ? "This route fits lending, valuation, and capital-budgeting decisions where assumptions change the answer materially."
-                  : routeCategory === "Economics"
-                    ? "This route fits class exercises, market interpretation, and policy-style reasoning."
-                    : routeCategory === "Entrepreneurship"
+                  : routeCategory === "Operations & Supply Chain"
+                    ? "This route fits inventory-planning, capacity, and operations-control decisions where assumptions directly change the recommendation."
+                    : isStrategicRoute(routeCategory)
                       ? "This route fits feasibility checks, startup planning, and small-business decisions."
                       : "This route is best when deterministic calculator logic is safer than free-form guessing.";
 

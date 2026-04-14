@@ -1,26 +1,31 @@
 export const APP_VERSION = "4.5.0";
-export const APP_RELEASE_DATE = "2026-04-12";
+export const APP_RELEASE_DATE = "2026-04-14";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Category coverage is more balanced across calculators and lessons",
-        body: "Statistics, business-math, entrepreneurship, and operations-sensitive planning now have stronger calculator coverage, deeper Study Hub lessons, and cleaner links back into guided solving flow.",
+        title: "Curriculum tracks now reach beyond core FAR and managerial tools",
+        body: "AccCalc 4.5.0 now covers AFAR, audit, tax, RFBT, AIS, governance, operations, and integrative review with first-pass workspaces and Study Hub support instead of leaving those families outside the platform.",
     },
     {
-        title: "Guided study follow-ups now sit directly inside calculator workflows",
-        body: "Shared calculator pages can now surface matching lessons and quiz-entry links automatically, so solving, concept review, and short practice stay connected instead of isolated.",
+        title: "Navigation is reorganized around board-review style curriculum tracks",
+        body: "The sidebar and category browsing now group routes under FAR, AFAR, cost and managerial, audit, tax, law, AIS, operations, governance, strategic review, and finance-econ-math so the growing app remains usable.",
     },
     {
-        title: "Laptop-width layouts waste less space and protect dense content better",
-        body: "Shared grid thresholds, chip wrapping, and support-card sizing now behave more predictably on laptop and mid-desktop widths so dense pages stay readable without overflow or dead-space-heavy shells.",
+        title: "Study Hub is broader and more curriculum-mapped",
+        body: "New lesson families now support audit planning, tax logic, law review, AIS and IT controls, operations planning, governance and ethics, and integrative case mapping so practice and lesson flow keep pace with the wider tool catalog.",
     },
     {
-        title: "New operations and analytics tools deepen curriculum coverage",
-        body: "Capacity Utilization and Coefficient of Variation add practical planning and analytics support, then connect back into lesson families that explain when and why those readings matter.",
+        title: "New first-pass workspaces deepen weak categories without rewriting the app",
+        body: "This release adds high-low cost estimation, ROI-RI-EVA, EOQ and reorder point, audit planning, book-tax differences, business combinations, IT controls, governance risk review, law review, and integrative case mapping on top of the existing architecture.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "4.5.0: Reorganized route catalog and sidebar discovery around curriculum-aligned tracks such as FAR, AFAR, cost and managerial, audit, tax, RFBT, AIS, operations, governance, strategic integration, and finance-econ-math.",
+    "4.5.0: Added new first-pass workspaces for High-Low Cost Estimation, ROI-RI-EVA, EOQ and Reorder Point, Audit Planning, Book-Tax Differences, Business Combination Analysis, IT Control Matrix, Risk and Control Matrix, Business Law Review, and Integrative Case Mapping.",
+    "4.5.0: Expanded Study Hub with broader curriculum families covering audit, tax, law, AIS and IT controls, operations and supply chain, governance and ethics, and integrative review support.",
+    "4.5.0: Broadened search, route metadata, Smart Solver discovery, and scan-to-route suggestions so newly added categories are reachable through prompts and OCR-based routing as well as sidebar browsing.",
+    "4.5.0: Strengthened Home workflows and featured collections so newer and previously weak categories surface as guided study-and-solve paths instead of remaining hidden behind raw route lists.",
     "4.5.0: Expanded category parity by adding new capacity-utilization and coefficient-of-variation calculators, then connected them to stronger study-topic coverage in operations planning, descriptive statistics, business math, finance, and entrepreneurship review paths.",
     "4.5.0: Added shared calculator-to-study follow-up links so calculator pages can surface the most relevant lesson and practice set for the current route without relying on page-specific wiring.",
     "4.5.0: Added stronger study-next guidance inside topic pages so lessons can lead directly into practice, adjacent lessons, and related calculators instead of ending as isolated reading surfaces.",

@@ -186,6 +186,46 @@ const ROUTE_RULES: RouteRule[] = [
         patterns: [/\binternal rate of return\b/i, /\birr\b/i],
         bonus: [/\bcash flows?\b/i, /\binitial investment\b/i],
     },
+    {
+        path: "/audit/audit-planning-workspace",
+        label: "Audit Planning Workspace",
+        category: "Audit & Assurance",
+        patterns: [/\baudit planning\b/i, /\bmateriality\b/i, /\baudit risk\b/i],
+        bonus: [/\binherent risk\b/i, /\bcontrol risk\b/i, /\bdetection risk\b/i],
+        kindBoosts: { "textbook-page": 3, "notes-reference": 3, "word-problem": 2 },
+    },
+    {
+        path: "/tax/book-tax-difference-workspace",
+        label: "Book-Tax Difference Workspace",
+        category: "Taxation",
+        patterns: [/\bbook tax\b/i, /\btemporary difference\b/i, /\bdeferred tax\b/i],
+        bonus: [/\btaxable income\b/i, /\bpermanent difference\b/i],
+        kindBoosts: { "word-problem": 3, "notes-reference": 3 },
+    },
+    {
+        path: "/operations/eoq-and-reorder-point",
+        label: "EOQ and Reorder Point",
+        category: "Operations & Supply Chain",
+        patterns: [/\beoq\b/i, /\beconomic order quantity\b/i, /\breorder point\b/i],
+        bonus: [/\blead time\b/i, /\bsafety stock\b/i, /\bordering cost\b/i],
+        kindBoosts: { "word-problem": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/afar/business-combination-analysis",
+        label: "Business Combination Analysis",
+        category: "AFAR",
+        patterns: [/\bbusiness combination\b/i, /\bgoodwill\b/i, /\bnon[- ]controlling interest\b/i],
+        bonus: [/\bconsolidated\b/i, /\bconsideration transferred\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3 },
+    },
+    {
+        path: "/ais/it-control-matrix",
+        label: "IT Control Matrix",
+        category: "AIS & IT Controls",
+        patterns: [/\bit governance\b/i, /\bit controls?\b/i, /\bapplication controls?\b/i],
+        bonus: [/\bchange management\b/i, /\baccess controls?\b/i, /\bbackup\b/i],
+        kindBoosts: { "notes-reference": 3, "textbook-page": 2 },
+    },
 ];
 
 function clampScore(value: number) {

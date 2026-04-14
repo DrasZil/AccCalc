@@ -284,6 +284,32 @@ const SalesForecastPlannerPage = lazy(
 const CashRunwayPlannerPage = lazy(
     () => import("./features/entrepreneurship/CashRunwayPlannerPage")
 );
+const HighLowCostEstimationPage = lazy(
+    () => import("./features/business/HighLowCostEstimationPage")
+);
+const RoiRiEvaPage = lazy(() => import("./features/business/RoiRiEvaPage"));
+const EoqReorderPointPage = lazy(
+    () => import("./features/operations/EoqReorderPointPage")
+);
+const AuditPlanningWorkspacePage = lazy(
+    () => import("./features/audit/AuditPlanningWorkspacePage")
+);
+const BookTaxDifferenceWorkspacePage = lazy(
+    () => import("./features/tax/BookTaxDifferenceWorkspacePage")
+);
+const BusinessCombinationAnalysisPage = lazy(
+    () => import("./features/afar/BusinessCombinationAnalysisPage")
+);
+const ItControlMatrixPage = lazy(() => import("./features/ais/ItControlMatrixPage"));
+const RiskControlMatrixPage = lazy(
+    () => import("./features/governance/RiskControlMatrixPage")
+);
+const BusinessLawReviewPage = lazy(
+    () => import("./features/rfbt/BusinessLawReviewPage")
+);
+const IntegrativeCaseMapperPage = lazy(
+    () => import("./features/strategic/IntegrativeCaseMapperPage")
+);
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
     () => import("./features/statistics/StandardDeviationPage")
@@ -402,6 +428,8 @@ export default function App() {
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
                         <Route path="business/flexible-budget" element={renderRoute("/business/flexible-budget", <FlexibleBudgetPage />)} />
                         <Route path="business/capacity-utilization" element={renderRoute("/business/capacity-utilization", <CapacityUtilizationPage />)} />
+                        <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
+                        <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
                         <Route path="economics/price-elasticity-demand" element={renderRoute("/economics/price-elasticity-demand", <PriceElasticityPage />)} />
@@ -415,6 +443,14 @@ export default function App() {
                         <Route path="entrepreneurship/unit-economics" element={renderRoute("/entrepreneurship/unit-economics", <UnitEconomicsPage />)} />
                         <Route path="entrepreneurship/sales-forecast-planner" element={renderRoute("/entrepreneurship/sales-forecast-planner", <SalesForecastPlannerPage />)} />
                         <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
+                        <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
+                        <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
+                        <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
+                        <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
+                        <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />
+                        <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
+                        <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
+                        <Route path="strategic/integrative-case-mapper" element={renderRoute("/strategic/integrative-case-mapper", <IntegrativeCaseMapperPage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
                         <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />

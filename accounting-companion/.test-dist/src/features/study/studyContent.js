@@ -1,3 +1,4 @@
+import { STUDY_HUB_CURRICULUM_TOPICS } from "./studyExpansion450.js";
 export const STUDY_CATEGORY_DETAILS = {
     "Financial Accounting": {
         description: "Core accounting topics that support statement preparation, account analysis, and answer checking.",
@@ -10,6 +11,10 @@ export const STUDY_CATEGORY_DETAILS = {
     "Partnership Accounting": {
         description: "Admission, retirement, sharing, and dissolution topics that students often solve step by step in class.",
         emphasis: "Capital logic and liquidation procedure",
+    },
+    "AFAR / Consolidation": {
+        description: "Business combinations, consolidated reporting, and other AFAR topics that rely on acquisition-date logic and group presentation.",
+        emphasis: "Measurement basis, elimination logic, and group reporting",
     },
     "CVP / Decision Support": {
         description: "Contribution margin, break-even, target profit, and planning topics used in managerial decision making.",
@@ -35,7 +40,70 @@ export const STUDY_CATEGORY_DETAILS = {
         description: "Study support for OCR review, prompt routing, and checking uncertain extracted values.",
         emphasis: "Verification before trusting automation",
     },
+    "Audit & Assurance": {
+        description: "Audit planning, evidence, risk assessment, reporting, and assurance-review support.",
+        emphasis: "Assertions, evidence, and professional judgment",
+    },
+    Taxation: {
+        description: "Tax principles, VAT and income-tax logic, book-tax differences, and compliance framing.",
+        emphasis: "Careful labeling and legal-versus-accounting distinction",
+    },
+    "RFBT / Business Law": {
+        description: "Regulatory and business-law review topics that emphasize structured issue spotting and legal consequence reading.",
+        emphasis: "Issue spotting, element analysis, and remedy logic",
+    },
+    "AIS / IT Controls": {
+        description: "Accounting information systems, IT governance, application controls, and IT-audit support.",
+        emphasis: "Control environment, documentation, and systems reasoning",
+    },
+    "Operations / Supply Chain": {
+        description: "Forecasting, inventory planning, quality, scheduling, and operations-management study support.",
+        emphasis: "Flow, tradeoffs, and operating decision impact",
+    },
+    "Governance / Ethics / Risk": {
+        description: "Governance, ethics, risk assessment, and internal-control design and evaluation topics.",
+        emphasis: "Responsible judgment and control consequence",
+    },
+    "Strategic / Integrative": {
+        description: "Cross-subject review topics that help capstone, board-review, and strategic-case interpretation.",
+        emphasis: "Integration, prioritization, and decision framing",
+    },
 };
+export function getStudyCategoryTrack(category) {
+    switch (category) {
+        case "Financial Accounting":
+            return "FAR";
+        case "Partnership Accounting":
+        case "AFAR / Consolidation":
+            return "AFAR";
+        case "Managerial & Cost Accounting":
+        case "CVP / Decision Support":
+            return "Cost & Managerial";
+        case "Business Math / Finance":
+        case "Economics":
+        case "Statistics / Analytics":
+            return "Finance / Econ / Math";
+        case "Entrepreneurship":
+        case "Strategic / Integrative":
+            return "Strategic & Integrative";
+        case "Audit & Assurance":
+            return "Audit & Assurance";
+        case "Taxation":
+            return "Taxation";
+        case "RFBT / Business Law":
+            return "RFBT & Law";
+        case "AIS / IT Controls":
+            return "AIS & IT Controls";
+        case "Operations / Supply Chain":
+            return "Operations & Supply Chain";
+        case "Governance / Ethics / Risk":
+            return "Governance & Ethics";
+        case "Smart Tools / Scan Support":
+            return "Smart Tools";
+        default:
+            return category;
+    }
+}
 export function buildStudyTopicPath(topicId) {
     return `/study/topics/${topicId}`;
 }
@@ -3582,7 +3650,11 @@ const STUDY_HUB_EXPANSION_TOPICS = [
         },
     },
 ];
-const STUDY_TOPICS = [...CORE_STUDY_TOPICS, ...STUDY_HUB_EXPANSION_TOPICS];
+const STUDY_TOPICS = [
+    ...CORE_STUDY_TOPICS,
+    ...STUDY_HUB_EXPANSION_TOPICS,
+    ...STUDY_HUB_CURRICULUM_TOPICS,
+];
 export const STUDY_TOPICS_BY_ID = new Map(STUDY_TOPICS.map((topic) => [topic.id, topic]));
 function normalizeSearchValue(value) {
     return value.trim().toLowerCase();

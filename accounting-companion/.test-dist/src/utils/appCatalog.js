@@ -1,18 +1,22 @@
 import { buildStudyQuizPath, buildStudyTopicPath, getStudyQuizTopicByPath, getStudyTopicByPath, } from "../features/study/studyContent.js";
 const GROUP_CONFIG = {
-    General: { hint: "Home and activity", tone: "from-emerald-400/20 to-transparent", order: 0 },
-    "Core Tools": { hint: "Everyday calculators", tone: "from-cyan-400/15 to-transparent", order: 1 },
-    "Smart Tools": { hint: "Prompt routing", tone: "from-amber-300/15 to-transparent", order: 2 },
-    "Study Hub": { hint: "Lessons, quizzes, and review flow", tone: "from-emerald-300/20 to-transparent", order: 3 },
-    Accounting: { hint: "Reporting, valuation, and review", tone: "from-green-400/20 to-transparent", order: 4 },
-    Finance: { hint: "Time value, lending, and capital budgeting", tone: "from-sky-400/15 to-transparent", order: 5 },
-    "Managerial & Cost": { hint: "CVP, budgets, costing, and variances", tone: "from-orange-400/15 to-transparent", order: 6 },
-    Economics: { hint: "Elasticity, markets, and macro basics", tone: "from-teal-400/15 to-transparent", order: 7 },
-    Entrepreneurship: { hint: "Startup planning and small-business decisions", tone: "from-amber-400/15 to-transparent", order: 8 },
-    "Business Math": { hint: "Pricing and applied math", tone: "from-fuchsia-400/15 to-transparent", order: 9 },
-    Statistics: { hint: "Core analytics", tone: "from-violet-400/15 to-transparent", order: 10 },
+    General: { hint: "Home, settings, and utility access", tone: "from-emerald-400/20 to-transparent", order: 0 },
+    "Smart Tools": { hint: "Prompt routing, scan review, and discovery", tone: "from-amber-300/15 to-transparent", order: 1 },
+    "Study Hub": { hint: "Lessons, quizzes, and curriculum review flow", tone: "from-emerald-300/20 to-transparent", order: 2 },
+    FAR: { hint: "Financial accounting, reporting, and statement preparation", tone: "from-green-400/20 to-transparent", order: 3 },
+    AFAR: { hint: "Special accounting topics, consolidations, and partnership flows", tone: "from-cyan-400/16 to-transparent", order: 4 },
+    "Cost & Managerial": { hint: "CVP, costing, budgeting, pricing, and performance", tone: "from-orange-400/15 to-transparent", order: 5 },
+    "Audit & Assurance": { hint: "Audit planning, risk, evidence, and reporting", tone: "from-sky-400/15 to-transparent", order: 6 },
+    Taxation: { hint: "Tax logic, VAT, and accounting-vs-tax reconciliation", tone: "from-rose-400/15 to-transparent", order: 7 },
+    "RFBT & Law": { hint: "Business law, obligations, contracts, and governance law", tone: "from-indigo-400/15 to-transparent", order: 8 },
+    "AIS & IT Controls": { hint: "IT governance, application controls, and IT audit", tone: "from-teal-400/15 to-transparent", order: 9 },
+    "Operations & Supply Chain": { hint: "Inventory, capacity, forecasting, and operating flow", tone: "from-amber-400/15 to-transparent", order: 10 },
+    "Governance & Ethics": { hint: "Risk, control, ethics, and internal-governance support", tone: "from-violet-400/15 to-transparent", order: 11 },
+    "Strategic & Integrative": { hint: "Board-review integration, analytics, and case mapping", tone: "from-fuchsia-400/15 to-transparent", order: 12 },
+    "Finance / Econ / Math": { hint: "Finance, economics, analytics, and applied quantitative tools", tone: "from-blue-400/15 to-transparent", order: 13 },
 };
-function feature(path, label, category, description, aliases = [], tags = [], shortLabel, _legacyIsNew = false, keywords = []) {
+function feature(path, label, legacyCategory, description, aliases = [], tags = [], shortLabel, _legacyIsNew = false, keywords = []) {
+    const category = inferCurriculumTrack(path, legacyCategory, tags, label);
     return {
         path,
         label,
@@ -54,54 +58,130 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/cash-runway-planner",
     "/business/cvp-analysis",
     "/business/capacity-utilization",
+    "/business/high-low-cost-estimation",
+    "/business/roi-ri-eva",
     "/accounting/partnership-dissolution",
     "/study",
     "/study/practice",
     "/accounting/job-order-cost-sheet",
     "/statistics/coefficient-of-variation",
+    "/operations/eoq-and-reorder-point",
+    "/audit/audit-planning-workspace",
+    "/tax/book-tax-difference-workspace",
+    "/afar/business-combination-analysis",
+    "/ais/it-control-matrix",
+    "/governance/risk-control-matrix",
+    "/rfbt/business-law-review",
+    "/strategic/integrative-case-mapper",
 ]);
 const SUBTOPIC_ORDER = {
-    General: ["Workspace", "Settings"],
-    "Core Tools": ["Calculator"],
+    General: ["Workspace", "Utilities", "Settings"],
     "Smart Tools": ["Solver"],
     "Study Hub": ["Learning Center", "Practice"],
-    Accounting: [
+    FAR: [
         "Fundamentals",
         "Receivables & Cash",
         "Inventory",
-        "Liabilities",
-        "Reporting & Analysis",
-        "Partnership",
-        "Tax",
+        "Assets & Measurement",
+        "Liabilities & Equity",
+        "Financial Statements",
     ],
-    Finance: ["Interest & TVM", "Loans & Annuities", "Capital Budgeting"],
-    "Managerial & Cost": [
+    AFAR: ["Partnership", "Business Combination", "Foreign Operations", "Special Topics"],
+    "Cost & Managerial": [
         "CVP & Decisions",
         "Budgeting",
         "Planning & Operations",
         "Manufacturing Costs",
         "Variances",
-        "Depreciation",
+        "Performance Management",
     ],
-    Economics: ["Microeconomics", "Market Analysis", "Inflation & Rates"],
-    Entrepreneurship: ["Startup Planning", "Unit Economics", "Forecasting", "Cash Planning"],
-    "Business Math": ["Pricing & Profit", "Averages & Basics"],
-    Statistics: ["Descriptive Statistics"],
+    "Audit & Assurance": ["Planning & Risk", "Evidence & Procedures", "Reporting & Completion"],
+    Taxation: ["VAT & Business Taxes", "Income Tax & Differences", "Compliance & Remedies"],
+    "RFBT & Law": ["Obligations & Contracts", "Corporation Law", "Commercial Law"],
+    "AIS & IT Controls": ["IT Governance", "General Controls", "Application Controls"],
+    "Operations & Supply Chain": ["Inventory Planning", "Capacity & Scheduling", "Forecasting & Quality"],
+    "Governance & Ethics": ["Risk & Control", "Ethics & Governance"],
+    "Strategic & Integrative": ["Financial Analysis", "Case Integration", "Startup & Strategy"],
+    "Finance / Econ / Math": ["Interest & TVM", "Capital Budgeting", "Economics", "Analytics"],
 };
+function inferCurriculumTrack(path, legacyCategory, tags, label) {
+    const haystack = `${path} ${label} ${tags.join(" ")}`.toLowerCase();
+    if (legacyCategory === "General" || legacyCategory === "Core Tools")
+        return "General";
+    if (legacyCategory === "Smart Tools")
+        return "Smart Tools";
+    if (legacyCategory === "Study Hub")
+        return "Study Hub";
+    if (path.startsWith("/audit/"))
+        return "Audit & Assurance";
+    if (path.startsWith("/tax/"))
+        return "Taxation";
+    if (path.startsWith("/rfbt/"))
+        return "RFBT & Law";
+    if (path.startsWith("/ais/"))
+        return "AIS & IT Controls";
+    if (path.startsWith("/governance/"))
+        return "Governance & Ethics";
+    if (path.startsWith("/strategic/"))
+        return "Strategic & Integrative";
+    if (path.startsWith("/operations/"))
+        return "Operations & Supply Chain";
+    if (path.startsWith("/afar/"))
+        return "AFAR";
+    if (legacyCategory === "Accounting") {
+        if (haystack.includes("partnership") || haystack.includes("business combination")) {
+            return "AFAR";
+        }
+        if (haystack.includes("vat") || haystack.includes("tax"))
+            return "Taxation";
+        if (haystack.includes("ratio") ||
+            haystack.includes("return on") ||
+            haystack.includes("turnover") ||
+            haystack.includes("working capital") ||
+            haystack.includes("analysis")) {
+            return "Strategic & Integrative";
+        }
+        return "FAR";
+    }
+    if (legacyCategory === "Managerial & Cost") {
+        if (haystack.includes("capacity") ||
+            haystack.includes("inventory control") ||
+            haystack.includes("eoq") ||
+            haystack.includes("reorder point")) {
+            return "Operations & Supply Chain";
+        }
+        return "Cost & Managerial";
+    }
+    if (legacyCategory === "Finance" ||
+        legacyCategory === "Economics" ||
+        legacyCategory === "Entrepreneurship" ||
+        legacyCategory === "Business Math" ||
+        legacyCategory === "Statistics") {
+        if (haystack.includes("startup") ||
+            haystack.includes("runway") ||
+            haystack.includes("unit economics")) {
+            return "Strategic & Integrative";
+        }
+        return "Finance / Econ / Math";
+    }
+    return "General";
+}
 function inferSubtopic(category, path, tags, label) {
     const haystack = `${path} ${label} ${tags.join(" ")}`.toLowerCase();
     switch (category) {
         case "General":
-            return path.startsWith("/settings") ? "Settings" : "Workspace";
-        case "Core Tools":
-            return "Calculator";
+            if (path.startsWith("/settings"))
+                return "Settings";
+            if (path === "/basic")
+                return "Utilities";
+            return "Workspace";
         case "Smart Tools":
             return "Solver";
         case "Study Hub":
             return path.includes("/quiz/") || path.includes("/practice")
                 ? "Practice"
                 : "Learning Center";
-        case "Accounting":
+        case "FAR":
             if (haystack.includes("equation") ||
                 haystack.includes("classification") ||
                 haystack.includes("trial-balance") ||
@@ -123,17 +203,100 @@ function inferSubtopic(category, path, tags, label) {
                 haystack.includes("nrv")) {
                 return "Inventory";
             }
-            if (haystack.includes("bond") || haystack.includes("liabilities")) {
-                return "Liabilities";
+            if (haystack.includes("depreciation") ||
+                haystack.includes("bond") ||
+                haystack.includes("asset") ||
+                haystack.includes("investment property") ||
+                haystack.includes("impairment")) {
+                return "Assets & Measurement";
             }
-            if (haystack.includes("partnership") || haystack.includes("capital")) {
+            if (haystack.includes("liabilities") ||
+                haystack.includes("equity") ||
+                haystack.includes("eps") ||
+                haystack.includes("book value per share")) {
+                return "Liabilities & Equity";
+            }
+            return "Financial Statements";
+        case "AFAR":
+            if (haystack.includes("partnership"))
                 return "Partnership";
+            if (haystack.includes("combination") || haystack.includes("consolid")) {
+                return "Business Combination";
             }
-            if (haystack.includes("vat") || haystack.includes("tax")) {
-                return "Tax";
+            if (haystack.includes("foreign") || haystack.includes("branch")) {
+                return "Foreign Operations";
             }
-            return "Reporting & Analysis";
-        case "Finance":
+            return "Special Topics";
+        case "Cost & Managerial":
+            if (haystack.includes("budget") ||
+                haystack.includes("collection") ||
+                haystack.includes("disbursement")) {
+                return "Budgeting";
+            }
+            if (haystack.includes("variance"))
+                return "Variances";
+            if (haystack.includes("roi") ||
+                haystack.includes("residual") ||
+                haystack.includes("eva") ||
+                haystack.includes("transfer pricing")) {
+                return "Performance Management";
+            }
+            if (haystack.includes("capacity") ||
+                haystack.includes("high-low") ||
+                haystack.includes("planning")) {
+                return "Planning & Operations";
+            }
+            if (haystack.includes("break-even") ||
+                haystack.includes("margin") ||
+                haystack.includes("profit")) {
+                return "CVP & Decisions";
+            }
+            return "Manufacturing Costs";
+        case "Audit & Assurance":
+            if (haystack.includes("planning") || haystack.includes("materiality") || haystack.includes("risk")) {
+                return "Planning & Risk";
+            }
+            if (haystack.includes("evidence") || haystack.includes("control") || haystack.includes("procedure")) {
+                return "Evidence & Procedures";
+            }
+            return "Reporting & Completion";
+        case "Taxation":
+            if (haystack.includes("vat"))
+                return "VAT & Business Taxes";
+            if (haystack.includes("difference") || haystack.includes("income")) {
+                return "Income Tax & Differences";
+            }
+            return "Compliance & Remedies";
+        case "RFBT & Law":
+            if (haystack.includes("obligation") || haystack.includes("contract")) {
+                return "Obligations & Contracts";
+            }
+            if (haystack.includes("corporation"))
+                return "Corporation Law";
+            return "Commercial Law";
+        case "AIS & IT Controls":
+            if (haystack.includes("governance") || haystack.includes("policy"))
+                return "IT Governance";
+            if (haystack.includes("application"))
+                return "Application Controls";
+            return "General Controls";
+        case "Operations & Supply Chain":
+            if (haystack.includes("eoq") || haystack.includes("reorder") || haystack.includes("inventory")) {
+                return "Inventory Planning";
+            }
+            if (haystack.includes("capacity") || haystack.includes("schedule")) {
+                return "Capacity & Scheduling";
+            }
+            return "Forecasting & Quality";
+        case "Governance & Ethics":
+            return haystack.includes("ethic") ? "Ethics & Governance" : "Risk & Control";
+        case "Strategic & Integrative":
+            if (haystack.includes("analysis") || haystack.includes("ratio"))
+                return "Financial Analysis";
+            if (haystack.includes("startup") || haystack.includes("strategy"))
+                return "Startup & Strategy";
+            return "Case Integration";
+        case "Finance / Econ / Math":
             if (haystack.includes("npv") ||
                 haystack.includes("internal-rate") ||
                 haystack.includes("irr") ||
@@ -144,57 +307,15 @@ function inferSubtopic(category, path, tags, label) {
             if (haystack.includes("loan") ||
                 haystack.includes("annuity") ||
                 haystack.includes("sinking-fund")) {
-                return "Loans & Annuities";
+                return "Interest & TVM";
             }
-            return "Interest & TVM";
-        case "Managerial & Cost":
-            if (haystack.includes("budget") ||
-                haystack.includes("collection") ||
-                haystack.includes("disbursement") ||
-                haystack.includes("cash receipts") ||
-                haystack.includes("cash payments")) {
-                return "Budgeting";
-            }
-            if (haystack.includes("capacity") ||
-                haystack.includes("utilization") ||
-                haystack.includes("throughput") ||
-                haystack.includes("scheduling")) {
-                return "Planning & Operations";
-            }
-            if (haystack.includes("variance"))
-                return "Variances";
-            if (haystack.includes("depreciation"))
-                return "Depreciation";
-            if (haystack.includes("break-even") ||
-                haystack.includes("margin") ||
-                haystack.includes("profit")) {
-                return "CVP & Decisions";
-            }
-            return "Manufacturing Costs";
-        case "Economics":
             if (haystack.includes("elasticity") ||
-                haystack.includes("surplus")) {
-                return "Microeconomics";
+                haystack.includes("equilibrium") ||
+                haystack.includes("surplus") ||
+                haystack.includes("real interest")) {
+                return "Economics";
             }
-            if (haystack.includes("equilibrium") || haystack.includes("market")) {
-                return "Market Analysis";
-            }
-            return "Inflation & Rates";
-        case "Entrepreneurship":
-            if (haystack.includes("startup") || haystack.includes("feasibility")) {
-                return "Startup Planning";
-            }
-            if (haystack.includes("unit economics") || haystack.includes("pricing")) {
-                return "Unit Economics";
-            }
-            if (haystack.includes("forecast")) {
-                return "Forecasting";
-            }
-            return "Cash Planning";
-        case "Business Math":
-            return haystack.includes("weighted") ? "Averages & Basics" : "Pricing & Profit";
-        case "Statistics":
-            return "Descriptive Statistics";
+            return "Analytics";
         default:
             return "Tools";
     }
@@ -377,6 +498,8 @@ export const APP_ROUTE_META = [
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget", "minimum cash planning", "cash budget with financing"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash", "ending cash balance", "financing need"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
     feature("/business/capacity-utilization", "Capacity Utilization", "Managerial & Cost", "Compare actual output with practical capacity so idle or strained capacity stays visible.", ["capacity usage", "practical capacity", "idle capacity", "capacity rate"], ["operations", "capacity", "planning"], undefined, true, ["capacity utilization", "practical capacity", "idle capacity", "operating capacity", "capacity planning"]),
+    feature("/business/high-low-cost-estimation", "High-Low Cost Estimation", "Managerial & Cost", "Estimate variable and fixed cost components from high-low activity data.", ["mixed cost split", "high low method", "cost behavior estimate"], ["cost behavior", "mixed cost", "planning"], "High-Low", true, ["high-low", "mixed cost", "cost behavior", "cost estimation"]),
+    feature("/business/roi-ri-eva", "ROI, RI, and EVA Workspace", "Managerial & Cost", "Compare ROI, residual income, and EVA-style capital-charge reading from one performance workspace.", ["roi", "residual income", "eva", "investment center"], ["performance", "responsibility accounting", "roi"], "ROI / RI", true, ["roi", "residual income", "eva", "investment center", "responsibility accounting"]),
     feature("/economics/price-elasticity-demand", "Price Elasticity of Demand", "Economics", "Midpoint elasticity, revenue movement, and demand classification.", ["ped", "demand elasticity"], ["elasticity", "microeconomics"], "Elasticity", true, ["price elasticity", "elastic demand", "inelastic demand"]),
     feature("/economics/market-equilibrium", "Market Equilibrium", "Economics", "Solve equilibrium price and quantity from linear demand and supply equations.", ["supply and demand equilibrium", "equilibrium price"], ["market", "equilibrium"], "Equilibrium", true, ["equilibrium", "supply and demand", "market clearing"]),
     feature("/economics/surplus-analysis", "Consumer and Producer Surplus", "Economics", "Estimate welfare gains from trade at a known equilibrium.", ["consumer surplus", "producer surplus"], ["surplus", "microeconomics"], "Surplus", true, ["consumer surplus", "producer surplus", "total surplus"]),
@@ -387,6 +510,14 @@ export const APP_ROUTE_META = [
     feature("/entrepreneurship/sales-forecast-planner", "Sales Forecast Planner", "Entrepreneurship", "Project sales and gross profit from a monthly growth assumption.", ["sales projection", "revenue forecast"], ["forecasting", "sales"], "Sales Forecast", true, ["sales forecast", "revenue projection", "growth forecast"]),
     feature("/entrepreneurship/cash-runway-planner", "Cash Runway Planner", "Entrepreneurship", "Estimate runway from current cash, recurring inflows, and recurring outflows.", ["runway calculator", "startup runway"], ["cash", "runway"], "Cash Runway", true, ["cash runway", "burn rate", "startup cash"]),
     feature("/entrepreneurship/entrepreneurship-toolkit", "Entrepreneurship Toolkit", "Entrepreneurship", "Use one workspace for pricing targets, owner splits, and customer payback checks.", ["pricing target toolkit", "owner split planner", "customer payback"], ["unit economics", "pricing", "planning", "toolkit"], "Toolkit", true, ["selling price", "owner split", "customer payback", "startup toolkit"]),
+    feature("/operations/eoq-and-reorder-point", "EOQ and Reorder Point", "Managerial & Cost", "Plan order quantity, order frequency, and reorder point from one inventory-management workspace.", ["economic order quantity", "reorder point", "inventory replenishment"], ["operations", "inventory planning", "supply chain"], "EOQ", true, ["eoq", "reorder point", "economic order quantity", "inventory control"]),
+    feature("/audit/audit-planning-workspace", "Audit Planning Workspace", "Accounting", "Estimate materiality, performance materiality, and an audit-risk response signal from one planning workspace.", ["audit materiality", "audit risk", "planning materiality"], ["audit", "materiality", "risk"], "Audit Plan", true, ["audit planning", "planning materiality", "performance materiality", "audit risk"]),
+    feature("/tax/book-tax-difference-workspace", "Book-Tax Difference Workspace", "Accounting", "Bridge accounting income and taxable income through book-tax difference analysis.", ["book tax differences", "tax reconciliation", "temporary differences"], ["tax", "income tax", "differences"], "Book-Tax", true, ["book tax differences", "temporary differences", "current tax", "deferred tax"]),
+    feature("/afar/business-combination-analysis", "Business Combination Analysis", "Accounting", "Estimate goodwill or bargain purchase gain under full-goodwill or proportionate-share measurement.", ["goodwill calculator", "business combination", "consolidation goodwill", "non controlling interest", "non-controlling interest"], ["afar", "business combination", "goodwill", "non controlling interest"], "Combination", true, ["business combination", "goodwill", "nci", "consolidation", "non controlling interest", "non-controlling interest"]),
+    feature("/ais/it-control-matrix", "IT Control Matrix", "Accounting", "Review IT governance, access, change management, and continuity controls in one AIS and IT-audit workspace.", ["itgc", "it controls", "application controls", "it audit"], ["ais", "it controls", "governance"], "IT Controls", true, ["it governance", "it controls", "it audit", "logical access"]),
+    feature("/governance/risk-control-matrix", "Risk and Control Matrix", "Accounting", "Read inherent risk, control quality, and residual risk in one governance and internal-control workspace.", ["internal control evaluation", "risk matrix", "ethics and control"], ["governance", "risk", "control"], "Risk Matrix", true, ["risk control matrix", "internal control", "residual risk", "governance"]),
+    feature("/rfbt/business-law-review", "Business Law Review Workspace", "Accounting", "Use a structured issue-spotting page for obligations, contracts, and corporation-law review questions.", ["rfbt reviewer", "contracts review", "corporation law"], ["rfbt", "law", "contracts"], "Law Review", true, ["obligations", "contracts", "corporation law", "rfbt"]),
+    feature("/strategic/integrative-case-mapper", "Integrative Case Mapper", "Accounting", "Map mixed-topic cases into FAR, AFAR, cost, audit, tax, and governance follow-up tracks before solving in detail.", ["integrated case analysis", "board review integration", "strategic accounting review"], ["strategic", "integrative", "case mapping"], "Case Map", true, ["integrative case", "board review", "strategic analysis", "capstone review"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/job-order-cost-sheet", "Job Order Cost Sheet", "Managerial & Cost", "Assign direct materials, direct labor, and applied overhead to one job, then read total and per-unit job cost.", ["job order costing", "job cost sheet", "job order cost"], ["job order costing", "manufacturing", "cost accounting"], "Job Order", true, ["job order", "job cost sheet", "applied overhead", "unit cost"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),

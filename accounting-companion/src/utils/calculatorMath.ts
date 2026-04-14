@@ -2395,6 +2395,53 @@ type ElasticityShiftParams = {
     finalQuantity: number;
 };
 
+type HighLowCostEstimationParams = {
+    highActivityUnits: number;
+    highTotalCost: number;
+    lowActivityUnits: number;
+    lowTotalCost: number;
+    expectedActivityUnits?: number;
+};
+
+type RoiRiEvaParams = {
+    operatingIncome: number;
+    investedCapital: number;
+    targetRatePercent: number;
+    sales?: number;
+};
+
+type EconomicOrderQuantityParams = {
+    annualDemandUnits: number;
+    orderingCostPerOrder: number;
+    annualCarryingCostPerUnit: number;
+    dailyDemandUnits: number;
+    leadTimeDays: number;
+    safetyStockUnits?: number;
+};
+
+type AuditPlanningParams = {
+    benchmarkAmount: number;
+    materialityPercent: number;
+    performanceMaterialityPercent: number;
+    inherentRiskPercent: number;
+    controlRiskPercent: number;
+};
+
+type BookTaxDifferenceParams = {
+    accountingIncomeBeforeTax: number;
+    permanentDifferences: number;
+    temporaryDifferences: number;
+    taxRatePercent: number;
+};
+
+type BusinessCombinationParams = {
+    considerationTransferred: number;
+    netIdentifiableAssetsFairValue: number;
+    ownershipPercent: number;
+    nonControllingInterestMeasurement: "fair-value" | "proportionate-share";
+    nonControllingInterestFairValue?: number;
+};
+
 export function computePriceElasticity({
     initialPrice,
     finalPrice,
@@ -2770,5 +2817,215 @@ export function computeElasticityShift({
             driverChangePercent === 0 ? 0 : quantityChangePercent / driverChangePercent,
         driverChangePercent,
         quantityChangePercent,
+    };
+}
+
+export function computeHighLowCostEstimation({
+    highActivityUnits,
+    highTotalCost,
+    lowActivityUnits,
+    lowTotalCost,
+    expectedActivityUnits,
+}: HighLowCostEstimationParams) {
+    const activitySpread = safeSubtract(highActivityUnits, lowActivityUnits);
+    const variableCostPerUnit =
+        activitySpread === 0
+            ? 0
+            : safeDivide(safeSubtract(highTotalCost, lowTotalCost), activitySpread);
+    const fixedCostEstimate = safeSubtract(
+        highTotalCost,
+        safeMultiply(variableCostPerUnit, highActivityUnits)
+    );
+    const costFormula = `Y = ${roundTo(fixedCostEstimate, 2)} + ${roundTo(variableCostPerUnit, 4)}X`;
+    const estimatedTotalCost =
+        expectedActivityUnits === undefined
+            ? null
+            : safeAdd(
+                  fixedCostEstimate,
+                  safeMultiply(variableCostPerUnit, expectedActivityUnits)
+              );
+
+    return {
+        activitySpread,
+        variableCostPerUnit,
+        fixedCostEstimate,
+        estimatedTotalCost,
+        costFormula,
+    };
+}
+
+export function computeRoiRiEva({
+    operatingIncome,
+    investedCapital,
+    targetRatePercent,
+    sales = 0,
+}: RoiRiEvaParams) {
+    const targetRateDecimal = percentToDecimal(targetRatePercent);
+    const roi = safeMultiply(safeDivide(operatingIncome, investedCapital), 100);
+    const capitalCharge = safeMultiply(investedCapital, targetRateDecimal);
+    const residualIncome = safeSubtract(operatingIncome, capitalCharge);
+    const eva = residualIncome;
+    const profitMargin =
+        sales === 0 ? 0 : safeMultiply(safeDivide(operatingIncome, sales), 100);
+    const investmentTurnover = sales === 0 ? 0 : safeDivide(sales, investedCapital);
+
+    return {
+        roi,
+        capitalCharge,
+        residualIncome,
+        eva,
+        profitMargin,
+        investmentTurnover,
+        targetRateDecimal,
+    };
+}
+
+export function computeEconomicOrderQuantity({
+    annualDemandUnits,
+    orderingCostPerOrder,
+    annualCarryingCostPerUnit,
+    dailyDemandUnits,
+    leadTimeDays,
+    safetyStockUnits = 0,
+}: EconomicOrderQuantityParams) {
+    const eoq =
+        annualCarryingCostPerUnit <= 0
+            ? 0
+            : Math.sqrt(
+                  safeDivide(
+                      safeMultiply(
+                          safeMultiply(2, annualDemandUnits),
+                          orderingCostPerOrder
+                      ),
+                      annualCarryingCostPerUnit
+                  )
+              );
+    const ordersPerYear = eoq <= 0 ? 0 : safeDivide(annualDemandUnits, eoq);
+    const averageInventoryUnits = safeAdd(safeDivide(eoq, 2), safetyStockUnits);
+    const annualOrderingCost = safeMultiply(ordersPerYear, orderingCostPerOrder);
+    const annualCarryingCost = safeMultiply(
+        averageInventoryUnits,
+        annualCarryingCostPerUnit
+    );
+    const reorderPointUnits = safeAdd(
+        safeMultiply(dailyDemandUnits, leadTimeDays),
+        safetyStockUnits
+    );
+
+    return {
+        eoq,
+        ordersPerYear,
+        averageInventoryUnits,
+        annualOrderingCost,
+        annualCarryingCost,
+        relevantInventoryCost: safeAdd(annualOrderingCost, annualCarryingCost),
+        reorderPointUnits,
+    };
+}
+
+export function computeAuditPlanning({
+    benchmarkAmount,
+    materialityPercent,
+    performanceMaterialityPercent,
+    inherentRiskPercent,
+    controlRiskPercent,
+}: AuditPlanningParams) {
+    const planningMateriality = safeMultiply(
+        benchmarkAmount,
+        percentToDecimal(materialityPercent)
+    );
+    const performanceMateriality = safeMultiply(
+        planningMateriality,
+        percentToDecimal(performanceMaterialityPercent)
+    );
+    const inherentRiskDecimal = percentToDecimal(inherentRiskPercent);
+    const controlRiskDecimal = percentToDecimal(controlRiskPercent);
+    const riskOfMaterialMisstatement = safeMultiply(
+        inherentRiskDecimal,
+        controlRiskDecimal
+    );
+    const plannedDetectionRisk =
+        riskOfMaterialMisstatement === 0
+            ? 0
+            : safeDivide(0.05, riskOfMaterialMisstatement);
+
+    return {
+        planningMateriality,
+        performanceMateriality,
+        inherentRiskDecimal,
+        controlRiskDecimal,
+        riskOfMaterialMisstatement,
+        plannedDetectionRisk,
+        auditFocus:
+            plannedDetectionRisk <= 0.3
+                ? "More substantive work is likely needed."
+                : plannedDetectionRisk <= 0.6
+                  ? "Balanced control and substantive testing may be appropriate."
+                  : "Control reliance may support a lighter substantive response if evidence holds.",
+    };
+}
+
+export function computeBookTaxDifference({
+    accountingIncomeBeforeTax,
+    permanentDifferences,
+    temporaryDifferences,
+    taxRatePercent,
+}: BookTaxDifferenceParams) {
+    const taxableIncome = safeAdd(
+        safeAdd(accountingIncomeBeforeTax, permanentDifferences),
+        temporaryDifferences
+    );
+    const currentTaxExpense = safeMultiply(taxableIncome, percentToDecimal(taxRatePercent));
+    const deferredTaxEffect = safeMultiply(
+        temporaryDifferences,
+        percentToDecimal(taxRatePercent)
+    );
+    const effectiveTaxRate =
+        accountingIncomeBeforeTax === 0
+            ? 0
+            : safeMultiply(
+                  safeDivide(currentTaxExpense, accountingIncomeBeforeTax),
+                  100
+              );
+
+    return {
+        taxableIncome,
+        currentTaxExpense,
+        deferredTaxEffect,
+        effectiveTaxRate,
+    };
+}
+
+export function computeBusinessCombination({
+    considerationTransferred,
+    netIdentifiableAssetsFairValue,
+    ownershipPercent,
+    nonControllingInterestMeasurement,
+    nonControllingInterestFairValue = 0,
+}: BusinessCombinationParams) {
+    const ownershipDecimal = percentToDecimal(ownershipPercent);
+    const nonControllingInterest =
+        nonControllingInterestMeasurement === "fair-value"
+            ? nonControllingInterestFairValue
+            : safeMultiply(
+                  netIdentifiableAssetsFairValue,
+                  safeSubtract(1, ownershipDecimal)
+              );
+    const impliedAcquireeFairValue = safeAdd(
+        considerationTransferred,
+        nonControllingInterest
+    );
+    const goodwill = safeSubtract(
+        impliedAcquireeFairValue,
+        netIdentifiableAssetsFairValue
+    );
+
+    return {
+        ownershipDecimal,
+        nonControllingInterest,
+        impliedAcquireeFairValue,
+        goodwill,
+        resultLabel:
+            goodwill >= 0 ? "Goodwill recognized" : "Bargain purchase gain indicated",
     };
 }

@@ -53,16 +53,19 @@ type OpenGroupsState = Record<AppNavGroupTitle, boolean>;
 
 const DEFAULT_OPEN_GROUPS: OpenGroupsState = {
     General: false,
-    "Core Tools": false,
-    "Smart Tools": false,
+    "Smart Tools": true,
     "Study Hub": true,
-    Accounting: false,
-    Finance: false,
-    "Managerial & Cost": false,
-    Economics: false,
-    Entrepreneurship: false,
-    "Business Math": false,
-    Statistics: false,
+    FAR: false,
+    AFAR: false,
+    "Cost & Managerial": false,
+    "Audit & Assurance": false,
+    Taxation: false,
+    "RFBT & Law": false,
+    "AIS & IT Controls": false,
+    "Operations & Supply Chain": false,
+    "Governance & Ethics": false,
+    "Strategic & Integrative": false,
+    "Finance / Econ / Math": false,
 };
 
 const ROUTE_DRAFT_STORAGE_PREFIX = "accalc-route-draft";
@@ -77,26 +80,32 @@ function getSidebarTone(groupTitle: AppNavGroupTitle) {
     switch (groupTitle) {
         case "General":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.24), rgba(28, 121, 204, 0.08))";
-        case "Core Tools":
-            return "linear-gradient(135deg, rgba(28, 121, 204, 0.24), rgba(14, 148, 136, 0.08))";
         case "Smart Tools":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(14, 148, 136, 0.1))";
         case "Study Hub":
             return "linear-gradient(135deg, rgba(69, 210, 175, 0.22), rgba(28, 121, 204, 0.08))";
-        case "Accounting":
+        case "FAR":
             return "linear-gradient(135deg, rgba(14, 148, 136, 0.24), rgba(28, 121, 204, 0.08))";
-        case "Finance":
-            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(43, 70, 229, 0.1))";
-        case "Managerial & Cost":
+        case "AFAR":
+            return "linear-gradient(135deg, rgba(28, 121, 204, 0.22), rgba(14, 148, 136, 0.08))";
+        case "Cost & Managerial":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.18), rgba(43, 70, 229, 0.08))";
-        case "Economics":
+        case "Audit & Assurance":
+            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(43, 70, 229, 0.1))";
+        case "Taxation":
+            return "linear-gradient(135deg, rgba(214, 77, 121, 0.18), rgba(220, 146, 71, 0.08))";
+        case "RFBT & Law":
+            return "linear-gradient(135deg, rgba(74, 86, 219, 0.2), rgba(220, 146, 71, 0.08))";
+        case "AIS & IT Controls":
             return "linear-gradient(135deg, rgba(36, 198, 176, 0.18), rgba(73, 138, 255, 0.08))";
-        case "Entrepreneurship":
+        case "Operations & Supply Chain":
             return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(36, 198, 176, 0.08))";
-        case "Business Math":
+        case "Governance & Ethics":
             return "linear-gradient(135deg, rgba(43, 70, 229, 0.18), rgba(220, 146, 71, 0.08))";
-        case "Statistics":
+        case "Strategic & Integrative":
             return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(14, 148, 136, 0.1))";
+        case "Finance / Econ / Math":
+            return "linear-gradient(135deg, rgba(73, 138, 255, 0.18), rgba(43, 70, 229, 0.08))";
         default:
             return "linear-gradient(135deg, rgba(43, 70, 229, 0.16), rgba(14, 148, 136, 0.06))";
     }
@@ -154,12 +163,16 @@ function getNavLabel(route: { label: string; shortLabel?: string }) {
 }
 
 function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
-    if (groupTitle === "Core Tools") return "Core";
     if (groupTitle === "Smart Tools") return "Smart";
     if (groupTitle === "Study Hub") return "Study";
-    if (groupTitle === "Managerial & Cost") return "Mgmt & Cost";
-    if (groupTitle === "Entrepreneurship") return "Startup";
-    if (groupTitle === "Business Math") return "Business Math";
+    if (groupTitle === "Cost & Managerial") return "Cost & Mgmt";
+    if (groupTitle === "Audit & Assurance") return "Audit";
+    if (groupTitle === "RFBT & Law") return "Law";
+    if (groupTitle === "AIS & IT Controls") return "AIS & IT";
+    if (groupTitle === "Operations & Supply Chain") return "Operations";
+    if (groupTitle === "Governance & Ethics") return "Governance";
+    if (groupTitle === "Strategic & Integrative") return "Strategic";
+    if (groupTitle === "Finance / Econ / Math") return "Fin / Econ / Math";
     return groupTitle;
 }
 
@@ -177,6 +190,14 @@ function prefersWidePageShell(pathname: string) {
         pathname.startsWith("/entrepreneurship/") ||
         pathname.startsWith("/business-math/") ||
         pathname.startsWith("/statistics/") ||
+        pathname.startsWith("/operations/") ||
+        pathname.startsWith("/audit/") ||
+        pathname.startsWith("/tax/") ||
+        pathname.startsWith("/afar/") ||
+        pathname.startsWith("/ais/") ||
+        pathname.startsWith("/governance/") ||
+        pathname.startsWith("/rfbt/") ||
+        pathname.startsWith("/strategic/") ||
         pathname.includes("workspace") ||
         pathname.includes("analysis") ||
         pathname.includes("comparison") ||

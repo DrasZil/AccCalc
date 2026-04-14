@@ -21,6 +21,10 @@ type ToolLearningContent = {
     methodNote?: string;
 };
 
+function isFarLikeCategory(category: RouteMeta["category"]) {
+    return category === "FAR" || category === "AFAR";
+}
+
 function buildLearningContent(route: RouteMeta): ToolLearningContent {
     const label = route.shortLabel ?? route.label;
     const lowerCategory = route.category.toLowerCase();
@@ -31,14 +35,14 @@ function buildLearningContent(route: RouteMeta): ToolLearningContent {
         whatItSolves: route.description,
         whenToUse: `Use this tool when you need a quick, structured answer for a ${route.subtopic.toLowerCase()} problem instead of building the formula manually.`,
         whyItMatters:
-            route.category === "Accounting"
+            isFarLikeCategory(route.category)
                 ? "It helps turn classroom formulas and working-paper logic into a clearer answer you can interpret before posting, comparing, or reviewing the result."
-                : route.category === "Finance"
+                : route.category === "Finance / Econ / Math"
                   ? "It helps connect the numeric answer to a time-value, lending, or investment decision instead of leaving the result as an isolated figure."
-                  : route.category === "Economics"
-                    ? "It helps explain how quantities, prices, incentives, or rates move together so the answer means something beyond one computed number."
-                    : route.category === "Entrepreneurship"
+                  : route.category === "Strategic & Integrative"
                       ? "It helps connect the result to pricing, planning, feasibility, or cash decisions that matter in a real small-business setting."
+                      : route.category === "Operations & Supply Chain"
+                        ? "It helps connect quantitative output to inventory, scheduling, or capacity decisions instead of treating the answer as a stand-alone figure."
                       : "It helps connect the answer to an actual decision, interpretation, or next step instead of leaving it as raw output only.",
         beginnerNote:
             "Start by identifying what each input stands for before typing values. If the wording in your problem is messy, translate it into the variables shown here one line at a time.",

@@ -193,93 +193,114 @@ export function ShellIcon({
         );
     }
 
-    if (kind === "Finance") {
-        return (
-            <svg {...sharedProps}>
-                <path d="M5 17.5h14" />
-                <path d="M7.5 14V9.5" />
-                <path d="M12 14V6.5" />
-                <path d="M16.5 14v-3" />
-            </svg>
-        );
-    }
-
-    if (kind === "Accounting") {
+    if (kind === "FAR") {
         return (
             <svg {...sharedProps}>
                 <path d="M5 18h14" />
-                <path d="M7 8h10" />
-                <path d="M7 12h4" />
-                <path d="M13 12h4" />
-                <path d="M7 16h10" />
-                <rect x="5" y="5" width="14" height="14" rx="2.5" />
+                <rect x="5" y="5" width="14" height="13" rx="2.5" />
+                <path d="M8 9h8" />
+                <path d="M8 13h4" />
+                <path d="M14 13h2" />
             </svg>
         );
     }
 
-    if (kind === "Business") {
+    if (kind === "AFAR") {
         return (
             <svg {...sharedProps}>
-                <path d="M4.5 19h15" />
-                <path d="M7 19V9h4v10" />
-                <path d="M13 19V5h4v14" />
+                <rect x="4.5" y="5" width="7" height="14" rx="2" />
+                <rect x="12.5" y="8" width="7" height="11" rx="2" />
+                <path d="M7.5 9h1" />
+                <path d="M15.5 12h1" />
             </svg>
         );
     }
 
-    if (kind === "Managerial & Cost") {
+    if (kind === "Audit & Assurance") {
         return (
             <svg {...sharedProps}>
-                <path d="M6 7h12" />
-                <path d="M8 4v6" />
-                <path d="M16 4v6" />
-                <path d="M5 10.5h14v7A2.5 2.5 0 0 1 16.5 20h-9A2.5 2.5 0 0 1 5 17.5v-7Z" />
+                <path d="M10.5 10.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+                <path d="M14 14l5 5" />
+                <path d="M5 6h10" />
+                <path d="M5 3.5h14" />
+            </svg>
+        );
+    }
+
+    if (kind === "Taxation") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M6 5h12" />
+                <path d="M8 5v14" />
+                <path d="M16 5v14" />
+                <path d="M6 19h12" />
+                <path d="M10 10h4" />
                 <path d="M10 14h4" />
             </svg>
         );
     }
 
-    if (kind === "Economics") {
+    if (kind === "RFBT & Law") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M12 5l7 3.5L12 12 5 8.5 12 5Z" />
+                <path d="M7 12.5V17c0 1.7 2.2 3 5 3s5-1.3 5-3v-4.5" />
+            </svg>
+        );
+    }
+
+    if (kind === "AIS & IT Controls") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M5 17.5h14" />
+                <rect x="5" y="4.5" width="14" height="10" rx="2.5" />
+                <path d="M9 18v1.5" />
+                <path d="M15 18v1.5" />
+                <path d="M9 9.5h6" />
+            </svg>
+        );
+    }
+
+    if (kind === "Operations & Supply Chain") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M4.5 18h15" />
+                <path d="M6.5 14h4l2-4 2 4h3" />
+                <path d="M7 9h0" />
+                <path d="M17 9h0" />
+            </svg>
+        );
+    }
+
+    if (kind === "Governance & Ethics") {
+        return (
+            <svg {...sharedProps}>
+                <path d="M12 4l6 3v4c0 4.5-2.2 7.2-6 9-3.8-1.8-6-4.5-6-9V7l6-3Z" />
+                <path d="M9.5 11.5 11 13l3.5-3.5" />
+            </svg>
+        );
+    }
+
+    if (kind === "Strategic & Integrative") {
         return (
             <svg {...sharedProps}>
                 <path d="M5 18.5h14" />
                 <path d="M7.5 18.5V13" />
-                <path d="M12 18.5V9" />
-                <path d="M16.5 18.5V6" />
-                <path d="M7 7.5c2 .6 3.5 1.1 5 .8 1.6-.2 2.9-1 5-2.3" />
+                <path d="M12 18.5V8" />
+                <path d="M16.5 18.5V5" />
+                <path d="M7 10.5 11 8l3 2 3-4" />
             </svg>
         );
     }
 
-    if (kind === "Entrepreneurship") {
-        return (
-            <svg {...sharedProps}>
-                <path d="M6 18h12" />
-                <path d="M8 18v-6.5h8V18" />
-                <path d="M10 11.5V7h4v4.5" />
-                <path d="M12 4v3" />
-            </svg>
-        );
-    }
-
-    if (kind === "Business Math") {
-        return (
-            <svg {...sharedProps}>
-                <path d="M6 6h12" />
-                <path d="M6 12h12" />
-                <path d="M8.5 4.5v15" />
-                <path d="M15.5 4.5v15" />
-            </svg>
-        );
-    }
-
-    if (kind === "Statistics") {
+    if (kind === "Finance / Econ / Math") {
         return (
             <svg {...sharedProps}>
                 <path d="M5 18.5h14" />
                 <path d="M7.5 18.5v-4" />
                 <path d="M12 18.5v-8" />
                 <path d="M16.5 18.5v-11" />
+                <path d="M7 7.5c2 .6 3.5 1.1 5 .8 1.6-.2 2.9-1 5-2.3" />
             </svg>
         );
     }

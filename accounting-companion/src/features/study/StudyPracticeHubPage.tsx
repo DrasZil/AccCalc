@@ -7,6 +7,7 @@ import {
     buildStudyQuizPath,
     buildStudyTopicPath,
     getAllStudyTopics,
+    getStudyCategoryTrack,
 } from "./studyContent";
 import { useStudyProgress } from "../../utils/studyProgress";
 
@@ -109,7 +110,7 @@ export default function StudyPracticeHubPage() {
                             <SectionCard key={topic.id}>
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {topic.category}
+                                        {getStudyCategoryTrack(topic.category)}
                                     </span>
                                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
                                         {topic.quiz.questions.length} questions

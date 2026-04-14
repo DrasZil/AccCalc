@@ -42,6 +42,10 @@ const SMART_PROMPT_EXAMPLES = [
     "Plan startup costs with permits, equipment, inventory, and a 10% contingency.",
     "Build an adjusting entry for prepaid expense or accrued expense.",
     "Use the entrepreneurship toolkit to find a selling price target or customer payback.",
+    "Estimate mixed cost using the high-low method.",
+    "Plan EOQ and reorder point with lead time and safety stock.",
+    "Review audit planning materiality and risk from one workspace.",
+    "Bridge accounting income and taxable income through book-tax differences.",
 ];
 
 const FEATURED_PATHS = [
@@ -56,6 +60,10 @@ const FEATURED_PATHS = [
     "/finance/internal-rate-of-return",
     "/finance/capital-budgeting-comparison",
     "/accounting/common-size-income-statement",
+    "/audit/audit-planning-workspace",
+    "/tax/book-tax-difference-workspace",
+    "/operations/eoq-and-reorder-point",
+    "/afar/business-combination-analysis",
     "/economics/price-elasticity-demand",
     "/entrepreneurship/entrepreneurship-toolkit",
 ];
@@ -142,6 +150,42 @@ const WORKFLOW_COLLECTIONS = [
             "/finance/internal-rate-of-return",
             "/finance/profitability-index",
             "/finance/discounted-payback-period",
+        ],
+    },
+    {
+        title: "Audit planning",
+        description: "Move from planning materiality and audit risk into IT controls and broader governance review.",
+        paths: [
+            "/audit/audit-planning-workspace",
+            "/ais/it-control-matrix",
+            "/governance/risk-control-matrix",
+        ],
+    },
+    {
+        title: "Tax bridge",
+        description: "Move from book-tax differences into VAT review and broader integrative tax interpretation.",
+        paths: [
+            "/tax/book-tax-difference-workspace",
+            "/accounting/philippine-vat",
+            "/strategic/integrative-case-mapper",
+        ],
+    },
+    {
+        title: "Operations and supply chain",
+        description: "Move from EOQ and reorder point into capacity and inventory-control follow-through.",
+        paths: [
+            "/operations/eoq-and-reorder-point",
+            "/business/capacity-utilization",
+            "/accounting/inventory-control-workspace",
+        ],
+    },
+    {
+        title: "AFAR and consolidation",
+        description: "Start from business-combination measurement, then move into partnership and integrative review support.",
+        paths: [
+            "/afar/business-combination-analysis",
+            "/accounting/partnership-dissolution",
+            "/strategic/integrative-case-mapper",
         ],
     },
     {
@@ -239,7 +283,10 @@ export default function HomePage() {
         () =>
             APP_NAV_GROUPS.filter((group) => group.title !== "General").map((group) => ({
                 ...group,
-                featuredItems: group.items.slice(0, group.title === "Accounting" ? 5 : 4),
+                featuredItems: group.items.slice(
+                    0,
+                    group.title === "FAR" || group.title === "Cost & Managerial" ? 5 : 4
+                ),
             })),
         []
     );

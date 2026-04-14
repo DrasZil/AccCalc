@@ -9,9 +9,9 @@ import {
     buildStudyQuizPath,
     buildStudyTopicPath,
     getAllStudyTopics,
+    getStudyCategoryTrack,
     searchStudyTopics,
     type StudyTopic,
-    type StudyTopicCategory,
 } from "./studyContent";
 import { useStudyProgress } from "../../utils/studyProgress";
 
@@ -30,7 +30,7 @@ function TopicCard({
         <div className="app-link-card min-w-0 rounded-[1.15rem] px-4 py-4">
             <div className="flex min-w-0 flex-wrap items-start gap-2">
                 <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {topic.category}
+                    {getStudyCategoryTrack(topic.category)}
                 </span>
                 {bookmarked ? (
                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
@@ -105,24 +105,23 @@ export default function StudyHubPage() {
 
     const categoryGroups = useMemo(
         () =>
-            visibleTopics.reduce<Record<StudyTopicCategory, StudyTopic[]>>((groups, topic) => {
-                const existing = groups[topic.category] ?? [];
+            visibleTopics.reduce<Record<string, StudyTopic[]>>((groups, topic) => {
+                const track = getStudyCategoryTrack(topic.category);
+                const existing = groups[track] ?? [];
                 return {
                     ...groups,
-                    [topic.category]: [...existing, topic],
+                    [track]: [...existing, topic],
                 };
-            }, {} as Record<StudyTopicCategory, StudyTopic[]>),
+            }, {} as Record<string, StudyTopic[]>),
         [visibleTopics]
     );
     const categoryCoverage = useMemo(
         () =>
             allTopics.reduce<
-                Record<
-                    StudyTopicCategory,
-                    { topicCount: number; calculatorCount: number; quizCount: number }
-                >
+                Record<string, { topicCount: number; calculatorCount: number; quizCount: number }>
             >((groups, topic) => {
-                const current = groups[topic.category] ?? {
+                const track = getStudyCategoryTrack(topic.category);
+                const current = groups[track] ?? {
                     topicCount: 0,
                     calculatorCount: 0,
                     quizCount: 0,
@@ -130,28 +129,21 @@ export default function StudyHubPage() {
 
                 return {
                     ...groups,
-                    [topic.category]: {
+                    [track]: {
                         topicCount: current.topicCount + 1,
                         calculatorCount:
                             current.calculatorCount + topic.relatedCalculatorPaths.length,
                         quizCount: current.quizCount + 1,
                     },
                 };
-            }, {} as Record<
-                StudyTopicCategory,
-                { topicCount: number; calculatorCount: number; quizCount: number }
-            >),
+            }, {} as Record<string, { topicCount: number; calculatorCount: number; quizCount: number }>),
         [allTopics]
     );
 
     const quizCount = Object.keys(studyProgress.quizzes).length;
     const calculatorGroups = useMemo(
         () =>
-            APP_NAV_GROUPS.filter(
-                (group) =>
-                    group.title !== "Study Hub" &&
-                    group.items.length > 0
-            ),
+            APP_NAV_GROUPS.filter((group) => group.title !== "Study Hub" && group.items.length > 0),
         []
     );
 
@@ -312,20 +304,24 @@ export default function StudyHubPage() {
                             <div className="max-w-3xl">
                                 <p className="app-card-title text-base">{category}</p>
                                 <p className="app-helper mt-1 text-xs leading-5">
-                                    {STUDY_CATEGORY_DETAILS[category as StudyTopicCategory].description}
+                                    {topics[0]
+                                        ? STUDY_CATEGORY_DETAILS[topics[0].category].description
+                                        : "Structured study coverage for this curriculum track."}
                                 </p>
                                 <p className="app-helper mt-2 text-xs leading-5">
-                                    Focus: {STUDY_CATEGORY_DETAILS[category as StudyTopicCategory].emphasis}
+                                    Focus: {topics[0]
+                                        ? STUDY_CATEGORY_DETAILS[topics[0].category].emphasis
+                                        : "Concept structure and practical interpretation"}
                                 </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category as StudyTopicCategory]?.topicCount ?? 0} lessons
+                                        {categoryCoverage[category]?.topicCount ?? 0} lessons
                                     </span>
                                     <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category as StudyTopicCategory]?.quizCount ?? 0} quizzes
+                                        {categoryCoverage[category]?.quizCount ?? 0} quizzes
                                     </span>
                                     <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category as StudyTopicCategory]?.calculatorCount ?? 0} linked calculators
+                                        {categoryCoverage[category]?.calculatorCount ?? 0} linked calculators
                                     </span>
                                 </div>
                             </div>

@@ -5,6 +5,10 @@ export type AppSearchResult = RouteMeta & {
     matchLabel: string;
 };
 
+function isPriorityAcademicTrack(category: RouteMeta["category"]) {
+    return category === "FAR" || category === "Cost & Managerial";
+}
+
 function normalizeText(value: string) {
     return value
         .toLowerCase()
@@ -161,7 +165,7 @@ function scoreRoute(route: RouteMeta, rawQuery: string) {
     });
 
     if (route.isNew) score += 4;
-    if (route.category === "Accounting") score += 3;
+    if (isPriorityAcademicTrack(route.category)) score += 3;
 
     return { score, matchLabel };
 }
@@ -188,7 +192,7 @@ export function getSuggestedRoutes(limit = 8): AppSearchResult[] {
     )
         .map((route) => ({
             ...route,
-            score: route.isNew ? 120 : route.category === "Accounting" ? 90 : 70,
+            score: route.isNew ? 120 : isPriorityAcademicTrack(route.category) ? 90 : 70,
             matchLabel: route.isNew ? "new" : "popular",
         }))
         .sort((left, right) => right.score - left.score || left.label.localeCompare(right.label))

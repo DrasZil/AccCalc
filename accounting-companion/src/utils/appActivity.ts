@@ -60,6 +60,10 @@ const DEFAULT_ACTIVITY_STATE: AppActivityState = {
 
 cachedActivitySnapshot = DEFAULT_ACTIVITY_STATE;
 
+function isPriorityAcademicTrack(category: RouteMeta["category"]) {
+    return category === "FAR" || category === "Cost & Managerial";
+}
+
 function sanitizeActivity(
     value: Partial<AppActivityState> | null | undefined
 ): AppActivityState {
@@ -362,7 +366,7 @@ export function getRecommendedRoutes(activity: AppActivityState, currentPath?: s
                 score += 4;
             }
 
-            if (route.category === "Accounting") score += 2;
+            if (isPriorityAcademicTrack(route.category)) score += 2;
             return { ...route, score };
         })
         .sort((a, b) => b.score - a.score);

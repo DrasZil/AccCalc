@@ -12,6 +12,7 @@ import {
     buildStudyQuizPath,
     buildStudyTopicPath,
     getRelatedStudyTopics,
+    getStudyCategoryTrack,
     getStudyTopic,
 } from "./studyContent";
 import {
@@ -131,7 +132,7 @@ export default function StudyTopicPage() {
             <PageBackButton fallbackTo="/study" label="Back to Study Hub" />
 
             <PageHeader
-                badge={`${topic.category} | Study Hub`}
+                badge={`${getStudyCategoryTrack(topic.category)} | Study Hub`}
                 title={topic.title}
                 description={topic.summary}
                 actions={

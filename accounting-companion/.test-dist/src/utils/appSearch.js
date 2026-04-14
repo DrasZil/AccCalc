@@ -1,4 +1,7 @@
 import { APP_ROUTE_META } from "./appCatalog.js";
+function isPriorityAcademicTrack(category) {
+    return category === "FAR" || category === "Cost & Managerial";
+}
 function normalizeText(value) {
     return value
         .toLowerCase()
@@ -129,7 +132,7 @@ function scoreRoute(route, rawQuery) {
     });
     if (route.isNew)
         score += 4;
-    if (route.category === "Accounting")
+    if (isPriorityAcademicTrack(route.category))
         score += 3;
     return { score, matchLabel };
 }
@@ -151,7 +154,7 @@ export function getSuggestedRoutes(limit = 8) {
         route.path !== "/settings/feedback")
         .map((route) => ({
         ...route,
-        score: route.isNew ? 120 : route.category === "Accounting" ? 90 : 70,
+        score: route.isNew ? 120 : isPriorityAcademicTrack(route.category) ? 90 : 70,
         matchLabel: route.isNew ? "new" : "popular",
     }))
         .sort((left, right) => right.score - left.score || left.label.localeCompare(right.label))

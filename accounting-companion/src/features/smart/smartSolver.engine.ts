@@ -3179,6 +3179,86 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
             /double declining/i,
         ],
     },
+    {
+        id: "high-low-cost-estimation",
+        name: "High-Low Cost Estimation",
+        route: "/business/high-low-cost-estimation",
+        description:
+            "Estimate variable and fixed cost components from high-low activity data.",
+        required: [],
+        aliases: ["high low method", "mixed cost split", "cost behavior estimate"],
+        keywords: [/high[- ]low/i, /mixed cost/i, /cost behavior/i, /high low method/i],
+    },
+    {
+        id: "roi-ri-eva",
+        name: "ROI, RI, and EVA Workspace",
+        route: "/business/roi-ri-eva",
+        description:
+            "Compare ROI, residual income, and EVA-style performance reading from one route.",
+        required: [],
+        aliases: ["roi", "residual income", "eva", "investment center"],
+        keywords: [/return on investment/i, /\broi\b/i, /residual income/i, /\beva\b/i, /investment center/i],
+    },
+    {
+        id: "eoq-and-reorder-point",
+        name: "EOQ and Reorder Point",
+        route: "/operations/eoq-and-reorder-point",
+        description:
+            "Plan economic order quantity and reorder point from one inventory route.",
+        required: [],
+        aliases: ["economic order quantity", "reorder point", "inventory replenishment"],
+        keywords: [/\beoq\b/i, /economic order quantity/i, /reorder point/i, /safety stock/i, /lead time/i],
+    },
+    {
+        id: "audit-planning-workspace",
+        name: "Audit Planning Workspace",
+        route: "/audit/audit-planning-workspace",
+        description:
+            "Review planning materiality, performance materiality, and audit-risk response.",
+        required: [],
+        aliases: ["audit materiality", "planning materiality", "audit risk"],
+        keywords: [/audit planning/i, /planning materiality/i, /performance materiality/i, /audit risk/i],
+    },
+    {
+        id: "book-tax-difference-workspace",
+        name: "Book-Tax Difference Workspace",
+        route: "/tax/book-tax-difference-workspace",
+        description:
+            "Bridge accounting income and taxable income through book-tax differences.",
+        required: [],
+        aliases: ["book tax differences", "temporary differences", "tax reconciliation"],
+        keywords: [/book tax/i, /temporary differences/i, /deferred tax/i, /tax reconciliation/i],
+    },
+    {
+        id: "business-combination-analysis",
+        name: "Business Combination Analysis",
+        route: "/afar/business-combination-analysis",
+        description:
+            "Study goodwill, NCI measurement, and acquisition-date business-combination logic.",
+        required: [],
+        aliases: ["goodwill calculator", "business combination", "nci measurement"],
+        keywords: [/business combination/i, /goodwill/i, /\bnci\b/i, /consolidation goodwill/i],
+    },
+    {
+        id: "it-control-matrix",
+        name: "IT Control Matrix",
+        route: "/ais/it-control-matrix",
+        description:
+            "Review IT governance, general controls, and application-control implications.",
+        required: [],
+        aliases: ["itgc", "it controls", "it audit"],
+        keywords: [/it governance/i, /it controls/i, /\bitgc\b/i, /application controls/i, /it audit/i],
+    },
+    {
+        id: "integrative-case-mapper",
+        name: "Integrative Case Mapper",
+        route: "/strategic/integrative-case-mapper",
+        description:
+            "Map mixed-topic cases before choosing the detailed route.",
+        required: [],
+        aliases: ["board review integration", "integrative case", "capstone review"],
+        keywords: [/integrative case/i, /board review/i, /capstone/i, /mixed topic/i],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
