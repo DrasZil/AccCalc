@@ -1,26 +1,38 @@
-export const APP_VERSION = "4.6.0";
+export const APP_VERSION = "5.1.0";
 export const APP_RELEASE_DATE = "2026-04-14";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Deferred FAR and AFAR depth now has real Pass 2 coverage",
-        body: "AccCalc 4.6.0 adds lease measurement, share-based payments, cash-flow building, foreign-currency translation, and construction-revenue support instead of leaving those deferred areas at reviewer-only depth.",
+        title: "Workpaper Studio now puts the worksheet first",
+        body: "AccCalc 5.1.0 redesigns Workpaper Studio around a compact spreadsheet-style workspace so the grid, active cell, formula entry, and sheet tabs are visible immediately instead of competing with large support surfaces.",
     },
     {
-        title: "Audit, tax, AIS, RFBT, and strategic tracks are deeper and more usable",
-        body: "New review workspaces now cover transaction cycles, audit completion and reporting, tax compliance and incentives, AIS continuity and ERP support, commercial-law depth, and strategic business analysis.",
+        title: "Secondary tools now stay close without taking over the screen",
+        body: "Workbook management, transfer inbox actions, template browsing, metadata editing, traceability, and related workflow links now live behind a lighter disclosure tray so advanced tools remain available while the sheet stays central.",
     },
     {
-        title: "Study Hub now handles broader lessons with cleaner disclosure structure",
-        body: "Longer lessons now surface overview, formulas, procedure, examples, mistakes, self-check, and deep-dive reviewer panels through layered collapsible sections so broad topics stay readable on mobile and desktop.",
+        title: "Cell editing and formula entry are more direct",
+        body: "The editor now keeps a slimmer formula bar, clearer active-cell state, more predictable keyboard movement, safer sheet switching, and live formula preview support so entering values or formulas feels faster and less fragile.",
     },
     {
-        title: "Smart routing is better at mixed-topic and board-style wording",
-        body: "Smart Solver and scan routing now recognize more deferred-topic vocabulary, broader professional phrasing, and multi-concept wording so the right first route is easier to find in harder cases.",
+        title: "The workbook route now feels like a focused editing mode",
+        body: "Workpaper Studio keeps the existing workbook architecture, autosave, import-export, history links, calculator transfers, and local-first reliability, but presents them through a more responsive workspace-specific UI that is easier to scan on mobile and desktop.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "5.1.0: Reworked Workpaper Studio into a worksheet-first editing workspace with a compact workbook header, slimmer toolbar, clearer formula bar, stronger sheet tabs, and a dominant spreadsheet surface.",
+    "5.1.0: Moved workbook management, transfer inbox, templates, metadata, traceability, and related links into a lighter collapsible tray so secondary tools stay accessible without crowding the sheet.",
+    "5.1.0: Improved direct cell interaction with clearer selected-cell styling, smoother keyboard movement, safer sheet-boundary selection, and live formula preview support while typing.",
+    "5.1.0: Tightened workbook responsiveness by trimming route chrome, reducing always-rendered support surfaces, keeping autosave debounced, and evaluating populated cells through the lighter value-map path.",
+    "5.1.0: Refined the empty-state and first-use flow so users can immediately understand how to create a workbook, import a file, open a template, and start editing cells.",
+    "5.0.0: Added AccCalc Workpaper Studio as a workbook and working-paper system with multi-sheet files, workbook metadata, local autosave, recent workbooks, and responsive editor controls.",
+    "5.0.0: Added XLSX and CSV import-export support with workbook structure preservation, value and formula transfer, and fallback download flows when direct browser save APIs are unavailable.",
+    "5.0.0: Added a reusable workpaper formula layer for value cells, formula cells, A1-style references, range-based aggregate functions, and predictable recalculation inside workbook sheets.",
+    "5.0.0: Added professional starter templates for cash collections, cash disbursements, cash budget support, ratio summary, inventory planning, CVP analysis, capital budgeting comparison, audit planning, risk and control matrices, and book-tax difference bridges.",
+    "5.0.0: Integrated History with Workpaper Studio so prior records can become workbook sheets with preserved source context and traceable summary notes.",
+    "5.0.0: Added calculator-to-workpaper transfer actions for CVP, cash collections, cash disbursements, cash budget, high-low costing, ROI-RI-EVA, and EOQ-reorder workflows.",
+    "5.0.0: Expanded Smart Solver and Scan & Check guidance so workbook, spreadsheet, and supporting-schedule wording can route toward Workpaper Studio and suggest exportable next steps.",
     "4.6.0: Added new FAR workspaces for Lease Measurement, Share-Based Payments, and Statement of Cash Flows building so deferred FAR depth now includes real solve-and-review support.",
     "4.6.0: Added AFAR expansion routes for Foreign Currency Translation and Construction Revenue so foreign-currency and long-term-contract cases now have first-pass computational support.",
     "4.6.0: Added reviewer workspaces for Audit Cycles, Audit Completion and Opinion, Tax Compliance and Incentive Review, AIS Lifecycle and Recovery, Commercial Transactions, and Strategic Business Analysis.",

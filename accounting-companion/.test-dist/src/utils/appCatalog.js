@@ -32,6 +32,7 @@ function feature(path, label, legacyCategory, description, aliases = [], tags = 
     };
 }
 const CURRENT_RELEASE_NEW_PATHS = new Set([
+    "/workpapers",
     "/scan-check",
     "/accounting/process-costing-workspace",
     "/accounting/cost-per-equivalent-unit",
@@ -423,6 +424,7 @@ export function getRouteAvailability(route, options) {
 export const APP_ROUTE_META = [
     feature("/", "Home", "General", "Main workspace overview.", ["dashboard", "homepage"], ["home"], "Home"),
     feature("/history", "History", "General", "Saved prompts and recent activity.", ["recent", "saved work"], ["history"], "Saved", true),
+    feature("/workpapers", "Workpaper Studio", "General", "Workbook-style workpapers with templates, autosave, calculator transfer inbox, and XLSX or CSV import-export support.", ["spreadsheet", "workbook", "workpaper", "schedule builder"], ["workpaper", "spreadsheet", "workspace"], "Workpapers", true, ["workpaper studio", "spreadsheet workpaper", "xlsx import", "xlsx export", "calculator to workbook"]),
     feature("/settings", "Settings", "General", "Currency, motion, and app preferences.", ["preferences", "options"], ["settings"], "Prefs"),
     feature("/settings/about", "About", "General", "App background and context.", ["about acccalc"], ["about"], "About"),
     feature("/settings/install", "Install and Offline Guide", "General", "Platform-aware install guidance plus offline support limits and safeguards.", ["pwa install", "offline guide", "add to home screen"], ["install", "offline"], "Install", true),

@@ -4,6 +4,8 @@ import DisclosurePanel from "../../components/DisclosurePanel";
 import InputCard from "../../components/INputCard";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { createHistoryTransferBundle } from "../workpapers/workpaperTransfers";
 import {
     formatRelativeTime,
     getMostUsedRoutes,
@@ -53,6 +55,7 @@ function EntryCard({
     timestamp,
     to,
     extra,
+    actions,
 }: {
     title: string;
     subtitle: string;
@@ -60,14 +63,12 @@ function EntryCard({
     timestamp: number;
     to: string;
     extra?: string;
+    actions?: ReactNode;
 }) {
     return (
-        <Link
-            to={to}
-            className="app-list-link block rounded-[1.05rem] px-4 py-3.5"
-        >
+        <div className="app-list-link rounded-[1.05rem] px-4 py-3.5">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
+                <Link to={to} className="min-w-0 flex-1">
                     <p className="app-helper text-xs uppercase tracking-[0.14em]">{subtitle}</p>
                     <h3 className="mt-1.5 text-sm font-semibold text-[color:var(--app-text)]">
                         {title}
@@ -78,12 +79,15 @@ function EntryCard({
                             {extra}
                         </p>
                     ) : null}
-                </div>
-                <div className="shrink-0 text-xs text-[color:var(--app-text-muted)]">
-                    {formatRelativeTime(timestamp)}
+                </Link>
+                <div className="flex shrink-0 flex-col gap-2 md:items-end">
+                    <div className="text-xs text-[color:var(--app-text-muted)]">
+                        {formatRelativeTime(timestamp)}
+                    </div>
+                    {actions}
                 </div>
             </div>
-        </Link>
+        </div>
     );
 }
 
@@ -259,6 +263,13 @@ export default function HistoryPage() {
                                             summary={entry.summary}
                                             timestamp={entry.at}
                                             to={entry.path}
+                                            actions={
+                                                <SendToWorkpaperButton
+                                                    bundle={createHistoryTransferBundle(entry)}
+                                                    label="Create workpaper"
+                                                    className="px-3 py-1.5 text-xs"
+                                                />
+                                            }
                                         />
                                     );
                                 }}
@@ -299,6 +310,13 @@ export default function HistoryPage() {
                                                 record.result
                                                     ? `Result: ${record.result}`
                                                     : undefined
+                                            }
+                                            actions={
+                                                <SendToWorkpaperButton
+                                                    bundle={createHistoryTransferBundle(record)}
+                                                    label="Create workpaper"
+                                                    className="px-3 py-1.5 text-xs"
+                                                />
                                             }
                                         />
                                     );

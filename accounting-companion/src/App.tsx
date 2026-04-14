@@ -253,6 +253,9 @@ const AboutPage = lazy(() => import("./features/meta/AboutPage"));
 const FeedbackPage = lazy(() => import("./features/meta/FeedBackPage"));
 const HistoryPage = lazy(() => import("./features/meta/HistoryPage"));
 const InstallGuidePage = lazy(() => import("./features/meta/InstallGuidePage"));
+const WorkpaperStudioPage = lazy(
+    () => import("./features/workpapers/WorkpaperStudioPage")
+);
 const ProfitabilityIndexPage = lazy(
     () => import("./features/finance/ProfitabilityIndexPage")
 );
@@ -422,6 +425,7 @@ export default function App() {
                     <Route path="/" element={<AppLayout />}>
                         <Route index element={renderRoute("/", <HomePage />)} />
                         <Route path="history" element={renderRoute("/history", <HistoryPage />)} />
+                        <Route path="workpapers" element={renderRoute("/workpapers", <WorkpaperStudioPage />)} />
                         <Route path="basic" element={renderRoute("/basic", <BasicCalculatorPage />)} />
                         <Route path="smart/solver" element={renderRoute("/smart/solver", <SmartSolverPage />)} />
                         <Route path="scan-check" element={renderRoute("/scan-check", <ScanCheckPage />)} />

@@ -181,6 +181,7 @@ function prefersWidePageShell(pathname: string) {
         pathname === "/" ||
         pathname === "/scan-check" ||
         pathname === "/history" ||
+        pathname === "/workpapers" ||
         pathname === "/basic" ||
         pathname.startsWith("/smart/") ||
         pathname.startsWith("/accounting/") ||

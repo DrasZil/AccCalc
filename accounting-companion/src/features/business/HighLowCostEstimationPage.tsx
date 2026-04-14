@@ -8,6 +8,8 @@ import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
 import { computeHighLowCostEstimation } from "../../utils/calculatorMath";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildHighLowTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 export default function HighLowCostEstimationPage() {
     const [highActivityUnits, setHighActivityUnits] = useState("");
@@ -56,11 +58,34 @@ export default function HighLowCostEstimationPage() {
         lowTotalCost,
     ]);
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildHighLowTransferBundle({
+                      highActivityUnits,
+                      highTotalCost,
+                      lowActivityUnits,
+                      lowTotalCost,
+                      expectedActivityUnits,
+                      result,
+                  })
+                : null,
+        [
+            expectedActivityUnits,
+            highActivityUnits,
+            highTotalCost,
+            lowActivityUnits,
+            lowTotalCost,
+            result,
+        ]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Cost & Managerial"
             title="High-Low Cost Estimation"
             description="Split mixed cost into estimated variable and fixed components using the high-low method, then project total cost at an expected activity level."
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>

@@ -106,6 +106,9 @@ import {
     isWideResultValue,
     normalizeResultValue,
 } from "../src/utils/resultDisplay.js";
+import { evaluateCellInput } from "../src/features/workpapers/workpaperFormula.js";
+import { getWorkpaperTemplate } from "../src/features/workpapers/workpaperTemplates.js";
+import { createEmptySheet, createWorkbook, getCellKey } from "../src/features/workpapers/workpaperUtils.js";
 
 function assertClose(actual: number, expected: number, precision = 1e-6) {
     assert.ok(
@@ -253,6 +256,41 @@ runTest("cash ratio isolates the most liquid assets", () => {
 
     assertClose(result.cashAssets, 75000);
     assertClose(result.cashRatio, 0.75);
+});
+
+runTest("workpaper formulas evaluate references, ranges, and functions", () => {
+    const sheet = createEmptySheet({
+        title: "Sheet 1",
+        rowCount: 6,
+        columnCount: 4,
+        cells: {
+            [getCellKey(0, 0)]: { input: "100" },
+            [getCellKey(1, 0)]: { input: "50" },
+            [getCellKey(2, 0)]: { input: "=A1+A2" },
+            [getCellKey(3, 0)]: { input: "=SUM(A1:A3)" },
+            [getCellKey(4, 0)]: { input: "=AVERAGE(A1:A2)" },
+        },
+    });
+    const workbook = createWorkbook({
+        title: "Formula test",
+        sheets: [sheet],
+    });
+
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=A1+A2").display, "150");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=SUM(A1:A3)").display, "300");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=AVERAGE(A1:A2)").display, "75");
+});
+
+runTest("workpaper templates ship with structured starter workbooks", () => {
+    const template = getWorkpaperTemplate("cash-budget-support");
+    assert.ok(template);
+    const workbook = template?.buildWorkbook();
+    assert.ok(workbook);
+    assert.equal(workbook?.sheetOrder.length, 1);
+    const sheet = workbook?.sheets[workbook.activeSheetId ?? ""];
+    assert.ok(sheet);
+    assert.equal(sheet?.kind, "template");
+    assert.equal(sheet?.templateId, "cash-budget-support");
 });
 
 runTest("cash discount and partnership helpers return standard values", () => {
@@ -1161,6 +1199,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const aisLifecycleResults = searchAppRoutes("disaster recovery erp");
     const transactionsResults = searchAppRoutes("contracts of security");
     const strategicAnalysisResults = searchAppRoutes("strategic cost management");
+    const workpaperResults = searchAppRoutes("spreadsheet workpaper xlsx");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1214,6 +1253,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(aisLifecycleResults[0]?.path, "/ais/ais-lifecycle-and-recovery");
     assert.equal(transactionsResults[0]?.path, "/rfbt/commercial-transactions-reviewer");
     assert.equal(strategicAnalysisResults[0]?.path, "/strategic/strategic-business-analysis");
+    assert.equal(workpaperResults[0]?.path, "/workpapers");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {

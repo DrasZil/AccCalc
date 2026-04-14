@@ -8,6 +8,8 @@ import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
 import { computeRoiRiEva } from "../../utils/calculatorMath";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildRoiTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 function formatPercent(value: number) {
     return `${value.toFixed(2)}%`;
@@ -53,11 +55,26 @@ export default function RoiRiEvaPage() {
         });
     }, [investedCapital, operatingIncome, sales, targetRatePercent]);
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildRoiTransferBundle({
+                      operatingIncome,
+                      investedCapital,
+                      targetRatePercent,
+                      sales,
+                      result,
+                  })
+                : null,
+        [investedCapital, operatingIncome, result, sales, targetRatePercent]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Cost & Managerial"
             title="ROI, RI, and EVA Workspace"
             description="Compare return on investment, residual income, and EVA-style capital-charge reading from one responsibility-accounting workspace."
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>

@@ -14,6 +14,8 @@ import { getCurrencySymbol } from "../../utils/currency";
 import formatPHP from "../../utils/formatPHP";
 import { computeCvpAnalysis } from "../../utils/calculatorMath";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildCvpTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 function formatPercent(value: number) {
     return `${(value * 100).toFixed(2)}%`;
@@ -117,6 +119,28 @@ export default function CvpAnalysisPage() {
         ];
     }, [expectedUnitSales, fixedCosts, result, sellingPricePerUnit, variableCostPerUnit]);
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildCvpTransferBundle({
+                      fixedCosts,
+                      sellingPricePerUnit,
+                      variableCostPerUnit,
+                      targetProfit,
+                      expectedUnitSales,
+                      result,
+                  })
+                : null,
+        [
+            expectedUnitSales,
+            fixedCosts,
+            result,
+            sellingPricePerUnit,
+            targetProfit,
+            variableCostPerUnit,
+        ]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Managerial & Cost"
@@ -124,6 +148,7 @@ export default function CvpAnalysisPage() {
             description="Study contribution margin, break-even, target profit, margin of safety, operating leverage, and basic sensitivity from one cleaner decision-support page."
             desktopLayout="result-focus"
             pageWidth="wide"
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>

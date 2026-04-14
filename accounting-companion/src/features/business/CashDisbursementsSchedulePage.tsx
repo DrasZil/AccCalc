@@ -10,6 +10,8 @@ import StudySupportPanel from "../../components/StudySupportPanel";
 import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computeCashDisbursementsSchedule } from "../../utils/calculatorMath";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildTimedScheduleTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 type ScheduleRow = {
     id: string;
@@ -110,6 +112,27 @@ export default function CashDisbursementsSchedulePage() {
         );
     }
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildTimedScheduleTransferBundle({
+                      title: "Cash disbursements workpaper",
+                      description: "Structured export from the Cash Disbursements Schedule calculator.",
+                      topic: "Cost & Managerial",
+                      sourcePath: "/business/cash-disbursements-schedule",
+                      sourceSummary: `Beginning payables ${beginningPayables || "0"} with ${periods.length} periods and ${pattern.length} lag rules.`,
+                      recommendedTemplateId: "cash-disbursements-schedule",
+                      totalLabel: "Total Disbursements",
+                      endingLabel: "Ending Payables",
+                      totalValue: result.totalDisbursements,
+                      endingValue: result.endingPayables,
+                      scheduledPercent: result.scheduledPercent,
+                      rows: result.rows,
+                  })
+                : null,
+        [beginningPayables, pattern.length, periods.length, result]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Managerial & Cost / Budgeting"
@@ -117,6 +140,7 @@ export default function CashDisbursementsSchedulePage() {
             description="Translate planned purchases and payment lags into a clean cash-disbursement schedule for budgeting, payables planning, and working-capital control."
             desktopLayout="result-focus"
             pageWidth="data"
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>

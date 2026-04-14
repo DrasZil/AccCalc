@@ -50,9 +50,11 @@ const SMART_PROMPT_EXAMPLES = [
     "Build an indirect-method statement of cash flows with working-capital changes and financing items.",
     "Translate a foreign-currency receivable using transaction, closing, and settlement rates.",
     "Review withholding tax, estate tax, treaty handling, or incentive-regime logic.",
+    "Send a CVP result into Workpaper Studio and export the workbook as XLSX.",
 ];
 
 const FEATURED_PATHS = [
+    "/workpapers",
     "/scan-check",
     "/study",
     "/study/practice",
@@ -77,6 +79,17 @@ const FEATURED_PATHS = [
 ];
 
 const WORKFLOW_COLLECTIONS = [
+    {
+        title: "Workpaper Studio",
+        description: "Capture calculator outputs, import spreadsheets, and organize multi-sheet workbooks for class or professional solving files.",
+        paths: [
+            "/workpapers",
+            "/history",
+            "/business/cvp-analysis",
+            "/business/cash-budget",
+            "/operations/eoq-and-reorder-point",
+        ],
+    },
     {
         title: "Process costing",
         description: "Move from unit flow and equivalent units into departmental costing, production reports, and practice checking.",

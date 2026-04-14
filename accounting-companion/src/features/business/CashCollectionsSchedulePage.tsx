@@ -10,6 +10,8 @@ import StudySupportPanel from "../../components/StudySupportPanel";
 import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
 import formatPHP from "../../utils/formatPHP";
 import { computeCashCollectionsSchedule } from "../../utils/calculatorMath";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildTimedScheduleTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 type ScheduleRow = {
     id: string;
@@ -110,6 +112,27 @@ export default function CashCollectionsSchedulePage() {
         );
     }
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildTimedScheduleTransferBundle({
+                      title: "Cash collections workpaper",
+                      description: "Structured export from the Cash Collections Schedule calculator.",
+                      topic: "Cost & Managerial",
+                      sourcePath: "/business/cash-collections-schedule",
+                      sourceSummary: `Beginning receivables ${beginningReceivables || "0"} with ${periods.length} periods and ${pattern.length} lag rules.`,
+                      recommendedTemplateId: "cash-collections-schedule",
+                      totalLabel: "Total Collections",
+                      endingLabel: "Ending Receivables",
+                      totalValue: result.totalCollections,
+                      endingValue: result.endingReceivables,
+                      scheduledPercent: result.scheduledPercent,
+                      rows: result.rows,
+                  })
+                : null,
+        [beginningReceivables, pattern.length, periods.length, result]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Managerial & Cost / Budgeting"
@@ -117,6 +140,7 @@ export default function CashCollectionsSchedulePage() {
             description="Lay out period sales and collection lags into a month-based schedule that ties directly into cash-budget planning and receivables control."
             desktopLayout="result-focus"
             pageWidth="data"
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>

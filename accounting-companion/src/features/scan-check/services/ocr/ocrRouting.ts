@@ -16,6 +16,20 @@ type RouteRule = {
 
 const ROUTE_RULES: RouteRule[] = [
     {
+        path: "/workpapers",
+        label: "Workpaper Studio",
+        category: "General",
+        patterns: [
+            /\bworkpaper\b/i,
+            /\bworking paper\b/i,
+            /\bspreadsheet\b/i,
+            /\bsupporting schedule\b/i,
+            /\bexport to xlsx\b/i,
+        ],
+        bonus: [/\btable\b/i, /\bschedule\b/i, /\bworksheet\b/i],
+        kindBoosts: { "accounting-worksheet": 6, "worked-solution": 4, "notes-reference": 3 },
+    },
+    {
         path: "/accounting/process-costing-workspace",
         label: "Process Costing Workspace",
         category: "Accounting",

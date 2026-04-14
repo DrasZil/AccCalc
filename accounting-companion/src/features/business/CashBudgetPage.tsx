@@ -9,6 +9,8 @@ import SectionCard from "../../components/SectionCard";
 import formatPHP from "../../utils/formatPHP";
 import { computeCashBudget } from "../../utils/calculatorMath";
 import { useSmartSolverConnector } from "../smart/smartSolver.connector";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildCashBudgetTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 export default function CashBudgetPage() {
     const [beginningCashBalance, setBeginningCashBalance] = useState("");
@@ -56,11 +58,32 @@ export default function CashBudgetPage() {
         });
     }, [beginningCashBalance, cashCollections, cashDisbursements, minimumCashBalance]);
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildCashBudgetTransferBundle({
+                      beginningCashBalance,
+                      cashCollections,
+                      cashDisbursements,
+                      minimumCashBalance,
+                      result,
+                  })
+                : null,
+        [
+            beginningCashBalance,
+            cashCollections,
+            cashDisbursements,
+            minimumCashBalance,
+            result,
+        ]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Managerial & Cost / Budgeting"
             title="Cash Budget"
             description="Organize beginning cash, expected collections, planned disbursements, and minimum cash policy into a short cash-budget schedule with financing need visibility."
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>

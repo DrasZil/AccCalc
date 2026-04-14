@@ -7,6 +7,8 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import { computeEconomicOrderQuantity } from "../../utils/calculatorMath";
+import SendToWorkpaperButton from "../workpapers/SendToWorkpaperButton";
+import { buildEoqTransferBundle } from "../workpapers/workpaperTransferBuilders";
 
 export default function EoqReorderPointPage() {
     const [annualDemandUnits, setAnnualDemandUnits] = useState("");
@@ -58,11 +60,36 @@ export default function EoqReorderPointPage() {
         safetyStockUnits,
     ]);
 
+    const workpaperBundle = useMemo(
+        () =>
+            result && !("error" in result)
+                ? buildEoqTransferBundle({
+                      annualDemandUnits,
+                      orderingCostPerOrder,
+                      annualCarryingCostPerUnit,
+                      dailyDemandUnits,
+                      leadTimeDays,
+                      safetyStockUnits,
+                      result,
+                  })
+                : null,
+        [
+            annualCarryingCostPerUnit,
+            annualDemandUnits,
+            dailyDemandUnits,
+            leadTimeDays,
+            orderingCostPerOrder,
+            result,
+            safetyStockUnits,
+        ]
+    );
+
     return (
         <CalculatorPageLayout
             badge="Operations & Supply Chain"
             title="EOQ and Reorder Point"
             description="Plan order quantity, order frequency, and reorder point from one inventory-management workspace."
+            headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
             inputSection={
                 <SectionCard>
                     <InputGrid columns={2}>

@@ -3369,6 +3369,16 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         aliases: ["strategic management analysis", "consultancy review", "industry analysis"],
         keywords: [/strategic business analysis/i, /strategic cost management/i, /industry analysis/i, /consultancy/i, /research methods/i],
     },
+    {
+        id: "workpaper-studio",
+        name: "Workpaper Studio",
+        route: "/workpapers",
+        description:
+            "Use when the user wants a workbook, workpaper, spreadsheet-style schedule, or exportable solving file rather than a single one-off result.",
+        required: [],
+        aliases: ["spreadsheet workpaper", "workbook builder", "send to workbook", "xlsx export"],
+        keywords: [/workpaper/i, /workbook/i, /spreadsheet/i, /xlsx/i, /csv export/i, /schedule builder/i, /supporting schedule/i, /working paper/i],
+    },
     ];
 
     /* -------------------------------------------------------------------------- */
@@ -4426,12 +4436,16 @@ export function scoreCalculator(
         .join(" and ")}.`;
     }
 
-    if (/\b(and|plus|while|together with|together)\b/i.test(query)) {
-        return `${best.name} looks like the best first route, but your wording may span more than one concept. Solve the primary issue first, then use the related next-step suggestions if a second topic remains.`;
-    }
+      if (/\b(and|plus|while|together with|together)\b/i.test(query)) {
+          return `${best.name} looks like the best first route, but your wording may span more than one concept. Solve the primary issue first, then use the related next-step suggestions if a second topic remains.`;
+      }
 
-    return `${best.name} is ready. You can apply detected values and open the calculator.`;
-    }
+      if (/\b(workpaper|workbook|spreadsheet|xlsx|csv export|supporting schedule)\b/i.test(query)) {
+          return `${best.name} is the best solving route. After solving, send the result to Workpaper Studio if you want an exportable workbook, supporting schedule, or reusable working paper.`;
+      }
+
+      return `${best.name} is ready. You can apply detected values and open the calculator.`;
+      }
 
 export function makePrefill(
     calculator: { required: readonly FieldKey[]; optional?: readonly FieldKey[] },
