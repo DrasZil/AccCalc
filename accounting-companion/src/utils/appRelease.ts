@@ -1,26 +1,33 @@
-export const APP_VERSION = "4.5.0";
+export const APP_VERSION = "4.6.0";
 export const APP_RELEASE_DATE = "2026-04-14";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Curriculum tracks now reach beyond core FAR and managerial tools",
-        body: "AccCalc 4.5.0 now covers AFAR, audit, tax, RFBT, AIS, governance, operations, and integrative review with first-pass workspaces and Study Hub support instead of leaving those families outside the platform.",
+        title: "Deferred FAR and AFAR depth now has real Pass 2 coverage",
+        body: "AccCalc 4.6.0 adds lease measurement, share-based payments, cash-flow building, foreign-currency translation, and construction-revenue support instead of leaving those deferred areas at reviewer-only depth.",
     },
     {
-        title: "Navigation is reorganized around board-review style curriculum tracks",
-        body: "The sidebar and category browsing now group routes under FAR, AFAR, cost and managerial, audit, tax, law, AIS, operations, governance, strategic review, and finance-econ-math so the growing app remains usable.",
+        title: "Audit, tax, AIS, RFBT, and strategic tracks are deeper and more usable",
+        body: "New review workspaces now cover transaction cycles, audit completion and reporting, tax compliance and incentives, AIS continuity and ERP support, commercial-law depth, and strategic business analysis.",
     },
     {
-        title: "Study Hub is broader and more curriculum-mapped",
-        body: "New lesson families now support audit planning, tax logic, law review, AIS and IT controls, operations planning, governance and ethics, and integrative case mapping so practice and lesson flow keep pace with the wider tool catalog.",
+        title: "Study Hub now handles broader lessons with cleaner disclosure structure",
+        body: "Longer lessons now surface overview, formulas, procedure, examples, mistakes, self-check, and deep-dive reviewer panels through layered collapsible sections so broad topics stay readable on mobile and desktop.",
     },
     {
-        title: "New first-pass workspaces deepen weak categories without rewriting the app",
-        body: "This release adds high-low cost estimation, ROI-RI-EVA, EOQ and reorder point, audit planning, book-tax differences, business combinations, IT controls, governance risk review, law review, and integrative case mapping on top of the existing architecture.",
+        title: "Smart routing is better at mixed-topic and board-style wording",
+        body: "Smart Solver and scan routing now recognize more deferred-topic vocabulary, broader professional phrasing, and multi-concept wording so the right first route is easier to find in harder cases.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "4.6.0: Added new FAR workspaces for Lease Measurement, Share-Based Payments, and Statement of Cash Flows building so deferred FAR depth now includes real solve-and-review support.",
+    "4.6.0: Added AFAR expansion routes for Foreign Currency Translation and Construction Revenue so foreign-currency and long-term-contract cases now have first-pass computational support.",
+    "4.6.0: Added reviewer workspaces for Audit Cycles, Audit Completion and Opinion, Tax Compliance and Incentive Review, AIS Lifecycle and Recovery, Commercial Transactions, and Strategic Business Analysis.",
+    "4.6.0: Expanded Study Hub with broader deferred-topic coverage for FAR depth, AFAR special topics, special-tax regimes, audit cycle and reporting depth, commercial law, AIS continuity, and strategic analysis.",
+    "4.6.0: Reworked Study Hub topic pages so overview, study tools, formulas, procedure, worked examples, mistakes, interpretation, and deep-dive reviewer notes can stay collapsed until needed.",
+    "4.6.0: Broadened Smart Solver and OCR route discovery for leases, share-based payments, cash-flow statements, foreign-currency translation, construction contracts, audit cycles, modified reports, special taxes, AIS continuity, and strategic analysis.",
+    "4.6.0: Improved mixed-topic solver follow-up guidance so prompts containing multiple concepts now nudge users to solve the primary issue first and then use next-step routes for supporting issues.",
     "4.5.0: Reorganized route catalog and sidebar discovery around curriculum-aligned tracks such as FAR, AFAR, cost and managerial, audit, tax, RFBT, AIS, operations, governance, strategic integration, and finance-econ-math.",
     "4.5.0: Added new first-pass workspaces for High-Low Cost Estimation, ROI-RI-EVA, EOQ and Reorder Point, Audit Planning, Book-Tax Differences, Business Combination Analysis, IT Control Matrix, Risk and Control Matrix, Business Law Review, and Integrative Case Mapping.",
     "4.5.0: Expanded Study Hub with broader curriculum families covering audit, tax, law, AIS and IT controls, operations and supply chain, governance and ethics, and integrative review support.",

@@ -96,6 +96,11 @@ const SMART_PROMPT_EXAMPLES = [
     "Check inventory shrinkage and missed purchase discounts in one inventory control workspace.",
     "Compare price, income, and cross elasticity in the economics analysis workspace.",
     "Use the entrepreneurship toolkit to find a selling price target or split profit between owners.",
+    "Measure a lease liability and right-of-use asset from annual lease payments of 85,000 for 5 periods at 8%.",
+    "Build an indirect-method statement of cash flows from net income, depreciation, working-capital changes, capex, and debt financing.",
+    "Translate a foreign-currency receivable using transaction, closing, and settlement rates.",
+    "Review modified reports, going concern, and key audit matters in one audit completion workspace.",
+    "Route a mixed case with withholding tax, local taxation, and PEZA incentive issues.",
 ];
 
 type ActionTone = "success" | "warning" | "info";

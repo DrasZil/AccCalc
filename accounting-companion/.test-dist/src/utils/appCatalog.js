@@ -66,13 +66,24 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/accounting/job-order-cost-sheet",
     "/statistics/coefficient-of-variation",
     "/operations/eoq-and-reorder-point",
+    "/far/lease-measurement-workspace",
+    "/far/share-based-payment-workspace",
+    "/far/cash-flow-statement-builder",
     "/audit/audit-planning-workspace",
+    "/audit/audit-cycle-reviewer",
+    "/audit/audit-completion-and-opinion",
     "/tax/book-tax-difference-workspace",
+    "/tax/tax-compliance-review",
     "/afar/business-combination-analysis",
+    "/afar/foreign-currency-translation",
+    "/afar/construction-revenue-workspace",
     "/ais/it-control-matrix",
+    "/ais/ais-lifecycle-and-recovery",
     "/governance/risk-control-matrix",
     "/rfbt/business-law-review",
+    "/rfbt/commercial-transactions-reviewer",
     "/strategic/integrative-case-mapper",
+    "/strategic/strategic-business-analysis",
 ]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Utilities", "Settings"],
@@ -112,6 +123,8 @@ function inferCurriculumTrack(path, legacyCategory, tags, label) {
         return "Smart Tools";
     if (legacyCategory === "Study Hub")
         return "Study Hub";
+    if (path.startsWith("/far/"))
+        return "FAR";
     if (path.startsWith("/audit/"))
         return "Audit & Assurance";
     if (path.startsWith("/tax/"))
@@ -511,13 +524,24 @@ export const APP_ROUTE_META = [
     feature("/entrepreneurship/cash-runway-planner", "Cash Runway Planner", "Entrepreneurship", "Estimate runway from current cash, recurring inflows, and recurring outflows.", ["runway calculator", "startup runway"], ["cash", "runway"], "Cash Runway", true, ["cash runway", "burn rate", "startup cash"]),
     feature("/entrepreneurship/entrepreneurship-toolkit", "Entrepreneurship Toolkit", "Entrepreneurship", "Use one workspace for pricing targets, owner splits, and customer payback checks.", ["pricing target toolkit", "owner split planner", "customer payback"], ["unit economics", "pricing", "planning", "toolkit"], "Toolkit", true, ["selling price", "owner split", "customer payback", "startup toolkit"]),
     feature("/operations/eoq-and-reorder-point", "EOQ and Reorder Point", "Managerial & Cost", "Plan order quantity, order frequency, and reorder point from one inventory-management workspace.", ["economic order quantity", "reorder point", "inventory replenishment"], ["operations", "inventory planning", "supply chain"], "EOQ", true, ["eoq", "reorder point", "economic order quantity", "inventory control"]),
+    feature("/far/lease-measurement-workspace", "Lease Measurement Workspace", "Accounting", "Estimate the initial lease liability and right-of-use asset using lease payments, discounting, and related adjustments.", ["lease accounting", "right of use asset", "lease liability"], ["far", "lease", "measurement"], "Leases", true, ["lease liability", "right-of-use asset", "lease measurement", "lease accounting"]),
+    feature("/far/share-based-payment-workspace", "Share-Based Payment Workspace", "Accounting", "Estimate expected vesting, cumulative compensation cost, and current-period expense for equity-settled awards.", ["stock options", "share options", "equity settled award"], ["far", "equity", "share-based payment"], "Share-Based", true, ["share-based payment", "stock options", "compensation cost", "vesting"]),
+    feature("/far/cash-flow-statement-builder", "Statement of Cash Flows Builder", "Accounting", "Build an indirect-method cash-flow view across operating, investing, and financing activities.", ["cash flow statement", "indirect method", "cash flows from operations"], ["far", "cash flows", "financial statements"], "Cash Flows", true, ["statement of cash flows", "indirect method", "cash flow classification", "operating investing financing"]),
     feature("/audit/audit-planning-workspace", "Audit Planning Workspace", "Accounting", "Estimate materiality, performance materiality, and an audit-risk response signal from one planning workspace.", ["audit materiality", "audit risk", "planning materiality"], ["audit", "materiality", "risk"], "Audit Plan", true, ["audit planning", "planning materiality", "performance materiality", "audit risk"]),
+    feature("/audit/audit-cycle-reviewer", "Audit Cycle Reviewer", "Accounting", "Review assertions, control points, and likely procedures across revenue, expenditure, conversion, and financing cycles.", ["transaction cycle auditing", "revenue cycle audit", "expenditure cycle audit"], ["audit", "cycle", "assertions"], "Audit Cycles", true, ["audit cycle", "revenue cycle", "expenditure cycle", "conversion cycle", "financing cycle"]),
+    feature("/audit/audit-completion-and-opinion", "Audit Completion and Opinion Workspace", "Accounting", "Review completion procedures, going concern, subsequent events, modified reports, and key audit matters.", ["modified audit report", "key audit matters", "going concern audit"], ["audit", "reporting", "completion"], "Audit Opinion", true, ["completion procedures", "going concern", "subsequent events", "modified report", "key audit matters"]),
     feature("/tax/book-tax-difference-workspace", "Book-Tax Difference Workspace", "Accounting", "Bridge accounting income and taxable income through book-tax difference analysis.", ["book tax differences", "tax reconciliation", "temporary differences"], ["tax", "income tax", "differences"], "Book-Tax", true, ["book tax differences", "temporary differences", "current tax", "deferred tax"]),
+    feature("/tax/tax-compliance-review", "Tax Compliance and Incentive Review", "Accounting", "Review withholding, transfer and special taxes, local taxation, treaty concepts, and incentive-regime logic.", ["withholding tax review", "estate donor tax", "tax treaty"], ["tax", "compliance", "incentives"], "Tax Review", true, ["withholding tax", "documentary stamp tax", "estate tax", "donor's tax", "local taxation", "tax treaty", "peza", "boi", "bmbe"]),
     feature("/afar/business-combination-analysis", "Business Combination Analysis", "Accounting", "Estimate goodwill or bargain purchase gain under full-goodwill or proportionate-share measurement.", ["goodwill calculator", "business combination", "consolidation goodwill", "non controlling interest", "non-controlling interest"], ["afar", "business combination", "goodwill", "non controlling interest"], "Combination", true, ["business combination", "goodwill", "nci", "consolidation", "non controlling interest", "non-controlling interest"]),
+    feature("/afar/foreign-currency-translation", "Foreign Currency Translation Workspace", "Accounting", "Translate foreign-currency monetary items at transaction, closing, and settlement rates.", ["foreign currency transaction", "exchange difference", "forex translation"], ["afar", "foreign currency", "translation"], "FX Translation", true, ["foreign currency", "exchange difference", "translation", "settlement rate"]),
+    feature("/afar/construction-revenue-workspace", "Construction Revenue Workspace", "Accounting", "Estimate percentage of completion, revenue recognized to date, gross profit, and the contract asset-or-liability position.", ["long term construction", "percentage of completion", "construction contract"], ["afar", "construction", "revenue"], "Construction", true, ["construction contract", "percentage of completion", "contract asset", "contract liability"]),
     feature("/ais/it-control-matrix", "IT Control Matrix", "Accounting", "Review IT governance, access, change management, and continuity controls in one AIS and IT-audit workspace.", ["itgc", "it controls", "application controls", "it audit"], ["ais", "it controls", "governance"], "IT Controls", true, ["it governance", "it controls", "it audit", "logical access"]),
+    feature("/ais/ais-lifecycle-and-recovery", "AIS Lifecycle and Recovery Review", "Accounting", "Review business continuity, disaster recovery, ERP and service management, systems life cycle, and IT-audit documentation.", ["business continuity planning", "disaster recovery", "erp controls"], ["ais", "continuity", "systems"], "AIS Review", true, ["business continuity", "disaster recovery", "erp", "crm", "incident management", "it audit documentation"]),
     feature("/governance/risk-control-matrix", "Risk and Control Matrix", "Accounting", "Read inherent risk, control quality, and residual risk in one governance and internal-control workspace.", ["internal control evaluation", "risk matrix", "ethics and control"], ["governance", "risk", "control"], "Risk Matrix", true, ["risk control matrix", "internal control", "residual risk", "governance"]),
     feature("/rfbt/business-law-review", "Business Law Review Workspace", "Accounting", "Use a structured issue-spotting page for obligations, contracts, and corporation-law review questions.", ["rfbt reviewer", "contracts review", "corporation law"], ["rfbt", "law", "contracts"], "Law Review", true, ["obligations", "contracts", "corporation law", "rfbt"]),
+    feature("/rfbt/commercial-transactions-reviewer", "Commercial Transactions Reviewer", "Accounting", "Review sales, credit transactions, security arrangements, securities regulation, IP, procurement, and rehabilitation topics.", ["credit transactions review", "contracts of security", "insider trading"], ["rfbt", "commercial law", "transactions"], "Transactions", true, ["sales law", "credit transactions", "contracts of security", "insider trading", "procurement", "intellectual property", "rehabilitation"]),
     feature("/strategic/integrative-case-mapper", "Integrative Case Mapper", "Accounting", "Map mixed-topic cases into FAR, AFAR, cost, audit, tax, and governance follow-up tracks before solving in detail.", ["integrated case analysis", "board review integration", "strategic accounting review"], ["strategic", "integrative", "case mapping"], "Case Map", true, ["integrative case", "board review", "strategic analysis", "capstone review"]),
+    feature("/strategic/strategic-business-analysis", "Strategic Business Analysis Workspace", "Accounting", "Review strategic business analysis, strategic cost management, consultancy framing, research methods, and integrative case-reading support.", ["strategic management analysis", "consultancy review", "industry analysis"], ["strategic", "analysis", "integrative"], "Strategic Review", true, ["strategic business analysis", "strategic cost management", "industry analysis", "consultancy", "research methods"]),
     feature("/accounting/cost-of-goods-manufactured", "Cost of Goods Manufactured", "Managerial & Cost", "Manufacturing costs and COGM.", ["cogm"], ["cost accounting"]),
     feature("/accounting/job-order-cost-sheet", "Job Order Cost Sheet", "Managerial & Cost", "Assign direct materials, direct labor, and applied overhead to one job, then read total and per-unit job cost.", ["job order costing", "job cost sheet", "job order cost"], ["job order costing", "manufacturing", "cost accounting"], "Job Order", true, ["job order", "job cost sheet", "applied overhead", "unit cost"]),
     feature("/accounting/factory-overhead-variance", "Factory Overhead Variances", "Managerial & Cost", "Separate variable and fixed overhead variances into spending, efficiency, budget, and volume components.", ["factory overhead variance", "overhead variance", "fixed overhead variance", "variable overhead variance"], ["variance", "overhead", "manufacturing"], "Overhead", true, ["factory overhead", "overhead variance", "voh", "foh"]),

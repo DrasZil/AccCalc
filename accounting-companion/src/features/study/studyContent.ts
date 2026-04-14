@@ -30,6 +30,14 @@ export type StudyVariableDefinition = {
     meaning: string;
 };
 
+export type StudyDeepDiveSection = {
+    id: string;
+    title: string;
+    summary: string;
+    points: string[];
+    tone?: "default" | "info" | "warning" | "accent";
+};
+
 export type StudyWorkedExample = {
     title: string;
     scenario: string;
@@ -89,6 +97,8 @@ export type StudyTopic = {
     examTraps: string[];
     selfCheck: string[];
     practiceCues: string[];
+    deepDiveSections?: StudyDeepDiveSection[];
+    nextStepPrompts?: string[];
     keywords: string[];
     scanSignals: string[];
     relatedCalculatorPaths: string[];

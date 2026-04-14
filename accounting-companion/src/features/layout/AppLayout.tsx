@@ -190,6 +190,7 @@ function prefersWidePageShell(pathname: string) {
         pathname.startsWith("/entrepreneurship/") ||
         pathname.startsWith("/business-math/") ||
         pathname.startsWith("/statistics/") ||
+        pathname.startsWith("/far/") ||
         pathname.startsWith("/operations/") ||
         pathname.startsWith("/audit/") ||
         pathname.startsWith("/tax/") ||

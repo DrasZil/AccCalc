@@ -288,27 +288,60 @@ const HighLowCostEstimationPage = lazy(
     () => import("./features/business/HighLowCostEstimationPage")
 );
 const RoiRiEvaPage = lazy(() => import("./features/business/RoiRiEvaPage"));
+const LeaseMeasurementWorkspacePage = lazy(
+    () => import("./features/far/LeaseMeasurementWorkspacePage")
+);
+const ShareBasedPaymentPage = lazy(
+    () => import("./features/far/ShareBasedPaymentPage")
+);
+const CashFlowStatementBuilderPage = lazy(
+    () => import("./features/far/CashFlowStatementBuilderPage")
+);
 const EoqReorderPointPage = lazy(
     () => import("./features/operations/EoqReorderPointPage")
 );
 const AuditPlanningWorkspacePage = lazy(
     () => import("./features/audit/AuditPlanningWorkspacePage")
 );
+const AuditCycleReviewerPage = lazy(
+    () => import("./features/audit/AuditCycleReviewerPage")
+);
+const AuditCompletionOpinionPage = lazy(
+    () => import("./features/audit/AuditCompletionOpinionPage")
+);
 const BookTaxDifferenceWorkspacePage = lazy(
     () => import("./features/tax/BookTaxDifferenceWorkspacePage")
+);
+const TaxComplianceReviewPage = lazy(
+    () => import("./features/tax/TaxComplianceReviewPage")
 );
 const BusinessCombinationAnalysisPage = lazy(
     () => import("./features/afar/BusinessCombinationAnalysisPage")
 );
+const ForeignCurrencyTranslationPage = lazy(
+    () => import("./features/afar/ForeignCurrencyTranslationPage")
+);
+const ConstructionRevenuePage = lazy(
+    () => import("./features/afar/ConstructionRevenuePage")
+);
 const ItControlMatrixPage = lazy(() => import("./features/ais/ItControlMatrixPage"));
+const AisLifecycleAndRecoveryPage = lazy(
+    () => import("./features/ais/AisLifecycleAndRecoveryPage")
+);
 const RiskControlMatrixPage = lazy(
     () => import("./features/governance/RiskControlMatrixPage")
 );
 const BusinessLawReviewPage = lazy(
     () => import("./features/rfbt/BusinessLawReviewPage")
 );
+const CommercialTransactionsReviewerPage = lazy(
+    () => import("./features/rfbt/CommercialTransactionsReviewerPage")
+);
 const IntegrativeCaseMapperPage = lazy(
     () => import("./features/strategic/IntegrativeCaseMapperPage")
+);
+const StrategicBusinessAnalysisPage = lazy(
+    () => import("./features/strategic/StrategicBusinessAnalysisPage")
 );
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
@@ -443,14 +476,25 @@ export default function App() {
                         <Route path="entrepreneurship/unit-economics" element={renderRoute("/entrepreneurship/unit-economics", <UnitEconomicsPage />)} />
                         <Route path="entrepreneurship/sales-forecast-planner" element={renderRoute("/entrepreneurship/sales-forecast-planner", <SalesForecastPlannerPage />)} />
                         <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
+                        <Route path="far/lease-measurement-workspace" element={renderRoute("/far/lease-measurement-workspace", <LeaseMeasurementWorkspacePage />)} />
+                        <Route path="far/share-based-payment-workspace" element={renderRoute("/far/share-based-payment-workspace", <ShareBasedPaymentPage />)} />
+                        <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
+                        <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
+                        <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
+                        <Route path="tax/tax-compliance-review" element={renderRoute("/tax/tax-compliance-review", <TaxComplianceReviewPage />)} />
                         <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
+                        <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
+                        <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
                         <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />
+                        <Route path="ais/ais-lifecycle-and-recovery" element={renderRoute("/ais/ais-lifecycle-and-recovery", <AisLifecycleAndRecoveryPage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
                         <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
+                        <Route path="rfbt/commercial-transactions-reviewer" element={renderRoute("/rfbt/commercial-transactions-reviewer", <CommercialTransactionsReviewerPage />)} />
                         <Route path="strategic/integrative-case-mapper" element={renderRoute("/strategic/integrative-case-mapper", <IntegrativeCaseMapperPage />)} />
+                        <Route path="strategic/strategic-business-analysis" element={renderRoute("/strategic/strategic-business-analysis", <StrategicBusinessAnalysisPage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
                         <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />

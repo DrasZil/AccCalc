@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCapacityUtilization, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
 import { breakEvenSolveDefinition, currentRatioSolveDefinition, priceCostMarginSolveDefinition, simpleInterestSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
@@ -761,6 +761,63 @@ runTest("4.5 curriculum helpers support cost, performance, audit, tax, afar, and
     assertClose(combination.nonControllingInterest, 1180000, 1e-6);
     assertClose(combination.goodwill, 480000, 1e-6);
 });
+runTest("4.6 deferred-topic helpers support leases, share-based payments, cash flows, foreign currency, and construction revenue", () => {
+    const lease = computeLeaseMeasurement({
+        periodicLeasePayment: 85000,
+        numberOfPeriods: 5,
+        periodicDiscountRatePercent: 8,
+        guaranteedResidualValue: 30000,
+        initialDirectCosts: 5000,
+        leaseIncentivesReceived: 12000,
+    });
+    const shareBased = computeShareBasedPayment({
+        grantDateFairValuePerOption: 18.5,
+        optionsGranted: 100000,
+        estimatedForfeitureRatePercent: 6,
+        vestingYears: 4,
+        serviceYearsRendered: 2,
+    });
+    const cashFlows = computeStatementOfCashFlows({
+        netIncome: 980000,
+        depreciationExpense: 140000,
+        gainOnAssetSale: 25000,
+        accountsReceivableIncrease: 40000,
+        inventoryIncrease: 30000,
+        accountsPayableIncrease: 22000,
+        capitalExpenditures: 280000,
+        assetSaleProceeds: 90000,
+        debtProceeds: 160000,
+        debtRepayments: 70000,
+        shareIssuanceProceeds: 50000,
+        dividendsPaid: 60000,
+        openingCashBalance: 320000,
+    });
+    const foreignCurrency = computeForeignCurrencyTranslation({
+        foreignCurrencyAmount: 250000,
+        transactionRate: 56.2,
+        closingRate: 57.4,
+        settlementRate: 58.1,
+    });
+    const construction = computeConstructionRevenue({
+        contractPrice: 12000000,
+        costsIncurredToDate: 4200000,
+        estimatedCostsToComplete: 2800000,
+        billingsToDate: 5000000,
+        collectionsToDate: 4600000,
+    });
+    assertClose(lease.initialLeaseLiability, 359797.8491, 1e-3);
+    assertClose(lease.initialRightOfUseAsset, 352797.8491, 1e-3);
+    assertClose(shareBased.expectedOptionsToVest, 94000, 1e-6);
+    assertClose(shareBased.cumulativeCompensationCost, 869500, 1e-6);
+    assertClose(cashFlows.operatingCashFlow, 1047000, 1e-6);
+    assertClose(cashFlows.netChangeInCash, 937000, 1e-6);
+    assertClose(cashFlows.endingCashBalance, 1257000, 1e-6);
+    assertClose(foreignCurrency.unrealizedExchangeDifference, 300000, 1e-6);
+    assertClose(foreignCurrency.realizedExchangeDifference ?? 0, 475000, 1e-6);
+    assertClose(construction.percentComplete, 0.6, 1e-9);
+    assertClose(construction.revenueRecognizedToDate, 7200000, 1e-6);
+    assertClose(construction.contractAssetLiabilityPosition, 2200000, 1e-6);
+});
 runTest("solve-for definitions reverse simple-interest targets safely", () => {
     const result = simpleInterestSolveDefinition.solve("principal", {
         interest: 2400,
@@ -863,6 +920,17 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const aisResults = searchAppRoutes("it governance");
     const lawResults = searchAppRoutes("contracts review");
     const strategicResults = searchAppRoutes("board review integration");
+    const leaseResults = searchAppRoutes("right of use asset");
+    const shareBasedResults = searchAppRoutes("stock options vesting");
+    const cashFlowResults = searchAppRoutes("indirect method cash flow statement");
+    const fxResults = searchAppRoutes("foreign currency translation");
+    const constructionResults = searchAppRoutes("percentage of completion");
+    const taxComplianceResults = searchAppRoutes("estate tax treaty");
+    const auditCycleResults = searchAppRoutes("revenue cycle audit");
+    const auditOpinionResults = searchAppRoutes("key audit matters");
+    const aisLifecycleResults = searchAppRoutes("disaster recovery erp");
+    const transactionsResults = searchAppRoutes("contracts of security");
+    const strategicAnalysisResults = searchAppRoutes("strategic cost management");
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
     assert.equal(aliasResults[0]?.path, "/finance/profitability-index");
@@ -904,6 +972,17 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(aisResults[0]?.path, "/ais/it-control-matrix");
     assert.equal(lawResults[0]?.path, "/rfbt/business-law-review");
     assert.equal(strategicResults[0]?.path, "/strategic/integrative-case-mapper");
+    assert.equal(leaseResults[0]?.path, "/far/lease-measurement-workspace");
+    assert.equal(shareBasedResults[0]?.path, "/far/share-based-payment-workspace");
+    assert.equal(cashFlowResults[0]?.path, "/far/cash-flow-statement-builder");
+    assert.equal(fxResults[0]?.path, "/afar/foreign-currency-translation");
+    assert.equal(constructionResults[0]?.path, "/afar/construction-revenue-workspace");
+    assert.equal(taxComplianceResults[0]?.path, "/tax/tax-compliance-review");
+    assert.equal(auditCycleResults[0]?.path, "/audit/audit-cycle-reviewer");
+    assert.equal(auditOpinionResults[0]?.path, "/audit/audit-completion-and-opinion");
+    assert.equal(aisLifecycleResults[0]?.path, "/ais/ais-lifecycle-and-recovery");
+    assert.equal(transactionsResults[0]?.path, "/rfbt/commercial-transactions-reviewer");
+    assert.equal(strategicAnalysisResults[0]?.path, "/strategic/strategic-business-analysis");
 });
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
     assert.equal(suggestSolveTarget("simple-interest", "find the principal"), "principal");

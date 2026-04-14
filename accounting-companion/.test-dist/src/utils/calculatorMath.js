@@ -1630,3 +1630,105 @@ export function computeBusinessCombination({ considerationTransferred, netIdenti
         resultLabel: goodwill >= 0 ? "Goodwill recognized" : "Bargain purchase gain indicated",
     };
 }
+export function computeLeaseMeasurement({ periodicLeasePayment, numberOfPeriods, periodicDiscountRatePercent, guaranteedResidualValue = 0, bargainPurchaseOption = 0, initialDirectCosts = 0, leaseIncentivesReceived = 0, }) {
+    const discountRateDecimal = percentToDecimal(periodicDiscountRatePercent);
+    const annuityFactor = discountRateDecimal === 0
+        ? numberOfPeriods
+        : safeDivide(safeSubtract(1, Math.pow(1 + discountRateDecimal, -numberOfPeriods)), discountRateDecimal);
+    const presentValueOfLeasePayments = safeMultiply(periodicLeasePayment, annuityFactor);
+    const residualAndOptionAmount = safeAdd(guaranteedResidualValue, bargainPurchaseOption);
+    const discountedResidualAndOption = residualAndOptionAmount === 0
+        ? 0
+        : safeDivide(residualAndOptionAmount, Math.pow(1 + discountRateDecimal, numberOfPeriods));
+    const initialLeaseLiability = safeAdd(presentValueOfLeasePayments, discountedResidualAndOption);
+    const initialRightOfUseAsset = safeAdd(safeAdd(initialLeaseLiability, initialDirectCosts), -leaseIncentivesReceived);
+    const totalUndiscountedPayments = safeAdd(safeMultiply(periodicLeasePayment, numberOfPeriods), residualAndOptionAmount);
+    return {
+        discountRateDecimal,
+        annuityFactor,
+        presentValueOfLeasePayments,
+        discountedResidualAndOption,
+        initialLeaseLiability,
+        initialRightOfUseAsset,
+        totalUndiscountedPayments,
+        totalFinanceCharge: safeSubtract(totalUndiscountedPayments, initialLeaseLiability),
+    };
+}
+export function computeShareBasedPayment({ grantDateFairValuePerOption, optionsGranted, estimatedForfeitureRatePercent, vestingYears, serviceYearsRendered, }) {
+    const expectedVestPercent = safeSubtract(1, percentToDecimal(estimatedForfeitureRatePercent));
+    const expectedOptionsToVest = safeMultiply(optionsGranted, expectedVestPercent);
+    const totalCompensationCost = safeMultiply(expectedOptionsToVest, grantDateFairValuePerOption);
+    const recognizedYears = Math.min(Math.max(serviceYearsRendered, 0), vestingYears);
+    const cumulativeCompensationCost = vestingYears <= 0
+        ? totalCompensationCost
+        : safeMultiply(totalCompensationCost, safeDivide(recognizedYears, vestingYears));
+    const currentPeriodExpense = vestingYears <= 0
+        ? totalCompensationCost
+        : safeMultiply(totalCompensationCost, safeDivide(1, vestingYears));
+    return {
+        expectedVestPercent,
+        expectedOptionsToVest,
+        totalCompensationCost,
+        cumulativeCompensationCost,
+        currentPeriodExpense,
+        recognizedYears,
+    };
+}
+export function computeStatementOfCashFlows({ netIncome, depreciationExpense, impairmentLoss = 0, gainOnAssetSale = 0, accountsReceivableIncrease = 0, inventoryIncrease = 0, accountsPayableIncrease = 0, capitalExpenditures = 0, assetSaleProceeds = 0, debtProceeds = 0, debtRepayments = 0, shareIssuanceProceeds = 0, dividendsPaid = 0, openingCashBalance = 0, }) {
+    const operatingCashFlow = safeAdd(safeAdd(safeAdd(netIncome, depreciationExpense), impairmentLoss), safeAdd(safeAdd(-gainOnAssetSale, -accountsReceivableIncrease), safeAdd(-inventoryIncrease, accountsPayableIncrease)));
+    const investingCashFlow = safeAdd(-capitalExpenditures, assetSaleProceeds);
+    const financingCashFlow = safeAdd(safeAdd(debtProceeds, shareIssuanceProceeds), safeAdd(-debtRepayments, -dividendsPaid));
+    const netChangeInCash = safeAdd(safeAdd(operatingCashFlow, investingCashFlow), financingCashFlow);
+    const endingCashBalance = safeAdd(openingCashBalance, netChangeInCash);
+    return {
+        operatingCashFlow,
+        investingCashFlow,
+        financingCashFlow,
+        netChangeInCash,
+        endingCashBalance,
+        classificationNotes: [
+            "Noncash charges such as depreciation and impairment are added back in operating activities under the indirect method.",
+            "Gains on disposals are removed from operating cash flow because the cash proceeds belong in investing activities.",
+            "Increases in receivables and inventory usually reduce operating cash flow, while increases in payables usually support it.",
+        ],
+    };
+}
+export function computeForeignCurrencyTranslation({ foreignCurrencyAmount, transactionRate, closingRate, settlementRate, }) {
+    const initialRecognitionAmount = safeMultiply(foreignCurrencyAmount, transactionRate);
+    const closingCarryingAmount = safeMultiply(foreignCurrencyAmount, closingRate);
+    const unrealizedExchangeDifference = safeSubtract(closingCarryingAmount, initialRecognitionAmount);
+    const settledAmount = settlementRate === undefined
+        ? null
+        : safeMultiply(foreignCurrencyAmount, settlementRate);
+    const realizedExchangeDifference = settledAmount === null
+        ? null
+        : safeSubtract(settledAmount, initialRecognitionAmount);
+    return {
+        initialRecognitionAmount,
+        closingCarryingAmount,
+        unrealizedExchangeDifference,
+        settledAmount,
+        realizedExchangeDifference,
+    };
+}
+export function computeConstructionRevenue({ contractPrice, costsIncurredToDate, estimatedCostsToComplete, billingsToDate = 0, collectionsToDate = 0, }) {
+    const estimatedTotalCost = safeAdd(costsIncurredToDate, estimatedCostsToComplete);
+    const percentComplete = estimatedTotalCost === 0
+        ? 0
+        : safeDivide(costsIncurredToDate, estimatedTotalCost);
+    const revenueRecognizedToDate = safeMultiply(contractPrice, percentComplete);
+    const grossProfitRecognizedToDate = safeSubtract(revenueRecognizedToDate, costsIncurredToDate);
+    const contractAssetLiabilityPosition = safeSubtract(revenueRecognizedToDate, billingsToDate);
+    const uncollectedBillings = safeSubtract(billingsToDate, collectionsToDate);
+    return {
+        estimatedTotalCost,
+        percentComplete,
+        revenueRecognizedToDate,
+        grossProfitRecognizedToDate,
+        contractAssetLiabilityPosition,
+        uncollectedBillings,
+        positionLabel: contractAssetLiabilityPosition >= 0
+            ? "Contract asset / due from customer"
+            : "Contract liability / due to customer",
+    };
+}

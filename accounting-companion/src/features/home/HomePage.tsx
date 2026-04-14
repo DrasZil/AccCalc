@@ -46,6 +46,10 @@ const SMART_PROMPT_EXAMPLES = [
     "Plan EOQ and reorder point with lead time and safety stock.",
     "Review audit planning materiality and risk from one workspace.",
     "Bridge accounting income and taxable income through book-tax differences.",
+    "Measure a lease liability and right-of-use asset from periodic lease payments.",
+    "Build an indirect-method statement of cash flows with working-capital changes and financing items.",
+    "Translate a foreign-currency receivable using transaction, closing, and settlement rates.",
+    "Review withholding tax, estate tax, treaty handling, or incentive-regime logic.",
 ];
 
 const FEATURED_PATHS = [
@@ -62,8 +66,12 @@ const FEATURED_PATHS = [
     "/accounting/common-size-income-statement",
     "/audit/audit-planning-workspace",
     "/tax/book-tax-difference-workspace",
+    "/tax/tax-compliance-review",
     "/operations/eoq-and-reorder-point",
+    "/far/lease-measurement-workspace",
+    "/far/cash-flow-statement-builder",
     "/afar/business-combination-analysis",
+    "/afar/foreign-currency-translation",
     "/economics/price-elasticity-demand",
     "/entrepreneurship/entrepreneurship-toolkit",
 ];
@@ -153,10 +161,22 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
+        title: "FAR depth",
+        description: "Move from lease and cash-flow measurement into broader statement and equity review support.",
+        paths: [
+            "/far/lease-measurement-workspace",
+            "/far/share-based-payment-workspace",
+            "/far/cash-flow-statement-builder",
+            "/accounting/earnings-per-share",
+        ],
+    },
+    {
         title: "Audit planning",
         description: "Move from planning materiality and audit risk into IT controls and broader governance review.",
         paths: [
             "/audit/audit-planning-workspace",
+            "/audit/audit-cycle-reviewer",
+            "/audit/audit-completion-and-opinion",
             "/ais/it-control-matrix",
             "/governance/risk-control-matrix",
         ],
@@ -166,6 +186,7 @@ const WORKFLOW_COLLECTIONS = [
         description: "Move from book-tax differences into VAT review and broader integrative tax interpretation.",
         paths: [
             "/tax/book-tax-difference-workspace",
+            "/tax/tax-compliance-review",
             "/accounting/philippine-vat",
             "/strategic/integrative-case-mapper",
         ],
@@ -184,8 +205,37 @@ const WORKFLOW_COLLECTIONS = [
         description: "Start from business-combination measurement, then move into partnership and integrative review support.",
         paths: [
             "/afar/business-combination-analysis",
+            "/afar/foreign-currency-translation",
+            "/afar/construction-revenue-workspace",
             "/accounting/partnership-dissolution",
             "/strategic/integrative-case-mapper",
+        ],
+    },
+    {
+        title: "AIS and continuity",
+        description: "Move from control review into continuity, ERP, and audit-response support.",
+        paths: [
+            "/ais/it-control-matrix",
+            "/ais/ais-lifecycle-and-recovery",
+            "/audit/audit-planning-workspace",
+        ],
+    },
+    {
+        title: "Commercial-law review",
+        description: "Start from core law issue spotting, then move into commercial transactions and integrative governance links.",
+        paths: [
+            "/rfbt/business-law-review",
+            "/rfbt/commercial-transactions-reviewer",
+            "/governance/risk-control-matrix",
+        ],
+    },
+    {
+        title: "Strategic review",
+        description: "Move from strategic business analysis into integrative case mapping and performance evaluation.",
+        paths: [
+            "/strategic/strategic-business-analysis",
+            "/strategic/integrative-case-mapper",
+            "/business/roi-ri-eva",
         ],
     },
     {

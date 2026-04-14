@@ -3210,6 +3210,36 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/\beoq\b/i, /economic order quantity/i, /reorder point/i, /safety stock/i, /lead time/i],
     },
     {
+        id: "lease-measurement-workspace",
+        name: "Lease Measurement Workspace",
+        route: "/far/lease-measurement-workspace",
+        description:
+            "Review lease liability and right-of-use asset measurement from one FAR route.",
+        required: [],
+        aliases: ["lease accounting", "right of use asset", "lease liability"],
+        keywords: [/lease liability/i, /right of use/i, /right-of-use/i, /lease measurement/i, /lease accounting/i],
+    },
+    {
+        id: "share-based-payment-workspace",
+        name: "Share-Based Payment Workspace",
+        route: "/far/share-based-payment-workspace",
+        description:
+            "Review equity-settled share-based payment measurement and compensation cost timing.",
+        required: [],
+        aliases: ["stock options", "share options", "equity settled award"],
+        keywords: [/share[- ]based payment/i, /stock options?/i, /share options?/i, /vesting/i, /compensation cost/i],
+    },
+    {
+        id: "cash-flow-statement-builder",
+        name: "Statement of Cash Flows Builder",
+        route: "/far/cash-flow-statement-builder",
+        description:
+            "Build and classify operating, investing, and financing cash flows.",
+        required: [],
+        aliases: ["cash flow statement", "indirect method", "cash flow classification"],
+        keywords: [/statement of cash flows/i, /indirect method/i, /cash flow classification/i, /operating activities/i, /financing activities/i],
+    },
+    {
         id: "audit-planning-workspace",
         name: "Audit Planning Workspace",
         route: "/audit/audit-planning-workspace",
@@ -3218,6 +3248,26 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         required: [],
         aliases: ["audit materiality", "planning materiality", "audit risk"],
         keywords: [/audit planning/i, /planning materiality/i, /performance materiality/i, /audit risk/i],
+    },
+    {
+        id: "audit-cycle-reviewer",
+        name: "Audit Cycle Reviewer",
+        route: "/audit/audit-cycle-reviewer",
+        description:
+            "Review transaction-cycle assertions, controls, and likely procedures.",
+        required: [],
+        aliases: ["transaction cycle auditing", "revenue cycle audit", "expenditure cycle audit"],
+        keywords: [/transaction cycle/i, /revenue cycle/i, /expenditure cycle/i, /conversion cycle/i, /financing cycle/i],
+    },
+    {
+        id: "audit-completion-and-opinion",
+        name: "Audit Completion and Opinion Workspace",
+        route: "/audit/audit-completion-and-opinion",
+        description:
+            "Review completion procedures, going concern, modified reports, and KAMs.",
+        required: [],
+        aliases: ["modified audit report", "key audit matters", "going concern audit"],
+        keywords: [/completion procedures/i, /going concern/i, /subsequent events/i, /modified opinion/i, /key audit matters?/i],
     },
     {
         id: "book-tax-difference-workspace",
@@ -3230,6 +3280,16 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/book tax/i, /temporary differences/i, /deferred tax/i, /tax reconciliation/i],
     },
     {
+        id: "tax-compliance-review",
+        name: "Tax Compliance and Incentive Review",
+        route: "/tax/tax-compliance-review",
+        description:
+            "Review withholding, transfer taxes, treaty handling, and incentive regimes.",
+        required: [],
+        aliases: ["withholding tax review", "estate donor tax", "tax treaty"],
+        keywords: [/withholding tax/i, /documentary stamp/i, /estate tax/i, /donor'?s tax/i, /tax treaty/i, /peza|boi|bcda|bmbe/i],
+    },
+    {
         id: "business-combination-analysis",
         name: "Business Combination Analysis",
         route: "/afar/business-combination-analysis",
@@ -3238,6 +3298,26 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         required: [],
         aliases: ["goodwill calculator", "business combination", "nci measurement"],
         keywords: [/business combination/i, /goodwill/i, /\bnci\b/i, /consolidation goodwill/i],
+    },
+    {
+        id: "foreign-currency-translation",
+        name: "Foreign Currency Translation Workspace",
+        route: "/afar/foreign-currency-translation",
+        description:
+            "Review transaction-date, closing-rate, and settlement-rate foreign-currency effects.",
+        required: [],
+        aliases: ["foreign currency transaction", "exchange difference", "forex translation"],
+        keywords: [/foreign currency/i, /exchange difference/i, /closing rate/i, /settlement rate/i, /translation/i],
+    },
+    {
+        id: "construction-revenue-workspace",
+        name: "Construction Revenue Workspace",
+        route: "/afar/construction-revenue-workspace",
+        description:
+            "Review long-term construction revenue, percent complete, and contract position.",
+        required: [],
+        aliases: ["long term construction", "percentage of completion", "construction contract"],
+        keywords: [/percentage of completion/i, /construction contract/i, /contract asset/i, /contract liability/i, /cost to cost/i],
     },
     {
         id: "it-control-matrix",
@@ -3250,6 +3330,26 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/it governance/i, /it controls/i, /\bitgc\b/i, /application controls/i, /it audit/i],
     },
     {
+        id: "ais-lifecycle-and-recovery",
+        name: "AIS Lifecycle and Recovery Review",
+        route: "/ais/ais-lifecycle-and-recovery",
+        description:
+            "Review ERP, continuity, disaster recovery, and systems life-cycle concerns.",
+        required: [],
+        aliases: ["business continuity planning", "disaster recovery", "erp controls"],
+        keywords: [/business continuity/i, /disaster recovery/i, /\berp\b/i, /\bcrm\b/i, /incident management/i, /capacity planning/i],
+    },
+    {
+        id: "commercial-transactions-reviewer",
+        name: "Commercial Transactions Reviewer",
+        route: "/rfbt/commercial-transactions-reviewer",
+        description:
+            "Review commercial-law, securities, procurement, and rehabilitation topics.",
+        required: [],
+        aliases: ["credit transactions review", "contracts of security", "insider trading"],
+        keywords: [/credit transactions/i, /contracts? of security/i, /insider trading/i, /procurement/i, /intellectual property/i, /rehabilitation/i],
+    },
+    {
         id: "integrative-case-mapper",
         name: "Integrative Case Mapper",
         route: "/strategic/integrative-case-mapper",
@@ -3258,6 +3358,16 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         required: [],
         aliases: ["board review integration", "integrative case", "capstone review"],
         keywords: [/integrative case/i, /board review/i, /capstone/i, /mixed topic/i],
+    },
+    {
+        id: "strategic-business-analysis",
+        name: "Strategic Business Analysis Workspace",
+        route: "/strategic/strategic-business-analysis",
+        description:
+            "Review strategic analysis, strategic cost management, and consultancy framing.",
+        required: [],
+        aliases: ["strategic management analysis", "consultancy review", "industry analysis"],
+        keywords: [/strategic business analysis/i, /strategic cost management/i, /industry analysis/i, /consultancy/i, /research methods/i],
     },
     ];
 
@@ -4295,7 +4405,8 @@ export function scoreCalculator(
 
     export function buildFollowUp(
     best: RankedCalculator | null,
-    secondBest: RankedCalculator | null
+    secondBest: RankedCalculator | null,
+    query = ""
     ): string {
     if (!best || best.score < 35) {
         return 'Try typing your full problem naturally, like: "Find simple interest for 10000 at 5% for 2 years" or "I bought for 5000 and sold for 8000."';
@@ -4313,6 +4424,10 @@ export function scoreCalculator(
         return `To route confidently to ${best.name}, add ${best.missing
         .map(humanizeField)
         .join(" and ")}.`;
+    }
+
+    if (/\b(and|plus|while|together with|together)\b/i.test(query)) {
+        return `${best.name} looks like the best first route, but your wording may span more than one concept. Solve the primary issue first, then use the related next-step suggestions if a second topic remains.`;
     }
 
     return `${best.name} is ready. You can apply detected values and open the calculator.`;
@@ -4470,7 +4585,7 @@ export function suggestSolveTarget(calculatorId: string, query: string) {
         best,
         secondBest,
         detectedCurrency,
-        followUp: buildFollowUp(best, secondBest),
+        followUp: buildFollowUp(best, secondBest, smartInput),
         hasStrongMatch: Boolean(best && best.score >= 55),
         isReadyToRoute: Boolean(best && best.score >= 55 && best.missing.length === 0),
         extractedEntries,

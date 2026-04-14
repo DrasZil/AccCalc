@@ -35,6 +35,13 @@ type TopicSectionCardProps = {
     reviewed: boolean;
 };
 
+function getDeepDiveToneClass(tone: "default" | "info" | "warning" | "accent" = "default") {
+    if (tone === "info") return "app-tone-info";
+    if (tone === "warning") return "app-tone-warning";
+    if (tone === "accent") return "app-tone-accent";
+    return "app-subtle-surface";
+}
+
 function TopicSectionCard({
     topicId,
     topicPath,
@@ -178,45 +185,89 @@ export default function StudyTopicPage() {
             />
 
             <section className="app-study-layout">
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Topic overview</p>
-                    <div className="mt-4 space-y-3">
-                        <p className="app-body-md text-sm">{topic.intro}</p>
-                        <div className="grid gap-3 md:grid-cols-2">
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <p className="app-card-title text-sm">Why it matters</p>
-                                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                    {topic.whyItMatters.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <p className="app-card-title text-sm">Where it appears</p>
-                                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                    {topic.classContexts.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </SectionCard>
+                <TopicSectionCard
+                    topicId={topic.id}
+                    topicPath={topicPath}
+                    topicTitle={topic.title}
+                    sectionKey="overview"
+                    title="Topic overview"
+                    summary="Keep the big picture visible first, then open the detail panels only when you need them."
+                    defaultOpen
+                    reviewed={reviewedSections.has("overview")}
+                >
+                    <p className="app-body-md text-sm">{topic.intro}</p>
+                    <DisclosurePanel
+                        title="Why it matters"
+                        summary="Use this for the high-value reasons the topic shows up in class, review, and practical interpretation."
+                        defaultOpen
+                        compact
+                    >
+                        <ul className="list-disc space-y-2 pl-5 text-sm">
+                            {topic.whyItMatters.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
+                        </ul>
+                    </DisclosurePanel>
+                    <DisclosurePanel
+                        title="Where it appears"
+                        summary="Open this for board-review, class, and case contexts where the topic commonly appears."
+                        compact
+                    >
+                        <ul className="list-disc space-y-2 pl-5 text-sm">
+                            {topic.classContexts.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
+                        </ul>
+                    </DisclosurePanel>
+                </TopicSectionCard>
 
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Study tools</p>
-                    <div className="mt-4 space-y-3">
+                <TopicSectionCard
+                    topicId={topic.id}
+                    topicPath={topicPath}
+                    topicTitle={topic.title}
+                    sectionKey="study-tools"
+                    title="Study tools and next steps"
+                    summary="Use this as the guidance layer: when to open the topic, where to go next, and what local reminders to keep."
+                    defaultOpen
+                    reviewed={reviewedSections.has("study-tools")}
+                >
+                    <DisclosurePanel
+                        title="When to use this topic"
+                        summary="Open this when you need the right route before choosing a calculator or quiz."
+                        defaultOpen
+                        compact
+                    >
                         <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">When to use this topic</p>
-                            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
+                            <ul className="list-disc space-y-2 pl-5 text-sm">
                                 {topic.whenToUse.map((item) => (
                                     <li key={item}>{item}</li>
                                 ))}
                             </ul>
                         </div>
+                    </DisclosurePanel>
 
+                    {topic.nextStepPrompts && topic.nextStepPrompts.length > 0 ? (
+                        <DisclosurePanel
+                            title="What to review next"
+                            summary="Use these prompts when the topic is clear but you still need the next review move."
+                            compact
+                        >
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <ul className="list-disc space-y-2 pl-5 text-sm">
+                                    {topic.nextStepPrompts.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </DisclosurePanel>
+                    ) : null}
+
+                    <DisclosurePanel
+                        title="Local notes"
+                        summary="Keep short reminders, formula cautions, or mistakes to avoid on this device only."
+                        compact
+                    >
                         <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Local notes</p>
                             <textarea
                                 value={note}
                                 onChange={(event) => setNote(event.target.value)}
@@ -227,52 +278,52 @@ export default function StudyTopicPage() {
                                     )
                                 }
                                 placeholder="Write a quick reminder, formula note, or mistake to avoid."
-                                className="app-input-shell mt-3 min-h-28 w-full rounded-[1rem] px-4 py-3 text-sm"
+                                className="app-input-shell min-h-28 w-full rounded-[1rem] px-4 py-3 text-sm"
                             />
                             <p className="app-helper mt-2 text-xs">
                                 Notes are stored only on this device.
                             </p>
                         </div>
+                    </DisclosurePanel>
 
-                        <RelatedLinksPanel
-                            title="Study next"
-                            summary="Move from this lesson into practice, a nearby lesson, or the most relevant calculator without losing the study flow."
-                            badge={`${Math.min(1 + relatedTopics.length, 4)} study moves`}
-                            items={[
-                                {
-                                    path: buildStudyQuizPath(topic.id),
-                                    label: `${topic.shortTitle} practice`,
-                                    description: topic.quiz.intro,
-                                },
-                                ...relatedTopics.slice(0, 3).map((relatedTopic) => ({
-                                    path: buildStudyTopicPath(relatedTopic.id),
-                                    label: relatedTopic.title,
-                                    description: relatedTopic.summary,
-                                })),
-                            ]}
-                            compact
-                            showDescriptions
-                        />
+                    <RelatedLinksPanel
+                        title="Study next"
+                        summary="Move from this lesson into practice, a nearby lesson, or the most relevant calculator without losing the study flow."
+                        badge={`${Math.min(1 + relatedTopics.length, 4)} study moves`}
+                        items={[
+                            {
+                                path: buildStudyQuizPath(topic.id),
+                                label: `${topic.shortTitle} practice`,
+                                description: topic.quiz.intro,
+                            },
+                            ...relatedTopics.slice(0, 3).map((relatedTopic) => ({
+                                path: buildStudyTopicPath(relatedTopic.id),
+                                label: relatedTopic.title,
+                                description: relatedTopic.summary,
+                            })),
+                        ]}
+                        compact
+                        showDescriptions
+                    />
 
-                        <RelatedLinksPanel
-                            title="Related calculators"
-                            summary="Keep calculator follow-ups tucked away until you need the exact workspace for this topic."
-                            badge={`${topic.relatedCalculatorPaths.length} tools`}
-                            items={topic.relatedCalculatorPaths.map((path) => {
-                                const routeMeta = getRouteMeta(path);
-                                return {
-                                    path,
-                                    label:
-                                        routeMeta?.shortLabel ??
-                                        routeMeta?.label ??
-                                        "Open related calculator",
-                                    description: routeMeta?.description,
-                                };
-                            })}
-                            compact
-                        />
-                    </div>
-                </SectionCard>
+                    <RelatedLinksPanel
+                        title="Related calculators"
+                        summary="Keep calculator follow-ups tucked away until you need the exact workspace for this topic."
+                        badge={`${topic.relatedCalculatorPaths.length} tools`}
+                        items={topic.relatedCalculatorPaths.map((path) => {
+                            const routeMeta = getRouteMeta(path);
+                            return {
+                                path,
+                                label:
+                                    routeMeta?.shortLabel ??
+                                    routeMeta?.label ??
+                                    "Open related calculator",
+                                description: routeMeta?.description,
+                            };
+                        })}
+                        compact
+                    />
+                </TopicSectionCard>
             </section>
 
             <TopicSectionCard
@@ -285,38 +336,51 @@ export default function StudyTopicPage() {
                 defaultOpen
                 reviewed={reviewedSections.has("formula")}
             >
-                <div className="grid gap-3 xl:grid-cols-2">
-                    {topic.formulaOverview.map((formula) => (
-                        <div
-                            key={formula.label}
-                            className="app-subtle-surface rounded-[1rem] px-4 py-3.5"
-                        >
-                            <p className="app-card-title text-sm">{formula.label}</p>
-                            <div className="mt-3">
-                                <FormulaBlock
-                                    text={formula.expression}
-                                    supportingText={
-                                        <p className="app-helper text-xs leading-5">
-                                            {formula.explanation}
-                                        </p>
-                                    }
-                                />
+                <DisclosurePanel
+                    title="Key formulas and review structures"
+                    summary="Open the formula cards when you need the exact expression, structure, or measurement focus."
+                    defaultOpen
+                    compact
+                >
+                    <div className="grid gap-3 xl:grid-cols-2">
+                        {topic.formulaOverview.map((formula) => (
+                            <div
+                                key={formula.label}
+                                className="app-subtle-surface rounded-[1rem] px-4 py-3.5"
+                            >
+                                <p className="app-card-title text-sm">{formula.label}</p>
+                                <div className="mt-3">
+                                    <FormulaBlock
+                                        text={formula.expression}
+                                        supportingText={
+                                            <p className="app-helper text-xs leading-5">
+                                                {formula.explanation}
+                                            </p>
+                                        }
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                </DisclosurePanel>
 
-                <div className="grid gap-3 xl:grid-cols-2">
-                    {topic.variableDefinitions.map((variable) => (
-                        <div
-                            key={variable.symbol}
-                            className="app-tone-accent rounded-[1rem] px-4 py-3.5"
-                        >
-                            <p className="app-card-title text-sm">{variable.symbol}</p>
-                            <p className="app-body-md mt-2 text-sm">{variable.meaning}</p>
-                        </div>
-                    ))}
-                </div>
+                <DisclosurePanel
+                    title="Variable meanings"
+                    summary="Use this when symbols or labels are familiar but their role in the topic is still fuzzy."
+                    compact
+                >
+                    <div className="grid gap-3 xl:grid-cols-2">
+                        {topic.variableDefinitions.map((variable) => (
+                            <div
+                                key={variable.symbol}
+                                className="app-tone-accent rounded-[1rem] px-4 py-3.5"
+                            >
+                                <p className="app-card-title text-sm">{variable.symbol}</p>
+                                <p className="app-body-md mt-2 text-sm">{variable.meaning}</p>
+                            </div>
+                        ))}
+                    </div>
+                </DisclosurePanel>
             </TopicSectionCard>
 
             <TopicSectionCard
@@ -329,11 +393,45 @@ export default function StudyTopicPage() {
                 defaultOpen
                 reviewed={reviewedSections.has("procedure")}
             >
-                <ol className="list-decimal space-y-2 pl-5 text-sm">
-                    {topic.procedure.map((step) => (
-                        <li key={step}>{step}</li>
-                    ))}
-                </ol>
+                <DisclosurePanel
+                    title="Main procedure"
+                    summary="Open the solving order when you want the cleanest sequence before applying details."
+                    defaultOpen
+                    compact
+                >
+                    <ol className="list-decimal space-y-2 pl-5 text-sm">
+                        {topic.procedure.map((step) => (
+                            <li key={step}>{step}</li>
+                        ))}
+                    </ol>
+                </DisclosurePanel>
+
+                {topic.deepDiveSections && topic.deepDiveSections.length > 0 ? (
+                    <DisclosurePanel
+                        title="Deep-dive reviewer panels"
+                        summary="Use these narrower panels for the detailed rules, exceptions, and board-review distinctions that do not need to stay open all the time."
+                        compact
+                    >
+                        <div className="grid gap-3 xl:grid-cols-2">
+                            {topic.deepDiveSections.map((section) => (
+                                <DisclosurePanel
+                                    key={section.id}
+                                    title={section.title}
+                                    summary={section.summary}
+                                    compact
+                                >
+                                    <div className={`${getDeepDiveToneClass(section.tone)} rounded-[1rem] px-4 py-3.5`}>
+                                        <ul className="list-disc space-y-2 pl-5 text-sm">
+                                            {section.points.map((point) => (
+                                                <li key={point}>{point}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </DisclosurePanel>
+                            ))}
+                        </div>
+                    </DisclosurePanel>
+                ) : null}
             </TopicSectionCard>
 
             <section className="app-card-grid-readable">
@@ -346,19 +444,32 @@ export default function StudyTopicPage() {
                     summary="A full worked example for the topic, with the reasoning attached to each step."
                     reviewed={reviewedSections.has("worked-example")}
                 >
-                    <p className="text-sm">{topic.workedExample.scenario}</p>
-                    <ol className="list-decimal space-y-2 pl-5 text-sm">
-                        {topic.workedExample.steps.map((step) => (
-                            <li key={step}>{step}</li>
-                        ))}
-                    </ol>
-                    <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                        <p className="app-card-title text-sm">Result</p>
-                        <p className="app-body-md mt-2 text-sm">{topic.workedExample.result}</p>
-                        <p className="app-helper mt-2 text-xs leading-5">
-                            {topic.workedExample.interpretation}
-                        </p>
-                    </div>
+                    <DisclosurePanel
+                        title="Scenario and steps"
+                        summary="Open this to walk through the full fact pattern and the recommended solving sequence."
+                        defaultOpen
+                        compact
+                    >
+                        <p className="text-sm">{topic.workedExample.scenario}</p>
+                        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
+                            {topic.workedExample.steps.map((step) => (
+                                <li key={step}>{step}</li>
+                            ))}
+                        </ol>
+                    </DisclosurePanel>
+                    <DisclosurePanel
+                        title="Worked interpretation"
+                        summary="Keep the result and its meaning tucked away until you want to compare your own reading."
+                        compact
+                    >
+                        <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
+                            <p className="app-card-title text-sm">Result</p>
+                            <p className="app-body-md mt-2 text-sm">{topic.workedExample.result}</p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {topic.workedExample.interpretation}
+                            </p>
+                        </div>
+                    </DisclosurePanel>
                 </TopicSectionCard>
 
                 <TopicSectionCard
@@ -370,19 +481,32 @@ export default function StudyTopicPage() {
                     summary="A shorter checkpoint example to confirm whether the method still holds with different numbers."
                     reviewed={reviewedSections.has("checkpoint")}
                 >
-                    <p className="text-sm">{topic.checkpointExample.scenario}</p>
-                    <ol className="list-decimal space-y-2 pl-5 text-sm">
-                        {topic.checkpointExample.steps.map((step) => (
-                            <li key={step}>{step}</li>
-                        ))}
-                    </ol>
-                    <div className="app-tone-accent rounded-[1rem] px-4 py-3.5">
-                        <p className="app-card-title text-sm">Checkpoint meaning</p>
-                        <p className="app-body-md mt-2 text-sm">{topic.checkpointExample.result}</p>
-                        <p className="app-helper mt-2 text-xs leading-5">
-                            {topic.checkpointExample.interpretation}
-                        </p>
-                    </div>
+                    <DisclosurePanel
+                        title="Checkpoint setup"
+                        summary="Open this for the shorter variation that tests whether the method still holds."
+                        defaultOpen
+                        compact
+                    >
+                        <p className="text-sm">{topic.checkpointExample.scenario}</p>
+                        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
+                            {topic.checkpointExample.steps.map((step) => (
+                                <li key={step}>{step}</li>
+                            ))}
+                        </ol>
+                    </DisclosurePanel>
+                    <DisclosurePanel
+                        title="Checkpoint meaning"
+                        summary="Use this to compare your checkpoint interpretation after you have tried it yourself."
+                        compact
+                    >
+                        <div className="app-tone-accent rounded-[1rem] px-4 py-3.5">
+                            <p className="app-card-title text-sm">Checkpoint meaning</p>
+                            <p className="app-body-md mt-2 text-sm">{topic.checkpointExample.result}</p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {topic.checkpointExample.interpretation}
+                            </p>
+                        </div>
+                    </DisclosurePanel>
                 </TopicSectionCard>
             </section>
 
@@ -397,22 +521,33 @@ export default function StudyTopicPage() {
                     reviewed={reviewedSections.has("mistakes")}
                 >
                     <div className="grid gap-3 lg:grid-cols-2">
-                        <div className="app-tone-warning rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Likely mistakes</p>
-                            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                {topic.commonMistakes.map((item) => (
-                                    <li key={item}>{item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Exam traps</p>
-                            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                {topic.examTraps.map((item) => (
-                                    <li key={item}>{item}</li>
-                                ))}
-                            </ul>
-                        </div>
+                        <DisclosurePanel
+                            title="Likely mistakes"
+                            summary="Open this before solving if you want the fastest way to avoid the most common wrong turns."
+                            defaultOpen
+                            compact
+                        >
+                            <div className="app-tone-warning rounded-[1rem] px-4 py-3.5">
+                                <ul className="list-disc space-y-2 pl-5 text-sm">
+                                    {topic.commonMistakes.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </DisclosurePanel>
+                        <DisclosurePanel
+                            title="Exam traps"
+                            summary="Use this for the misleading clues or framing tricks that often appear in quizzes and review sets."
+                            compact
+                        >
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <ul className="list-disc space-y-2 pl-5 text-sm">
+                                    {topic.examTraps.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </DisclosurePanel>
                     </div>
                 </TopicSectionCard>
 
@@ -425,31 +560,47 @@ export default function StudyTopicPage() {
                     summary="Keep the meaning first, then open the self-check and practice prompts when you want active review."
                     reviewed={reviewedSections.has("interpretation")}
                 >
-                    <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                        <p className="app-card-title text-sm">How to read the result</p>
-                        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                            {topic.interpretation.map((item) => (
-                                <li key={item}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    <DisclosurePanel
+                        title="How to read the result"
+                        summary="Open this when you want the meaning and consequence before you move into self-check or quiz mode."
+                        defaultOpen
+                        compact
+                    >
+                        <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
+                            <ul className="list-disc space-y-2 pl-5 text-sm">
+                                {topic.interpretation.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </DisclosurePanel>
                     <div className="grid gap-3 lg:grid-cols-2">
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Self-check prompts</p>
-                            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                {topic.selfCheck.map((item) => (
-                                    <li key={item}>{item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Practice cues</p>
-                            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
-                                {topic.practiceCues.map((item) => (
-                                    <li key={item}>{item}</li>
-                                ))}
-                            </ul>
-                        </div>
+                        <DisclosurePanel
+                            title="Self-check prompts"
+                            summary="Use these questions when you want to actively recall the lesson without opening the quiz yet."
+                            compact
+                        >
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <ul className="list-disc space-y-2 pl-5 text-sm">
+                                    {topic.selfCheck.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </DisclosurePanel>
+                        <DisclosurePanel
+                            title="Practice cues"
+                            summary="Open this when you want a quick prompt for oral review, flashcard use, or written practice."
+                            compact
+                        >
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <ul className="list-disc space-y-2 pl-5 text-sm">
+                                    {topic.practiceCues.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </DisclosurePanel>
                     </div>
                 </TopicSectionCard>
             </section>
