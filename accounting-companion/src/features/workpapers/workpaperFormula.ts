@@ -13,10 +13,11 @@ import {
 
 type FormulaToken =
     | { type: "number"; value: number }
-    | { type: "operator"; value: "+" | "-" | "*" | "/" }
+    | { type: "operator"; value: "+" | "-" | "*" | "/" | "^" }
     | { type: "paren"; value: "(" | ")" }
     | { type: "comma" }
     | { type: "colon" }
+    | { type: "percent" }
     | { type: "ref"; value: string; sheetName?: string }
     | { type: "identifier"; value: string };
 
@@ -34,6 +35,7 @@ export type EvaluatedCell = {
     display: string;
     value: WorkpaperValue;
     kind: "value" | "formula" | "error";
+    errorMessage?: string;
 };
 
 type EvaluationContext = {
@@ -86,6 +88,12 @@ function tokenizeFormula(formula: string): FormulaToken[] {
             continue;
         }
 
+        if (char === "^") {
+            tokens.push({ type: "operator", value: "^" });
+            index += 1;
+            continue;
+        }
+
         if (char === "(" || char === ")") {
             tokens.push({ type: "paren", value: char });
             index += 1;
@@ -94,6 +102,12 @@ function tokenizeFormula(formula: string): FormulaToken[] {
 
         if (char === ",") {
             tokens.push({ type: "comma" });
+            index += 1;
+            continue;
+        }
+
+        if (char === "%") {
+            tokens.push({ type: "percent" });
             index += 1;
             continue;
         }
@@ -291,6 +305,14 @@ function flattenFunctionValues(values: Array<WorkpaperValue | number[]>) {
     return values.flatMap((value) => (Array.isArray(value) ? value : [valueToNumber(value)]));
 }
 
+function flattenOriginalValues(values: Array<WorkpaperValue | number[]>) {
+    return values.flatMap((value) => (Array.isArray(value) ? value : [value]));
+}
+
+function isMeaningfulValue(value: WorkpaperValue) {
+    return value !== null && value !== "";
+}
+
 function parseFormulaExpression(
     tokens: FormulaToken[],
     context: EvaluationContext,
@@ -387,6 +409,7 @@ function parseFormulaExpression(
             consume();
 
             const flattened = flattenFunctionValues(args);
+            const originalValues = flattenOriginalValues(args);
 
             switch (identifier) {
                 case "SUM":
@@ -408,15 +431,140 @@ function parseFormulaExpression(
                     return { kind: "value", value: flattened.length ? Math.max(...flattened) : 0 };
                 case "ABS":
                     return { kind: "value", value: Math.abs(flattened[0] ?? 0) };
+                case "PRODUCT":
+                    return {
+                        kind: "value",
+                        value: flattened.length
+                            ? flattened.reduce((product, value) => product * value, 1)
+                            : 0,
+                    };
+                case "COUNT":
+                    return {
+                        kind: "value",
+                        value: originalValues.filter(
+                            (value) =>
+                                typeof value === "number" ||
+                                (typeof value === "string" &&
+                                    value.trim() !== "" &&
+                                    !Number.isNaN(Number(value)))
+                        ).length,
+                    };
+                case "COUNTA":
+                    return {
+                        kind: "value",
+                        value: originalValues.filter(isMeaningfulValue).length,
+                    };
+                case "ROUND": {
+                    const precision = Math.trunc(flattened[1] ?? 0);
+                    const factor = Math.pow(10, precision);
+                    return {
+                        kind: "value",
+                        value: Math.round((flattened[0] ?? 0) * factor) / factor,
+                    };
+                }
+                case "ROUNDUP": {
+                    const precision = Math.trunc(flattened[1] ?? 0);
+                    const factor = Math.pow(10, precision);
+                    const value = flattened[0] ?? 0;
+                    return {
+                        kind: "value",
+                        value:
+                            Math.sign(value) * Math.ceil(Math.abs(value) * factor) / factor,
+                    };
+                }
+                case "ROUNDDOWN": {
+                    const precision = Math.trunc(flattened[1] ?? 0);
+                    const factor = Math.pow(10, precision);
+                    const value = flattened[0] ?? 0;
+                    return {
+                        kind: "value",
+                        value:
+                            Math.sign(value) * Math.floor(Math.abs(value) * factor) / factor,
+                    };
+                }
+                case "SQRT":
+                    if ((flattened[0] ?? 0) < 0) {
+                        return {
+                            kind: "error",
+                            message: "SQRT needs a zero or positive value.",
+                        };
+                    }
+                    return { kind: "value", value: Math.sqrt(flattened[0] ?? 0) };
+                case "POWER":
+                    return {
+                        kind: "value",
+                        value: Math.pow(flattened[0] ?? 0, flattened[1] ?? 0),
+                    };
+                case "MOD":
+                    if ((flattened[1] ?? 0) === 0) {
+                        return {
+                            kind: "error",
+                            message: "MOD cannot divide by zero.",
+                        };
+                    }
+                    return {
+                        kind: "value",
+                        value: (flattened[0] ?? 0) % (flattened[1] ?? 0),
+                    };
+                case "INT":
+                    return { kind: "value", value: Math.floor(flattened[0] ?? 0) };
+                case "MEDIAN": {
+                    const sorted = [...flattened].sort((leftValue, rightValue) => leftValue - rightValue);
+                    if (!sorted.length) return { kind: "value", value: 0 };
+                    const midpoint = Math.floor(sorted.length / 2);
+                    return {
+                        kind: "value",
+                        value:
+                            sorted.length % 2 === 0
+                                ? (sorted[midpoint - 1] + sorted[midpoint]) / 2
+                                : sorted[midpoint],
+                    };
+                }
+                case "PI":
+                    return { kind: "value", value: Math.PI };
                 default:
                     return {
                         kind: "error",
-                        message: `Function ${identifier} is not supported in this workpaper yet.`,
+                        message: `${identifier} is not supported yet. Try SUM, AVERAGE, ROUND, SQRT, POWER, MIN, MAX, PRODUCT, COUNT, or ABS.`,
                     };
             }
         }
 
         return { kind: "error", message: "Unsupported formula expression." };
+    }
+
+    function parsePostfix(): EvaluationSuccess | EvaluationError {
+        let value = parsePrimary();
+        if (value.kind === "error") return value;
+
+        while (peek()?.type === "percent") {
+            consume();
+            value = {
+                kind: "value",
+                value: valueToNumber(value.value) / 100,
+            };
+        }
+
+        return value;
+    }
+
+    function parsePower(): EvaluationSuccess | EvaluationError {
+        let left = parsePostfix();
+        if (left.kind === "error") return left;
+
+        const nextToken = peek();
+        if (!nextToken || nextToken.type !== "operator" || nextToken.value !== "^") {
+            return left;
+        }
+
+        consume();
+        const right = parseUnary();
+        if (right.kind === "error") return right;
+
+        return {
+            kind: "value",
+            value: Math.pow(valueToNumber(left.value), valueToNumber(right.value)),
+        };
     }
 
     function parseUnary(): EvaluationSuccess | EvaluationError {
@@ -431,7 +579,7 @@ function parseFormulaExpression(
             };
         }
 
-        return parsePrimary();
+        return parsePower();
     }
 
     function parseTerm(): EvaluationSuccess | EvaluationError {
@@ -567,6 +715,19 @@ export function evaluateCellInput(
             display: `#ERROR ${result.message}`,
             value: result.message,
             kind: "error",
+            errorMessage: result.message,
+        };
+    }
+
+    if (
+        typeof result.value === "number" &&
+        (!Number.isFinite(result.value) || Number.isNaN(result.value))
+    ) {
+        return {
+            display: "#ERROR Check the formula inputs.",
+            value: "Check the formula inputs.",
+            kind: "error",
+            errorMessage: "Check the formula inputs. Division by zero or an invalid numeric operation may be involved.",
         };
     }
 

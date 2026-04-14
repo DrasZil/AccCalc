@@ -281,6 +281,37 @@ runTest("workpaper formulas evaluate references, ranges, and functions", () => {
     assert.equal(evaluateCellInput(workbook, sheet.id, "=AVERAGE(A1:A2)").display, "75");
 });
 
+runTest("workpaper formulas support broader math functions and friendlier errors", () => {
+    const sheet = createEmptySheet({
+        title: "Math",
+        rowCount: 8,
+        columnCount: 6,
+        cells: {
+            [getCellKey(0, 0)]: { input: "200" },
+            [getCellKey(1, 0)]: { input: "50" },
+            [getCellKey(0, 1)]: { input: "=A1*10%" },
+            [getCellKey(1, 1)]: { input: "=POWER(A1/A2,2)" },
+            [getCellKey(2, 1)]: { input: "=ROUND(PI(),2)" },
+            [getCellKey(3, 1)]: { input: "=PRODUCT(A1:A2)" },
+            [getCellKey(4, 1)]: { input: "=MEDIAN(A1:A2,100)" },
+        },
+    });
+    const workbook = createWorkbook({
+        title: "Math test",
+        sheets: [sheet],
+    });
+
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=A1*10%").display, "20");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=POWER(A1/A2,2)").display, "16");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=ROUND(PI(),2)").display, "3.14");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=PRODUCT(A1:A2)").display, "10000");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=MEDIAN(A1:A2,100)").display, "100");
+    assert.equal(
+        evaluateCellInput(workbook, sheet.id, "=SQRT(-1)").errorMessage,
+        "SQRT needs a zero or positive value."
+    );
+});
+
 runTest("workpaper templates ship with structured starter workbooks", () => {
     const template = getWorkpaperTemplate("cash-budget-support");
     assert.ok(template);

@@ -1702,6 +1702,52 @@ html[data-contrast="high"] .app-sidebar-link {
     font-size: 0.84rem;
 }
 
+.workpaper-toolbar__identity {
+    color: var(--app-text);
+    font-size: 0.84rem;
+    font-weight: 650;
+}
+
+.workpaper-recent-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.workpaper-recent-strip__label {
+    flex: 0 0 auto;
+    color: var(--app-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.workpaper-recent-strip__items {
+    display: flex;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.workpaper-recent-strip__button,
+.workpaper-inline-guide__chip,
+.workpaper-inline-guide__dismiss,
+.workpaper-formula-bar__help {
+    flex: 0 0 auto;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 999px;
+    background: var(--app-field-bg);
+    color: var(--app-text-secondary);
+    font-size: 0.78rem;
+    font-weight: 650;
+}
+
+.workpaper-recent-strip__button {
+    padding: 0.48rem 0.8rem;
+}
+
 .workpaper-tabs {
     display: flex;
     align-items: center;
@@ -1743,7 +1789,7 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .workpaper-formula-bar {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     gap: 0.65rem;
     align-items: center;
     border-radius: 1.15rem;
@@ -1780,6 +1826,64 @@ html[data-contrast="high"] .app-sidebar-link {
     border-color: var(--app-border-strong);
     background: var(--app-accent-soft);
     color: var(--app-accent);
+}
+
+.workpaper-formula-bar__mode--error {
+    border-color: rgba(245, 158, 11, 0.28);
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+}
+
+.workpaper-formula-bar__help {
+    padding: 0.62rem 0.82rem;
+}
+
+.workpaper-inline-guide {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 1rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent),
+        var(--app-field-bg);
+    padding: 0.72rem 0.82rem;
+}
+
+.workpaper-inline-guide__summary,
+.workpaper-inline-guide__actions {
+    display: flex;
+    min-width: 0;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.workpaper-inline-guide__summary {
+    flex: 1 1 18rem;
+}
+
+.workpaper-inline-guide__summary strong {
+    color: var(--app-text);
+    font-size: 0.82rem;
+}
+
+.workpaper-inline-guide__actions {
+    flex: 1 1 18rem;
+    justify-content: flex-end;
+}
+
+.workpaper-inline-guide__chip,
+.workpaper-inline-guide__dismiss {
+    padding: 0.44rem 0.76rem;
+}
+
+.workpaper-inline-guide__error {
+    color: var(--app-warning);
+    font-size: 0.78rem;
+    font-weight: 600;
 }
 
 .workpaper-grid-shell {
@@ -1820,6 +1924,10 @@ html[data-contrast="high"] .app-sidebar-link {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent),
         var(--app-surface);
+    max-block-size: clamp(20rem, 58vh, 46rem);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
+    touch-action: pan-x pan-y;
 }
 
 .workpaper-grid__table {
@@ -1862,7 +1970,7 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .workpaper-grid__corner,
 .workpaper-grid__colhead {
-    min-width: 6.25rem;
+    min-width: var(--workpaper-cell-width, 6.25rem);
     padding: 0.72rem 0.5rem;
 }
 
@@ -1876,8 +1984,8 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .workpaper-grid__cell-wrap {
-    min-width: 6.25rem;
-    height: 3rem;
+    min-width: var(--workpaper-cell-width, 6.25rem);
+    height: var(--workpaper-cell-height, 3rem);
     background: transparent;
 }
 
@@ -2037,9 +2145,19 @@ html[data-contrast="high"] .app-sidebar-link {
     flex-wrap: wrap;
 }
 
+.workpaper-empty-state__guide {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
 @media (min-width: 78rem) {
     .workpaper-details-grid {
         grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.9fr);
+    }
+
+    .workpaper-grid {
+        max-block-size: clamp(24rem, 62vh, 50rem);
     }
 }
 
@@ -2049,9 +2167,18 @@ html[data-contrast="high"] .app-sidebar-link {
     }
 
     .workpaper-formula-bar__cell,
-    .workpaper-formula-bar__mode {
+    .workpaper-formula-bar__mode,
+    .workpaper-formula-bar__help {
         min-width: 0;
         text-align: left;
+    }
+
+    .workpaper-inline-guide__actions {
+        justify-content: flex-start;
+    }
+
+    .workpaper-grid {
+        max-block-size: clamp(18rem, 52vh, 32rem);
     }
 }
 
@@ -2086,6 +2213,18 @@ html[data-contrast="high"] .app-sidebar-link {
 
     .workpaper-grid-shell {
         padding: 0.65rem;
+    }
+
+    .workpaper-grid {
+        --workpaper-cell-width: 5.5rem;
+        --workpaper-cell-height: 2.8rem;
+    }
+}
+
+@media (min-width: 70rem) {
+    .workpaper-grid {
+        --workpaper-cell-width: 7rem;
+        --workpaper-cell-height: 3.1rem;
     }
 }
 

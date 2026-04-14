@@ -1,26 +1,31 @@
-export const APP_VERSION = "5.1.0";
+export const APP_VERSION = "5.2.0";
 export const APP_RELEASE_DATE = "2026-04-14";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Workpaper Studio now puts the worksheet first",
-        body: "AccCalc 5.1.0 redesigns Workpaper Studio around a compact spreadsheet-style workspace so the grid, active cell, formula entry, and sheet tabs are visible immediately instead of competing with large support surfaces.",
+        title: "Workpaper Studio now teaches the worksheet quietly",
+        body: "AccCalc 5.2.0 adds subtle guidance chips, formula examples, calmer first-use cues, and clearer active-cell feedback so users can understand the sheet while staying focused on the worksheet itself.",
     },
     {
-        title: "Secondary tools now stay close without taking over the screen",
-        body: "Workbook management, transfer inbox actions, template browsing, metadata editing, traceability, and related workflow links now live behind a lighter disclosure tray so advanced tools remain available while the sheet stays central.",
+        title: "The worksheet now supports broader everyday math",
+        body: "Workpaper formulas now cover more practical spreadsheet math such as percentages, exponents, PRODUCT, COUNT, COUNTA, ROUND, ROUNDUP, ROUNDDOWN, SQRT, POWER, MOD, MEDIAN, INT, and PI for more flexible solving tables and math workpapers.",
     },
     {
-        title: "Cell editing and formula entry are more direct",
-        body: "The editor now keeps a slimmer formula bar, clearer active-cell state, more predictable keyboard movement, safer sheet switching, and live formula preview support so entering values or formulas feels faster and less fragile.",
+        title: "Scrolling and viewport behavior feel more intentional",
+        body: "The grid now uses a more disciplined worksheet viewport with better horizontal and vertical containment, adaptive cell sizing, and scroll-to-selection behavior so larger sheets stay usable across mobile, laptop, and desktop screens.",
     },
     {
-        title: "The workbook route now feels like a focused editing mode",
-        body: "Workpaper Studio keeps the existing workbook architecture, autosave, import-export, history links, calculator transfers, and local-first reliability, but presents them through a more responsive workspace-specific UI that is easier to scan on mobile and desktop.",
+        title: "Workbook workflows are easier to re-enter and keep moving through",
+        body: "Recent workbook shortcuts, clearer workbook identity, stronger transfer actions, and safer sheet controls make Workpaper Studio feel smoother without changing its local-first workbook architecture underneath.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "5.2.0: Added subtle worksheet guidance through dismissible inline help, formula examples, calmer empty-state cues, and clearer active-cell messaging so users can learn the sheet while using it.",
+    "5.2.0: Broadened workpaper math support with percent expressions, exponent handling, PRODUCT, COUNT, COUNTA, ROUND, ROUNDUP, ROUNDDOWN, SQRT, POWER, MOD, MEDIAN, INT, and PI functions for more general worksheet use.",
+    "5.2.0: Improved formula entry clarity by surfacing friendlier error messages, clearer value-versus-formula states, and live preview feedback for the active cell.",
+    "5.2.0: Refined worksheet scrolling and viewport behavior with stronger contained grid scrolling, adaptive cell sizing, and selection-following movement for wider and taller sheets.",
+    "5.2.0: Improved workbook usability with recent workbook shortcuts, clearer workbook and sheet identity, easier sheet deletion control, and more natural transfer action labels and status updates.",
     "5.1.0: Reworked Workpaper Studio into a worksheet-first editing workspace with a compact workbook header, slimmer toolbar, clearer formula bar, stronger sheet tabs, and a dominant spreadsheet surface.",
     "5.1.0: Moved workbook management, transfer inbox, templates, metadata, traceability, and related links into a lighter collapsible tray so secondary tools stay accessible without crowding the sheet.",
     "5.1.0: Improved direct cell interaction with clearer selected-cell styling, smoother keyboard movement, safer sheet-boundary selection, and live formula preview support while typing.",

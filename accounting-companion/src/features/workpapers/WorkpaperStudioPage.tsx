@@ -50,6 +50,13 @@ import {
 
 const MAX_ROWS = 120;
 const MAX_COLUMNS = 26;
+const GUIDANCE_STORAGE_KEY = "accalc-workpaper-guidance-dismissed";
+const FORMULA_HINTS = [
+    { label: "=SUM(A1:A5)", value: "=SUM(A1:A5)" },
+    { label: "=A1+B1", value: "=A1+B1" },
+    { label: "=10*5", value: "=10*5" },
+    { label: "=ROUND(PI(),2)", value: "=ROUND(PI(),2)" },
+];
 
 type WorkpaperPanelKey = "none" | "workbooks" | "transfers" | "templates" | "details";
 
@@ -84,8 +91,14 @@ export default function WorkpaperStudioPage() {
     const [importError, setImportError] = useState<string | null>(null);
     const [draftVersion, setDraftVersion] = useState(0);
     const [hasPendingDraftSave, setHasPendingDraftSave] = useState(false);
+    const [guidanceDismissed, setGuidanceDismissed] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return window.localStorage.getItem(GUIDANCE_STORAGE_KEY) === "1";
+    });
+    const [showFormulaExamples, setShowFormulaExamples] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const activeInputRef = useRef<HTMLInputElement | null>(null);
+    const selectedCellElementRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         if (selectedWorkbookId && !library.workbooks[selectedWorkbookId]) {
@@ -121,6 +134,13 @@ export default function WorkpaperStudioPage() {
     }, [activeSheet]);
 
     useEffect(() => {
+        selectedCellElementRef.current?.scrollIntoView({
+            block: "nearest",
+            inline: "nearest",
+        });
+    }, [selectedCellKey]);
+
+    useEffect(() => {
         setCellDraft(selectedCell?.input ?? "");
         setCellNoteDraft(selectedCell?.note ?? "");
     }, [selectedCell?.input, selectedCell?.note, selectedCellKey]);
@@ -152,6 +172,7 @@ export default function WorkpaperStudioPage() {
     const activeTemplate = activeSheet?.templateId
         ? getWorkpaperTemplate(activeSheet.templateId)
         : null;
+    const hasSheetContent = activeSheet ? Object.keys(activeSheet.cells).length > 0 : false;
 
     function markDirty(message?: string) {
         setDraftVersion((current) => current + 1);
@@ -299,6 +320,34 @@ export default function WorkpaperStudioPage() {
         setStatusMessage("Created a new blank workpaper.");
     }
 
+    function dismissGuidance() {
+        setGuidanceDismissed(true);
+        if (typeof window !== "undefined") {
+            window.localStorage.setItem(GUIDANCE_STORAGE_KEY, "1");
+        }
+    }
+
+    function deleteActiveSheet() {
+        if (!draftWorkbook || !activeSheet || draftWorkbook.sheetOrder.length <= 1) return;
+
+        mutateWorkbook((current) => {
+            const nextSheets = { ...current.sheets };
+            delete nextSheets[activeSheet.id];
+
+            const currentIndex = current.sheetOrder.indexOf(activeSheet.id);
+            const nextOrder = current.sheetOrder.filter((sheetId) => sheetId !== activeSheet.id);
+            const fallbackSheetId =
+                nextOrder[Math.max(0, currentIndex - 1)] ?? nextOrder[0] ?? current.activeSheetId;
+
+            return {
+                ...current,
+                activeSheetId: fallbackSheetId,
+                sheetOrder: nextOrder,
+                sheets: nextSheets,
+            };
+        }, `Deleted ${activeSheet.title}.`);
+    }
+
     const selectedCellReference = getCellReference(
         selectedCellCoords.rowIndex,
         selectedCellCoords.columnIndex
@@ -332,6 +381,18 @@ export default function WorkpaperStudioPage() {
         selectedCellCoords.rowIndex,
         selectedCellEvaluated,
     ]);
+    const liveFormulaError =
+        cellDraft.trim().startsWith("=") && liveCellPreview?.kind === "error"
+            ? liveCellPreview.errorMessage ?? String(liveCellPreview.value)
+            : null;
+    const recentWorkbookIds = library.recentWorkbookIds
+        .filter((workbookId) => workbookId !== selectedWorkbookId && Boolean(library.workbooks[workbookId]))
+        .slice(0, 4);
+    const shouldShowGuidance =
+        Boolean(activeSheet) &&
+        ((!guidanceDismissed && (!hasSheetContent || !cellDraft.trim())) ||
+            showFormulaExamples ||
+            Boolean(liveFormulaError));
 
     const sheetTabs = draftWorkbook
         ? draftWorkbook.sheetOrder.map((sheetId) => ({
@@ -378,8 +439,8 @@ export default function WorkpaperStudioPage() {
                         <p className="workpaper-studio-page__kicker">Workpaper Studio</p>
                         <h1 className="workpaper-studio-page__title">Worksheet-first workpapers</h1>
                         <p className="workpaper-studio-page__subtitle">
-                            Open a workbook, tap a cell, and keep the supporting tools nearby instead
-                            of in the way.
+                            Open a workbook, tap a cell, and build calculations, schedules, or math
+                            tables without fighting the interface.
                         </p>
                     </div>
                 </div>
@@ -421,6 +482,10 @@ export default function WorkpaperStudioPage() {
                             </label>
 
                             <div className="workpaper-toolbar__meta">
+                                <span className="workpaper-toolbar__identity">
+                                    {draftWorkbook.title}
+                                    {activeSheet ? ` / ${activeSheet.title}` : ""}
+                                </span>
                                 <span className="app-chip rounded-full px-3 py-1 text-xs">
                                     {draftWorkbook.topic || "General"}
                                 </span>
@@ -479,6 +544,30 @@ export default function WorkpaperStudioPage() {
                             </button>
                         </div>
                     </section>
+
+                    {recentWorkbookIds.length > 0 ? (
+                        <section className="workpaper-recent-strip">
+                            <span className="workpaper-recent-strip__label">Recent</span>
+                            <div className="workpaper-recent-strip__items scrollbar-premium">
+                                {recentWorkbookIds.map((workbookId) => {
+                                    const workbook = library.workbooks[workbookId];
+                                    if (!workbook) return null;
+                                    return (
+                                        <button
+                                            key={workbook.id}
+                                            type="button"
+                                            onClick={() =>
+                                                startTransition(() => setSelectedWorkbookId(workbook.id))
+                                            }
+                                            className="workpaper-recent-strip__button"
+                                        >
+                                            {workbook.title}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    ) : null}
 
                     {importError ? (
                         <p className="rounded-xl px-3 py-2 text-sm app-tone-warning">
@@ -540,6 +629,14 @@ export default function WorkpaperStudioPage() {
                                 >
                                     Move left
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={deleteActiveSheet}
+                                    disabled={draftWorkbook.sheetOrder.length <= 1}
+                                    className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
+                                >
+                                    Delete
+                                </button>
                             </div>
                         ) : null}
                     </section>
@@ -554,20 +651,73 @@ export default function WorkpaperStudioPage() {
                                     onChange={(event) => setCellDraft(event.target.value)}
                                     onBlur={() => commitCellDraft({ staySelected: true })}
                                     onKeyDown={handleEditorNavigation}
-                                    placeholder="Type a value or start a formula with ="
+                                    placeholder="Type a value, text, or a formula like =SUM(A1:A5)"
                                     className="workpaper-formula-bar__input"
                                 />
                                 <span
                                     className={[
                                         "workpaper-formula-bar__mode",
+                                        liveFormulaError ? "workpaper-formula-bar__mode--error" : "",
                                         cellDraft.trim().startsWith("=")
                                             ? "workpaper-formula-bar__mode--formula"
                                             : "",
                                     ].join(" ")}
                                 >
-                                    {cellDraft.trim().startsWith("=") ? "Formula" : "Value"}
+                                    {liveFormulaError
+                                        ? "Error"
+                                        : cellDraft.trim().startsWith("=")
+                                          ? "Formula"
+                                          : "Value"}
                                 </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFormulaExamples((current) => !current)}
+                                    className="workpaper-formula-bar__help"
+                                >
+                                    {showFormulaExamples ? "Hide tips" : "Tips"}
+                                </button>
                             </section>
+
+                            {shouldShowGuidance ? (
+                                <section className="workpaper-inline-guide">
+                                    <div className="workpaper-inline-guide__summary">
+                                        <strong>How to use this sheet</strong>
+                                        <span className="app-helper text-xs">
+                                            Type values directly, start formulas with <code>=</code>,
+                                            and use Enter or Tab to keep moving.
+                                        </span>
+                                        {liveFormulaError ? (
+                                            <span className="workpaper-inline-guide__error">
+                                                {liveFormulaError}
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                    <div className="workpaper-inline-guide__actions">
+                                        {FORMULA_HINTS.map((hint) => (
+                                            <button
+                                                key={hint.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setCellDraft(hint.value);
+                                                    activeInputRef.current?.focus();
+                                                }}
+                                                className="workpaper-inline-guide__chip"
+                                            >
+                                                {hint.label}
+                                            </button>
+                                        ))}
+                                        {!guidanceDismissed ? (
+                                            <button
+                                                type="button"
+                                                onClick={dismissGuidance}
+                                                className="workpaper-inline-guide__dismiss"
+                                            >
+                                                Dismiss
+                                            </button>
+                                        ) : null}
+                                    </div>
+                                </section>
+                            ) : null}
 
                             <section className="workpaper-grid-shell">
                                 <div className="workpaper-grid-shell__header">
@@ -575,7 +725,8 @@ export default function WorkpaperStudioPage() {
                                         <h2 className="workpaper-grid-shell__title">{activeSheet.title}</h2>
                                         <p className="workpaper-grid-shell__subtitle">
                                             {formulaCoverage.values} value cells, {formulaCoverage.formulas} formula
-                                            cells, last used row {lastUsedRow >= 0 ? lastUsedRow + 1 : "none"}.
+                                            cells, last used row {lastUsedRow >= 0 ? lastUsedRow + 1 : "none"}, active
+                                            cell {selectedCellReference}.
                                         </p>
                                     </div>
                                     <div className="workpaper-grid-shell__header-actions">
@@ -647,7 +798,12 @@ export default function WorkpaperStudioPage() {
                                                             return (
                                                                 <td key={cellKey} className="workpaper-grid__cell-wrap">
                                                                     {isSelected ? (
-                                                                        <div className="workpaper-grid__cell workpaper-grid__cell--selected">
+                                                                        <div
+                                                                            ref={(element) => {
+                                                                                selectedCellElementRef.current = element;
+                                                                            }}
+                                                                            className="workpaper-grid__cell workpaper-grid__cell--selected"
+                                                                        >
                                                                             <input
                                                                                 value={cellDraft}
                                                                                 onChange={(event) =>
@@ -816,7 +972,7 @@ export default function WorkpaperStudioPage() {
                                                                             setSelectedWorkbookId(workbookId)
                                                                         );
                                                                         setStatusMessage(
-                                                                            `Created a new workbook from ${transfer.source.title}.`
+                                                                            `Created a workbook from ${transfer.source.title}.`
                                                                         );
                                                                     }}
                                                                     className="app-button-primary rounded-xl px-3.5 py-2 text-sm font-semibold"
@@ -827,27 +983,33 @@ export default function WorkpaperStudioPage() {
                                                                     <>
                                                                         <button
                                                                             type="button"
-                                                                            onClick={() =>
+                                                                            onClick={() => {
                                                                                 appendTransferToWorkbook(
                                                                                     selectedWorkbookId,
                                                                                     transfer
-                                                                                )
-                                                                            }
+                                                                                );
+                                                                                setStatusMessage(
+                                                                                    `Added ${transfer.title} as a new sheet.`
+                                                                                );
+                                                                            }}
                                                                             className="app-button-secondary rounded-xl px-3.5 py-2 text-sm font-semibold"
                                                                         >
-                                                                            Add as sheet
+                                                                            Add as new sheet
                                                                         </button>
                                                                         <button
                                                                             type="button"
-                                                                            onClick={() =>
+                                                                            onClick={() => {
                                                                                 appendTransferRowsToActiveSheet(
                                                                                     selectedWorkbookId,
                                                                                     transfer
-                                                                                )
-                                                                            }
+                                                                                );
+                                                                                setStatusMessage(
+                                                                                    `Appended ${transfer.title} below the current sheet content.`
+                                                                                );
+                                                                            }}
                                                                             className="app-button-ghost rounded-xl px-3.5 py-2 text-sm font-semibold"
                                                                         >
-                                                                            Append to sheet
+                                                                            Append below sheet
                                                                         </button>
                                                                     </>
                                                                 ) : null}
@@ -1091,6 +1253,12 @@ export default function WorkpaperStudioPage() {
                             connected in the background.
                         </p>
                     </div>
+                    <div className="workpaper-empty-state__guide">
+                        <span className="workpaper-inline-guide__chip">Type values directly</span>
+                        <span className="workpaper-inline-guide__chip">Start formulas with =</span>
+                        <span className="workpaper-inline-guide__chip">Try =SUM(A1:A5)</span>
+                        <span className="workpaper-inline-guide__chip">Use templates for schedules</span>
+                    </div>
                     <div className="workpaper-empty-state__actions">
                         <button
                             type="button"
@@ -1107,6 +1275,29 @@ export default function WorkpaperStudioPage() {
                             Import workbook
                         </button>
                     </div>
+                    {library.recentWorkbookIds.length > 0 ? (
+                        <div className="workpaper-card-grid">
+                            {library.recentWorkbookIds.slice(0, 4).map((workbookId) => {
+                                const workbook = library.workbooks[workbookId];
+                                if (!workbook) return null;
+                                return (
+                                    <button
+                                        key={workbook.id}
+                                        type="button"
+                                        onClick={() =>
+                                            startTransition(() => setSelectedWorkbookId(workbook.id))
+                                        }
+                                        className="workpaper-card-button"
+                                    >
+                                        <strong>{workbook.title}</strong>
+                                        <span className="app-helper text-xs">
+                                            {workbook.topic} | {workbook.sheetOrder.length} sheets
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : null}
                     <div className="workpaper-card-grid">
                         {WORKPAPER_TEMPLATES.slice(0, 4).map((template) => (
                             <button
