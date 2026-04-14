@@ -56,7 +56,50 @@ function sanitizeSheet(value: Partial<WorkpaperSheet> | null | undefined): Workp
             ? Object.fromEntries(
                   Object.entries(value.cells).flatMap(([key, cell]) => {
                       if (!cell || typeof cell.input !== "string") return [];
-                      return [[key, { input: cell.input, note: cell.note }]];
+                      return [[
+                          key,
+                          {
+                              input: cell.input,
+                              note: cell.note,
+                              style:
+                                  cell.style && typeof cell.style === "object"
+                                      ? {
+                                            fillColor:
+                                                typeof cell.style.fillColor === "string"
+                                                    ? cell.style.fillColor
+                                                    : undefined,
+                                            textColor:
+                                                typeof cell.style.textColor === "string"
+                                                    ? cell.style.textColor
+                                                    : undefined,
+                                            bold:
+                                                typeof cell.style.bold === "boolean"
+                                                    ? cell.style.bold
+                                                    : undefined,
+                                            italic:
+                                                typeof cell.style.italic === "boolean"
+                                                    ? cell.style.italic
+                                                    : undefined,
+                                            numberFormat:
+                                                cell.style.numberFormat === "general" ||
+                                                cell.style.numberFormat === "number" ||
+                                                cell.style.numberFormat === "percentage" ||
+                                                cell.style.numberFormat === "currency" ||
+                                                cell.style.numberFormat === "accounting" ||
+                                                cell.style.numberFormat === "date" ||
+                                                cell.style.numberFormat === "text"
+                                                    ? cell.style.numberFormat
+                                                    : undefined,
+                                            textAlign:
+                                                cell.style.textAlign === "left" ||
+                                                cell.style.textAlign === "center" ||
+                                                cell.style.textAlign === "right"
+                                                    ? cell.style.textAlign
+                                                    : undefined,
+                                        }
+                                      : undefined,
+                          },
+                      ]];
                   })
               )
             : {};
@@ -70,6 +113,8 @@ function sanitizeSheet(value: Partial<WorkpaperSheet> | null | undefined): Workp
         cells,
         note: typeof value.note === "string" ? value.note : undefined,
         templateId: typeof value.templateId === "string" ? value.templateId : undefined,
+        freezeRows: typeof value.freezeRows === "number" ? value.freezeRows : undefined,
+        freezeColumns: typeof value.freezeColumns === "number" ? value.freezeColumns : undefined,
         sources: Array.isArray(value.sources)
             ? value.sources.filter(
                   (source): source is WorkpaperSheet["sources"][number] =>

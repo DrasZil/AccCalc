@@ -1,26 +1,45 @@
-export const APP_VERSION = "5.2.0";
-export const APP_RELEASE_DATE = "2026-04-14";
+export const APP_VERSION = "5.5.1";
+export const APP_RELEASE_DATE = "2026-04-15";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "Workpaper Studio now teaches the worksheet quietly",
-        body: "AccCalc 5.2.0 adds subtle guidance chips, formula examples, calmer first-use cues, and clearer active-cell feedback so users can understand the sheet while staying focused on the worksheet itself.",
+        title: "Workpaper Studio now stays balanced on narrower screens",
+        body: "AccCalc 5.5.1 recenters the workbook route around the worksheet so narrow laptop, tablet, and mobile widths keep the grid visually primary instead of letting workbook chrome drift or crowd the layout.",
     },
     {
-        title: "The worksheet now supports broader everyday math",
-        body: "Workpaper formulas now cover more practical spreadsheet math such as percentages, exponents, PRODUCT, COUNT, COUNTA, ROUND, ROUNDUP, ROUNDDOWN, SQRT, POWER, MOD, MEDIAN, INT, and PI for more flexible solving tables and math workpapers.",
+        title: "Workbook utilities now stay tucked away until needed",
+        body: "File flows, sheet actions, structural worksheet controls, and workspace utilities now open through compact menus so the route feels cleaner and more spreadsheet-like while preserving the same workbook behaviors underneath.",
     },
     {
-        title: "Scrolling and viewport behavior feel more intentional",
-        body: "The grid now uses a more disciplined worksheet viewport with better horizontal and vertical containment, adaptive cell sizing, and scroll-to-selection behavior so larger sheets stay usable across mobile, laptop, and desktop screens.",
+        title: "Responsive workbook chrome is cleaner and less exposed",
+        body: "Toolbar controls, sheet tabs, the formula area, grid header actions, and lower utility surfaces now wrap and collapse more gracefully, which keeps the worksheet centered and easier to navigate at constrained widths.",
     },
     {
-        title: "Workbook workflows are easier to re-enter and keep moving through",
-        body: "Recent workbook shortcuts, clearer workbook identity, stronger transfer actions, and safer sheet controls make Workpaper Studio feel smoother without changing its local-first workbook architecture underneath.",
+        title: "The fix stays focused without disturbing workbook reliability",
+        body: "Workbook logic, autosave, import-export, range selection, fill, copy-paste, and formatting behavior remain intact while the route gets a tighter responsive shell and lighter utility navigation.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "5.5.1: Fixed Workpaper Studio centering and width behavior on narrower screens so the worksheet area, toolbar, formula bar, tabs, and workbook chrome stay balanced instead of drifting or overexposing utility controls.",
+    "5.5.1: Replaced several always-visible workbook utility clusters with compact file, sheet, structure, and workspace menus so the route feels cleaner and more spreadsheet-like without hiding core editing actions.",
+    "5.5.1: Tightened responsive wrapping and layout behavior around workbook actions, tab controls, grid header tools, and panel access so mobile, tablet, narrow laptop, and resized desktop views stay stable.",
+    "5.5.1: Preserved existing workbook logic, autosave, import-export, productivity features, and worksheet-first behavior while making the specialized workspace route easier to manage at constrained widths.",
+    "5.5.0: Added range-aware workbook productivity with multi-cell selection, bulk formatting, clipboard-friendly copy and paste, fill-down and fill-right helpers, and faster keyboard-driven sheet work.",
+    "5.5.0: Expanded workpaper formatting with practical number, percent, currency, accounting, date, and text display modes that stay consistent with workbook rendering and export flows.",
+    "5.5.0: Added smarter row-column structure tools, frozen first-row and first-column options, and lightweight workpaper actions for totals rows, assumptions blocks, notes blocks, and summary-sheet generation.",
+    "5.5.0: Improved print and report readiness by tightening workbook export presentation, adding print-mode cleanup, and carrying more structure into XLSX and CSV output where supported.",
+    "5.4.0: Fixed the Workpaper Studio text-color application bug so selected cells, non-selected cells, editor inputs, and live formula previews all respect the chosen font color instead of falling back to hardcoded theme text.",
+    "5.4.0: Added automatic contrast-aware text resolution for highlighted cells when no custom font color is set, which keeps fill colors readable without overriding intentional user styling.",
+    "5.4.0: Refined spreadsheet-style control density with lighter toolbar buttons, more adaptive workbook selects, a cleaner formula bar, stronger active-format states, and crisper row-column emphasis.",
+    "5.4.0: Strengthened XLSX formatting integrity by exporting resolved text colors and attempting to restore supported imported formatting such as fill, font color, emphasis, and alignment.",
+    "5.4.0: Improved workbook theme parity so Workpaper Studio remains readable and polished across dark mode and light mode while preserving its specialized worksheet-first workspace feel.",
+    "5.3.0: Refined Workpaper Studio into a lighter spreadsheet-style workspace with slimmer toolbar controls, cleaner visual hierarchy, improved row-column header treatment, and stronger selected-cell feedback.",
+    "5.3.0: Added an fx-based function picker so users can insert common spreadsheet functions from guided templates directly into the active cell and formula bar.",
+    "5.3.0: Expanded worksheet function support with logical comparisons plus IF, AND, and OR, while preserving the broader math set added in 5.2.0.",
+    "5.3.0: Added lightweight cell formatting controls for fill color, text color, bold, italic, and alignment, then persisted formatting in workbook state and applied it to XLSX exports where supported.",
+    "5.3.0: Improved import-export feedback with running, success, and failure banners and honest completion messaging that distinguishes chosen file saves from normal browser downloads.",
+    "5.3.0: Tightened worksheet scrolling and adaptive sizing again so the grid stays central and more spreadsheet-native across mobile, laptop, and desktop layouts.",
     "5.2.0: Added subtle worksheet guidance through dismissible inline help, formula examples, calmer empty-state cues, and clearer active-cell messaging so users can learn the sheet while using it.",
     "5.2.0: Broadened workpaper math support with percent expressions, exponent handling, PRODUCT, COUNT, COUNTA, ROUND, ROUNDUP, ROUNDDOWN, SQRT, POWER, MOD, MEDIAN, INT, and PI functions for more general worksheet use.",
     "5.2.0: Improved formula entry clarity by surfacing friendlier error messages, clearer value-versus-formula states, and live preview feedback for the active cell.",

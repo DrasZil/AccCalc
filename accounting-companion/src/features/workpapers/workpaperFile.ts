@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import type {
+    WorkpaperCellStyle,
     WorkpaperCellRecord,
     WorkpaperWorkbook,
 } from "./workpaperTypes.js";
@@ -7,11 +8,18 @@ import {
     createCell,
     createEmptySheet,
     createWorkbook,
+    formatDisplayValue,
     getCellKey,
+    resolveWorkpaperCellStyle,
     splitCellKey,
     toColumnLabel,
 } from "./workpaperUtils.js";
 import { evaluateCellInput } from "./workpaperFormula.js";
+
+export type WorkpaperFileActionResult = {
+    fileName: string;
+    method: "file-picker" | "download";
+};
 
 function getWorkbookFileName(title: string, extension: "xlsx" | "csv") {
     const baseName = title.trim() || "accalc-workpaper";
@@ -19,7 +27,11 @@ function getWorkbookFileName(title: string, extension: "xlsx" | "csv") {
     return `${safeName}.${extension}`;
 }
 
-async function saveBlobWithFallback(blob: Blob, fileName: string, mimeType: string) {
+async function saveBlobWithFallback(
+    blob: Blob,
+    fileName: string,
+    mimeType: string
+): Promise<WorkpaperFileActionResult> {
     const picker = (window as typeof window & {
         showSaveFilePicker?: (options: {
             suggestedName: string;
@@ -46,7 +58,7 @@ async function saveBlobWithFallback(blob: Blob, fileName: string, mimeType: stri
             const writable = await handle.createWritable();
             await writable.write(blob);
             await writable.close();
-            return;
+            return { fileName, method: "file-picker" };
         } catch {
             // Fall back to a download link when the picker is unsupported or cancelled.
         }
@@ -58,6 +70,7 @@ async function saveBlobWithFallback(blob: Blob, fileName: string, mimeType: stri
     anchor.download = fileName;
     anchor.click();
     URL.revokeObjectURL(url);
+    return { fileName, method: "download" };
 }
 
 function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
@@ -71,11 +84,51 @@ function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
             Array.from({ length: sheet.columnCount }, () => "")
         );
         const xlsxSheet = XLSX.utils.aoa_to_sheet(aoa);
+        xlsxSheet["!cols"] = Array.from({ length: sheet.columnCount }, () => ({ wch: 14 }));
 
         for (const [cellKey, cell] of Object.entries(sheet.cells)) {
             const { rowIndex, columnIndex } = splitCellKey(cellKey);
             const address = `${toColumnLabel(columnIndex)}${rowIndex + 1}`;
             const evaluated = evaluateCellInput(workbook, sheetId, cell.input);
+            const resolvedStyle = resolveWorkpaperCellStyle(cell.style);
+            const xlsxStyle = cell.style
+                ? {
+                      font: {
+                          bold: resolvedStyle.bold,
+                          italic: resolvedStyle.italic,
+                          color: resolvedStyle.effectiveTextColor
+                              ? {
+                                    rgb: resolvedStyle.effectiveTextColor
+                                        .replace("#", "")
+                                        .toUpperCase(),
+                                }
+                              : undefined,
+                      },
+                      fill: resolvedStyle.fillColor
+                          ? {
+                                patternType: "solid",
+                                fgColor: {
+                                    rgb: resolvedStyle.fillColor.replace("#", "").toUpperCase(),
+                                },
+                            }
+                          : undefined,
+                      alignment: resolvedStyle.textAlign
+                          ? { horizontal: resolvedStyle.textAlign }
+                          : undefined,
+                      numFmt:
+                          resolvedStyle.numberFormat === "number"
+                              ? "0.00"
+                              : resolvedStyle.numberFormat === "percentage"
+                                ? "0.00%"
+                                : resolvedStyle.numberFormat === "currency"
+                                  ? '"₱"#,##0.00'
+                                  : resolvedStyle.numberFormat === "accounting"
+                                    ? '_("₱"* #,##0.00_);_("₱"* (#,##0.00);_("₱"* "-"??_);_(@_)'
+                                    : resolvedStyle.numberFormat === "date"
+                                      ? "yyyy-mm-dd"
+                                      : undefined,
+                  }
+                : undefined;
 
             if (cell.input.trim().startsWith("=")) {
                 XLSX.utils.sheet_add_aoa(xlsxSheet, [[evaluated.value]], {
@@ -84,11 +137,18 @@ function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
                 const targetCell = xlsxSheet[address];
                 if (targetCell) {
                     targetCell.f = cell.input.trim().slice(1);
+                    if (xlsxStyle) {
+                        targetCell.s = xlsxStyle;
+                    }
                 }
             } else {
                 XLSX.utils.sheet_add_aoa(xlsxSheet, [[evaluated.value]], {
                     origin: address,
                 });
+                const targetCell = xlsxSheet[address];
+                if (targetCell && xlsxStyle) {
+                    targetCell.s = xlsxStyle;
+                }
             }
         }
 
@@ -107,7 +167,7 @@ export async function exportWorkbookAsXlsx(workbook: WorkpaperWorkbook) {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    await saveBlobWithFallback(
+    return saveBlobWithFallback(
         blob,
         getWorkbookFileName(workbook.title, "xlsx"),
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -116,12 +176,16 @@ export async function exportWorkbookAsXlsx(workbook: WorkpaperWorkbook) {
 
 export async function exportSheetAsCsv(workbook: WorkpaperWorkbook, sheetId: string) {
     const sheet = workbook.sheets[sheetId];
-    if (!sheet) return;
+    if (!sheet) return null;
 
     const rows = Array.from({ length: sheet.rowCount }, (_, rowIndex) =>
         Array.from({ length: sheet.columnCount }, (_, columnIndex) => {
-            const input = sheet.cells[getCellKey(rowIndex, columnIndex)]?.input ?? "";
-            return evaluateCellInput(workbook, sheetId, input).display;
+            const cell = sheet.cells[getCellKey(rowIndex, columnIndex)];
+            const input = cell?.input ?? "";
+            return formatDisplayValue(
+                evaluateCellInput(workbook, sheetId, input).display,
+                cell?.style
+            );
         })
     );
 
@@ -129,7 +193,7 @@ export async function exportSheetAsCsv(workbook: WorkpaperWorkbook, sheetId: str
     const csv = XLSX.utils.sheet_to_csv(xlsxSheet);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
 
-    await saveBlobWithFallback(
+    return saveBlobWithFallback(
         blob,
         getWorkbookFileName(`${workbook.title}-${sheet.title}`, "csv"),
         "text/csv"
@@ -145,12 +209,63 @@ function valueToInput(value: XLSX.CellObject | undefined) {
     return String(value.v);
 }
 
+function normalizeImportedColor(value: unknown) {
+    if (typeof value !== "string") return undefined;
+    const normalized = value.replace(/^FF/i, "#").replace(/^#/i, "#");
+    if (/^#[0-9A-F]{6}$/i.test(normalized)) {
+        return normalized.toUpperCase();
+    }
+    return undefined;
+}
+
+function extractImportedStyle(value: XLSX.CellObject | undefined) {
+    const rawStyle = (value as XLSX.CellObject & { s?: Record<string, unknown> } | undefined)?.s;
+    if (!rawStyle || typeof rawStyle !== "object") return undefined;
+
+    const font = rawStyle.font as Record<string, unknown> | undefined;
+    const fill = rawStyle.fill as Record<string, unknown> | undefined;
+    const alignment = rawStyle.alignment as Record<string, unknown> | undefined;
+        const style: WorkpaperCellStyle = {
+            fillColor: normalizeImportedColor(
+                (fill?.fgColor as Record<string, unknown> | undefined)?.rgb
+            ),
+        textColor: normalizeImportedColor(
+            (font?.color as Record<string, unknown> | undefined)?.rgb
+        ),
+        bold: typeof font?.bold === "boolean" ? font.bold : undefined,
+        italic: typeof font?.italic === "boolean" ? font.italic : undefined,
+        textAlign:
+            alignment?.horizontal === "left" ||
+            alignment?.horizontal === "center" ||
+            alignment?.horizontal === "right"
+                ? alignment.horizontal
+                : undefined,
+        numberFormat:
+            typeof rawStyle.numFmt === "string"
+                ? rawStyle.numFmt.includes("%")
+                    ? "percentage"
+                    : rawStyle.numFmt.includes("₱")
+                      ? rawStyle.numFmt.includes("_(")
+                          ? "accounting"
+                          : "currency"
+                      : rawStyle.numFmt.toLowerCase().includes("yy")
+                        ? "date"
+                        : rawStyle.numFmt.includes("0.00")
+                          ? "number"
+                          : undefined
+                : undefined,
+    };
+
+    return Object.values(style).some((entry) => entry !== undefined) ? style : undefined;
+}
+
 export async function importWorkbookFile(file: File) {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, {
         type: "array",
         cellFormula: true,
         cellDates: false,
+        cellStyles: true,
     });
 
     const sheets = workbook.SheetNames.map((sheetName) => {
@@ -162,9 +277,11 @@ export async function importWorkbookFile(file: File) {
         for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex += 1) {
             for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
                 const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
-                const input = valueToInput(xlsxSheet[cellAddress]);
-                if (input !== "") {
-                    cells[getCellKey(rowIndex, columnIndex)] = createCell(input);
+                const xlsxCell = xlsxSheet[cellAddress];
+                const input = valueToInput(xlsxCell);
+                const style = extractImportedStyle(xlsxCell);
+                if (input !== "" || style) {
+                    cells[getCellKey(rowIndex, columnIndex)] = createCell(input, undefined, style);
                 }
             }
         }

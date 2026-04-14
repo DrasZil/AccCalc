@@ -108,7 +108,21 @@ import {
 } from "../src/utils/resultDisplay.js";
 import { evaluateCellInput } from "../src/features/workpapers/workpaperFormula.js";
 import { getWorkpaperTemplate } from "../src/features/workpapers/workpaperTemplates.js";
-import { createEmptySheet, createWorkbook, getCellKey } from "../src/features/workpapers/workpaperUtils.js";
+import {
+    applyStyleToRange,
+    clearRangeCells,
+    createEmptySheet,
+    createSelectionRange,
+    createWorkbook,
+    duplicateRangeToTarget,
+    formatDisplayValue,
+    getCellKey,
+    getReadableTextColor,
+    insertRows,
+    resolveWorkpaperCellStyle,
+    shiftFormulaReferences,
+} from "../src/features/workpapers/workpaperUtils.js";
+import type { WorkpaperSheet } from "../src/features/workpapers/workpaperTypes.js";
 
 function assertClose(actual: number, expected: number, precision = 1e-6) {
     assert.ok(
@@ -310,6 +324,60 @@ runTest("workpaper formulas support broader math functions and friendlier errors
         evaluateCellInput(workbook, sheet.id, "=SQRT(-1)").errorMessage,
         "SQRT needs a zero or positive value."
     );
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=IF(A1>A2,1,0)").display, "1");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=AND(A1>A2,A2>0)").display, "TRUE");
+    assert.equal(evaluateCellInput(workbook, sheet.id, "=OR(A1<0,A2>0)").display, "TRUE");
+});
+
+runTest("workpaper cell styles resolve readable contrast without overwriting custom text colors", () => {
+    assert.equal(getReadableTextColor("#FEF3C7"), "#0F172A");
+    assert.equal(getReadableTextColor("#1D4ED8"), "#F8FAFC");
+
+    const autoContrast = resolveWorkpaperCellStyle({ fillColor: "#1D4ED8" });
+    const customText = resolveWorkpaperCellStyle({
+        fillColor: "#FEF3C7",
+        textColor: "#BE123C",
+    });
+
+    assert.equal(autoContrast.effectiveTextColor, "#F8FAFC");
+    assert.equal(customText.effectiveTextColor, "#BE123C");
+});
+
+runTest("workpaper range helpers support formula shifting, formatting, and structure changes", () => {
+    let sheet: WorkpaperSheet = createEmptySheet({
+        title: "Ops",
+        rowCount: 6,
+        columnCount: 4,
+        cells: {
+            [getCellKey(0, 0)]: { input: "100" },
+            [getCellKey(0, 1)]: { input: "=A1*10%" },
+        },
+    });
+
+    const range = createSelectionRange(
+        { rowIndex: 0, columnIndex: 0 },
+        { rowIndex: 0, columnIndex: 1 }
+    );
+
+    sheet = applyStyleToRange(sheet, range, { numberFormat: "currency", bold: true });
+    assert.equal(sheet.cells[getCellKey(0, 0)]?.style?.numberFormat, "currency");
+    assert.equal(sheet.cells[getCellKey(0, 1)]?.style?.bold, true);
+    assert.equal(shiftFormulaReferences("=A1+B1", 1, 0), "=A2+B2");
+
+    sheet = duplicateRangeToTarget(sheet, range, { rowIndex: 1, columnIndex: 0 });
+    assert.equal(sheet.cells[getCellKey(1, 1)]?.input, "=A2*10%");
+
+    sheet = insertRows(sheet, 1, 1);
+    assert.equal(sheet.cells[getCellKey(0, 1)]?.input, "=A1*10%");
+
+    sheet = clearRangeCells(
+        sheet,
+        createSelectionRange({ rowIndex: 0, columnIndex: 0 }, { rowIndex: 0, columnIndex: 0 })
+    );
+    assert.equal(sheet.cells[getCellKey(0, 0)], undefined);
+
+    assert.equal(formatDisplayValue("1250", { numberFormat: "currency" }), "₱1,250.00");
+    assert.equal(formatDisplayValue("15", { numberFormat: "percentage" }), "15.00%");
 });
 
 runTest("workpaper templates ship with structured starter workbooks", () => {

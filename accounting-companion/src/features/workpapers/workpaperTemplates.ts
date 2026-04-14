@@ -14,6 +14,22 @@ function sheetCells(entries: Array<[number, number, string]>) {
     return cells;
 }
 
+function headingCell(input: string) {
+    return createCell(input, undefined, {
+        bold: true,
+        fillColor: "#DBEAFE",
+        textColor: "#0F172A",
+    });
+}
+
+function labelCell(input: string) {
+    return createCell(input, undefined, {
+        bold: true,
+        fillColor: "#F8FAFC",
+        textColor: "#0F172A",
+    });
+}
+
 function buildSingleSheetTemplate(config: {
     title: string;
     description: string;
@@ -27,6 +43,26 @@ function buildSingleSheetTemplate(config: {
     relatedPaths: string[];
     entries: Array<[number, number, string]>;
 }) {
+    const baseCells = sheetCells(config.entries);
+    if (!baseCells[getCellKey(0, 0)]) {
+        baseCells[getCellKey(0, 0)] = headingCell(config.title);
+    } else {
+        baseCells[getCellKey(0, 0)] = headingCell(baseCells[getCellKey(0, 0)]?.input ?? config.title);
+    }
+    for (let columnIndex = 0; columnIndex < config.columnCount; columnIndex += 1) {
+        const key = getCellKey(1, columnIndex);
+        const existing = baseCells[key];
+        if (existing?.input) {
+            baseCells[key] = {
+                ...existing,
+                style: {
+                    ...(existing.style ?? {}),
+                    ...labelCell(existing.input).style,
+                },
+            };
+        }
+    }
+
     return {
         id: config.templateId,
         title: config.title,
@@ -47,7 +83,9 @@ function buildSingleSheetTemplate(config: {
                         columnCount: config.columnCount,
                         note: config.note,
                         templateId: config.templateId,
-                        cells: sheetCells(config.entries),
+                        freezeRows: 2,
+                        freezeColumns: 1,
+                        cells: baseCells,
                     }),
                 ],
             }),
@@ -318,6 +356,29 @@ export const WORKPAPER_TEMPLATES: WorkpaperTemplateDefinition[] = [
             [2, 0, "Depreciation"],
             [3, 0, "Estimated Warranty"],
             [4, 0, "Non-deductible Expense"],
+        ],
+    }),
+    buildSingleSheetTemplate({
+        templateId: "assumptions-and-summary",
+        title: "Assumptions and Summary Sheet",
+        description: "Capture assumptions, key metrics, notes, and reviewer conclusions in one workpaper.",
+        topic: "General",
+        sheetTitle: "Assumptions & Summary",
+        rowCount: 18,
+        columnCount: 6,
+        note: "Use this as a summary or cover sheet for multi-sheet workbooks and reporting-ready exports.",
+        tags: ["summary", "assumptions", "reporting", "review"],
+        relatedPaths: ["/workpapers", "/study-hub"],
+        entries: [
+            [0, 0, "Assumptions and Summary"],
+            [1, 0, "Section"],
+            [1, 1, "Details"],
+            [2, 0, "Objective"],
+            [3, 0, "Key assumptions"],
+            [4, 0, "Data source"],
+            [5, 0, "Result summary"],
+            [6, 0, "Reviewer note"],
+            [8, 0, "Next steps"],
         ],
     }),
 ];

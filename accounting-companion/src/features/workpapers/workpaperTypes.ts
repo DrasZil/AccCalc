@@ -15,6 +15,16 @@ export type WorkpaperSourceLink = {
 export type WorkpaperCell = {
     input: string;
     note?: string;
+    style?: WorkpaperCellStyle;
+};
+
+export type WorkpaperCellStyle = {
+    fillColor?: string;
+    textColor?: string;
+    bold?: boolean;
+    italic?: boolean;
+    textAlign?: "left" | "center" | "right";
+    numberFormat?: "general" | "number" | "percentage" | "currency" | "accounting" | "date" | "text";
 };
 
 export type WorkpaperCellRecord = Record<string, WorkpaperCell>;
@@ -30,6 +40,8 @@ export type WorkpaperSheet = {
     cells: WorkpaperCellRecord;
     note?: string;
     templateId?: string;
+    freezeRows?: number;
+    freezeColumns?: number;
     sources: WorkpaperSourceLink[];
     createdAt: number;
     updatedAt: number;

@@ -1,4 +1,5 @@
 import {
+    type CSSProperties,
     type KeyboardEvent as ReactKeyboardEvent,
     startTransition,
     useEffect,
@@ -32,19 +33,39 @@ import {
     exportSheetAsCsv,
     exportWorkbookAsXlsx,
     importWorkbookFile,
+    type WorkpaperFileActionResult,
 } from "./workpaperFile.js";
 import {
     getWorkpaperTemplate,
     WORKPAPER_TEMPLATES,
 } from "./workpaperTemplates.js";
-import type { WorkpaperSheet, WorkpaperWorkbook } from "./workpaperTypes.js";
+import type {
+    WorkpaperCellStyle,
+    WorkpaperSheet,
+    WorkpaperWorkbook,
+} from "./workpaperTypes.js";
 import {
+    applyStyleToRange,
     clampSheetDimension,
+    clearRangeCells,
     createEmptySheet,
+    createSelectionRange,
+    deleteColumns,
+    deleteRows,
+    duplicateRangeToTarget,
+    formatDisplayValue,
     getCellKey,
     getCellReference,
+    getRangeCellKeys,
+    insertColumns,
+    insertRows,
+    isCellWithinRange,
+    rangeToTabularData,
+    resolveWorkpaperCellStyle,
     setSheetCell,
+    setSheetCellStyle,
     splitCellKey,
+    type WorkpaperSelectionRange,
     toColumnLabel,
 } from "./workpaperUtils.js";
 
@@ -57,8 +78,70 @@ const FORMULA_HINTS = [
     { label: "=10*5", value: "=10*5" },
     { label: "=ROUND(PI(),2)", value: "=ROUND(PI(),2)" },
 ];
+const FORMAT_FILL_OPTIONS = ["", "#FEF3C7", "#DBEAFE", "#DCFCE7", "#FCE7F3", "#EDE9FE"];
+const FORMAT_TEXT_OPTIONS = ["", "#0F172A", "#1D4ED8", "#047857", "#B45309", "#BE123C"];
+const NUMBER_FORMAT_OPTIONS = [
+    { value: "general", label: "General" },
+    { value: "number", label: "Number" },
+    { value: "percentage", label: "Percent" },
+    { value: "currency", label: "Currency" },
+    { value: "accounting", label: "Accounting" },
+    { value: "date", label: "Date" },
+    { value: "text", label: "Text" },
+] as const;
+const FUNCTION_GROUPS = [
+    {
+        label: "Common",
+        items: [
+            { name: "SUM", template: "=SUM(A1:A5)", signature: "SUM(number1, number2, ...)" },
+            { name: "AVERAGE", template: "=AVERAGE(A1:A5)", signature: "AVERAGE(range)" },
+            { name: "IF", template: "=IF(A1>0,1,0)", signature: "IF(condition, true_value, false_value)" },
+            { name: "ROUND", template: "=ROUND(A1,2)", signature: "ROUND(value, digits)" },
+        ],
+    },
+    {
+        label: "Math",
+        items: [
+            { name: "PRODUCT", template: "=PRODUCT(A1:A5)", signature: "PRODUCT(number1, number2, ...)" },
+            { name: "POWER", template: "=POWER(A1,2)", signature: "POWER(value, exponent)" },
+            { name: "SQRT", template: "=SQRT(A1)", signature: "SQRT(value)" },
+            { name: "MOD", template: "=MOD(A1,A2)", signature: "MOD(dividend, divisor)" },
+        ],
+    },
+    {
+        label: "Logic and stats",
+        items: [
+            { name: "COUNT", template: "=COUNT(A1:A5)", signature: "COUNT(range)" },
+            { name: "COUNTA", template: "=COUNTA(A1:A5)", signature: "COUNTA(range)" },
+            { name: "MEDIAN", template: "=MEDIAN(A1:A5)", signature: "MEDIAN(number1, number2, ...)" },
+            { name: "MAX", template: "=MAX(A1:A5)", signature: "MAX(range)" },
+        ],
+    },
+];
+
+type WorkpaperSmartActionKey =
+    | "totals-row"
+    | "assumptions-block"
+    | "notes-block"
+    | "section-heading"
+    | "summary-sheet";
 
 type WorkpaperPanelKey = "none" | "workbooks" | "transfers" | "templates" | "details";
+type WorkpaperMenuKey = "file" | "sheet" | "structure" | "workspace";
+type WorkpaperActionState =
+    | { status: "idle" }
+    | { status: "running"; message: string }
+    | { status: "done"; message: string }
+    | { status: "error"; message: string };
+
+type WorkpaperMenuItem = {
+    label: string;
+    detail?: string;
+    badge?: string;
+    disabled?: boolean;
+    tone?: "default" | "danger";
+    onSelect: () => void;
+};
 
 function cloneWorkbook(workbook: WorkpaperWorkbook) {
     return structuredClone(workbook);
@@ -75,6 +158,154 @@ function normalizeSelection(rowIndex: number, columnIndex: number, sheet: Workpa
     );
 }
 
+function describeFileAction(result: WorkpaperFileActionResult, action: "Imported" | "Exported") {
+    if (result.method === "file-picker") {
+        return `${action} ${result.fileName}. Saved using your chosen file location.`;
+    }
+
+    return `${action} ${result.fileName}. Downloaded through your browser. Check your Downloads folder or default save location.`;
+}
+
+function getCellButtonStyle(style?: WorkpaperCellStyle): CSSProperties | undefined {
+    const resolvedStyle = resolveWorkpaperCellStyle(style);
+    if (!resolvedStyle.fillColor && !resolvedStyle.effectiveTextColor && !resolvedStyle.bold && !resolvedStyle.italic && !resolvedStyle.textAlign) {
+        return undefined;
+    }
+
+    return {
+        backgroundColor: resolvedStyle.fillColor,
+        color: resolvedStyle.effectiveTextColor,
+        fontWeight: resolvedStyle.bold ? 700 : undefined,
+        fontStyle: resolvedStyle.italic ? "italic" : undefined,
+        textAlign: resolvedStyle.textAlign,
+    };
+}
+
+function getCellTextStyle(style?: WorkpaperCellStyle): CSSProperties | undefined {
+    const resolvedStyle = resolveWorkpaperCellStyle(style);
+    if (!resolvedStyle.effectiveTextColor && !resolvedStyle.bold && !resolvedStyle.italic && !resolvedStyle.textAlign) {
+        return undefined;
+    }
+
+    return {
+        color: resolvedStyle.effectiveTextColor,
+        fontWeight: resolvedStyle.bold ? 700 : undefined,
+        fontStyle: resolvedStyle.italic ? "italic" : undefined,
+        textAlign: resolvedStyle.textAlign,
+    };
+}
+
+function getCellEditorStyle(style?: WorkpaperCellStyle): CSSProperties | undefined {
+    const resolvedStyle = resolveWorkpaperCellStyle(style);
+    if (!resolvedStyle.fillColor && !resolvedStyle.effectiveTextColor && !resolvedStyle.bold && !resolvedStyle.italic && !resolvedStyle.textAlign) {
+        return undefined;
+    }
+
+    return {
+        backgroundColor: resolvedStyle.fillColor
+            ? `color-mix(in srgb, ${resolvedStyle.fillColor} 88%, var(--app-surface))`
+            : undefined,
+        color: resolvedStyle.effectiveTextColor,
+        fontWeight: resolvedStyle.bold ? 700 : undefined,
+        fontStyle: resolvedStyle.italic ? "italic" : undefined,
+        textAlign: resolvedStyle.textAlign,
+        caretColor: resolvedStyle.effectiveTextColor,
+    };
+}
+
+function getTextChipStyle(color?: string): CSSProperties | undefined {
+    if (!color) return undefined;
+    return {
+        color,
+        backgroundColor: `color-mix(in srgb, ${color} 16%, var(--app-field-bg))`,
+        borderColor: `color-mix(in srgb, ${color} 28%, var(--app-border-subtle))`,
+    };
+}
+
+function getRangeLabel(range: WorkpaperSelectionRange) {
+    const start = getCellReference(range.startRow, range.startColumn);
+    const end = getCellReference(range.endRow, range.endColumn);
+    return start === end ? start : `${start}:${end}`;
+}
+
+function isSingleCellRange(range: WorkpaperSelectionRange) {
+    return (
+        range.startRow === range.endRow && range.startColumn === range.endColumn
+    );
+}
+
+function parseClipboardMatrix(raw: string) {
+    return raw
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .filter((row) => row.length > 0)
+        .map((row) => row.split("\t"));
+}
+
+function WorkpaperActionMenu(props: {
+    menuKey: WorkpaperMenuKey;
+    openMenu: WorkpaperMenuKey | null;
+    setOpenMenu: (menuKey: WorkpaperMenuKey | null) => void;
+    label: string;
+    badge?: string;
+    items: WorkpaperMenuItem[];
+    align?: "start" | "end";
+    className?: string;
+}) {
+    const isOpen = props.openMenu === props.menuKey;
+
+    return (
+        <div className={["workpaper-menu", props.className ?? ""].join(" ").trim()}>
+            <button
+                type="button"
+                onClick={() => props.setOpenMenu(isOpen ? null : props.menuKey)}
+                aria-expanded={isOpen}
+                className={[
+                    "workpaper-menu__trigger",
+                    isOpen ? "workpaper-menu__trigger--active" : "",
+                ].join(" ")}
+            >
+                <span>{props.label}</span>
+                {props.badge ? <span className="workpaper-menu__badge">{props.badge}</span> : null}
+                <span className="workpaper-menu__chevron" aria-hidden="true">
+                    {isOpen ? "▴" : "▾"}
+                </span>
+            </button>
+
+            {isOpen ? (
+                <div
+                    className={[
+                        "workpaper-menu__content",
+                        props.align === "start" ? "workpaper-menu__content--start" : "",
+                    ].join(" ")}
+                >
+                    {props.items.map((item) => (
+                        <button
+                            key={`${props.menuKey}-${item.label}`}
+                            type="button"
+                            disabled={item.disabled}
+                            onClick={() => {
+                                item.onSelect();
+                                props.setOpenMenu(null);
+                            }}
+                            className={[
+                                "workpaper-menu__item",
+                                item.tone === "danger" ? "workpaper-menu__item--danger" : "",
+                            ].join(" ")}
+                        >
+                            <span className="workpaper-menu__item-copy">
+                                <strong>{item.label}</strong>
+                                {item.detail ? <small>{item.detail}</small> : null}
+                            </span>
+                            {item.badge ? <span className="workpaper-menu__item-badge">{item.badge}</span> : null}
+                        </button>
+                    ))}
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
 export default function WorkpaperStudioPage() {
     const library = useWorkpaperLibrary();
     const [selectedWorkbookId, setSelectedWorkbookId] = useState<string | null>(
@@ -82,6 +313,7 @@ export default function WorkpaperStudioPage() {
     );
     const [draftWorkbook, setDraftWorkbook] = useState<WorkpaperWorkbook | null>(null);
     const [selectedCellKey, setSelectedCellKey] = useState(getCellKey(0, 0));
+    const [selectionAnchorKey, setSelectionAnchorKey] = useState(getCellKey(0, 0));
     const [cellDraft, setCellDraft] = useState("");
     const [cellNoteDraft, setCellNoteDraft] = useState("");
     const [activePanel, setActivePanel] = useState<WorkpaperPanelKey>("none");
@@ -96,9 +328,17 @@ export default function WorkpaperStudioPage() {
         return window.localStorage.getItem(GUIDANCE_STORAGE_KEY) === "1";
     });
     const [showFormulaExamples, setShowFormulaExamples] = useState(false);
+    const [showFunctionPicker, setShowFunctionPicker] = useState(false);
+    const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
+    const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const activeInputRef = useRef<HTMLInputElement | null>(null);
     const selectedCellElementRef = useRef<HTMLElement | null>(null);
+    const workspaceRef = useRef<HTMLDivElement | null>(null);
+    const copiedRangeRef = useRef<{
+        text: string;
+        range: WorkpaperSelectionRange;
+    } | null>(null);
 
     useEffect(() => {
         if (selectedWorkbookId && !library.workbooks[selectedWorkbookId]) {
@@ -124,10 +364,26 @@ export default function WorkpaperStudioPage() {
 
     const selectedCell = activeSheet?.cells[selectedCellKey];
     const selectedCellCoords = useMemo(() => splitCellKey(selectedCellKey), [selectedCellKey]);
+    const selectionAnchorCoords = useMemo(
+        () => splitCellKey(selectionAnchorKey),
+        [selectionAnchorKey]
+    );
+    const selectedRange = useMemo(
+        () => createSelectionRange(selectionAnchorCoords, selectedCellCoords),
+        [selectionAnchorCoords, selectedCellCoords]
+    );
+    const selectedCellKeys = useMemo(
+        () => getRangeCellKeys(selectedRange),
+        [selectedRange]
+    );
 
     useEffect(() => {
         if (!activeSheet) return;
         setSelectedCellKey((current) => {
+            const { rowIndex, columnIndex } = splitCellKey(current);
+            return normalizeSelection(rowIndex, columnIndex, activeSheet);
+        });
+        setSelectionAnchorKey((current) => {
             const { rowIndex, columnIndex } = splitCellKey(current);
             return normalizeSelection(rowIndex, columnIndex, activeSheet);
         });
@@ -139,6 +395,35 @@ export default function WorkpaperStudioPage() {
             inline: "nearest",
         });
     }, [selectedCellKey]);
+
+    useEffect(() => {
+        if (!openMenu) return;
+
+        function handlePointerDown(event: PointerEvent) {
+            const target = event.target;
+            if (!(target instanceof Node)) return;
+            if (!workspaceRef.current?.contains(target)) {
+                setOpenMenu(null);
+                return;
+            }
+            if (!(target instanceof Element) || !target.closest(".workpaper-menu")) {
+                setOpenMenu(null);
+            }
+        }
+
+        function handleEscape(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                setOpenMenu(null);
+            }
+        }
+
+        document.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleEscape);
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, [openMenu]);
 
     useEffect(() => {
         setCellDraft(selectedCell?.input ?? "");
@@ -173,6 +458,17 @@ export default function WorkpaperStudioPage() {
         ? getWorkpaperTemplate(activeSheet.templateId)
         : null;
     const hasSheetContent = activeSheet ? Object.keys(activeSheet.cells).length > 0 : false;
+    const selectedCellStyle = selectedCell?.style;
+    const resolvedSelectedCellStyle = useMemo(
+        () => resolveWorkpaperCellStyle(selectedCellStyle),
+        [selectedCellStyle]
+    );
+
+    useEffect(() => {
+        if (actionState.status !== "done") return;
+        const timeout = window.setTimeout(() => setActionState({ status: "idle" }), 3200);
+        return () => window.clearTimeout(timeout);
+    }, [actionState]);
 
     function markDirty(message?: string) {
         setDraftVersion((current) => current + 1);
@@ -228,28 +524,49 @@ export default function WorkpaperStudioPage() {
         );
     }
 
-    function selectCell(nextCellKey: string) {
+    function selectCell(nextCellKey: string, options?: { extendRange?: boolean }) {
         commitCellDraft();
         setSelectedCellKey(nextCellKey);
+        if (!options?.extendRange) {
+            setSelectionAnchorKey(nextCellKey);
+        }
         window.requestAnimationFrame(() => activeInputRef.current?.focus());
     }
 
-    function moveSelection(rowOffset: number, columnOffset: number) {
+    function moveSelection(
+        rowOffset: number,
+        columnOffset: number,
+        options?: { extendRange?: boolean }
+    ) {
         if (!activeSheet) return;
+        const nextKey = normalizeSelection(
+            selectedCellCoords.rowIndex + rowOffset,
+            selectedCellCoords.columnIndex + columnOffset,
+            activeSheet
+        );
         selectCell(
             normalizeSelection(
-                selectedCellCoords.rowIndex + rowOffset,
-                selectedCellCoords.columnIndex + columnOffset,
+                splitCellKey(nextKey).rowIndex,
+                splitCellKey(nextKey).columnIndex,
                 activeSheet
-            )
+            ),
+            options
         );
     }
 
     function handleEditorNavigation(event: ReactKeyboardEvent<HTMLInputElement>) {
+        if (event.key === "Escape") {
+            event.preventDefault();
+            setCellDraft(selectedCell?.input ?? "");
+            setCellNoteDraft(selectedCell?.note ?? "");
+            setStatusMessage("Reverted the active cell draft.");
+            return;
+        }
+
         if (event.key === "Enter") {
             event.preventDefault();
             commitCellDraft({ staySelected: true });
-            moveSelection(1, 0);
+            moveSelection(event.shiftKey ? -1 : 1, 0);
             return;
         }
 
@@ -296,17 +613,21 @@ export default function WorkpaperStudioPage() {
         if (!file) return;
 
         setImportError(null);
+        setActionState({ status: "running", message: `Importing ${file.name}...` });
         try {
             const importedWorkbook = await importWorkbookFile(file);
             saveWorkbookSnapshot(importedWorkbook);
             startTransition(() => setSelectedWorkbookId(importedWorkbook.id));
-            setStatusMessage(`Imported ${file.name} into Workpaper Studio.`);
+            const message = `Imported ${file.name} into Workpaper Studio.`;
+            setStatusMessage(message);
+            setActionState({ status: "done", message });
         } catch (error) {
-            setImportError(
+            const message =
                 error instanceof Error
                     ? error.message
-                    : "That file could not be imported into Workpaper Studio."
-            );
+                    : "That file could not be imported into Workpaper Studio.";
+            setImportError(message);
+            setActionState({ status: "error", message });
         }
     }
 
@@ -318,6 +639,23 @@ export default function WorkpaperStudioPage() {
         });
         startTransition(() => setSelectedWorkbookId(workbookId));
         setStatusMessage("Created a new blank workpaper.");
+    }
+
+    function addSheet() {
+        mutateWorkbook((current) => {
+            const nextSheet = createEmptySheet({
+                title: `Sheet ${current.sheetOrder.length + 1}`,
+            });
+            return {
+                ...current,
+                activeSheetId: nextSheet.id,
+                sheetOrder: [...current.sheetOrder, nextSheet.id],
+                sheets: {
+                    ...current.sheets,
+                    [nextSheet.id]: nextSheet,
+                },
+            };
+        }, "Added a new sheet.");
     }
 
     function dismissGuidance() {
@@ -348,10 +686,281 @@ export default function WorkpaperStudioPage() {
         }, `Deleted ${activeSheet.title}.`);
     }
 
-    const selectedCellReference = getCellReference(
-        selectedCellCoords.rowIndex,
-        selectedCellCoords.columnIndex
-    );
+    async function handleExportWorkbook() {
+        if (!draftWorkbook) return;
+        setActionState({ status: "running", message: `Preparing ${draftWorkbook.title}.xlsx...` });
+        try {
+            const result = await exportWorkbookAsXlsx(draftWorkbook);
+            const message = describeFileAction(result, "Exported");
+            setStatusMessage(message);
+            setActionState({ status: "done", message });
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : "Workbook export could not be completed.";
+            setActionState({ status: "error", message });
+        }
+    }
+
+    async function handleExportSheet() {
+        if (!draftWorkbook || !activeSheet) return;
+        setActionState({ status: "running", message: `Preparing ${activeSheet.title}.csv...` });
+        try {
+            const result = await exportSheetAsCsv(draftWorkbook, activeSheet.id);
+            if (!result) return;
+            const message = describeFileAction(result, "Exported");
+            setStatusMessage(message);
+            setActionState({ status: "done", message });
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : "Sheet export could not be completed.";
+            setActionState({ status: "error", message });
+        }
+    }
+
+    function insertFunctionTemplate(template: string) {
+        setCellDraft(template);
+        setShowFunctionPicker(false);
+        setShowFormulaExamples(false);
+        window.requestAnimationFrame(() => activeInputRef.current?.focus());
+    }
+
+    function updateSelectedCellStyle(stylePatch: Partial<WorkpaperCellStyle>, message: string) {
+        if (!activeSheet) return;
+        mutateActiveSheet(
+            (sheet) =>
+                isSingleCellRange(selectedRange)
+                    ? setSheetCellStyle(
+                          sheet,
+                          selectedCellCoords.rowIndex,
+                          selectedCellCoords.columnIndex,
+                          stylePatch
+                      )
+                    : applyStyleToRange(sheet, selectedRange, stylePatch),
+            message
+        );
+    }
+
+    async function copySelectedRange() {
+        if (!activeSheet || typeof navigator === "undefined" || !navigator.clipboard?.writeText) return;
+        const rows = rangeToTabularData(activeSheet, selectedRange);
+        const text = rows.map((row) => row.join("\t")).join("\n");
+        copiedRangeRef.current = { text, range: selectedRange };
+        await navigator.clipboard.writeText(text);
+        setStatusMessage(`Copied ${getRangeLabel(selectedRange)}.`);
+    }
+
+    async function pasteIntoSelection() {
+        if (!activeSheet || typeof navigator === "undefined" || !navigator.clipboard?.readText) return;
+        const raw = await navigator.clipboard.readText();
+        if (!raw.trim()) return;
+        if (
+            copiedRangeRef.current &&
+            copiedRangeRef.current.text === raw &&
+            draftWorkbook
+        ) {
+            mutateActiveSheet(
+                (sheet) =>
+                    duplicateRangeToTarget(sheet, copiedRangeRef.current!.range, {
+                        rowIndex: selectedRange.startRow,
+                        columnIndex: selectedRange.startColumn,
+                    }),
+                `Pasted copied range into ${getRangeLabel(selectedRange)}.`
+            );
+            return;
+        }
+        const rows = parseClipboardMatrix(raw);
+        mutateActiveSheet((sheet) => {
+            let nextSheet = sheet;
+            rows.forEach((row, rowOffset) => {
+                row.forEach((value, columnOffset) => {
+                    nextSheet = setSheetCell(
+                        nextSheet,
+                        selectedRange.startRow + rowOffset,
+                        selectedRange.startColumn + columnOffset,
+                        value
+                    );
+                });
+            });
+            return nextSheet;
+        }, `Pasted into ${getRangeLabel(selectedRange)}.`);
+    }
+
+    function fillSelection(direction: "down" | "right") {
+        if (!activeSheet) return;
+        const singleCell = isSingleCellRange(selectedRange);
+        if (singleCell) return;
+        mutateActiveSheet((sheet) => {
+            let nextSheet = sheet;
+            if (direction === "down") {
+                for (let rowIndex = selectedRange.startRow + 1; rowIndex <= selectedRange.endRow; rowIndex += 1) {
+                    nextSheet = duplicateRangeToTarget(
+                        nextSheet,
+                        {
+                            startRow: selectedRange.startRow,
+                            endRow: selectedRange.startRow,
+                            startColumn: selectedRange.startColumn,
+                            endColumn: selectedRange.endColumn,
+                        },
+                        { rowIndex, columnIndex: selectedRange.startColumn }
+                    );
+                }
+            } else {
+                for (
+                    let columnIndex = selectedRange.startColumn + 1;
+                    columnIndex <= selectedRange.endColumn;
+                    columnIndex += 1
+                ) {
+                    nextSheet = duplicateRangeToTarget(
+                        nextSheet,
+                        {
+                            startRow: selectedRange.startRow,
+                            endRow: selectedRange.endRow,
+                            startColumn: selectedRange.startColumn,
+                            endColumn: selectedRange.startColumn,
+                        },
+                        { rowIndex: selectedRange.startRow, columnIndex }
+                    );
+                }
+            }
+            return nextSheet;
+        }, `Filled ${direction} across ${getRangeLabel(selectedRange)}.`);
+    }
+
+    function clearSelectedRange() {
+        if (!activeSheet) return;
+        mutateActiveSheet(
+            (sheet) => clearRangeCells(sheet, selectedRange),
+            `Cleared ${getRangeLabel(selectedRange)}.`
+        );
+    }
+
+    function insertStructure(kind: "row" | "column", action: "insert" | "delete") {
+        if (!activeSheet) return;
+        const count =
+            kind === "row"
+                ? selectedRange.endRow - selectedRange.startRow + 1
+                : selectedRange.endColumn - selectedRange.startColumn + 1;
+        mutateActiveSheet((sheet) => {
+            if (kind === "row") {
+                return action === "insert"
+                    ? insertRows(sheet, selectedRange.startRow, count)
+                    : deleteRows(sheet, selectedRange.startRow, count);
+            }
+            return action === "insert"
+                ? insertColumns(sheet, selectedRange.startColumn, count)
+                : deleteColumns(sheet, selectedRange.startColumn, count);
+        }, `${action === "insert" ? "Updated" : "Removed"} ${count} ${kind}${count > 1 ? "s" : ""}.`);
+    }
+
+    function toggleFreeze(type: "rows" | "columns") {
+        if (!activeSheet) return;
+        mutateActiveSheet((sheet) => ({
+            ...sheet,
+            freezeRows: type === "rows" ? (sheet.freezeRows ? 0 : 1) : sheet.freezeRows,
+            freezeColumns:
+                type === "columns" ? (sheet.freezeColumns ? 0 : 1) : sheet.freezeColumns,
+            updatedAt: Date.now(),
+        }), type === "rows" ? "Toggled frozen first row." : "Toggled frozen first column.");
+    }
+
+    function applySmartAction(action: WorkpaperSmartActionKey) {
+        if (!activeSheet || !draftWorkbook) return;
+        mutateWorkbook((current) => {
+            const sheet = current.sheets[current.activeSheetId];
+            if (!sheet) return current;
+            let nextSheet = sheet;
+            const startRow = Math.max(selectedRange.endRow + 1, getLastUsedRowIndex(sheet) + 1, 0);
+
+            if (action === "summary-sheet") {
+                const template = getWorkpaperTemplate("assumptions-and-summary");
+                if (template) {
+                    const workbook = template.buildWorkbook();
+                    const summarySheet = workbook.sheets[workbook.activeSheetId];
+                    return {
+                        ...current,
+                        activeSheetId: summarySheet.id,
+                        sheetOrder: [...current.sheetOrder, summarySheet.id],
+                        sheets: {
+                            ...current.sheets,
+                            [summarySheet.id]: summarySheet,
+                        },
+                    };
+                }
+                return current;
+            }
+
+            const rowSets: Array<[number, number, string, WorkpaperCellStyle?]> =
+                action === "totals-row"
+                    ? [
+                          [startRow, 0, "Total", { bold: true, numberFormat: "currency" }],
+                          [startRow, 1, `=SUM(B${selectedRange.startRow + 1}:B${selectedRange.endRow + 1})`, { bold: true, numberFormat: "currency" }],
+                      ]
+                    : action === "assumptions-block"
+                      ? [
+                            [startRow, 0, "Assumptions", { bold: true, fillColor: "#DBEAFE" }],
+                            [startRow + 1, 0, "Assumption 1"],
+                            [startRow + 2, 0, "Assumption 2"],
+                          ]
+                      : action === "notes-block"
+                        ? [
+                              [startRow, 0, "Notes", { bold: true, fillColor: "#DCFCE7" }],
+                              [startRow + 1, 0, "Document support, reviewer comments, or source traceability here."],
+                          ]
+                        : [
+                              [startRow, 0, "Section heading", { bold: true, fillColor: "#FEF3C7" }],
+                              [startRow + 1, 0, ""],
+                          ];
+
+            rowSets.forEach(([rowIndex, columnIndex, input, style]) => {
+                nextSheet = setSheetCell(nextSheet, rowIndex, columnIndex, input);
+                if (style) {
+                    nextSheet = setSheetCellStyle(nextSheet, rowIndex, columnIndex, style);
+                }
+            });
+
+            return {
+                ...current,
+                sheets: {
+                    ...current.sheets,
+                    [sheet.id]: nextSheet,
+                },
+            };
+        }, "Inserted a structured workpaper block.");
+    }
+
+    function handleGridKeydown(event: ReactKeyboardEvent<HTMLElement>) {
+        const isModifier = event.ctrlKey || event.metaKey;
+        if (isModifier && event.key.toLowerCase() === "c") {
+            event.preventDefault();
+            void copySelectedRange();
+            return;
+        }
+        if (isModifier && event.key.toLowerCase() === "v") {
+            event.preventDefault();
+            void pasteIntoSelection();
+            return;
+        }
+        if (isModifier && event.key.toLowerCase() === "d") {
+            event.preventDefault();
+            fillSelection("down");
+            return;
+        }
+        if (event.key === "Delete") {
+            event.preventDefault();
+            clearSelectedRange();
+            return;
+        }
+        if (event.key.startsWith("Arrow") && !isModifier && !event.altKey) {
+            const extendRange = event.shiftKey;
+            event.preventDefault();
+            if (event.key === "ArrowUp") moveSelection(-1, 0, { extendRange });
+            if (event.key === "ArrowDown") moveSelection(1, 0, { extendRange });
+            if (event.key === "ArrowLeft") moveSelection(0, -1, { extendRange });
+            if (event.key === "ArrowRight") moveSelection(0, 1, { extendRange });
+        }
+    }
+
+    const selectedRangeLabel = getRangeLabel(selectedRange);
     const selectedCellEvaluated = evaluatedCells[selectedCellKey];
     const liveCellPreview = useMemo(() => {
         if (!draftWorkbook || !activeSheet) return selectedCellEvaluated;
@@ -388,6 +997,10 @@ export default function WorkpaperStudioPage() {
     const recentWorkbookIds = library.recentWorkbookIds
         .filter((workbookId) => workbookId !== selectedWorkbookId && Boolean(library.workbooks[workbookId]))
         .slice(0, 4);
+    const selectionSummary =
+        selectedCellKeys.length > 1
+            ? `${selectedCellKeys.length} cells selected`
+            : "1 cell selected";
     const shouldShowGuidance =
         Boolean(activeSheet) &&
         ((!guidanceDismissed && (!hasSheetContent || !cellDraft.trim())) ||
@@ -421,7 +1034,7 @@ export default function WorkpaperStudioPage() {
         : [];
 
     return (
-        <div className="app-page-shell-wide workpaper-studio-page">
+        <div ref={workspaceRef} className="app-page-shell-wide workpaper-studio-page">
             <input
                 ref={fileInputRef}
                 type="file"
@@ -494,56 +1107,52 @@ export default function WorkpaperStudioPage() {
                         </div>
 
                         <div className="workpaper-toolbar__actions">
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="app-button-secondary rounded-xl px-3.5 py-2 text-sm font-semibold"
-                            >
-                                Import
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => void exportWorkbookAsXlsx(draftWorkbook)}
-                                className="app-button-secondary rounded-xl px-3.5 py-2 text-sm font-semibold"
-                            >
-                                Export XLSX
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    activeSheet
-                                        ? void exportSheetAsCsv(draftWorkbook, activeSheet.id)
-                                        : undefined
-                                }
-                                disabled={!activeSheet}
-                                className="app-button-ghost rounded-xl px-3.5 py-2 text-sm font-semibold"
-                            >
-                                Export CSV
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    mutateWorkbook((current) => {
-                                        const nextSheet = createEmptySheet({
-                                            title: `Sheet ${current.sheetOrder.length + 1}`,
-                                        });
-                                        return {
-                                            ...current,
-                                            activeSheetId: nextSheet.id,
-                                            sheetOrder: [...current.sheetOrder, nextSheet.id],
-                                            sheets: {
-                                                ...current.sheets,
-                                                [nextSheet.id]: nextSheet,
-                                            },
-                                        };
-                                    }, "Added a new sheet.")
-                                }
-                                className="app-button-ghost rounded-xl px-3.5 py-2 text-sm font-semibold"
-                            >
-                                Add sheet
-                            </button>
+                            <WorkpaperActionMenu
+                                menuKey="file"
+                                openMenu={openMenu}
+                                setOpenMenu={setOpenMenu}
+                                label="File"
+                                items={[
+                                    {
+                                        label: "Import workbook",
+                                        detail: "Open an XLSX or CSV file into Workpaper Studio.",
+                                        onSelect: () => fileInputRef.current?.click(),
+                                    },
+                                    {
+                                        label: "Export workbook (.xlsx)",
+                                        detail: "Download the full workbook with sheet structure.",
+                                        onSelect: () => void handleExportWorkbook(),
+                                    },
+                                    {
+                                        label: "Export active sheet (.csv)",
+                                        detail: "Download only the current sheet.",
+                                        disabled: !activeSheet,
+                                        onSelect: () => void handleExportSheet(),
+                                    },
+                                    {
+                                        label: "Print workbook view",
+                                        detail: "Use the worksheet-friendly print layout.",
+                                        onSelect: () => window.print(),
+                                    },
+                                ]}
+                            />
                         </div>
                     </section>
+
+                    {actionState.status !== "idle" ? (
+                        <p
+                            className={[
+                                "workpaper-action-banner",
+                                actionState.status === "error"
+                                    ? "workpaper-action-banner--error"
+                                    : actionState.status === "done"
+                                      ? "workpaper-action-banner--done"
+                                      : "",
+                            ].join(" ")}
+                        >
+                            {actionState.message}
+                        </p>
+                    ) : null}
 
                     {recentWorkbookIds.length > 0 ? (
                         <section className="workpaper-recent-strip">
@@ -602,41 +1211,51 @@ export default function WorkpaperStudioPage() {
                             <div className="workpaper-tabs__actions">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        selectedWorkbookId
-                                            ? duplicateSheetIntoWorkbook(selectedWorkbookId, activeSheet.id)
-                                            : undefined
-                                    }
+                                    onClick={addSheet}
                                     className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
                                 >
-                                    Duplicate
+                                    Add sheet
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        mutateWorkbook((current) => {
-                                            const currentIndex = current.sheetOrder.indexOf(activeSheet.id);
-                                            if (currentIndex <= 0) return current;
-                                            const nextOrder = [...current.sheetOrder];
-                                            [nextOrder[currentIndex - 1], nextOrder[currentIndex]] = [
-                                                nextOrder[currentIndex],
-                                                nextOrder[currentIndex - 1],
-                                            ];
-                                            return { ...current, sheetOrder: nextOrder };
-                                        }, "Moved the active sheet left.")
-                                    }
-                                    className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                >
-                                    Move left
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={deleteActiveSheet}
-                                    disabled={draftWorkbook.sheetOrder.length <= 1}
-                                    className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                >
-                                    Delete
-                                </button>
+                                <WorkpaperActionMenu
+                                    menuKey="sheet"
+                                    openMenu={openMenu}
+                                    setOpenMenu={setOpenMenu}
+                                    label="Sheet"
+                                    badge={activeSheet.title}
+                                    items={[
+                                        {
+                                            label: "Duplicate sheet",
+                                            detail: "Create a copy of the active worksheet.",
+                                            disabled: !selectedWorkbookId,
+                                            onSelect: () =>
+                                                selectedWorkbookId
+                                                    ? duplicateSheetIntoWorkbook(selectedWorkbookId, activeSheet.id)
+                                                    : undefined,
+                                        },
+                                        {
+                                            label: "Move sheet left",
+                                            detail: "Bring this sheet earlier in the workbook.",
+                                            onSelect: () =>
+                                                mutateWorkbook((current) => {
+                                                    const currentIndex = current.sheetOrder.indexOf(activeSheet.id);
+                                                    if (currentIndex <= 0) return current;
+                                                    const nextOrder = [...current.sheetOrder];
+                                                    [nextOrder[currentIndex - 1], nextOrder[currentIndex]] = [
+                                                        nextOrder[currentIndex],
+                                                        nextOrder[currentIndex - 1],
+                                                    ];
+                                                    return { ...current, sheetOrder: nextOrder };
+                                                }, "Moved the active sheet left."),
+                                        },
+                                        {
+                                            label: "Delete sheet",
+                                            detail: "Remove the current worksheet from the workbook.",
+                                            disabled: draftWorkbook.sheetOrder.length <= 1,
+                                            tone: "danger",
+                                            onSelect: deleteActiveSheet,
+                                        },
+                                    ]}
+                                />
                             </div>
                         ) : null}
                     </section>
@@ -644,7 +1263,17 @@ export default function WorkpaperStudioPage() {
                     {activeSheet ? (
                         <>
                             <section className="workpaper-formula-bar">
-                                <div className="workpaper-formula-bar__cell">{selectedCellReference}</div>
+                                <div className="workpaper-formula-bar__cell">{selectedRangeLabel}</div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFunctionPicker((current) => !current)}
+                                    className={[
+                                        "workpaper-formula-bar__fx",
+                                        showFunctionPicker ? "workpaper-formula-bar__fx--active" : "",
+                                    ].join(" ")}
+                                >
+                                    fx
+                                </button>
                                 <input
                                     ref={activeInputRef}
                                     value={cellDraft}
@@ -678,13 +1307,278 @@ export default function WorkpaperStudioPage() {
                                 </button>
                             </section>
 
+                            {(showFunctionPicker || selectedCellStyle || selectedCellKeys.length > 0) && (
+                                <section className="workpaper-helpers-row">
+                                    {showFunctionPicker ? (
+                                        <div className="workpaper-function-picker">
+                                            <div className="workpaper-function-picker__header">
+                                                <strong>Insert a function</strong>
+                                                <span className="app-helper text-xs">
+                                                    Choose a starter formula for {selectedRangeLabel}.
+                                                </span>
+                                            </div>
+                                            <div className="workpaper-function-picker__groups">
+                                                {FUNCTION_GROUPS.map((group) => (
+                                                    <div
+                                                        key={group.label}
+                                                        className="workpaper-function-picker__group"
+                                                    >
+                                                        <p className="workpaper-function-picker__group-label">
+                                                            {group.label}
+                                                        </p>
+                                                        <div className="workpaper-function-picker__list">
+                                                            {group.items.map((item) => (
+                                                                <button
+                                                                    key={item.name}
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        insertFunctionTemplate(item.template)
+                                                                    }
+                                                                    className="workpaper-function-picker__item"
+                                                                >
+                                                                    <span>{item.name}</span>
+                                                                    <small>{item.signature}</small>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : null}
+
+                                    <div className="workpaper-format-strip">
+                                        <div className="workpaper-format-strip__group">
+                                            <span className="workpaper-format-strip__label">Selection</span>
+                                            <span className="workpaper-format-strip__hint">
+                                                {selectedRangeLabel} | {selectionSummary}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => void copySelectedRange()}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Copy
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => void pasteIntoSelection()}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Paste
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => fillSelection("down")}
+                                                disabled={isSingleCellRange(selectedRange)}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Fill Down
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => fillSelection("right")}
+                                                disabled={isSingleCellRange(selectedRange)}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Fill Right
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={clearSelectedRange}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Clear
+                                            </button>
+                                        </div>
+                                        <div className="workpaper-format-strip__group">
+                                            <span className="workpaper-format-strip__label">Fill</span>
+                                            {FORMAT_FILL_OPTIONS.map((color) => (
+                                                <button
+                                                    key={`fill-${color || "none"}`}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        updateSelectedCellStyle(
+                                                            { fillColor: color || undefined },
+                                                            color
+                                                                ? "Updated cell fill color."
+                                                                : "Cleared cell fill color."
+                                                        )
+                                                    }
+                                                    className={[
+                                                        "workpaper-color-chip",
+                                                        selectedCellStyle?.fillColor === color
+                                                            ? "workpaper-color-chip--active"
+                                                            : "",
+                                                    ].join(" ")}
+                                                    style={{ backgroundColor: color || "transparent" }}
+                                                    aria-label={color ? `Set fill color ${color}` : "Clear fill color"}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="workpaper-format-strip__group">
+                                            <span className="workpaper-format-strip__label">Text</span>
+                                            {FORMAT_TEXT_OPTIONS.map((color) => (
+                                                <button
+                                                    key={`text-${color || "none"}`}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        updateSelectedCellStyle(
+                                                            { textColor: color || undefined },
+                                                            color
+                                                                ? "Updated text color."
+                                                                : "Cleared text color."
+                                                        )
+                                                    }
+                                                    className={[
+                                                        "workpaper-color-chip",
+                                                        "workpaper-color-chip--text",
+                                                        selectedCellStyle?.textColor === color
+                                                            ? "workpaper-color-chip--active"
+                                                            : "",
+                                                    ].join(" ")}
+                                                    style={color ? getTextChipStyle(color) : undefined}
+                                                    aria-label={color ? `Set text color ${color}` : "Clear text color"}
+                                                >
+                                                    A
+                                                </button>
+                                            ))}
+                                            {selectedCellStyle?.fillColor && !selectedCellStyle?.textColor ? (
+                                                <span className="workpaper-format-strip__hint">
+                                                    Auto contrast {resolvedSelectedCellStyle.effectiveTextColor}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                        <div className="workpaper-format-strip__group">
+                                            <span className="workpaper-format-strip__label">Format</span>
+                                            <select
+                                                value={selectedCellStyle?.numberFormat ?? "general"}
+                                                onChange={(event) =>
+                                                    updateSelectedCellStyle(
+                                                        {
+                                                            numberFormat:
+                                                                event.target.value === "general"
+                                                                    ? undefined
+                                                                    : (event.target
+                                                                          .value as WorkpaperCellStyle["numberFormat"]),
+                                                        },
+                                                        "Updated cell number format."
+                                                    )
+                                                }
+                                                className="workpaper-toolbar__select workpaper-toolbar__select--compact"
+                                            >
+                                                {NUMBER_FORMAT_OPTIONS.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="workpaper-format-strip__group">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    updateSelectedCellStyle(
+                                                        { bold: !selectedCellStyle?.bold },
+                                                        selectedCellStyle?.bold ? "Removed bold formatting." : "Applied bold formatting."
+                                                    )
+                                                }
+                                                className={[
+                                                    "workpaper-format-button",
+                                                    selectedCellStyle?.bold
+                                                        ? "workpaper-format-button--active"
+                                                        : "",
+                                                ].join(" ")}
+                                            >
+                                                B
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    updateSelectedCellStyle(
+                                                        { italic: !selectedCellStyle?.italic },
+                                                        selectedCellStyle?.italic ? "Removed italic formatting." : "Applied italic formatting."
+                                                    )
+                                                }
+                                                className={[
+                                                    "workpaper-format-button",
+                                                    "workpaper-format-button--italic",
+                                                    selectedCellStyle?.italic
+                                                        ? "workpaper-format-button--active"
+                                                        : "",
+                                                ].join(" ")}
+                                            >
+                                                I
+                                            </button>
+                                            {(["left", "center", "right"] as const).map((align) => (
+                                                <button
+                                                    key={align}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        updateSelectedCellStyle(
+                                                            {
+                                                                textAlign:
+                                                                    selectedCellStyle?.textAlign === align
+                                                                        ? undefined
+                                                                        : align,
+                                                            },
+                                                            `Set cell alignment to ${align}.`
+                                                        )
+                                                    }
+                                                    className={[
+                                                        "workpaper-format-button",
+                                                        selectedCellStyle?.textAlign === align
+                                                            ? "workpaper-format-button--active"
+                                                            : "",
+                                                    ].join(" ")}
+                                                >
+                                                    {align === "left" ? "L" : align === "center" ? "C" : "R"}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="workpaper-format-strip__group">
+                                            <span className="workpaper-format-strip__label">Workpaper</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => applySmartAction("totals-row")}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Totals
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => applySmartAction("assumptions-block")}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Assumptions
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => applySmartAction("notes-block")}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Notes
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => applySmartAction("summary-sheet")}
+                                                className="workpaper-format-button workpaper-format-button--wide"
+                                            >
+                                                Summary sheet
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
                             {shouldShowGuidance ? (
                                 <section className="workpaper-inline-guide">
                                     <div className="workpaper-inline-guide__summary">
                                         <strong>How to use this sheet</strong>
                                         <span className="app-helper text-xs">
                                             Type values directly, start formulas with <code>=</code>,
-                                            and use Enter or Tab to keep moving.
+                                            use <code>fx</code> for guided functions, and format the selected
+                                            cell from the strip above.
                                         </span>
                                         {liveFormulaError ? (
                                             <span className="workpaper-inline-guide__error">
@@ -725,8 +1619,8 @@ export default function WorkpaperStudioPage() {
                                         <h2 className="workpaper-grid-shell__title">{activeSheet.title}</h2>
                                         <p className="workpaper-grid-shell__subtitle">
                                             {formulaCoverage.values} value cells, {formulaCoverage.formulas} formula
-                                            cells, last used row {lastUsedRow >= 0 ? lastUsedRow + 1 : "none"}, active
-                                            cell {selectedCellReference}.
+                                            cells, last used row {lastUsedRow >= 0 ? lastUsedRow + 1 : "none"}, selection{" "}
+                                            {selectedRangeLabel}.
                                         </p>
                                     </div>
                                     <div className="workpaper-grid-shell__header-actions">
@@ -768,16 +1662,83 @@ export default function WorkpaperStudioPage() {
                                         >
                                             Columns
                                         </button>
+                                        <WorkpaperActionMenu
+                                            menuKey="structure"
+                                            openMenu={openMenu}
+                                            setOpenMenu={setOpenMenu}
+                                            label="Structure"
+                                            items={[
+                                                {
+                                                    label: "Insert row",
+                                                    detail: `Insert a row around ${selectedRangeLabel}.`,
+                                                    onSelect: () => insertStructure("row", "insert"),
+                                                },
+                                                {
+                                                    label: "Insert column",
+                                                    detail: `Insert a column around ${selectedRangeLabel}.`,
+                                                    onSelect: () => insertStructure("column", "insert"),
+                                                },
+                                                {
+                                                    label: "Delete row",
+                                                    detail: `Delete the row at ${selectedRangeLabel}.`,
+                                                    tone: "danger",
+                                                    onSelect: () => insertStructure("row", "delete"),
+                                                },
+                                                {
+                                                    label: "Delete column",
+                                                    detail: `Delete the column at ${selectedRangeLabel}.`,
+                                                    tone: "danger",
+                                                    onSelect: () => insertStructure("column", "delete"),
+                                                },
+                                                {
+                                                    label: activeSheet.freezeRows ? "Unfreeze top row" : "Freeze top row",
+                                                    detail: "Keep the first row visible while scrolling.",
+                                                    onSelect: () => toggleFreeze("rows"),
+                                                },
+                                                {
+                                                    label: activeSheet.freezeColumns
+                                                        ? "Unfreeze first column"
+                                                        : "Freeze first column",
+                                                    detail: "Keep the first column visible while scrolling.",
+                                                    onSelect: () => toggleFreeze("columns"),
+                                                },
+                                            ]}
+                                        />
                                     </div>
                                 </div>
 
-                                <div className="workpaper-grid scrollbar-premium">
+                                <div
+                                    className="workpaper-grid scrollbar-premium"
+                                    onKeyDown={handleGridKeydown}
+                                    tabIndex={0}
+                                >
                                     <table className="workpaper-grid__table">
                                         <thead>
                                             <tr>
                                                 <th className="workpaper-grid__corner">#</th>
                                                 {Array.from({ length: activeSheet.columnCount }, (_, columnIndex) => (
-                                                    <th key={columnIndex} className="workpaper-grid__colhead">
+                                                    <th
+                                                        key={columnIndex}
+                                                        className={[
+                                                            "workpaper-grid__colhead",
+                                                            selectedCellCoords.columnIndex === columnIndex
+                                                                ? "workpaper-grid__colhead--active"
+                                                                : "",
+                                                            activeSheet.freezeColumns &&
+                                                            columnIndex < activeSheet.freezeColumns
+                                                                ? "workpaper-grid__colhead--frozen"
+                                                                : "",
+                                                        ].join(" ")}
+                                                        style={
+                                                            activeSheet.freezeColumns &&
+                                                            columnIndex < activeSheet.freezeColumns
+                                                                ? {
+                                                                      left: `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`,
+                                                                      zIndex: 3,
+                                                                  }
+                                                                : undefined
+                                                        }
+                                                    >
                                                         {toColumnLabel(columnIndex)}
                                                     </th>
                                                 ))}
@@ -786,7 +1747,28 @@ export default function WorkpaperStudioPage() {
                                         <tbody>
                                             {Array.from({ length: activeSheet.rowCount }, (_, rowIndex) => (
                                                 <tr key={rowIndex}>
-                                                    <th className="workpaper-grid__rowhead">{rowIndex + 1}</th>
+                                                    <th
+                                                        className={[
+                                                            "workpaper-grid__rowhead",
+                                                            selectedCellCoords.rowIndex === rowIndex
+                                                                ? "workpaper-grid__rowhead--active"
+                                                                : "",
+                                                            activeSheet.freezeRows &&
+                                                            rowIndex < activeSheet.freezeRows
+                                                                ? "workpaper-grid__rowhead--frozen"
+                                                                : "",
+                                                        ].join(" ")}
+                                                        style={
+                                                            activeSheet.freezeRows && rowIndex < activeSheet.freezeRows
+                                                                ? {
+                                                                      top: `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`,
+                                                                      zIndex: 2,
+                                                                  }
+                                                                : undefined
+                                                        }
+                                                    >
+                                                        {rowIndex + 1}
+                                                    </th>
                                                     {Array.from(
                                                         { length: activeSheet.columnCount },
                                                         (_, columnIndex) => {
@@ -794,15 +1776,49 @@ export default function WorkpaperStudioPage() {
                                                             const cell = activeSheet.cells[cellKey];
                                                             const evaluated = evaluatedCells[cellKey];
                                                             const isSelected = cellKey === selectedCellKey;
+                                                            const isInSelection = isCellWithinRange(
+                                                                selectedRange,
+                                                                rowIndex,
+                                                                columnIndex
+                                                            );
 
                                                             return (
-                                                                <td key={cellKey} className="workpaper-grid__cell-wrap">
+                                                                <td
+                                                                    key={cellKey}
+                                                                    className={[
+                                                                        "workpaper-grid__cell-wrap",
+                                                                        isInSelection
+                                                                            ? "workpaper-grid__cell-wrap--range"
+                                                                            : "",
+                                                                        activeSheet.freezeColumns &&
+                                                                        columnIndex < activeSheet.freezeColumns
+                                                                            ? "workpaper-grid__cell-wrap--frozen-column"
+                                                                            : "",
+                                                                        activeSheet.freezeRows &&
+                                                                        rowIndex < activeSheet.freezeRows
+                                                                            ? "workpaper-grid__cell-wrap--frozen-row"
+                                                                            : "",
+                                                                    ].join(" ")}
+                                                                    style={{
+                                                                        left:
+                                                                            activeSheet.freezeColumns &&
+                                                                            columnIndex < activeSheet.freezeColumns
+                                                                                ? `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`
+                                                                                : undefined,
+                                                                        top:
+                                                                            activeSheet.freezeRows &&
+                                                                            rowIndex < activeSheet.freezeRows
+                                                                                ? `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`
+                                                                                : undefined,
+                                                                    }}
+                                                                >
                                                                     {isSelected ? (
                                                                         <div
                                                                             ref={(element) => {
                                                                                 selectedCellElementRef.current = element;
                                                                             }}
                                                                             className="workpaper-grid__cell workpaper-grid__cell--selected"
+                                                                            style={getCellButtonStyle(cell?.style)}
                                                                         >
                                                                             <input
                                                                                 value={cellDraft}
@@ -820,21 +1836,44 @@ export default function WorkpaperStudioPage() {
                                                                                     }
                                                                                 }}
                                                                                 className="workpaper-grid__editor"
+                                                                                style={getCellEditorStyle(cell?.style)}
                                                                             />
-                                                                            <span className="workpaper-grid__preview">
+                                                                            <span
+                                                                                className="workpaper-grid__preview"
+                                                                                style={getCellTextStyle(cell?.style)}
+                                                                            >
                                                                                 {cellDraft.trim().startsWith("=")
-                                                                                    ? liveCellPreview?.display ?? ""
+                                                                                    ? formatDisplayValue(
+                                                                                          liveCellPreview?.display ?? "",
+                                                                                          cell?.style
+                                                                                      )
                                                                                     : ""}
                                                                             </span>
                                                                         </div>
                                                                     ) : (
                                                                         <button
                                                                             type="button"
-                                                                            onClick={() => selectCell(cellKey)}
-                                                                            className="workpaper-grid__cell"
+                                                                            onClick={(event) =>
+                                                                                selectCell(cellKey, {
+                                                                                    extendRange: event.shiftKey,
+                                                                                })
+                                                                            }
+                                                                            className={[
+                                                                                "workpaper-grid__cell",
+                                                                                isInSelection
+                                                                                    ? "workpaper-grid__cell--range"
+                                                                                    : "",
+                                                                            ].join(" ")}
+                                                                            style={getCellButtonStyle(cell?.style)}
                                                                         >
-                                                                            <span className="workpaper-grid__display">
-                                                                                {evaluated?.display || cell?.input || ""}
+                                                                            <span
+                                                                                className="workpaper-grid__display"
+                                                                                style={getCellTextStyle(cell?.style)}
+                                                                            >
+                                                                                {formatDisplayValue(
+                                                                                    evaluated?.display || cell?.input || "",
+                                                                                    cell?.style
+                                                                                )}
                                                                             </span>
                                                                         </button>
                                                                     )}
@@ -850,30 +1889,51 @@ export default function WorkpaperStudioPage() {
                             </section>
 
                             <section className="workpaper-panel-strip">
-                                {panelButtons.map((panel) => (
-                                    <button
-                                        key={panel.key}
-                                        type="button"
-                                        onClick={() =>
+                                <WorkpaperActionMenu
+                                    menuKey="workspace"
+                                    openMenu={openMenu}
+                                    setOpenMenu={setOpenMenu}
+                                    label="Workspace"
+                                    badge={
+                                        activePanel === "none"
+                                            ? undefined
+                                            : panelButtons.find((panel) => panel.key === activePanel)?.label
+                                    }
+                                    align="start"
+                                    items={panelButtons.map((panel) => ({
+                                        label: panel.label,
+                                        badge:
+                                            typeof panel.count === "number"
+                                                ? String(panel.count)
+                                                : undefined,
+                                        detail:
+                                            activePanel === panel.key
+                                                ? "Currently open below the worksheet."
+                                                : "Open this utility without crowding the grid.",
+                                        onSelect: () =>
                                             setActivePanel((current) =>
                                                 current === panel.key ? "none" : panel.key
-                                            )
-                                        }
-                                        className={[
-                                            "workpaper-panel-strip__button",
-                                            activePanel === panel.key
-                                                ? "workpaper-panel-strip__button--active"
-                                                : "",
-                                        ].join(" ")}
-                                    >
-                                        {panel.label}
-                                        {typeof panel.count === "number" ? (
-                                            <span className="workpaper-panel-strip__count">
-                                                {panel.count}
-                                            </span>
-                                        ) : null}
-                                    </button>
-                                ))}
+                                            ),
+                                    }))}
+                                />
+                                {activePanel !== "none" ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActivePanel("none")}
+                                            className="workpaper-panel-strip__button"
+                                        >
+                                            Hide panel
+                                        </button>
+                                        <span className="workpaper-panel-strip__active">
+                                            {
+                                                panelButtons.find((panel) => panel.key === activePanel)
+                                                    ?.label
+                                            }{" "}
+                                            open
+                                        </span>
+                                    </>
+                                ) : null}
                             </section>
 
                             {activePanel !== "none" ? (
@@ -1183,7 +2243,7 @@ export default function WorkpaperStudioPage() {
                                                 <DisclosurePanel
                                                     title="Current worksheet"
                                                     summary="Keep traceability nearby without letting it dominate the editor."
-                                                    badge={selectedCellReference}
+                                                    badge={selectedRangeLabel}
                                                     defaultOpen
                                                     compact
                                                 >
@@ -1191,7 +2251,10 @@ export default function WorkpaperStudioPage() {
                                                         <div className="workpaper-card">
                                                             <p className="app-helper text-xs">Display</p>
                                                             <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                                                {liveCellPreview?.display || "Blank cell"}
+                                                                {formatDisplayValue(
+                                                                    liveCellPreview?.display || "Blank cell",
+                                                                    selectedCellStyle
+                                                                )}
                                                             </p>
                                                         </div>
                                                         <div className="workpaper-card">
