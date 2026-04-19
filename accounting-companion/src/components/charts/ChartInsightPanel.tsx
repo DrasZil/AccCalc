@@ -30,6 +30,7 @@ export default function ChartInsightPanel({
                             key={highlight.title}
                             title={highlight.title}
                             value={highlight.value}
+                            supportingText={highlight.supportingText}
                             tone={highlight.tone}
                         />
                     ))}

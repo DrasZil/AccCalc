@@ -105,6 +105,10 @@ function normalizeNumericToken(
         if (confidence < 70 && /[OoIl|SBZ]/.test(next)) {
             flags.add(`Kept ${original} close to raw because letters and digits may still be mixed.`);
         }
+
+        if (/[A-Za-z]/.test(next)) {
+            flags.add(`OCR may have left letters inside the numeric token ${original}.`);
+        }
     }
 
     next = next

@@ -997,6 +997,86 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["purchases cost", "budgeted purchase cost", "direct materials purchases cost"],
     },
+    budgetedCostOfGoodsSold: {
+        label: "Budgeted Cost of Goods Sold",
+        placeholder: "420000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted cost of goods sold", "budgeted cogs", "planned cost of goods sold"],
+    },
+    desiredEndingInventoryCost: {
+        label: "Desired Ending Inventory",
+        placeholder: "86000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["desired ending inventory", "ending inventory target", "target ending inventory"],
+    },
+    beginningInventoryCost: {
+        label: "Beginning Inventory",
+        placeholder: "73000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["beginning inventory", "opening inventory"],
+    },
+    purchasesRequiredCost: {
+        label: "Required Purchases",
+        placeholder: "433000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["required purchases", "inventory purchases required", "merchandise purchases"],
+    },
+    budgetedSalesAmount: {
+        label: "Budgeted Sales",
+        placeholder: "950000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted sales", "planned sales amount", "sales budget"],
+    },
+    variableExpenseRatePercent: {
+        label: "Variable Expense Rate (%)",
+        placeholder: "6.5",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable expense rate", "variable operating expense rate", "selling expense rate"],
+    },
+    fixedOperatingExpenses: {
+        label: "Fixed Operating Expenses",
+        placeholder: "145000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["fixed operating expenses", "fixed selling expenses", "fixed administrative expenses"],
+    },
+    nonCashOperatingExpenses: {
+        label: "Non-cash Operating Expenses",
+        placeholder: "18000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["non-cash operating expenses", "depreciation expense", "noncash expenses"],
+    },
+    totalOperatingExpenses: {
+        label: "Total Operating Expenses",
+        placeholder: "206750",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total operating expenses", "total selling and administrative expenses", "total opex"],
+    },
+    cashOperatingExpenses: {
+        label: "Cash Operating Expenses",
+        placeholder: "188750",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["cash operating expenses", "cash selling and administrative expenses", "cash opex"],
+    },
     taxBase: {
         label: "Tax Base",
         placeholder: "85000",
@@ -2207,6 +2287,48 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /materials per unit/i,
         /desired ending materials/i,
         /purchase cost/i,
+        ],
+    },
+    {
+        id: "inventory-budget",
+        name: "Inventory Budget",
+        route: "/business/inventory-budget",
+        description:
+        "Best when the user needs merchandise purchases from budgeted cost of goods sold plus ending-inventory policy.",
+        required: [
+        "budgetedCostOfGoodsSold",
+        "desiredEndingInventoryCost",
+        "beginningInventoryCost",
+        ],
+        optional: ["purchasesRequiredCost"],
+        aliases: ["merchandise purchases budget", "inventory purchases budget", "ending inventory policy"],
+        keywords: [
+        /inventory budget/i,
+        /merchandise purchases/i,
+        /budgeted cogs/i,
+        /desired ending inventory/i,
+        /required purchases/i,
+        ],
+    },
+    {
+        id: "operating-expense-budget",
+        name: "Operating Expense Budget",
+        route: "/business/operating-expense-budget",
+        description:
+        "Best when the user needs total or cash operating expenses from budgeted sales, variable-rate expenses, and fixed costs.",
+        required: [
+        "budgetedSalesAmount",
+        "variableExpenseRatePercent",
+        "fixedOperatingExpenses",
+        ],
+        optional: ["nonCashOperatingExpenses", "totalOperatingExpenses", "cashOperatingExpenses"],
+        aliases: ["selling and administrative budget", "operating expenses budget", "cash operating expenses"],
+        keywords: [
+        /operating expense budget/i,
+        /selling and administrative budget/i,
+        /variable expense rate/i,
+        /cash operating expenses/i,
+        /operating expenses/i,
         ],
     },
     {
@@ -4781,6 +4903,47 @@ export function normalizeText(text: string = ""): string {
         { allowCurrency: false }
     );
     const purchasesCost = extractNumberByAliases(text, FIELD_META.purchasesCost.aliases ?? []);
+    const budgetedCostOfGoodsSold = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedCostOfGoodsSold.aliases ?? []
+    );
+    const desiredEndingInventoryCost = extractNumberByAliases(
+        text,
+        FIELD_META.desiredEndingInventoryCost.aliases ?? []
+    );
+    const beginningInventoryCost = extractNumberByAliases(
+        text,
+        FIELD_META.beginningInventoryCost.aliases ?? []
+    );
+    const purchasesRequiredCost = extractNumberByAliases(
+        text,
+        FIELD_META.purchasesRequiredCost.aliases ?? []
+    );
+    const budgetedSalesAmount = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedSalesAmount.aliases ?? []
+    );
+    const variableExpenseRatePercent = extractNumberByAliases(
+        text,
+        FIELD_META.variableExpenseRatePercent.aliases ?? [],
+        { percent: true }
+    );
+    const fixedOperatingExpenses = extractNumberByAliases(
+        text,
+        FIELD_META.fixedOperatingExpenses.aliases ?? []
+    );
+    const nonCashOperatingExpenses = extractNumberByAliases(
+        text,
+        FIELD_META.nonCashOperatingExpenses.aliases ?? []
+    );
+    const totalOperatingExpenses = extractNumberByAliases(
+        text,
+        FIELD_META.totalOperatingExpenses.aliases ?? []
+    );
+    const cashOperatingExpenses = extractNumberByAliases(
+        text,
+        FIELD_META.cashOperatingExpenses.aliases ?? []
+    );
     const taxBase = extractNumberByAliases(text, FIELD_META.taxBase.aliases ?? []);
     const ratePercent = extractNumberByAliases(text, FIELD_META.ratePercent.aliases ?? [], {
         percent: true,
@@ -4891,6 +5054,16 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "materialCostPerUnit", materialCostPerUnit);
     setFact(facts, "materialsToPurchaseUnits", materialsToPurchaseUnits);
     setFact(facts, "purchasesCost", purchasesCost);
+    setFact(facts, "budgetedCostOfGoodsSold", budgetedCostOfGoodsSold);
+    setFact(facts, "desiredEndingInventoryCost", desiredEndingInventoryCost);
+    setFact(facts, "beginningInventoryCost", beginningInventoryCost);
+    setFact(facts, "purchasesRequiredCost", purchasesRequiredCost);
+    setFact(facts, "budgetedSalesAmount", budgetedSalesAmount);
+    setFact(facts, "variableExpenseRatePercent", variableExpenseRatePercent);
+    setFact(facts, "fixedOperatingExpenses", fixedOperatingExpenses);
+    setFact(facts, "nonCashOperatingExpenses", nonCashOperatingExpenses);
+    setFact(facts, "totalOperatingExpenses", totalOperatingExpenses);
+    setFact(facts, "cashOperatingExpenses", cashOperatingExpenses);
     setFact(facts, "taxBase", taxBase);
     setFact(facts, "ratePercent", ratePercent);
     setFact(facts, "taxWithheld", taxWithheld);

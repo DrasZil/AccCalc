@@ -38,6 +38,7 @@ import {
     computeHighLowCostEstimation,
     computeInternalRateOfReturn,
     computeImpairmentLoss,
+    computeInventoryBudget,
     computeInventoryShrinkage,
     computeInventoryMethodComparison,
     computeJobOrderCostSheet,
@@ -55,6 +56,7 @@ import {
     computePartnershipProfitSharing,
     computePartnershipRetirementBonus,
     computePartnershipSalaryInterestAllocation,
+    computeOperatingExpenseBudget,
     computePaybackPeriod,
     computePresentValue,
     computePresentValueOfOrdinaryAnnuity,
@@ -401,11 +403,15 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     const adjustments = getWorkpaperTemplate("adjusting-entries-support");
     const production = getWorkpaperTemplate("production-budget-support");
     const materials = getWorkpaperTemplate("direct-materials-purchases-support");
+    const inventoryBudget = getWorkpaperTemplate("inventory-budget-support");
+    const operatingExpenseBudget = getWorkpaperTemplate("operating-expense-budget-support");
 
     assert.ok(pettyCash);
     assert.ok(adjustments);
     assert.ok(production);
     assert.ok(materials);
+    assert.ok(inventoryBudget);
+    assert.ok(operatingExpenseBudget);
 });
 
 runTest("cash discount and partnership helpers return standard values", () => {
@@ -1103,6 +1109,17 @@ runTest("5.6.5 helper additions stay mathematically consistent", () => {
         beginningMaterialsUnits: 900,
         materialCostPerUnit: 18,
     });
+    const inventoryBudget = computeInventoryBudget({
+        budgetedCostOfGoodsSold: 420000,
+        desiredEndingInventoryCost: 86000,
+        beginningInventoryCost: 73000,
+    });
+    const operatingExpenseBudget = computeOperatingExpenseBudget({
+        budgetedSalesAmount: 950000,
+        variableExpenseRatePercent: 6.5,
+        fixedOperatingExpenses: 145000,
+        nonCashOperatingExpenses: 18000,
+    });
     const withholdingTax = computeWithholdingTax({
         taxBase: 85000,
         ratePercent: 10,
@@ -1130,6 +1147,14 @@ runTest("5.6.5 helper additions stay mathematically consistent", () => {
     assertClose(materialsBudget.materialsRequired, 31950);
     assertClose(materialsBudget.materialsToPurchaseUnits, 31050);
     assertClose(materialsBudget.purchasesCost, 558900);
+
+    assertClose(inventoryBudget.purchasesRequiredCost, 433000);
+    assertClose(inventoryBudget.goodsAvailableForSaleCost, 506000);
+
+    assertClose(operatingExpenseBudget.variableExpenseRateDecimal, 0.065);
+    assertClose(operatingExpenseBudget.variableOperatingExpenses, 61750);
+    assertClose(operatingExpenseBudget.totalOperatingExpenses, 206750);
+    assertClose(operatingExpenseBudget.cashOperatingExpenses, 188750);
 
     assertClose(withholdingTax.rateDecimal, 0.1);
     assertClose(withholdingTax.taxWithheld, 8500);
@@ -1383,6 +1408,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const prepaidResults = searchAppRoutes("insurance expired adjusting entry");
     const productionResults = searchAppRoutes("schedule of production");
     const materialsBudgetResults = searchAppRoutes("materials purchase schedule");
+    const inventoryBudgetResults = searchAppRoutes("merchandise purchases budget");
+    const operatingExpenseBudgetResults = searchAppRoutes("selling and administrative budget");
     const impairmentResults = searchAppRoutes("recoverable amount value in use");
     const disposalResults = searchAppRoutes("gain on sale of equipment");
     const withholdingResults = searchAppRoutes("expanded withholding tax");
@@ -1444,6 +1471,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(prepaidResults[0]?.path, "/accounting/prepaid-expense-adjustment");
     assert.equal(productionResults[0]?.path, "/business/production-budget");
     assert.equal(materialsBudgetResults[0]?.path, "/business/direct-materials-purchases-budget");
+    assert.equal(inventoryBudgetResults[0]?.path, "/business/inventory-budget");
+    assert.equal(operatingExpenseBudgetResults[0]?.path, "/business/operating-expense-budget");
     assert.equal(impairmentResults[0]?.path, "/far/impairment-loss-workspace");
     assert.equal(disposalResults[0]?.path, "/far/asset-disposal-analysis");
     assert.equal(withholdingResults[0]?.path, "/tax/withholding-tax");
@@ -1469,6 +1498,14 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
     assert.equal(
         suggestSolveTarget("production-budget", "how many units should be produced"),
         "requiredProductionUnits"
+    );
+    assert.equal(
+        suggestSolveTarget("inventory-budget", "compute required purchases"),
+        "purchasesRequiredCost"
+    );
+    assert.equal(
+        suggestSolveTarget("operating-expense-budget", "find the cash operating expenses"),
+        "cashOperatingExpenses"
     );
     assert.equal(
         suggestSolveTarget("withholding-tax", "compute the amount withheld"),

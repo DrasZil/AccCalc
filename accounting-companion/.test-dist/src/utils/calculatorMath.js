@@ -1145,6 +1145,25 @@ export function computeDirectMaterialsPurchasesBudget({ budgetedProductionUnits,
         purchasesCost,
     };
 }
+export function computeInventoryBudget({ budgetedCostOfGoodsSold, desiredEndingInventoryCost, beginningInventoryCost, }) {
+    const purchasesRequiredCost = safeSubtract(safeAdd(budgetedCostOfGoodsSold, desiredEndingInventoryCost), beginningInventoryCost);
+    return {
+        purchasesRequiredCost,
+        goodsAvailableForSaleCost: safeAdd(beginningInventoryCost, purchasesRequiredCost),
+    };
+}
+export function computeOperatingExpenseBudget({ budgetedSalesAmount, variableExpenseRatePercent, fixedOperatingExpenses, nonCashOperatingExpenses = 0, }) {
+    const variableExpenseRateDecimal = variableExpenseRatePercent / 100;
+    const variableOperatingExpenses = safeMultiply(budgetedSalesAmount, variableExpenseRateDecimal);
+    const totalOperatingExpenses = safeAdd(variableOperatingExpenses, fixedOperatingExpenses);
+    const cashOperatingExpenses = safeSubtract(totalOperatingExpenses, nonCashOperatingExpenses);
+    return {
+        variableExpenseRateDecimal,
+        variableOperatingExpenses,
+        totalOperatingExpenses,
+        cashOperatingExpenses,
+    };
+}
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
     const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
     const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;

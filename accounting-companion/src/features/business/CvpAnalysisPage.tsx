@@ -9,7 +9,10 @@ import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
 import StudySupportPanel from "../../components/StudySupportPanel";
+import ChartInsightPanel from "../../components/charts/ChartInsightPanel";
 import { buildStudyQuizPath, buildStudyTopicPath } from "../study/studyContent";
+import { buildChartHighlights } from "../../utils/charts/chartHighlights";
+import { buildComparisonNarrative } from "../../utils/charts/chartNarratives";
 import { getCurrencySymbol } from "../../utils/currency";
 import formatPHP from "../../utils/formatPHP";
 import { computeCvpAnalysis } from "../../utils/calculatorMath";
@@ -293,6 +296,8 @@ export default function CvpAnalysisPage() {
                                 },
                             ]}
                             formatter={formatPHP}
+                            referenceValue={result.breakEvenSales}
+                            referenceLabel="break-even sales"
                             caption="Use the distance between expected sales and break-even sales as a quick visual read on margin of safety."
                         />
 
@@ -325,6 +330,45 @@ export default function CvpAnalysisPage() {
                             xLabel="Units sold"
                             yLabel={`${getCurrencySymbol()} value`}
                             formatter={(value) => formatPHP(value)}
+                        />
+
+                        <ChartInsightPanel
+                            title="What the charts are teaching"
+                            meaning={buildComparisonNarrative(
+                                [
+                                    {
+                                        label: "Break-even sales",
+                                        value: result.breakEvenSales,
+                                    },
+                                    {
+                                        label: "Required sales for target profit",
+                                        value: result.targetSales,
+                                    },
+                                    {
+                                        label: "Expected sales",
+                                        value: result.expectedSales,
+                                    },
+                                ],
+                                { formatter: formatPHP }
+                            )}
+                            importance="Read the bar chart as planning distance and the curve chart as operating logic. If expected sales sit only a little above break-even, small demand errors can still wipe out profit quickly."
+                            highlights={buildChartHighlights(
+                                [
+                                    {
+                                        label: "Break-even sales",
+                                        value: result.breakEvenSales,
+                                    },
+                                    {
+                                        label: "Required target sales",
+                                        value: result.targetSales,
+                                    },
+                                    {
+                                        label: "Expected sales",
+                                        value: result.expectedSales,
+                                    },
+                                ],
+                                { formatter: formatPHP }
+                            )}
                         />
 
                         <SectionCard>

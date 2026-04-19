@@ -337,6 +337,22 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
     },
     {
+        path: "/business/inventory-budget",
+        label: "Inventory Budget",
+        category: "Managerial & Cost",
+        patterns: [/\binventory budget\b/i, /\bmerchandise purchases\b/i, /\bbudgeted cogs\b/i],
+        bonus: [/\bdesired ending inventory\b/i, /\bbeginning inventory\b/i, /\brequired purchases\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
+    },
+    {
+        path: "/business/operating-expense-budget",
+        label: "Operating Expense Budget",
+        category: "Managerial & Cost",
+        patterns: [/\boperating expense budget\b/i, /\bselling and administrative budget\b/i, /\boperating expenses\b/i],
+        bonus: [/\bvariable expense rate\b/i, /\bfixed operating expenses\b/i, /\bcash operating expenses\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 1 },
+    },
+    {
         path: "/afar/business-combination-analysis",
         label: "Business Combination Analysis",
         category: "AFAR",

@@ -15,6 +15,7 @@ import StudyTipBlock from "../../components/notes/StudyTipBlock";
 import formatPHP from "../../utils/formatPHP";
 import { computeRatioAnalysisWorkspace } from "../../utils/calculatorMath";
 import { buildChartHighlights } from "../../utils/charts/chartHighlights";
+import { buildComparisonNarrative } from "../../utils/charts/chartNarratives";
 
 function formatRatio(value: number) {
     return `${value.toFixed(2)}x`;
@@ -357,6 +358,8 @@ export default function RatioAnalysisWorkspacePage() {
                                         accent: "highlight",
                                     },
                                 ]}
+                                referenceValue={result.quickRatio}
+                                referenceLabel="quick ratio"
                             />
                         ) : chartMode === "table" ? (
                             <SectionCard>
@@ -381,7 +384,23 @@ export default function RatioAnalysisWorkspacePage() {
                         ) : (
                             <ChartInsightPanel
                                 title="Ratio interpretation"
-                                meaning={`Liquidity is anchored by a current ratio of ${formatRatio(result.currentRatio)} and a quick ratio of ${formatRatio(result.quickRatio)}, while return measures show ${formatPercent(result.returnOnAssets)} ROA and ${formatPercent(result.returnOnEquity)} ROE.`}
+                                meaning={buildComparisonNarrative(
+                                    [
+                                        {
+                                            label: "Current ratio",
+                                            value: result.currentRatio,
+                                        },
+                                        {
+                                            label: "Quick ratio",
+                                            value: result.quickRatio,
+                                        },
+                                        {
+                                            label: "ROE (%)",
+                                            value: result.returnOnEquity * 100,
+                                        },
+                                    ],
+                                    { formatter: (value) => value.toFixed(2) }
+                                )}
                                 importance="Read the ratios together. A strong current ratio can still hide slow collections or weak returns."
                                 highlights={buildChartHighlights([
                                     {
@@ -392,7 +411,9 @@ export default function RatioAnalysisWorkspacePage() {
                                         label: "ROE",
                                         value: result.returnOnEquity * 100,
                                     },
-                                ])}
+                                ], {
+                                    formatter: (value) => value.toFixed(2),
+                                })}
                             />
                         )}
                     </div>

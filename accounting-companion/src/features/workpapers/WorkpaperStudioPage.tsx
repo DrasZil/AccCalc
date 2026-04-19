@@ -9,9 +9,11 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
+import InlineNotice from "../../components/InlineNotice";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import { APP_VERSION } from "../../utils/appRelease";
+import { useAppNotifications } from "../layout/AppNotifications";
 import {
     appendTransferRowsToActiveSheet,
     appendTransferToWorkbook,
@@ -308,6 +310,7 @@ function WorkpaperActionMenu(props: {
 
 export default function WorkpaperStudioPage() {
     const library = useWorkpaperLibrary();
+    const { notify } = useAppNotifications();
     const [selectedWorkbookId, setSelectedWorkbookId] = useState<string | null>(
         () => library.recentWorkbookIds[0] ?? library.workbookOrder[0] ?? null
     );
@@ -470,6 +473,28 @@ export default function WorkpaperStudioPage() {
         const timeout = window.setTimeout(() => setActionState({ status: "idle" }), 3200);
         return () => window.clearTimeout(timeout);
     }, [actionState]);
+
+    useEffect(() => {
+        if (actionState.status === "done") {
+            notify({
+                title: "Workpaper updated",
+                message: actionState.message,
+                tone: "success",
+                dedupeKey: `workpaper-done:${actionState.message}`,
+            });
+            return;
+        }
+
+        if (actionState.status === "error") {
+            notify({
+                title: "Workpaper issue",
+                message: actionState.message,
+                tone: "error",
+                dedupeKey: `workpaper-error:${actionState.message}`,
+                durationMs: 8200,
+            });
+        }
+    }, [actionState, notify]);
 
     function markDirty(message?: string) {
         setDraftVersion((current) => current + 1);
@@ -1141,24 +1166,34 @@ export default function WorkpaperStudioPage() {
                     </section>
 
                     {actionState.status !== "idle" ? (
-                        <p
-                            className={[
-                                "workpaper-action-banner",
-                                actionState.status === "error"
-                                    ? "workpaper-action-banner--error"
+                        <InlineNotice
+                            title={
+                                actionState.status === "running"
+                                    ? "Workpaper action in progress"
                                     : actionState.status === "done"
-                                      ? "workpaper-action-banner--done"
-                                      : "",
-                            ].join(" ")}
-                        >
-                            {actionState.message}
-                        </p>
+                                      ? "Workpaper action complete"
+                                      : "Workpaper action needs attention"
+                            }
+                            message={actionState.message}
+                            tone={
+                                actionState.status === "error"
+                                    ? "error"
+                                    : actionState.status === "done"
+                                      ? "success"
+                                      : "info"
+                            }
+                            compact
+                        />
                     ) : null}
 
                     {importError ? (
-                        <p className="rounded-xl px-3 py-2 text-sm app-tone-warning">
-                            {importError}
-                        </p>
+                        <InlineNotice
+                            title="Import review needed"
+                            message={importError}
+                            tone="warning"
+                            compact
+                            onDismiss={() => setImportError(null)}
+                        />
                     ) : null}
 
                     <section className="workpaper-tabs">

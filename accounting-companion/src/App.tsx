@@ -3,6 +3,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 import AppLayout from "./features/layout/AppLayout";
+import { AppNotificationProvider } from "./features/layout/AppNotifications";
 import { getRouteMeta } from "./utils/appCatalog";
 import { useNetworkStatus } from "./utils/networkStatus";
 import { useOfflineBundleStatus } from "./utils/offlineStatus";
@@ -317,6 +318,12 @@ const ProductionBudgetPage = lazy(
 const DirectMaterialsPurchasesBudgetPage = lazy(
     () => import("./features/business/DirectMaterialsPurchasesBudgetPage")
 );
+const InventoryBudgetPage = lazy(
+    () => import("./features/business/InventoryBudgetPage")
+);
+const OperatingExpenseBudgetPage = lazy(
+    () => import("./features/business/OperatingExpenseBudgetPage")
+);
 const AdditionalFundsNeededPage = lazy(
     () => import("./features/business/AdditionalFundsNeededPage")
 );
@@ -467,7 +474,14 @@ export default function App() {
         <AppErrorBoundary>
             <HashRouter>
                 <Routes>
-                    <Route path="/" element={<AppLayout />}>
+                    <Route
+                        path="/"
+                        element={
+                            <AppNotificationProvider>
+                                <AppLayout />
+                            </AppNotificationProvider>
+                        }
+                    >
                         <Route index element={renderRoute("/", <HomePage />)} />
                         <Route path="history" element={renderRoute("/history", <HistoryPage />)} />
                         <Route path="workpapers" element={renderRoute("/workpapers", <WorkpaperStudioPage />)} />
@@ -516,6 +530,8 @@ export default function App() {
                         <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
                         <Route path="business/production-budget" element={renderRoute("/business/production-budget", <ProductionBudgetPage />)} />
                         <Route path="business/direct-materials-purchases-budget" element={renderRoute("/business/direct-materials-purchases-budget", <DirectMaterialsPurchasesBudgetPage />)} />
+                        <Route path="business/inventory-budget" element={renderRoute("/business/inventory-budget", <InventoryBudgetPage />)} />
+                        <Route path="business/operating-expense-budget" element={renderRoute("/business/operating-expense-budget", <OperatingExpenseBudgetPage />)} />
                         <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 

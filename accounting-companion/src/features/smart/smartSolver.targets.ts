@@ -129,6 +129,16 @@ const SOLVE_TARGET_RULES: Record<
         { target: "purchasesCost", patterns: [/purchase cost/i, /budgeted purchase cost/i] },
         { target: "budgetedProductionUnits", patterns: [/budgeted production units/i, /planned production units/i] },
     ],
+    "inventory-budget": [
+        { target: "purchasesRequiredCost", patterns: [/required purchases/i, /merchandise purchases/i, /inventory budget/i] },
+        { target: "budgetedCostOfGoodsSold", patterns: [/budgeted cogs/i, /budgeted cost of goods sold/i] },
+        { target: "desiredEndingInventoryCost", patterns: [/desired ending inventory/i, /ending inventory target/i] },
+    ],
+    "operating-expense-budget": [
+        { target: "totalOperatingExpenses", patterns: [/total operating expenses/i, /selling and administrative budget/i, /operating expense budget/i] },
+        { target: "cashOperatingExpenses", patterns: [/cash operating expenses/i, /cash opex/i] },
+        { target: "budgetedSalesAmount", patterns: [/budgeted sales/i, /sales budget/i] },
+    ],
     "withholding-tax": [
         { target: "taxWithheld", patterns: [/withholding tax/i, /tax withheld/i, /amount withheld/i] },
         { target: "taxBase", patterns: [/tax base/i, /gross amount/i, /payment subject to withholding/i] },

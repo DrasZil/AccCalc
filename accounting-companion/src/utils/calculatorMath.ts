@@ -252,6 +252,19 @@ type DirectMaterialsPurchasesBudgetParams = {
     materialCostPerUnit: number;
 };
 
+type InventoryBudgetParams = {
+    budgetedCostOfGoodsSold: number;
+    desiredEndingInventoryCost: number;
+    beginningInventoryCost: number;
+};
+
+type OperatingExpenseBudgetParams = {
+    budgetedSalesAmount: number;
+    variableExpenseRatePercent: number;
+    fixedOperatingExpenses: number;
+    nonCashOperatingExpenses?: number;
+};
+
 type CapacityUtilizationParams = {
     actualUnits: number;
     practicalCapacityUnits: number;
@@ -2063,6 +2076,53 @@ export function computeDirectMaterialsPurchasesBudget({
         materialsRequired,
         materialsToPurchaseUnits,
         purchasesCost,
+    };
+}
+
+export function computeInventoryBudget({
+    budgetedCostOfGoodsSold,
+    desiredEndingInventoryCost,
+    beginningInventoryCost,
+}: InventoryBudgetParams) {
+    const purchasesRequiredCost = safeSubtract(
+        safeAdd(budgetedCostOfGoodsSold, desiredEndingInventoryCost),
+        beginningInventoryCost
+    );
+
+    return {
+        purchasesRequiredCost,
+        goodsAvailableForSaleCost: safeAdd(
+            beginningInventoryCost,
+            purchasesRequiredCost
+        ),
+    };
+}
+
+export function computeOperatingExpenseBudget({
+    budgetedSalesAmount,
+    variableExpenseRatePercent,
+    fixedOperatingExpenses,
+    nonCashOperatingExpenses = 0,
+}: OperatingExpenseBudgetParams) {
+    const variableExpenseRateDecimal = variableExpenseRatePercent / 100;
+    const variableOperatingExpenses = safeMultiply(
+        budgetedSalesAmount,
+        variableExpenseRateDecimal
+    );
+    const totalOperatingExpenses = safeAdd(
+        variableOperatingExpenses,
+        fixedOperatingExpenses
+    );
+    const cashOperatingExpenses = safeSubtract(
+        totalOperatingExpenses,
+        nonCashOperatingExpenses
+    );
+
+    return {
+        variableExpenseRateDecimal,
+        variableOperatingExpenses,
+        totalOperatingExpenses,
+        cashOperatingExpenses,
     };
 }
 

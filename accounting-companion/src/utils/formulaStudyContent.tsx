@@ -420,6 +420,72 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             { path: "/business/cash-budget", label: "Cash Budget" },
         ],
     },
+    "inventory-budget-solve": {
+        topicId: "formula-inventory-budget",
+        topicTitle: "Inventory Budget",
+        intro:
+            "Inventory budgeting connects cost of goods sold to the merchandise purchases needed for the period after the ending-inventory policy is considered.",
+        sections: [
+            {
+                key: "logic",
+                label: "Budget logic",
+                summary: "Start with budgeted cost of goods sold, then adjust for inventory policy.",
+                content: bullets([
+                    "Budgeted cost of goods sold is the amount expected to leave inventory during the period.",
+                    "Desired ending inventory increases the amount that must be available.",
+                    "Beginning inventory reduces how much still has to be purchased.",
+                ]),
+            },
+            {
+                key: "class-use",
+                label: "Class and exam use",
+                summary: "Common in merchandising budgets and linked cash-planning questions.",
+                emphasis: "support",
+                tone: "info",
+                content: bullets([
+                    "This budget often appears before cash-disbursements or cash-budget schedules.",
+                    "Teachers may ask for required purchases, budgeted COGS, or the ending inventory target from the same relationship.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/cash-disbursements-schedule", label: "Cash Disbursements Schedule" },
+            { path: "/business/cash-budget", label: "Cash Budget" },
+        ],
+    },
+    "operating-expense-budget-solve": {
+        topicId: "formula-operating-expense-budget",
+        topicTitle: "Operating Expense Budget",
+        intro:
+            "An operating expense budget separates sales-driven costs from fixed costs, then separates accounting expense from the actual cash effect.",
+        sections: [
+            {
+                key: "procedure",
+                label: "Procedure logic",
+                summary: "Build the total first, then isolate the cash portion.",
+                content: bullets([
+                    "Multiply budgeted sales by the variable expense rate.",
+                    "Add fixed operating expenses to reach total operating expenses.",
+                    "Subtract non-cash expenses when the cash budget needs the cash-only amount.",
+                ]),
+            },
+            {
+                key: "mistakes",
+                label: "Common mistakes",
+                summary: "Do not let expense and cash get blended into one answer.",
+                emphasis: "support",
+                tone: "warning",
+                content: bullets([
+                    "Using total expense as if it were the cash-disbursement figure.",
+                    "Forgetting that depreciation and similar non-cash items affect expense but not cash.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/cash-budget", label: "Cash Budget" },
+            { path: "/business/flexible-budget", label: "Flexible Budget" },
+        ],
+    },
     "withholding-tax-solve": {
         topicId: "formula-withholding-tax",
         topicTitle: "Withholding Tax",

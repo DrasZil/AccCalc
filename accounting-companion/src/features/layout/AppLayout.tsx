@@ -40,13 +40,12 @@ import { useInstallExperience } from "../../utils/installExperience";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import { clearDeploymentMismatch, useOfflineBundleStatus } from "../../utils/offlineStatus";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
+import { useAppNotifications } from "./AppNotifications";
 import {
     FeedbackReminder,
     LaunchScreen,
     NewBadge,
-    NoticeStack,
     ShellIcon,
-    type Notice,
 } from "./ShellChrome";
 
 type OpenGroupsState = Record<AppNavGroupTitle, boolean>;
@@ -649,6 +648,7 @@ export default function AppLayout() {
     const network = useNetworkStatus();
     const offlineBundle = useOfflineBundleStatus();
     const update = useAppUpdateState();
+    const { notify } = useAppNotifications();
     const currentMeta = getRouteMeta(location.pathname);
     const headerRef = useRef<HTMLElement | null>(null);
     const mainRef = useRef<HTMLElement | null>(null);
@@ -673,33 +673,6 @@ export default function AppLayout() {
     });
     const [settingsPanelRoute, setSettingsPanelRoute] = useState<string | null>(null);
     const [openGroups, setOpenGroups] = useState<OpenGroupsState>(DEFAULT_OPEN_GROUPS);
-    const [notices, setNotices] = useState<Notice[]>(() => {
-        if (typeof window === "undefined") return [];
-
-        const rawUpdateFlag = window.sessionStorage.getItem("accalc-update-banner");
-        if (!rawUpdateFlag) return [];
-
-        window.sessionStorage.removeItem("accalc-update-banner");
-        let activatedVersion = APP_VERSION;
-
-        try {
-            const parsed = JSON.parse(rawUpdateFlag) as { version?: string };
-            if (typeof parsed.version === "string" && parsed.version.trim() !== "") {
-                activatedVersion = parsed.version;
-            }
-        } catch {
-            // Ignore malformed update banner payloads.
-        }
-
-        return [
-            {
-                id: `app-updated-${Date.now()}`,
-                title: "App updated",
-                message: `AccCalc ${activatedVersion} is now active with the latest calculator and interface improvements.`,
-                tone: "success",
-            },
-        ];
-    });
     const [bootVisible, setBootVisible] = useState<boolean>(() => settings.showOpeningAnimation);
     const [feedbackVisible, setFeedbackVisible] = useState<boolean>(false);
     const [supportPromptVisible, setSupportPromptVisible] = useState<boolean>(false);
@@ -709,10 +682,10 @@ export default function AppLayout() {
 
     const lastRecordedPathRef = useRef<string>("");
     const feedbackShownRef = useRef(false);
-    const noticeTimersRef = useRef<Record<string, number>>({});
     const previousOnlineRef = useRef<boolean>(network.online);
     const previousStandaloneRef = useRef<boolean>(install.isStandalone);
     const lastScrollYRef = useRef(0);
+    const updateBannerHandledRef = useRef(false);
 
     const mobileSidebarOpen = mobileSidebarRoute === location.pathname;
     const mobileSearchOpen = mobileSearchRoute === location.pathname;
@@ -784,23 +757,41 @@ export default function AppLayout() {
         setMobileNavHidden(false);
     }, [location.pathname]);
 
-    function pushNotice(title: string, message: string, tone: Notice["tone"] = "info") {
-        const existingId = `${title}:${message}`;
+    function pushNotice(
+        title: string,
+        message: string,
+        tone: "info" | "success" | "warning" | "error" = "info"
+    ) {
+        notify({ title, message, tone });
+    }
 
-        if (noticeTimersRef.current[existingId]) {
-            window.clearTimeout(noticeTimersRef.current[existingId]);
+    useEffect(() => {
+        if (updateBannerHandledRef.current || typeof window === "undefined") return;
+        updateBannerHandledRef.current = true;
+
+        const rawUpdateFlag = window.sessionStorage.getItem("accalc-update-banner");
+        if (!rawUpdateFlag) return;
+
+        window.sessionStorage.removeItem("accalc-update-banner");
+        let activatedVersion = APP_VERSION;
+
+        try {
+            const parsed = JSON.parse(rawUpdateFlag) as { version?: string };
+            if (typeof parsed.version === "string" && parsed.version.trim() !== "") {
+                activatedVersion = parsed.version;
+            }
+        } catch {
+            // Ignore malformed update banner payloads.
         }
 
-        setNotices((current) => {
-            const withoutDuplicate = current.filter((notice) => notice.id !== existingId);
-            return [...withoutDuplicate, { id: existingId, title, message, tone }].slice(-4);
+        notify({
+            title: "App updated",
+            message: `AccCalc ${activatedVersion} is now active with the latest calculator and interface improvements.`,
+            tone: "success",
+            dedupeKey: `app-updated:${activatedVersion}`,
+            durationMs: 7600,
         });
-
-        noticeTimersRef.current[existingId] = window.setTimeout(() => {
-            setNotices((current) => current.filter((notice) => notice.id !== existingId));
-            delete noticeTimersRef.current[existingId];
-        }, tone === "warning" ? 7800 : 5200);
-    }
+    }, [notify]);
 
     function dismissSupportPrompt(mode: "later" | "forever") {
         const nextValue = {
@@ -1214,14 +1205,6 @@ export default function AppLayout() {
         };
     }, []);
 
-    useEffect(
-        () => () => {
-            Object.values(noticeTimersRef.current).forEach((timer) => window.clearTimeout(timer));
-            noticeTimersRef.current = {};
-        },
-        []
-    );
-
     useEffect(() => {
         if (typeof window === "undefined" || !mainRef.current) return;
 
@@ -1324,16 +1307,6 @@ export default function AppLayout() {
     return (
         <div className="min-h-screen bg-transparent text-[color:var(--app-text)]">
             <LaunchScreen visible={settings.showOpeningAnimation && bootVisible} />
-            <NoticeStack
-                notices={notices}
-                onDismiss={(id) => {
-                    if (noticeTimersRef.current[id]) {
-                        window.clearTimeout(noticeTimersRef.current[id]);
-                        delete noticeTimersRef.current[id];
-                    }
-                    setNotices((current) => current.filter((notice) => notice.id !== id));
-                }}
-            />
             <FloatingPromptDock hidden={promptDockHidden}>
                 <AppUpdatePrompt update={update} />
                 <InstallPrompt blocked={update.updateReady} />

@@ -185,7 +185,7 @@ export default function MarketEquilibriumPage() {
                         ) : (
                             <ChartInsightPanel
                                 title="Equilibrium interpretation"
-                                meaning={`The market clears at price ${result.equilibriumPrice.toFixed(2)} and quantity ${result.equilibriumQuantity.toFixed(2)} because demand and supply are equal at that point.`}
+                                meaning={`The market clears at price ${result.equilibriumPrice.toFixed(2)} and quantity ${result.equilibriumQuantity.toFixed(2)} because demand and supply are equal at that point. The highlighted intersection shows the exact checkpoint where planned buying and planned selling stop conflicting.`}
                                 importance="This is the baseline used for later changes in taxes, shortages, surplus, welfare, or elasticity comparisons."
                                 highlights={buildChartHighlights([
                                     {
@@ -196,7 +196,9 @@ export default function MarketEquilibriumPage() {
                                         label: "Equilibrium quantity",
                                         value: result.equilibriumQuantity,
                                     },
-                                ])}
+                                ], {
+                                    formatter: (value) => value.toFixed(2),
+                                })}
                             />
                         )}
                     </div>

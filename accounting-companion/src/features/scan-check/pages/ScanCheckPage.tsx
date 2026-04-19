@@ -11,6 +11,7 @@ import StudyTipBlock from "../../../components/notes/StudyTipBlock";
 import RelatedLinksPanel from "../../../components/RelatedLinksPanel";
 import { buildChartHighlights } from "../../../utils/charts/chartHighlights";
 import { buildComparisonNarrative } from "../../../utils/charts/chartNarratives";
+import { useAppNotifications } from "../../layout/AppNotifications";
 import ScanActionBar from "../components/ScanActionBar";
 import ScanCameraCapture from "../components/ScanCameraCapture";
 import ScanDropzone from "../components/ScanDropzone";
@@ -21,7 +22,6 @@ import ScanPreprocessPreview from "../components/ScanPreprocessPreview";
 import ScanProblemSessionPanel from "../components/ScanProblemSessionPanel";
 import ScanProgressPanel from "../components/ScanProgressPanel";
 import ScanResultOverview from "../components/ScanResultOverview";
-import ScanToast from "../components/ScanToast";
 import StudySupportPanel from "../../../components/StudySupportPanel";
 import { useImagePreprocess } from "../hooks/useImagePreprocess";
 import { useOcrWorker } from "../hooks/useOcrWorker";
@@ -117,6 +117,7 @@ type ToastState = {
 
 export default function ScanCheckPage() {
     const navigate = useNavigate();
+    const { notify } = useAppNotifications();
     const queue = useScanQueue();
     const ocr = useOcrWorker();
     const preprocess = useImagePreprocess();
@@ -130,7 +131,6 @@ export default function ScanCheckPage() {
     const [statusMessage, setStatusMessage] = useState(
         "Upload or capture images and AccCalc will process them automatically."
     );
-    const [toast, setToast] = useState<ToastState | null>(null);
 
     const activePreview =
         queue.items.find((item) => item.id === activePreviewId) ?? queue.items[0] ?? null;
@@ -192,7 +192,12 @@ export default function ScanCheckPage() {
                 : "Continue to SmartSolver";
 
     function showToast(nextToast: ToastState) {
-        setToast(nextToast);
+        notify({
+            title: nextToast.title,
+            message: nextToast.body,
+            tone: nextToast.tone ?? "info",
+            dedupeKey: `scan:${nextToast.title}:${nextToast.body ?? ""}`,
+        });
     }
 
     function handleScanFeedback(
@@ -1021,13 +1026,6 @@ export default function ScanCheckPage() {
                 onClose={() => setPreviewOpen(false)}
             />
 
-            <ScanToast
-                open={Boolean(toast)}
-                title={toast?.title ?? ""}
-                body={toast?.body}
-                tone={toast?.tone}
-                onClose={() => setToast(null)}
-            />
         </>
     );
 }

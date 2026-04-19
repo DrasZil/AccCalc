@@ -6,7 +6,8 @@ export type Notice = {
     id: string;
     title: string;
     message: string;
-    tone: "info" | "success" | "warning";
+    tone: "info" | "success" | "warning" | "error";
+    repeatCount?: number;
 };
 
 export function ShellIcon({
@@ -375,39 +376,57 @@ export function NoticeStack({
     onDismiss: (id: string) => void;
 }) {
     return (
-        <div className="fixed right-4 z-[110] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3 md:right-6" style={{ top: "calc(var(--app-header-height) + 1rem)" }}>
+        <div
+            className="fixed right-3 z-[110] flex w-[min(24rem,calc(100vw-1.5rem))] flex-col gap-3 md:right-6 md:w-[min(25rem,calc(100vw-3rem))]"
+            style={{ top: "calc(var(--app-header-height) + 0.85rem)" }}
+        >
             {notices.map((notice) => (
                 <div
                     key={notice.id}
-                    className={[
-                        "rounded-[1.4rem] border px-4 py-4 backdrop-blur-xl transition duration-300",
-                        notice.tone === "success"
-                            ? ""
-                            : notice.tone === "warning"
-                              ? ""
-                              : "",
-                    ].join(" ")}
+                    className="rounded-[1.35rem] border px-4 py-3.5 backdrop-blur-xl transition duration-300"
                     style={{
                         borderColor:
                             notice.tone === "success"
                                 ? "rgba(52, 211, 153, 0.22)"
-                                : notice.tone === "warning"
+                                : notice.tone === "warning" || notice.tone === "error"
                                   ? "rgba(245, 158, 11, 0.22)"
                                   : "var(--app-border)",
                         background:
                             notice.tone === "success"
                                 ? "var(--app-success-soft)"
-                                : notice.tone === "warning"
+                                : notice.tone === "warning" || notice.tone === "error"
                                   ? "var(--app-warning-soft)"
                                   : "linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft))",
                         boxShadow: "var(--app-shadow)",
                     }}
+                    role={notice.tone === "error" ? "alert" : "status"}
+                    aria-live={notice.tone === "error" ? "assertive" : "polite"}
                 >
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="text-[0.96rem] font-semibold tracking-[-0.02em] text-[color:var(--app-text)]">
-                                {notice.title}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-[0.96rem] font-semibold tracking-[-0.02em] text-[color:var(--app-text)]">
+                                    {notice.title}
+                                </p>
+                                <span
+                                    className="rounded-full px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.14em]"
+                                    style={{
+                                        background:
+                                            notice.tone === "success"
+                                                ? "rgba(16, 185, 129, 0.14)"
+                                                : notice.tone === "warning" ||
+                                                    notice.tone === "error"
+                                                  ? "rgba(245, 158, 11, 0.16)"
+                                                  : "rgba(59, 130, 246, 0.12)",
+                                        color: "var(--app-text-secondary)",
+                                    }}
+                                >
+                                    {notice.tone}
+                                    {(notice.repeatCount ?? 1) > 1
+                                        ? ` x${notice.repeatCount}`
+                                        : ""}
+                                </span>
+                            </div>
                             <p className="mt-1 text-sm leading-6 text-[color:var(--app-text-secondary)]">
                                 {notice.message}
                             </p>

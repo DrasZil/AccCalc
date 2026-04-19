@@ -31,6 +31,8 @@ function extractValues(text: string) {
 
 function detectLikelyIssues(text: string, flaggedValues: string[]) {
     const issues: string[] = [];
+    const suspiciousCompactTokens =
+        text.match(/\b\d+[A-Za-z]{1,3}\d*\b|\b[A-Za-z]{1,2}\d+[A-Za-z]*\b/g) ?? [];
 
     if (/-/.test(text) && /\+/.test(text)) {
         issues.push("Check for sign errors around positive and negative terms.");
@@ -49,6 +51,13 @@ function detectLikelyIssues(text: string, flaggedValues: string[]) {
     }
     if (/transferred-?in/i.test(text) && !/department\s*2|dept\.?\s*2/i.test(text)) {
         issues.push("Transferred-in cost appears without a clear later-department label. Review the department carry-forward assumption.");
+    }
+    if (suspiciousCompactTokens.length > 0) {
+        issues.push(
+            `Review tightly merged OCR tokens such as ${suspiciousCompactTokens
+                .slice(0, 3)
+                .join(", ")} because numbers and labels may still be stuck together.`
+        );
     }
     if (flaggedValues.length > 0) {
         issues.push("Some numeric values were left close to the raw OCR text because commas, decimals, or handwriting were uncertain.");

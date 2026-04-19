@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryBudget, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computeOperatingExpenseBudget, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeSurplusAtEquilibrium, computeCashRunway, } from "../src/utils/calculatorMath.js";
 import { breakEvenSolveDefinition, currentRatioSolveDefinition, priceCostMarginSolveDefinition, simpleInterestSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
@@ -232,10 +232,14 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     const adjustments = getWorkpaperTemplate("adjusting-entries-support");
     const production = getWorkpaperTemplate("production-budget-support");
     const materials = getWorkpaperTemplate("direct-materials-purchases-support");
+    const inventoryBudget = getWorkpaperTemplate("inventory-budget-support");
+    const operatingExpenseBudget = getWorkpaperTemplate("operating-expense-budget-support");
     assert.ok(pettyCash);
     assert.ok(adjustments);
     assert.ok(production);
     assert.ok(materials);
+    assert.ok(inventoryBudget);
+    assert.ok(operatingExpenseBudget);
 });
 runTest("cash discount and partnership helpers return standard values", () => {
     const cashDiscount = computeCashDiscount({
@@ -845,6 +849,17 @@ runTest("5.6.5 helper additions stay mathematically consistent", () => {
         beginningMaterialsUnits: 900,
         materialCostPerUnit: 18,
     });
+    const inventoryBudget = computeInventoryBudget({
+        budgetedCostOfGoodsSold: 420000,
+        desiredEndingInventoryCost: 86000,
+        beginningInventoryCost: 73000,
+    });
+    const operatingExpenseBudget = computeOperatingExpenseBudget({
+        budgetedSalesAmount: 950000,
+        variableExpenseRatePercent: 6.5,
+        fixedOperatingExpenses: 145000,
+        nonCashOperatingExpenses: 18000,
+    });
     const withholdingTax = computeWithholdingTax({
         taxBase: 85000,
         ratePercent: 10,
@@ -867,6 +882,12 @@ runTest("5.6.5 helper additions stay mathematically consistent", () => {
     assertClose(materialsBudget.materialsRequired, 31950);
     assertClose(materialsBudget.materialsToPurchaseUnits, 31050);
     assertClose(materialsBudget.purchasesCost, 558900);
+    assertClose(inventoryBudget.purchasesRequiredCost, 433000);
+    assertClose(inventoryBudget.goodsAvailableForSaleCost, 506000);
+    assertClose(operatingExpenseBudget.variableExpenseRateDecimal, 0.065);
+    assertClose(operatingExpenseBudget.variableOperatingExpenses, 61750);
+    assertClose(operatingExpenseBudget.totalOperatingExpenses, 206750);
+    assertClose(operatingExpenseBudget.cashOperatingExpenses, 188750);
     assertClose(withholdingTax.rateDecimal, 0.1);
     assertClose(withholdingTax.taxWithheld, 8500);
     assertClose(withholdingTax.netAfterWithholding, 76500);
@@ -1100,6 +1121,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const prepaidResults = searchAppRoutes("insurance expired adjusting entry");
     const productionResults = searchAppRoutes("schedule of production");
     const materialsBudgetResults = searchAppRoutes("materials purchase schedule");
+    const inventoryBudgetResults = searchAppRoutes("merchandise purchases budget");
+    const operatingExpenseBudgetResults = searchAppRoutes("selling and administrative budget");
     const impairmentResults = searchAppRoutes("recoverable amount value in use");
     const disposalResults = searchAppRoutes("gain on sale of equipment");
     const withholdingResults = searchAppRoutes("expanded withholding tax");
@@ -1160,6 +1183,8 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(prepaidResults[0]?.path, "/accounting/prepaid-expense-adjustment");
     assert.equal(productionResults[0]?.path, "/business/production-budget");
     assert.equal(materialsBudgetResults[0]?.path, "/business/direct-materials-purchases-budget");
+    assert.equal(inventoryBudgetResults[0]?.path, "/business/inventory-budget");
+    assert.equal(operatingExpenseBudgetResults[0]?.path, "/business/operating-expense-budget");
     assert.equal(impairmentResults[0]?.path, "/far/impairment-loss-workspace");
     assert.equal(disposalResults[0]?.path, "/far/asset-disposal-analysis");
     assert.equal(withholdingResults[0]?.path, "/tax/withholding-tax");
@@ -1170,6 +1195,8 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
     assert.equal(suggestSolveTarget("current-ratio", "solve for current liabilities using current ratio"), "currentLiabilities");
     assert.equal(suggestSolveTarget("petty-cash-reconciliation", "find the shortage or overage"), "shortageOrOverage");
     assert.equal(suggestSolveTarget("production-budget", "how many units should be produced"), "requiredProductionUnits");
+    assert.equal(suggestSolveTarget("inventory-budget", "compute required purchases"), "purchasesRequiredCost");
+    assert.equal(suggestSolveTarget("operating-expense-budget", "find the cash operating expenses"), "cashOperatingExpenses");
     assert.equal(suggestSolveTarget("withholding-tax", "compute the amount withheld"), "taxWithheld");
 });
 runTest("account reference search finds aliases and abbreviations", () => {

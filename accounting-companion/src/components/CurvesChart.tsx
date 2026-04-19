@@ -101,6 +101,7 @@ export default function CurvesChart({
     const yTicks = (isCompact ? [0, 0.5, 1] : [0, 0.33, 0.66, 1]).map(
         (fraction) => scale.minY + scale.rangeY * fraction
     );
+    const xTicks = [0, scale.maxX / 2, scale.maxX];
 
     const highlightCoordinates = highlightPoint
         ? {
@@ -172,14 +173,23 @@ export default function CurvesChart({
                     {referenceLines.map((line) => {
                         const y = scale.mapY(line.y);
                         return (
-                            <path
-                                key={line.label}
-                                d={`M${PLOT_BOUNDS.left} ${y}h${PLOT_BOUNDS.right - PLOT_BOUNDS.left}`}
-                                stroke={CURVE_COLORS[line.accent ?? "highlight"]}
-                                strokeWidth="0.75"
-                                strokeDasharray="2.8 2.2"
-                                opacity="0.92"
-                            />
+                            <g key={line.label}>
+                                <path
+                                    d={`M${PLOT_BOUNDS.left} ${y}h${PLOT_BOUNDS.right - PLOT_BOUNDS.left}`}
+                                    stroke={CURVE_COLORS[line.accent ?? "highlight"]}
+                                    strokeWidth="0.75"
+                                    strokeDasharray="2.8 2.2"
+                                    opacity="0.92"
+                                />
+                                <text
+                                    x={PLOT_BOUNDS.right - 1}
+                                    y={y - 1.2}
+                                    textAnchor="end"
+                                    className="fill-[color:var(--app-text-muted)] text-[3px]"
+                                >
+                                    {line.label}
+                                </text>
+                            </g>
                         );
                     })}
 
@@ -195,33 +205,68 @@ export default function CurvesChart({
                         />
                     ))}
 
-                    {highlightCoordinates &&
-                    highlightPoint &&
-                    calloutLineEndX !== null &&
-                    calloutTextX !== null &&
-                    !isCompact ? (
+                    {highlightCoordinates && highlightPoint ? (
                         <>
+                            <path
+                                d={`M${highlightCoordinates.x} ${PLOT_BOUNDS.bottom}V${highlightCoordinates.y}`}
+                                stroke="var(--app-highlight)"
+                                strokeWidth="0.7"
+                                strokeDasharray="2.4 2.2"
+                                opacity="0.85"
+                            />
+                            <path
+                                d={`M${PLOT_BOUNDS.left} ${highlightCoordinates.y}H${highlightCoordinates.x}`}
+                                stroke="var(--app-highlight)"
+                                strokeWidth="0.7"
+                                strokeDasharray="2.4 2.2"
+                                opacity="0.85"
+                            />
                             <circle
                                 cx={highlightCoordinates.x}
                                 cy={highlightCoordinates.y}
                                 r="2.1"
                                 fill="var(--app-highlight)"
                             />
-                            <path
-                                d={`M${highlightCoordinates.x} ${highlightCoordinates.y} L${calloutLineEndX} ${highlightCoordinates.y - 5}`}
-                                stroke="var(--app-highlight)"
-                                strokeWidth="0.9"
-                            />
-                            <text
-                                x={calloutTextX}
-                                y={highlightCoordinates.y - 6}
-                                textAnchor={calloutDirection === "left" ? "end" : "start"}
-                                className="fill-[color:var(--app-text)] text-[3.9px]"
-                            >
-                                {highlightPoint.label}
-                            </text>
+                            {calloutLineEndX !== null && calloutTextX !== null && !isCompact ? (
+                                <>
+                                    <path
+                                        d={`M${highlightCoordinates.x} ${highlightCoordinates.y} L${calloutLineEndX} ${highlightCoordinates.y - 5}`}
+                                        stroke="var(--app-highlight)"
+                                        strokeWidth="0.9"
+                                    />
+                                    <text
+                                        x={calloutTextX}
+                                        y={highlightCoordinates.y - 6}
+                                        textAnchor={calloutDirection === "left" ? "end" : "start"}
+                                        className="fill-[color:var(--app-text)] text-[3.9px]"
+                                    >
+                                        {highlightPoint.label}
+                                    </text>
+                                </>
+                            ) : null}
                         </>
                     ) : null}
+
+                    {xTicks.map((tick, index) => {
+                        const x = scale.mapX(tick);
+                        return (
+                            <g key={`x-tick-${index}`}>
+                                <path
+                                    d={`M${x} ${PLOT_BOUNDS.bottom}v1.8`}
+                                    stroke="var(--app-border-subtle)"
+                                    strokeWidth="0.7"
+                                />
+                                <text
+                                    x={x}
+                                    y={PLOT_BOUNDS.bottom + 4.6}
+                                    textAnchor="middle"
+                                    className="fill-[color:var(--app-text-muted)] text-[3.1px]"
+                                >
+                                    {formatter(tick)}
+                                </text>
+                            </g>
+                        );
+                    })}
                 </svg>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">

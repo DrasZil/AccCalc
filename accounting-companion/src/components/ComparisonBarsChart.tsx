@@ -12,6 +12,8 @@ type ComparisonBarsChartProps = {
     }>;
     formatter?: (value: number) => string;
     caption?: string;
+    referenceValue?: number;
+    referenceLabel?: string;
 };
 
 const ACCENT_CLASS_MAP = {
@@ -26,6 +28,8 @@ export default function ComparisonBarsChart({
     items,
     formatter = (value) => value.toLocaleString(),
     caption,
+    referenceValue,
+    referenceLabel = "Reference",
 }: ComparisonBarsChartProps) {
     const { ref, width } = useElementSize<HTMLDivElement>();
     const maxValue = Math.max(...items.map((item) => Math.abs(item.value)), 1);
@@ -54,15 +58,21 @@ export default function ComparisonBarsChart({
                                     <p className="text-sm font-semibold text-[color:var(--app-text)]">
                                         {item.label}
                                     </p>
+                                <p className="app-helper mt-1 text-xs">
+                                    {item.emphasisLabel ??
+                                        (isCompact
+                                            ? `${Math.round(normalizedWidth * 100)}% of the largest checkpoint.`
+                                            : `${Math.round(normalizedWidth * 100)}% of the largest current checkpoint.`)}
+                                </p>
+                                {typeof referenceValue === "number" ? (
                                     <p className="app-helper mt-1 text-xs">
-                                        {item.emphasisLabel ??
-                                            (isCompact
-                                                ? `${Math.round(normalizedWidth * 100)}% of the largest checkpoint.`
-                                                : `${Math.round(normalizedWidth * 100)}% of the largest current checkpoint.`)}
+                                        {item.value >= referenceValue ? "Above" : "Below"} {referenceLabel.toLowerCase()} by{" "}
+                                        {formatter(Math.abs(item.value - referenceValue))}.
                                     </p>
-                                </div>
-                                <p className="shrink-0 text-sm font-medium text-[color:var(--app-text-secondary)]">
-                                    {formatter(item.value)}
+                                ) : null}
+                            </div>
+                            <p className="shrink-0 text-sm font-medium text-[color:var(--app-text-secondary)]">
+                                {formatter(item.value)}
                                 </p>
                             </div>
                             <div className="app-subtle-surface overflow-hidden rounded-full px-1 py-1">

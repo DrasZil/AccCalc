@@ -1,5 +1,5 @@
 import formatPHP from "./formatPHP.js";
-import { computeAccountingRateOfReturn, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeAssetDisposal, computeBreakEven, computeCompoundInterest, computeCurrentRatio, computeDirectMaterialsPurchasesBudget, computeEquivalentAnnualAnnuity, computeFutureValue, computeGrossProfitRate, computeImpairmentLoss, computeMarkupMargin, computePettyCashReconciliation, computePercentageTax, computePresentValue, computePrepaidExpenseAdjustment, computeProductionBudget, computeQuickRatio, computeRetainedEarningsRollforward, computeSimpleInterest, computeStraightLineDepreciation, computeTurnoverWithDayBasis, computeUnearnedRevenueAdjustment, computeWithholdingTax, } from "./calculatorMath.js";
+import { computeAccountingRateOfReturn, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeAssetDisposal, computeBreakEven, computeCompoundInterest, computeCurrentRatio, computeDirectMaterialsPurchasesBudget, computeEquivalentAnnualAnnuity, computeFutureValue, computeGrossProfitRate, computeImpairmentLoss, computeInventoryBudget, computeMarkupMargin, computeOperatingExpenseBudget, computePettyCashReconciliation, computePercentageTax, computePresentValue, computePrepaidExpenseAdjustment, computeProductionBudget, computeQuickRatio, computeRetainedEarningsRollforward, computeSimpleInterest, computeStraightLineDepreciation, computeTurnoverWithDayBasis, computeUnearnedRevenueAdjustment, computeWithholdingTax, } from "./calculatorMath.js";
 function formatPercent(value, digits = 2) {
     return `${value.toFixed(digits)}%`;
 }
@@ -2661,6 +2661,319 @@ export const directMaterialsPurchasesBudgetSolveDefinition = {
             ],
             notes: [
                 "Use this after the production budget, not before it, because production drives the materials requirement.",
+            ],
+        };
+    },
+};
+export const inventoryBudgetSolveDefinition = {
+    id: "inventory-budget-solve",
+    defaultTarget: "purchasesRequiredCost",
+    fields: {
+        budgetedCostOfGoodsSold: {
+            key: "budgetedCostOfGoodsSold",
+            label: "Budgeted Cost of Goods Sold",
+            placeholder: "420000",
+            kind: "money",
+        },
+        desiredEndingInventoryCost: {
+            key: "desiredEndingInventoryCost",
+            label: "Desired Ending Inventory",
+            placeholder: "86000",
+            kind: "money",
+        },
+        beginningInventoryCost: {
+            key: "beginningInventoryCost",
+            label: "Beginning Inventory",
+            placeholder: "73000",
+            kind: "money",
+        },
+        purchasesRequiredCost: {
+            key: "purchasesRequiredCost",
+            label: "Required Purchases",
+            placeholder: "433000",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "purchasesRequiredCost",
+            label: "Required Purchases",
+            summary: "Compute the merchandise purchases budget in currency terms.",
+        },
+        {
+            key: "budgetedCostOfGoodsSold",
+            label: "Budgeted COGS",
+            summary: "Back-solve the planned cost of goods sold from the inventory policy and required purchases.",
+        },
+        {
+            key: "desiredEndingInventoryCost",
+            label: "Desired Ending Inventory",
+            summary: "Back-solve the ending inventory target implied by the other budget amounts.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "budgetedCostOfGoodsSold") {
+            return [
+                "purchasesRequiredCost",
+                "desiredEndingInventoryCost",
+                "beginningInventoryCost",
+            ];
+        }
+        if (targetKey === "desiredEndingInventoryCost") {
+            return [
+                "purchasesRequiredCost",
+                "budgetedCostOfGoodsSold",
+                "beginningInventoryCost",
+            ];
+        }
+        return [
+            "budgetedCostOfGoodsSold",
+            "desiredEndingInventoryCost",
+            "beginningInventoryCost",
+        ];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Inventory budget support",
+            body: `Enter the visible inventory-budget values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        let budgetedCostOfGoodsSold = values.budgetedCostOfGoodsSold;
+        let desiredEndingInventoryCost = values.desiredEndingInventoryCost;
+        const beginningInventoryCost = values.beginningInventoryCost;
+        let purchasesRequiredCost = values.purchasesRequiredCost;
+        if (beginningInventoryCost < 0) {
+            return { error: "Beginning inventory cannot be negative." };
+        }
+        if (targetKey === "budgetedCostOfGoodsSold") {
+            budgetedCostOfGoodsSold =
+                purchasesRequiredCost + beginningInventoryCost - desiredEndingInventoryCost;
+        }
+        else if (targetKey === "desiredEndingInventoryCost") {
+            desiredEndingInventoryCost =
+                purchasesRequiredCost - budgetedCostOfGoodsSold + beginningInventoryCost;
+        }
+        else {
+            purchasesRequiredCost = computeInventoryBudget({
+                budgetedCostOfGoodsSold,
+                desiredEndingInventoryCost,
+                beginningInventoryCost,
+            }).purchasesRequiredCost;
+        }
+        if (![
+            budgetedCostOfGoodsSold,
+            desiredEndingInventoryCost,
+            beginningInventoryCost,
+            purchasesRequiredCost,
+        ].every((value) => Number.isFinite(value))) {
+            return { error: "The selected inventory-budget values do not produce a valid answer." };
+        }
+        if (budgetedCostOfGoodsSold < 0 ||
+            desiredEndingInventoryCost < 0 ||
+            purchasesRequiredCost < 0) {
+            return {
+                error: "Budgeted COGS, desired ending inventory, and required purchases must remain non-negative.",
+            };
+        }
+        const computed = computeInventoryBudget({
+            budgetedCostOfGoodsSold,
+            desiredEndingInventoryCost,
+            beginningInventoryCost,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "budgetedCostOfGoodsSold"
+                    ? "Budgeted COGS"
+                    : targetKey === "desiredEndingInventoryCost"
+                        ? "Desired Ending Inventory"
+                        : "Required Purchases",
+                value: targetKey === "budgetedCostOfGoodsSold"
+                    ? formatPHP(budgetedCostOfGoodsSold)
+                    : targetKey === "desiredEndingInventoryCost"
+                        ? formatPHP(desiredEndingInventoryCost)
+                        : formatPHP(computed.purchasesRequiredCost),
+                tone: "accent",
+            },
+            supportingResults: [
+                {
+                    title: "Goods Available for Sale",
+                    value: formatPHP(computed.goodsAvailableForSaleCost),
+                },
+                {
+                    title: "Beginning Inventory",
+                    value: formatPHP(beginningInventoryCost),
+                },
+            ],
+            formula: "Required purchases = Budgeted cost of goods sold + Desired ending inventory - Beginning inventory",
+            steps: [
+                `Required purchases = ${formatPHP(budgetedCostOfGoodsSold)} + ${formatPHP(desiredEndingInventoryCost)} - ${formatPHP(beginningInventoryCost)} = ${formatPHP(computed.purchasesRequiredCost)}.`,
+                `Goods available for sale = ${formatPHP(beginningInventoryCost)} + ${formatPHP(computed.purchasesRequiredCost)} = ${formatPHP(computed.goodsAvailableForSaleCost)}.`,
+                `Check: goods available for sale ${formatPHP(computed.goodsAvailableForSaleCost)} less desired ending inventory ${formatPHP(desiredEndingInventoryCost)} leaves budgeted COGS of ${formatPHP(budgetedCostOfGoodsSold)}.`,
+            ],
+            interpretation: `The inventory budget indicates merchandise purchases of ${formatPHP(computed.purchasesRequiredCost)} so the planned cost of goods sold can be met while still ending with ${formatPHP(desiredEndingInventoryCost)} in inventory.`,
+            assumptions: [
+                "This is a merchandising-style inventory budget stated in cost amounts rather than in physical material units.",
+            ],
+            notes: [
+                "This budget usually sits between the sales forecast and the cash-disbursements or cash-budget schedules.",
+            ],
+        };
+    },
+};
+export const operatingExpenseBudgetSolveDefinition = {
+    id: "operating-expense-budget-solve",
+    defaultTarget: "totalOperatingExpenses",
+    fields: {
+        budgetedSalesAmount: {
+            key: "budgetedSalesAmount",
+            label: "Budgeted Sales",
+            placeholder: "950000",
+            kind: "money",
+        },
+        variableExpenseRatePercent: {
+            key: "variableExpenseRatePercent",
+            label: "Variable Expense Rate (%)",
+            placeholder: "6.5",
+            kind: "percent",
+        },
+        fixedOperatingExpenses: {
+            key: "fixedOperatingExpenses",
+            label: "Fixed Operating Expenses",
+            placeholder: "145000",
+            kind: "money",
+        },
+        nonCashOperatingExpenses: {
+            key: "nonCashOperatingExpenses",
+            label: "Non-cash Expenses",
+            placeholder: "18000",
+            kind: "money",
+        },
+        totalOperatingExpenses: {
+            key: "totalOperatingExpenses",
+            label: "Total Operating Expenses",
+            placeholder: "206750",
+            kind: "money",
+        },
+        cashOperatingExpenses: {
+            key: "cashOperatingExpenses",
+            label: "Cash Operating Expenses",
+            placeholder: "188750",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "totalOperatingExpenses",
+            label: "Total Expenses",
+            summary: "Compute total selling and administrative or operating expenses for the budget period.",
+        },
+        {
+            key: "cashOperatingExpenses",
+            label: "Cash Expenses",
+            summary: "Compute the cash portion after removing non-cash operating expenses.",
+        },
+        {
+            key: "budgetedSalesAmount",
+            label: "Budgeted Sales",
+            summary: "Back-solve the sales base implied by the expense budget structure.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "budgetedSalesAmount") {
+            return [
+                "totalOperatingExpenses",
+                "variableExpenseRatePercent",
+                "fixedOperatingExpenses",
+            ];
+        }
+        return [
+            "budgetedSalesAmount",
+            "variableExpenseRatePercent",
+            "fixedOperatingExpenses",
+            "nonCashOperatingExpenses",
+        ];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Operating expense budget",
+            body: `Enter the visible expense-budget inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        let budgetedSalesAmount = values.budgetedSalesAmount;
+        const variableExpenseRatePercent = values.variableExpenseRatePercent;
+        const fixedOperatingExpenses = values.fixedOperatingExpenses;
+        const nonCashOperatingExpenses = values.nonCashOperatingExpenses ?? 0;
+        const totalOperatingExpensesInput = values.totalOperatingExpenses;
+        if (variableExpenseRatePercent < 0 || fixedOperatingExpenses < 0 || nonCashOperatingExpenses < 0) {
+            return { error: "Expense rates and expense amounts cannot be negative." };
+        }
+        if (targetKey === "budgetedSalesAmount") {
+            const variableRateDecimal = variableExpenseRatePercent / 100;
+            if (variableRateDecimal <= 0) {
+                return {
+                    error: "Variable expense rate must be greater than zero when solving for budgeted sales.",
+                };
+            }
+            budgetedSalesAmount =
+                (totalOperatingExpensesInput - fixedOperatingExpenses) / variableRateDecimal;
+        }
+        if (!Number.isFinite(budgetedSalesAmount) || budgetedSalesAmount < 0) {
+            return {
+                error: "The selected values do not produce a valid non-negative sales base for the operating expense budget.",
+            };
+        }
+        const computed = computeOperatingExpenseBudget({
+            budgetedSalesAmount,
+            variableExpenseRatePercent,
+            fixedOperatingExpenses,
+            nonCashOperatingExpenses,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "budgetedSalesAmount"
+                    ? "Budgeted Sales"
+                    : targetKey === "cashOperatingExpenses"
+                        ? "Cash Operating Expenses"
+                        : "Total Operating Expenses",
+                value: targetKey === "budgetedSalesAmount"
+                    ? formatPHP(budgetedSalesAmount)
+                    : targetKey === "cashOperatingExpenses"
+                        ? formatPHP(computed.cashOperatingExpenses)
+                        : formatPHP(computed.totalOperatingExpenses),
+                tone: "accent",
+            },
+            supportingResults: [
+                {
+                    title: "Variable Operating Expenses",
+                    value: formatPHP(computed.variableOperatingExpenses),
+                },
+                {
+                    title: "Fixed Operating Expenses",
+                    value: formatPHP(fixedOperatingExpenses),
+                },
+                {
+                    title: "Non-cash Expenses",
+                    value: formatPHP(nonCashOperatingExpenses),
+                },
+            ],
+            formula: "Total operating expenses = (Budgeted sales x Variable expense rate) + Fixed operating expenses",
+            steps: [
+                `Variable operating expenses = ${formatPHP(budgetedSalesAmount)} x ${computed.variableExpenseRateDecimal.toFixed(4)} = ${formatPHP(computed.variableOperatingExpenses)}.`,
+                `Total operating expenses = ${formatPHP(computed.variableOperatingExpenses)} + ${formatPHP(fixedOperatingExpenses)} = ${formatPHP(computed.totalOperatingExpenses)}.`,
+                `Cash operating expenses = ${formatPHP(computed.totalOperatingExpenses)} - ${formatPHP(nonCashOperatingExpenses)} = ${formatPHP(computed.cashOperatingExpenses)}.`,
+            ],
+            interpretation: `The operating expense budget projects ${formatPHP(computed.totalOperatingExpenses)} in total expenses, of which ${formatPHP(computed.cashOperatingExpenses)} would require cash outflow after excluding non-cash items.`,
+            assumptions: [
+                "The variable expense rate is assumed to stay stable over the relevant sales range for the budget period.",
+            ],
+            notes: [
+                "Use the cash portion when preparing the cash budget, because depreciation and other non-cash items affect expense but not cash disbursement.",
             ],
         };
     },

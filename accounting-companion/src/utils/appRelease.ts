@@ -4,29 +4,35 @@ export const APP_RELEASE_DATE = "2026-04-19";
 export const APP_RELEASE_HIGHLIGHTS = [
     {
         title: "AccCalc 5.6.5 broadens calculator and workpaper coverage",
-        body: "This release adds new guided calculators and workbook support for petty cash reconciliation, adjusting entries, production budgeting, direct materials purchases, impairment review, asset disposal analysis, and withholding tax practice.",
+        body: "This release adds new guided calculators and workbook support for petty cash reconciliation, adjusting entries, production budgeting, direct materials purchases, inventory budgeting, operating-expense budgeting, impairment review, asset disposal analysis, and withholding tax practice.",
     },
     {
         title: "Smart Solver and Scan & Check route new accounting problems more safely",
         body: "Natural-language routing and OCR recommendations now recognize more textbook phrasing for FAR, budgeting, adjusting entries, and tax problems while also warning more clearly when route confidence is still close or ambiguous.",
     },
     {
-        title: "Layered study support now reaches the new solve workspaces",
-        body: "The formula workspace system now carries deeper concept, procedure, interpretation, caution, and classroom-use guidance into more routes instead of leaving new calculators as thin one-line result pages.",
+        title: "Layered study support and workbook links now reach more budget and FAR workflows",
+        body: "The formula workspace system now carries deeper concept, procedure, interpretation, caution, and classroom-use guidance into more routes, while matching workpaper templates make those same workflows easier to document and review.",
+    },
+    {
+        title: "Notifications and charts now fit the newer shell more cleanly",
+        body: "In-app notifications are now shared across the shell instead of split between page-local systems, and chart callouts now explain spread, checkpoints, and highlighted intersections more clearly.",
     },
     {
         title: "Reliability coverage improved across math helpers, templates, and routing",
-        body: "Shared calculation helpers, search metadata, workbook templates, Smart Solver targets, and route suggestions were expanded together so new tools remain discoverable, testable, and consistent across mobile and desktop use.",
+        body: "Shared calculation helpers, search metadata, workbook templates, Smart Solver targets, OCR cleanup, and route suggestions were expanded together so new tools remain discoverable, testable, and consistent across mobile and desktop use.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "5.6.5: Added new curriculum-aligned calculators and workspaces for petty cash reconciliation, prepaid and unearned adjustments, accrued revenue and expense adjustments, production budgeting, direct materials purchases budgeting, impairment review, asset disposal analysis, and withholding tax practice.",
-    "5.6.5: Expanded workbook coverage with new petty cash, adjusting-entry, production-budget, and direct-materials-purchases templates so solve-and-support work can move into Workpaper Studio more naturally.",
+    "5.6.5: Added new curriculum-aligned calculators and workspaces for petty cash reconciliation, prepaid and unearned adjustments, accrued revenue and expense adjustments, production budgeting, direct materials purchases budgeting, inventory budgeting, operating-expense budgeting, impairment review, asset disposal analysis, and withholding tax practice.",
+    "5.6.5: Expanded workbook coverage with new petty cash, adjusting-entry, production-budget, direct-materials, inventory-budget, and operating-expense templates so solve-and-support work can move into Workpaper Studio more naturally.",
     "5.6.5: Broadened Smart Solver field extraction, route catalog coverage, and solve-target intent handling for the new accounting, FAR, managerial, and tax workflows instead of leaving them page-only.",
-    "5.6.5: Improved Scan & Check route recommendations for petty cash, adjusting entries, production budgeting, direct materials purchases, impairment, disposal, and withholding tax, then added closer-call ambiguity messaging when the top route is only narrowly ahead.",
-    "5.6.5: Extended layered study support into the new formula workspaces so results connect to concept overviews, procedural logic, worked interpretation, cautions, and classroom-use follow-up.",
-    "5.6.5: Added targeted validation coverage for the new calculator helpers and workbook templates while preserving the existing responsive shell, workbook behaviors, and dark-light parity from earlier releases.",
+    "5.6.5: Improved Scan & Check route recommendations for petty cash, adjusting entries, production budgeting, direct materials purchases, inventory budgeting, operating-expense budgeting, impairment, disposal, and withholding tax, then added stronger merged-token warnings when OCR may still be binding numbers and labels together.",
+    "5.6.5: Replaced page-local scan toasts with a shared in-app notification layer, then aligned workpaper action feedback with the same shell-aware notification behavior and calmer inline notice surfaces.",
+    "5.6.5: Strengthened chart interpretation with richer highlight summaries, better spread narration, clearer curve-guide markers, and more checkpoint-aware comparison feedback on high-value pages such as CVP, ratio analysis, market equilibrium, and scan review.",
+    "5.6.5: Extended layered study support into the new formula workspaces and broadened study-topic coverage for budget-flow and FAR cash-control review so results connect to concept overviews, procedural logic, worked interpretation, cautions, and classroom-use follow-up.",
+    "5.6.5: Added targeted validation coverage for the new calculator helpers, route aliases, Smart Solver targets, and workbook templates while preserving the existing responsive shell, workbook behaviors, and dark-light parity from earlier releases.",
     "5.5.1: Fixed Workpaper Studio centering and width behavior on narrower screens so the worksheet area, toolbar, formula bar, tabs, and workbook chrome stay balanced instead of drifting or overexposing utility controls.",
     "5.5.1: Replaced several always-visible workbook utility clusters with compact file, sheet, structure, and workspace menus so the route feels cleaner and more spreadsheet-like without hiding core editing actions.",
     "5.5.1: Tightened responsive wrapping and layout behavior around workbook actions, tab controls, grid header tools, and panel access so mobile, tablet, narrow laptop, and resized desktop views stay stable.",
