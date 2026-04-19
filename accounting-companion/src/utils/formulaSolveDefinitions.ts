@@ -1,20 +1,30 @@
 import formatPHP from "./formatPHP.js";
 import {
     computeAccountingRateOfReturn,
+    computeAccruedExpenseAdjustment,
+    computeAccruedRevenueAdjustment,
+    computeAssetDisposal,
     computeBreakEven,
     computeCompoundInterest,
     computeCurrentRatio,
+    computeDirectMaterialsPurchasesBudget,
     computeEquivalentAnnualAnnuity,
     computeFutureValue,
     computeGrossProfitRate,
+    computeImpairmentLoss,
     computeMarkupMargin,
+    computePettyCashReconciliation,
     computePercentageTax,
     computePresentValue,
+    computePrepaidExpenseAdjustment,
+    computeProductionBudget,
     computeQuickRatio,
     computeRetainedEarningsRollforward,
     computeSimpleInterest,
     computeStraightLineDepreciation,
     computeTurnoverWithDayBasis,
+    computeUnearnedRevenueAdjustment,
+    computeWithholdingTax,
 } from "./calculatorMath.js";
 import type { FormulaCalculatorDefinition } from "./formulaIntelligence.js";
 
@@ -2177,6 +2187,794 @@ export const equivalentAnnualAnnuitySolveDefinition: FormulaCalculatorDefinition
             ],
             notes: [
                 "This is most useful after NPV is already known and you need a same-length annualized comparison for mutually exclusive projects.",
+            ],
+        };
+    },
+};
+
+export const pettyCashReconciliationSolveDefinition: FormulaCalculatorDefinition = {
+    id: "petty-cash-reconciliation-solve",
+    defaultTarget: "shortageOrOverage",
+    fields: {
+        fundAmount: { key: "fundAmount", label: "Petty Cash Fund", placeholder: "5000", kind: "money" },
+        cashOnHand: { key: "cashOnHand", label: "Cash on Hand", placeholder: "3200", kind: "money" },
+        pettyCashVouchers: { key: "pettyCashVouchers", label: "Petty Cash Vouchers", placeholder: "1650", kind: "money" },
+        stampsOnHand: { key: "stampsOnHand", label: "Stamps on Hand", placeholder: "50", kind: "money" },
+        otherReceipts: { key: "otherReceipts", label: "Other Receipts", placeholder: "0", kind: "money" },
+        shortageOrOverage: { key: "shortageOrOverage", label: "Short / Over", placeholder: "0", kind: "money" },
+    },
+    targets: [
+        { key: "shortageOrOverage", label: "Short / Over", summary: "Check whether the petty cash count is short, over, or exactly balanced." },
+        { key: "fundAmount", label: "Fund Amount", summary: "Back-solve the authorized petty cash fund from the count and shortage-or-overage." },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "fundAmount"
+            ? ["cashOnHand", "pettyCashVouchers", "stampsOnHand", "otherReceipts", "shortageOrOverage"]
+            : ["fundAmount", "cashOnHand", "pettyCashVouchers", "stampsOnHand", "otherReceipts"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Petty cash count check",
+            body: `Enter the petty cash count details to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let fundAmount = values.fundAmount;
+        const cashOnHand = values.cashOnHand;
+        const pettyCashVouchers = values.pettyCashVouchers;
+        const stampsOnHand = values.stampsOnHand ?? 0;
+        const otherReceipts = values.otherReceipts ?? 0;
+        let shortageOrOverage = values.shortageOrOverage ?? 0;
+        const countedTotal = cashOnHand + pettyCashVouchers + stampsOnHand + otherReceipts;
+
+        if (targetKey === "fundAmount") {
+            fundAmount = countedTotal - shortageOrOverage;
+        } else {
+            shortageOrOverage = countedTotal - fundAmount;
+        }
+
+        const computed = computePettyCashReconciliation({
+            fundAmount,
+            cashOnHand,
+            pettyCashVouchers,
+            stampsOnHand,
+            otherReceipts,
+        });
+        const shortOverLabel =
+            computed.shortageOrOverage === 0
+                ? "Balanced"
+                : computed.shortageOrOverage > 0
+                  ? "Over"
+                  : "Short";
+
+        return {
+            primaryResult: {
+                title: targetKey === "fundAmount" ? "Petty Cash Fund" : "Short / Over",
+                value:
+                    targetKey === "fundAmount"
+                        ? formatPHP(fundAmount)
+                        : `${shortOverLabel}: ${formatPHP(Math.abs(computed.shortageOrOverage))}`,
+                tone: computed.shortageOrOverage === 0 ? "success" : "warning",
+            },
+            supportingResults: [
+                { title: "Total Accounted For", value: formatPHP(computed.totalAccountedFor) },
+                { title: "Replenishment", value: formatPHP(computed.replenishmentAmount) },
+            ],
+            formula: "Short / over = Cash + vouchers + stamps + other receipts - Petty cash fund",
+            steps: [
+                `Counted items = ${formatPHP(cashOnHand)} + ${formatPHP(pettyCashVouchers)} + ${formatPHP(stampsOnHand)} + ${formatPHP(otherReceipts)} = ${formatPHP(computed.totalAccountedFor)}.`,
+                `Short / over = ${formatPHP(computed.totalAccountedFor)} - ${formatPHP(fundAmount)} = ${formatPHP(computed.shortageOrOverage)}.`,
+                computed.shortageOrOverage === 0
+                    ? "The petty cash fund balances exactly."
+                    : computed.shortageOrOverage > 0
+                      ? "The count is over the authorized fund, so the overage should be investigated and recorded."
+                      : "The count is short of the authorized fund, so the shortage should be investigated and recorded.",
+            ],
+            glossary: [
+                { term: "Petty cash fund", meaning: "The authorized imprest amount that should be accounted for at any point in time." },
+                { term: "Petty cash vouchers", meaning: "Signed support for small disbursements already made from the fund." },
+            ],
+            interpretation: computed.shortageOrOverage === 0
+                ? `The petty cash count supports the fund exactly at ${formatPHP(fundAmount)}.`
+                : `The petty cash count is ${computed.shortageOrOverage > 0 ? "over" : "short"} by ${formatPHP(Math.abs(computed.shortageOrOverage))}, so the fund does not fully reconcile yet.`,
+            assumptions: [
+                "This uses the imprest-fund logic where cash plus approved support should equal the authorized fund.",
+            ],
+            warnings: [
+                "Only include accountable items that should still be part of the petty cash count. Personal IOUs or unsupported slips should be reviewed carefully before treating them as valid support.",
+            ],
+        };
+    },
+};
+
+export const prepaidExpenseAdjustmentSolveDefinition: FormulaCalculatorDefinition = {
+    id: "prepaid-expense-adjustment-solve",
+    defaultTarget: "expenseRecognized",
+    fields: {
+        beginningPrepaid: { key: "beginningPrepaid", label: "Beginning Prepaid", placeholder: "25000", kind: "money" },
+        endingPrepaid: { key: "endingPrepaid", label: "Ending Prepaid", placeholder: "8000", kind: "money" },
+        expenseRecognized: { key: "expenseRecognized", label: "Expense Recognized", placeholder: "17000", kind: "money" },
+    },
+    targets: [
+        { key: "expenseRecognized", label: "Expense", summary: "Find the expense recognized from the prepaid balance change." },
+        { key: "beginningPrepaid", label: "Beginning Prepaid", summary: "Back-solve the opening prepaid balance." },
+        { key: "endingPrepaid", label: "Ending Prepaid", summary: "Back-solve the ending prepaid balance after adjustment." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "beginningPrepaid") return ["endingPrepaid", "expenseRecognized"];
+        if (targetKey === "endingPrepaid") return ["beginningPrepaid", "expenseRecognized"];
+        return ["beginningPrepaid", "endingPrepaid"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Prepaid expense adjustment",
+            body: `Enter the visible prepaid balances to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let beginningPrepaid = values.beginningPrepaid;
+        let endingPrepaid = values.endingPrepaid;
+        let expenseRecognized = values.expenseRecognized;
+
+        if (targetKey === "beginningPrepaid") {
+            beginningPrepaid = endingPrepaid + expenseRecognized;
+        } else if (targetKey === "endingPrepaid") {
+            endingPrepaid = beginningPrepaid - expenseRecognized;
+        } else {
+            expenseRecognized = computePrepaidExpenseAdjustment({
+                beginningPrepaid,
+                endingPrepaid,
+            }).expenseRecognized;
+        }
+
+        const computed = computePrepaidExpenseAdjustment({
+            beginningPrepaid,
+            endingPrepaid,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "beginningPrepaid"
+                        ? "Beginning Prepaid"
+                        : targetKey === "endingPrepaid"
+                          ? "Ending Prepaid"
+                          : "Expense Recognized",
+                value:
+                    targetKey === "beginningPrepaid"
+                        ? formatPHP(beginningPrepaid)
+                        : targetKey === "endingPrepaid"
+                          ? formatPHP(endingPrepaid)
+                          : formatPHP(expenseRecognized),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Adjustment Direction", value: computed.adjustmentDirection.replaceAll("-", " ") },
+            ],
+            formula: "Expense recognized = Beginning prepaid - Ending prepaid",
+            steps: [
+                `Expense recognized = ${formatPHP(beginningPrepaid)} - ${formatPHP(endingPrepaid)} = ${formatPHP(computed.expenseRecognized)}.`,
+                `If the prepaid balance decreased, the consumed amount becomes expense for the period.`,
+            ],
+            interpretation: `The prepaid account shows that ${formatPHP(computed.expenseRecognized)} has already been used up and should appear as expense.`,
+            assumptions: [
+                "This focuses on a simple prepaid balance rollforward and assumes additions or corrections have already been reflected in the balances you entered.",
+            ],
+        };
+    },
+};
+
+export const unearnedRevenueAdjustmentSolveDefinition: FormulaCalculatorDefinition = {
+    id: "unearned-revenue-adjustment-solve",
+    defaultTarget: "revenueRecognized",
+    fields: {
+        beginningUnearnedRevenue: { key: "beginningUnearnedRevenue", label: "Beginning Unearned Revenue", placeholder: "18000", kind: "money" },
+        endingUnearnedRevenue: { key: "endingUnearnedRevenue", label: "Ending Unearned Revenue", placeholder: "7000", kind: "money" },
+        revenueRecognized: { key: "revenueRecognized", label: "Revenue Recognized", placeholder: "11000", kind: "money" },
+    },
+    targets: [
+        { key: "revenueRecognized", label: "Revenue", summary: "Find the revenue recognized from the unearned balance change." },
+        { key: "beginningUnearnedRevenue", label: "Beginning Unearned", summary: "Back-solve the opening unearned revenue balance." },
+        { key: "endingUnearnedRevenue", label: "Ending Unearned", summary: "Back-solve the ending unearned revenue balance." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "beginningUnearnedRevenue") return ["endingUnearnedRevenue", "revenueRecognized"];
+        if (targetKey === "endingUnearnedRevenue") return ["beginningUnearnedRevenue", "revenueRecognized"];
+        return ["beginningUnearnedRevenue", "endingUnearnedRevenue"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Unearned revenue adjustment",
+            body: `Enter the visible unearned balances to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let beginningUnearnedRevenue = values.beginningUnearnedRevenue;
+        let endingUnearnedRevenue = values.endingUnearnedRevenue;
+        let revenueRecognized = values.revenueRecognized;
+
+        if (targetKey === "beginningUnearnedRevenue") {
+            beginningUnearnedRevenue = endingUnearnedRevenue + revenueRecognized;
+        } else if (targetKey === "endingUnearnedRevenue") {
+            endingUnearnedRevenue = beginningUnearnedRevenue - revenueRecognized;
+        } else {
+            revenueRecognized = computeUnearnedRevenueAdjustment({
+                beginningUnearnedRevenue,
+                endingUnearnedRevenue,
+            }).revenueRecognized;
+        }
+
+        const computed = computeUnearnedRevenueAdjustment({
+            beginningUnearnedRevenue,
+            endingUnearnedRevenue,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "beginningUnearnedRevenue"
+                        ? "Beginning Unearned Revenue"
+                        : targetKey === "endingUnearnedRevenue"
+                          ? "Ending Unearned Revenue"
+                          : "Revenue Recognized",
+                value:
+                    targetKey === "beginningUnearnedRevenue"
+                        ? formatPHP(beginningUnearnedRevenue)
+                        : targetKey === "endingUnearnedRevenue"
+                          ? formatPHP(endingUnearnedRevenue)
+                          : formatPHP(revenueRecognized),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Adjustment Direction", value: computed.adjustmentDirection.replaceAll("-", " ") },
+            ],
+            formula: "Revenue recognized = Beginning unearned revenue - Ending unearned revenue",
+            steps: [
+                `Revenue recognized = ${formatPHP(beginningUnearnedRevenue)} - ${formatPHP(endingUnearnedRevenue)} = ${formatPHP(computed.revenueRecognized)}.`,
+                "As the obligation is satisfied, the liability decreases and revenue is recognized.",
+            ],
+            interpretation: `The liability movement shows that ${formatPHP(computed.revenueRecognized)} has now been earned and should be recognized as revenue.`,
+            assumptions: [
+                "This simple rollforward assumes the entered balances already reflect collections and only the earned portion still needs interpretation.",
+            ],
+        };
+    },
+};
+
+export const accruedRevenueAdjustmentSolveDefinition: FormulaCalculatorDefinition = {
+    id: "accrued-revenue-adjustment-solve",
+    defaultTarget: "accruedRevenue",
+    fields: {
+        revenueEarned: { key: "revenueEarned", label: "Revenue Earned", placeholder: "24000", kind: "money" },
+        cashCollected: { key: "cashCollected", label: "Cash Collected", placeholder: "9000", kind: "money" },
+        accruedRevenue: { key: "accruedRevenue", label: "Accrued Revenue", placeholder: "15000", kind: "money" },
+    },
+    targets: [
+        { key: "accruedRevenue", label: "Accrued Revenue", summary: "Find the earned amount not yet collected." },
+        { key: "revenueEarned", label: "Revenue Earned", summary: "Back-solve the revenue earned for the period." },
+        { key: "cashCollected", label: "Cash Collected", summary: "Back-solve the cash already collected." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "revenueEarned") return ["cashCollected", "accruedRevenue"];
+        if (targetKey === "cashCollected") return ["revenueEarned", "accruedRevenue"];
+        return ["revenueEarned", "cashCollected"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Accrued revenue adjustment",
+            body: `Enter the visible earned-and-collected amounts to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let revenueEarned = values.revenueEarned;
+        let cashCollected = values.cashCollected;
+        let accruedRevenue = values.accruedRevenue;
+
+        if (targetKey === "revenueEarned") {
+            revenueEarned = cashCollected + accruedRevenue;
+        } else if (targetKey === "cashCollected") {
+            cashCollected = revenueEarned - accruedRevenue;
+        } else {
+            accruedRevenue = computeAccruedRevenueAdjustment({
+                revenueEarned,
+                cashCollected,
+            }).accruedRevenue;
+        }
+
+        const computed = computeAccruedRevenueAdjustment({
+            revenueEarned,
+            cashCollected,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "revenueEarned"
+                        ? "Revenue Earned"
+                        : targetKey === "cashCollected"
+                          ? "Cash Collected"
+                          : "Accrued Revenue",
+                value:
+                    targetKey === "revenueEarned"
+                        ? formatPHP(revenueEarned)
+                        : targetKey === "cashCollected"
+                          ? formatPHP(cashCollected)
+                          : formatPHP(accruedRevenue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Adjustment Direction", value: computed.adjustmentDirection.replaceAll("-", " ") },
+            ],
+            formula: "Accrued revenue = Revenue earned - Cash collected",
+            steps: [
+                `Accrued revenue = ${formatPHP(revenueEarned)} - ${formatPHP(cashCollected)} = ${formatPHP(computed.accruedRevenue)}.`,
+                "The earned-but-uncollected amount becomes a receivable at period-end.",
+            ],
+            interpretation: `The business has earned ${formatPHP(computed.accruedRevenue)} that still has to be recognized as a receivable.`,
+            assumptions: [
+                "Use this when the service or earning process is complete but the cash has not yet been collected.",
+            ],
+        };
+    },
+};
+
+export const accruedExpenseAdjustmentSolveDefinition: FormulaCalculatorDefinition = {
+    id: "accrued-expense-adjustment-solve",
+    defaultTarget: "accruedExpense",
+    fields: {
+        expenseIncurred: { key: "expenseIncurred", label: "Expense Incurred", placeholder: "19500", kind: "money" },
+        cashPaid: { key: "cashPaid", label: "Cash Paid", placeholder: "11000", kind: "money" },
+        accruedExpense: { key: "accruedExpense", label: "Accrued Expense", placeholder: "8500", kind: "money" },
+    },
+    targets: [
+        { key: "accruedExpense", label: "Accrued Expense", summary: "Find the incurred amount not yet paid." },
+        { key: "expenseIncurred", label: "Expense Incurred", summary: "Back-solve the total expense incurred for the period." },
+        { key: "cashPaid", label: "Cash Paid", summary: "Back-solve the cash already paid." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "expenseIncurred") return ["cashPaid", "accruedExpense"];
+        if (targetKey === "cashPaid") return ["expenseIncurred", "accruedExpense"];
+        return ["expenseIncurred", "cashPaid"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Accrued expense adjustment",
+            body: `Enter the visible incurred-and-paid amounts to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let expenseIncurred = values.expenseIncurred;
+        let cashPaid = values.cashPaid;
+        let accruedExpense = values.accruedExpense;
+
+        if (targetKey === "expenseIncurred") {
+            expenseIncurred = cashPaid + accruedExpense;
+        } else if (targetKey === "cashPaid") {
+            cashPaid = expenseIncurred - accruedExpense;
+        } else {
+            accruedExpense = computeAccruedExpenseAdjustment({
+                expenseIncurred,
+                cashPaid,
+            }).accruedExpense;
+        }
+
+        const computed = computeAccruedExpenseAdjustment({
+            expenseIncurred,
+            cashPaid,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "expenseIncurred"
+                        ? "Expense Incurred"
+                        : targetKey === "cashPaid"
+                          ? "Cash Paid"
+                          : "Accrued Expense",
+                value:
+                    targetKey === "expenseIncurred"
+                        ? formatPHP(expenseIncurred)
+                        : targetKey === "cashPaid"
+                          ? formatPHP(cashPaid)
+                          : formatPHP(accruedExpense),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Adjustment Direction", value: computed.adjustmentDirection.replaceAll("-", " ") },
+            ],
+            formula: "Accrued expense = Expense incurred - Cash paid",
+            steps: [
+                `Accrued expense = ${formatPHP(expenseIncurred)} - ${formatPHP(cashPaid)} = ${formatPHP(computed.accruedExpense)}.`,
+                "The incurred-but-unpaid amount becomes a payable at period-end.",
+            ],
+            interpretation: `The business still owes ${formatPHP(computed.accruedExpense)} for expenses already incurred in the period.`,
+            assumptions: [
+                "Use this when the economic consumption already happened even though payment will be made later.",
+            ],
+        };
+    },
+};
+
+export const impairmentLossSolveDefinition: FormulaCalculatorDefinition = {
+    id: "impairment-loss-solve",
+    defaultTarget: "impairmentLoss",
+    fields: {
+        carryingAmount: { key: "carryingAmount", label: "Carrying Amount", placeholder: "520000", kind: "money" },
+        fairValueLessCostsToSell: { key: "fairValueLessCostsToSell", label: "Fair Value Less Costs to Sell", placeholder: "430000", kind: "money" },
+        valueInUse: { key: "valueInUse", label: "Value in Use", placeholder: "450000", kind: "money" },
+        impairmentLoss: { key: "impairmentLoss", label: "Impairment Loss", placeholder: "70000", kind: "money" },
+    },
+    targets: [
+        { key: "impairmentLoss", label: "Impairment Loss", summary: "Measure the loss from carrying amount versus recoverable amount." },
+        { key: "carryingAmount", label: "Carrying Amount", summary: "Back-solve the carrying amount when the impairment loss and recoverable inputs are known." },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "carryingAmount"
+            ? ["fairValueLessCostsToSell", "valueInUse", "impairmentLoss"]
+            : ["carryingAmount", "fairValueLessCostsToSell", "valueInUse"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Impairment measurement",
+            body: `Enter the visible recoverable-amount inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let carryingAmount = values.carryingAmount;
+        const fairValueLessCostsToSell = values.fairValueLessCostsToSell;
+        const valueInUse = values.valueInUse;
+        let impairmentLoss = values.impairmentLoss;
+        const recoverableAmount = Math.max(fairValueLessCostsToSell, valueInUse);
+
+        if (targetKey === "carryingAmount") {
+            carryingAmount = recoverableAmount + impairmentLoss;
+        } else {
+            impairmentLoss = Math.max(carryingAmount - recoverableAmount, 0);
+        }
+
+        const computed = computeImpairmentLoss({
+            carryingAmount,
+            fairValueLessCostsToSell,
+            valueInUse,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "carryingAmount" ? "Carrying Amount" : "Impairment Loss",
+                value: targetKey === "carryingAmount" ? formatPHP(carryingAmount) : formatPHP(computed.impairmentLoss),
+                tone: computed.impairmentLoss > 0 ? "warning" : "success",
+            },
+            supportingResults: [
+                { title: "Recoverable Amount", value: formatPHP(computed.recoverableAmount) },
+                { title: "Carrying Amount After Impairment", value: formatPHP(computed.carryingAmountAfterImpairment) },
+            ],
+            formula: "Recoverable amount = higher of fair value less costs to sell and value in use; Impairment loss = Carrying amount - Recoverable amount",
+            steps: [
+                `Recoverable amount = higher of ${formatPHP(fairValueLessCostsToSell)} and ${formatPHP(valueInUse)} = ${formatPHP(computed.recoverableAmount)}.`,
+                `Impairment loss = ${formatPHP(carryingAmount)} - ${formatPHP(computed.recoverableAmount)} = ${formatPHP(computed.impairmentLoss)}.`,
+                `After recognition, the carrying amount becomes ${formatPHP(computed.carryingAmountAfterImpairment)}.`,
+            ],
+            interpretation: computed.impairmentLoss > 0
+                ? `The asset is impaired because its carrying amount exceeds the recoverable amount by ${formatPHP(computed.impairmentLoss)}.`
+                : "No impairment loss is recognized because the carrying amount does not exceed the recoverable amount.",
+            assumptions: [
+                "This classroom tool focuses on the measurement step after the relevant fair-value-less-costs-to-sell and value-in-use estimates have already been developed.",
+            ],
+        };
+    },
+};
+
+export const assetDisposalSolveDefinition: FormulaCalculatorDefinition = {
+    id: "asset-disposal-solve",
+    defaultTarget: "gainOrLoss",
+    fields: {
+        assetCost: { key: "assetCost", label: "Asset Cost", placeholder: "500000", kind: "money" },
+        accumulatedDepreciation: { key: "accumulatedDepreciation", label: "Accumulated Depreciation", placeholder: "360000", kind: "money" },
+        proceeds: { key: "proceeds", label: "Proceeds", placeholder: "165000", kind: "money" },
+        disposalCosts: { key: "disposalCosts", label: "Disposal Costs", placeholder: "5000", kind: "money" },
+        gainOrLoss: { key: "gainOrLoss", label: "Gain / Loss", placeholder: "20000", kind: "money" },
+    },
+    targets: [
+        { key: "gainOrLoss", label: "Gain / Loss", summary: "Find the gain or loss on retirement or disposal." },
+        { key: "proceeds", label: "Proceeds", summary: "Back-solve the proceeds needed to produce a known gain or loss." },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "proceeds"
+            ? ["assetCost", "accumulatedDepreciation", "disposalCosts", "gainOrLoss"]
+            : ["assetCost", "accumulatedDepreciation", "proceeds", "disposalCosts"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Asset disposal analysis",
+            body: `Enter the visible disposal values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const assetCost = values.assetCost;
+        const accumulatedDepreciation = values.accumulatedDepreciation;
+        let proceeds = values.proceeds;
+        const disposalCosts = values.disposalCosts ?? 0;
+        let gainOrLoss = values.gainOrLoss;
+        const bookValue = assetCost - accumulatedDepreciation;
+
+        if (targetKey === "proceeds") {
+            proceeds = bookValue + gainOrLoss + disposalCosts;
+        } else {
+            gainOrLoss = proceeds - disposalCosts - bookValue;
+        }
+
+        const computed = computeAssetDisposal({
+            assetCost,
+            accumulatedDepreciation,
+            proceeds,
+            disposalCosts,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "proceeds" ? "Proceeds" : "Gain / Loss",
+                value:
+                    targetKey === "proceeds"
+                        ? formatPHP(proceeds)
+                        : `${computed.outcome === "gain" ? "Gain" : computed.outcome === "loss" ? "Loss" : "No gain or loss"}${computed.outcome === "break-even" ? "" : `: ${formatPHP(Math.abs(computed.gainOrLoss))}`}`,
+                tone: computed.outcome === "loss" ? "warning" : computed.outcome === "gain" ? "success" : "accent",
+            },
+            supportingResults: [
+                { title: "Book Value", value: formatPHP(computed.bookValue) },
+                { title: "Net Proceeds", value: formatPHP(computed.netProceeds) },
+            ],
+            formula: "Book value = Cost - Accumulated depreciation; Gain or loss = Net proceeds - Book value",
+            steps: [
+                `Book value = ${formatPHP(assetCost)} - ${formatPHP(accumulatedDepreciation)} = ${formatPHP(computed.bookValue)}.`,
+                `Net proceeds = ${formatPHP(proceeds)} - ${formatPHP(disposalCosts)} = ${formatPHP(computed.netProceeds)}.`,
+                `Gain / loss = ${formatPHP(computed.netProceeds)} - ${formatPHP(computed.bookValue)} = ${formatPHP(computed.gainOrLoss)}.`,
+            ],
+            interpretation: computed.outcome === "gain"
+                ? `The asset was disposed of at a gain because net proceeds exceeded book value by ${formatPHP(computed.gainOrLoss)}.`
+                : computed.outcome === "loss"
+                  ? `The asset was disposed of at a loss because net proceeds fell short of book value by ${formatPHP(Math.abs(computed.gainOrLoss))}.`
+                  : "Net proceeds equal book value, so the disposal produces no gain or loss.",
+            assumptions: [
+                "This tool assumes the asset has already been updated for current-period depreciation before disposal is analyzed.",
+            ],
+        };
+    },
+};
+
+export const productionBudgetSolveDefinition: FormulaCalculatorDefinition = {
+    id: "production-budget-solve",
+    defaultTarget: "requiredProductionUnits",
+    fields: {
+        budgetedSalesUnits: { key: "budgetedSalesUnits", label: "Budgeted Sales Units", placeholder: "12000", kind: "number" },
+        desiredEndingFinishedGoodsUnits: { key: "desiredEndingFinishedGoodsUnits", label: "Desired Ending FG Units", placeholder: "1800", kind: "number" },
+        beginningFinishedGoodsUnits: { key: "beginningFinishedGoodsUnits", label: "Beginning FG Units", placeholder: "1500", kind: "number" },
+        requiredProductionUnits: { key: "requiredProductionUnits", label: "Required Production Units", placeholder: "12300", kind: "number" },
+    },
+    targets: [
+        { key: "requiredProductionUnits", label: "Required Production", summary: "Compute the production budget in units." },
+        { key: "budgetedSalesUnits", label: "Budgeted Sales", summary: "Back-solve budgeted sales units from the production relationship." },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "budgetedSalesUnits"
+            ? ["desiredEndingFinishedGoodsUnits", "beginningFinishedGoodsUnits", "requiredProductionUnits"]
+            : ["budgetedSalesUnits", "desiredEndingFinishedGoodsUnits", "beginningFinishedGoodsUnits"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Production budget",
+            body: `Enter the visible finished-goods planning values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let budgetedSalesUnits = values.budgetedSalesUnits;
+        const desiredEndingFinishedGoodsUnits = values.desiredEndingFinishedGoodsUnits;
+        const beginningFinishedGoodsUnits = values.beginningFinishedGoodsUnits;
+        let requiredProductionUnits = values.requiredProductionUnits;
+
+        if (targetKey === "budgetedSalesUnits") {
+            budgetedSalesUnits =
+                requiredProductionUnits -
+                desiredEndingFinishedGoodsUnits +
+                beginningFinishedGoodsUnits;
+        } else {
+            requiredProductionUnits = computeProductionBudget({
+                budgetedSalesUnits,
+                desiredEndingFinishedGoodsUnits,
+                beginningFinishedGoodsUnits,
+            }).requiredProductionUnits;
+        }
+
+        const computed = computeProductionBudget({
+            budgetedSalesUnits,
+            desiredEndingFinishedGoodsUnits,
+            beginningFinishedGoodsUnits,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "budgetedSalesUnits" ? "Budgeted Sales Units" : "Required Production Units",
+                value: formatPlain(targetKey === "budgetedSalesUnits" ? budgetedSalesUnits : computed.requiredProductionUnits, 0),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Finished Goods Available", value: formatPlain(computed.finishedGoodsUnitsAvailable, 0) },
+            ],
+            formula: "Required production = Budgeted sales + Desired ending FG - Beginning FG",
+            steps: [
+                `Required production = ${formatPlain(budgetedSalesUnits, 0)} + ${formatPlain(desiredEndingFinishedGoodsUnits, 0)} - ${formatPlain(beginningFinishedGoodsUnits, 0)} = ${formatPlain(computed.requiredProductionUnits, 0)} units.`,
+            ],
+            interpretation: `The production budget shows the plant must produce ${formatPlain(computed.requiredProductionUnits, 0)} units to support sales and the desired ending finished-goods level.`,
+            assumptions: [
+                "This unit-only budget assumes the desired ending finished-goods inventory policy is already known.",
+            ],
+            notes: [
+                "Production budgets normally come after the sales budget and before direct materials, direct labor, and overhead budgets.",
+            ],
+        };
+    },
+};
+
+export const directMaterialsPurchasesBudgetSolveDefinition: FormulaCalculatorDefinition = {
+    id: "direct-materials-purchases-budget-solve",
+    defaultTarget: "materialsToPurchaseUnits",
+    fields: {
+        budgetedProductionUnits: { key: "budgetedProductionUnits", label: "Budgeted Production Units", placeholder: "12300", kind: "number" },
+        materialsPerFinishedUnit: { key: "materialsPerFinishedUnit", label: "Materials per Finished Unit", placeholder: "2.5", kind: "number" },
+        desiredEndingMaterialsUnits: { key: "desiredEndingMaterialsUnits", label: "Desired Ending Materials Units", placeholder: "1800", kind: "number" },
+        beginningMaterialsUnits: { key: "beginningMaterialsUnits", label: "Beginning Materials Units", placeholder: "1500", kind: "number" },
+        materialCostPerUnit: { key: "materialCostPerUnit", label: "Material Cost per Unit", placeholder: "18", kind: "money" },
+        materialsToPurchaseUnits: { key: "materialsToPurchaseUnits", label: "Materials to Purchase", placeholder: "31050", kind: "number" },
+        purchasesCost: { key: "purchasesCost", label: "Purchases Cost", placeholder: "558900", kind: "money" },
+    },
+    targets: [
+        { key: "materialsToPurchaseUnits", label: "Units to Purchase", summary: "Compute the direct materials purchases budget in units." },
+        { key: "purchasesCost", label: "Purchases Cost", summary: "Compute the direct materials purchases budget in currency." },
+    ],
+    getInputKeys() {
+        return ["budgetedProductionUnits", "materialsPerFinishedUnit", "desiredEndingMaterialsUnits", "beginningMaterialsUnits", "materialCostPerUnit"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Direct materials purchases budget",
+            body: `Enter the production and materials-policy values to solve for ${targetKey}.`,
+        };
+    },
+    solve(_targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const computed = computeDirectMaterialsPurchasesBudget({
+            budgetedProductionUnits: values.budgetedProductionUnits,
+            materialsPerFinishedUnit: values.materialsPerFinishedUnit,
+            desiredEndingMaterialsUnits: values.desiredEndingMaterialsUnits,
+            beginningMaterialsUnits: values.beginningMaterialsUnits,
+            materialCostPerUnit: values.materialCostPerUnit,
+        });
+
+        return {
+            primaryResult: {
+                title: "Materials to Purchase",
+                value: `${formatPlain(computed.materialsToPurchaseUnits, 2)} units`,
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Materials Needed for Production", value: `${formatPlain(computed.materialsNeededForProduction, 2)} units` },
+                { title: "Total Materials Required", value: `${formatPlain(computed.materialsRequired, 2)} units` },
+                { title: "Purchases Cost", value: formatPHP(computed.purchasesCost) },
+            ],
+            formula: "Materials to purchase = (Production units x Materials per unit) + Desired ending materials - Beginning materials",
+            steps: [
+                `Materials needed for production = ${formatPlain(values.budgetedProductionUnits, 2)} x ${formatPlain(values.materialsPerFinishedUnit, 2)} = ${formatPlain(computed.materialsNeededForProduction, 2)} units.`,
+                `Total materials required = ${formatPlain(computed.materialsNeededForProduction, 2)} + ${formatPlain(values.desiredEndingMaterialsUnits, 2)} = ${formatPlain(computed.materialsRequired, 2)} units.`,
+                `Materials to purchase = ${formatPlain(computed.materialsRequired, 2)} - ${formatPlain(values.beginningMaterialsUnits, 2)} = ${formatPlain(computed.materialsToPurchaseUnits, 2)} units.`,
+                `Purchases cost = ${formatPlain(computed.materialsToPurchaseUnits, 2)} x ${formatPHP(values.materialCostPerUnit)} = ${formatPHP(computed.purchasesCost)}.`,
+            ],
+            interpretation: `The materials budget shows that ${formatPlain(computed.materialsToPurchaseUnits, 2)} material units should be purchased, costing ${formatPHP(computed.purchasesCost)} at the stated price.`,
+            assumptions: [
+                "This assumes a direct-material quantity standard per finished unit and a desired ending materials policy are already established.",
+            ],
+            notes: [
+                "Use this after the production budget, not before it, because production drives the materials requirement.",
+            ],
+        };
+    },
+};
+
+export const withholdingTaxSolveDefinition: FormulaCalculatorDefinition = {
+    id: "withholding-tax-solve",
+    defaultTarget: "taxWithheld",
+    fields: {
+        taxBase: { key: "taxBase", label: "Tax Base", placeholder: "85000", kind: "money" },
+        ratePercent: { key: "ratePercent", label: "Rate (%)", placeholder: "10", kind: "percent" },
+        taxWithheld: { key: "taxWithheld", label: "Tax Withheld", placeholder: "8500", kind: "money" },
+    },
+    targets: [
+        { key: "taxWithheld", label: "Tax Withheld", summary: "Compute the amount to withhold from the tax base." },
+        { key: "taxBase", label: "Tax Base", summary: "Back-solve the base amount from the withholding amount and rate." },
+        { key: "ratePercent", label: "Rate", summary: "Back-solve the implied withholding rate." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "taxBase") return ["taxWithheld", "ratePercent"];
+        if (targetKey === "ratePercent") return ["taxBase", "taxWithheld"];
+        return ["taxBase", "ratePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Withholding tax check",
+            body: `Enter the visible tax values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let taxBase = values.taxBase;
+        let ratePercent = values.ratePercent;
+        let taxWithheld = values.taxWithheld;
+
+        if (targetKey === "taxBase") {
+            if (ratePercent <= 0) return { error: "Rate must be greater than zero when solving for the tax base." };
+            taxBase = taxWithheld / (ratePercent / 100);
+        } else if (targetKey === "ratePercent") {
+            if (taxBase <= 0) return { error: "Tax base must be greater than zero when solving for the rate." };
+            ratePercent = (taxWithheld / taxBase) * 100;
+        } else {
+            taxWithheld = computeWithholdingTax({
+                taxBase,
+                ratePercent,
+            }).taxWithheld;
+        }
+
+        const computed = computeWithholdingTax({
+            taxBase,
+            ratePercent,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "taxBase"
+                        ? "Tax Base"
+                        : targetKey === "ratePercent"
+                          ? "Rate"
+                          : "Tax Withheld",
+                value:
+                    targetKey === "taxBase"
+                        ? formatPHP(taxBase)
+                        : targetKey === "ratePercent"
+                          ? formatPercent(ratePercent)
+                          : formatPHP(computed.taxWithheld),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Net After Withholding", value: formatPHP(computed.netAfterWithholding) },
+                { title: "Rate (decimal)", value: computed.rateDecimal.toFixed(4) },
+            ],
+            formula: "Tax withheld = Tax base x Rate",
+            steps: [
+                `Tax withheld = ${formatPHP(taxBase)} x ${computed.rateDecimal.toFixed(4)} = ${formatPHP(computed.taxWithheld)}.`,
+                `Net after withholding = ${formatPHP(taxBase)} - ${formatPHP(computed.taxWithheld)} = ${formatPHP(computed.netAfterWithholding)}.`,
+            ],
+            interpretation: `The withholding amount is ${formatPHP(computed.taxWithheld)}, leaving ${formatPHP(computed.netAfterWithholding)} after withholding from the stated base.`,
+            assumptions: [
+                "This calculator assumes the correct withholding regime and applicable rate have already been identified from the problem or tax reference.",
+            ],
+            warnings: [
+                "Check whether the case involves final withholding, creditable withholding, or a different tax treatment before relying on the result.",
             ],
         };
     },

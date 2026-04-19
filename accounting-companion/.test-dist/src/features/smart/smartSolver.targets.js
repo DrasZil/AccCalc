@@ -81,6 +81,56 @@ const SOLVE_TARGET_RULES = {
         { target: "netCreditSales", patterns: [/net credit sales/i, /credit sales/i] },
         { target: "receivablesTurnover", patterns: [/receivables turnover/i, /collection period/i] },
     ],
+    "petty-cash-reconciliation": [
+        { target: "shortageOrOverage", patterns: [/short(?:age)? and over/i, /shortage or overage/i, /cash short/i] },
+        { target: "fundAmount", patterns: [/petty cash fund/i, /imprest fund/i, /fund amount/i] },
+        { target: "cashOnHand", patterns: [/cash on hand/i, /cash counted/i, /actual cash/i] },
+    ],
+    "prepaid-expense-adjustment": [
+        { target: "expenseRecognized", patterns: [/expense recognized/i, /prepaid expense adjustment/i, /adjusting entry/i] },
+        { target: "endingPrepaid", patterns: [/ending prepaid/i, /remaining prepaid/i, /unused prepaid/i] },
+        { target: "beginningPrepaid", patterns: [/beginning prepaid/i, /opening prepaid/i] },
+    ],
+    "unearned-revenue-adjustment": [
+        { target: "revenueRecognized", patterns: [/revenue recognized/i, /earned portion/i, /unearned revenue adjustment/i] },
+        { target: "endingUnearnedRevenue", patterns: [/ending unearned revenue/i, /remaining unearned/i] },
+        { target: "beginningUnearnedRevenue", patterns: [/beginning unearned revenue/i, /opening unearned revenue/i] },
+    ],
+    "accrued-revenue-adjustment": [
+        { target: "accruedRevenue", patterns: [/accrued revenue/i, /revenue earned but uncollected/i, /receivable adjustment/i] },
+        { target: "revenueEarned", patterns: [/revenue earned/i, /service revenue earned/i] },
+        { target: "cashCollected", patterns: [/cash collected/i, /cash received/i] },
+    ],
+    "accrued-expense-adjustment": [
+        { target: "accruedExpense", patterns: [/accrued expense/i, /expense incurred but unpaid/i, /payable adjustment/i] },
+        { target: "expenseIncurred", patterns: [/expense incurred/i, /total expense incurred/i] },
+        { target: "cashPaid", patterns: [/cash paid/i, /cash payment/i] },
+    ],
+    "impairment-loss-workspace": [
+        { target: "impairmentLoss", patterns: [/impairment loss/i, /write[- ]down/i] },
+        { target: "carryingAmount", patterns: [/carrying amount/i, /book value before impairment/i] },
+        { target: "valueInUse", patterns: [/value in use/i] },
+    ],
+    "asset-disposal-analysis": [
+        { target: "gainOrLoss", patterns: [/gain or loss/i, /gain on disposal/i, /loss on disposal/i] },
+        { target: "proceeds", patterns: [/proceeds/i, /selling price/i, /cash received on disposal/i] },
+        { target: "accumulatedDepreciation", patterns: [/accumulated depreciation/i] },
+    ],
+    "production-budget": [
+        { target: "requiredProductionUnits", patterns: [/required production/i, /units to produce/i, /production required/i, /units should be produced/i, /how many units should be produced/i] },
+        { target: "budgetedSalesUnits", patterns: [/budgeted sales units/i, /expected sales units/i] },
+        { target: "desiredEndingFinishedGoodsUnits", patterns: [/desired ending finished goods/i, /ending finished goods/i] },
+    ],
+    "direct-materials-purchases-budget": [
+        { target: "materialsToPurchaseUnits", patterns: [/materials to purchase/i, /units to purchase/i, /materials purchases budget/i] },
+        { target: "purchasesCost", patterns: [/purchase cost/i, /budgeted purchase cost/i] },
+        { target: "budgetedProductionUnits", patterns: [/budgeted production units/i, /planned production units/i] },
+    ],
+    "withholding-tax": [
+        { target: "taxWithheld", patterns: [/withholding tax/i, /tax withheld/i, /amount withheld/i] },
+        { target: "taxBase", patterns: [/tax base/i, /gross amount/i, /payment subject to withholding/i] },
+        { target: "ratePercent", patterns: [/withholding rate/i, /rate percent/i, /ewt rate/i] },
+    ],
 };
 export function suggestSolveTarget(calculatorId, query) {
     const rules = SOLVE_TARGET_RULES[calculatorId];

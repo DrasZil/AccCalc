@@ -19,6 +19,9 @@ const AssetTurnoverPage = lazy(() => import("./features/accounting/AssetTurnover
 const BankReconciliationPage = lazy(
     () => import("./features/accounting/BankReconciliationPage")
 );
+const PettyCashReconciliationPage = lazy(
+    () => import("./features/accounting/PettyCashReconciliationPage")
+);
 const CashRatioPage = lazy(() => import("./features/accounting/CashRatioPage"));
 const CashConversionCyclePage = lazy(
     () => import("./features/accounting/CashConversionCyclePage")
@@ -60,6 +63,18 @@ const CommonSizeBalanceSheetPage = lazy(
 );
 const AdjustingEntriesWorkspacePage = lazy(
     () => import("./features/accounting/AdjustingEntriesWorkspacePage")
+);
+const PrepaidExpenseAdjustmentPage = lazy(
+    () => import("./features/accounting/PrepaidExpenseAdjustmentPage")
+);
+const UnearnedRevenueAdjustmentPage = lazy(
+    () => import("./features/accounting/UnearnedRevenueAdjustmentPage")
+);
+const AccruedRevenueAdjustmentPage = lazy(
+    () => import("./features/accounting/AccruedRevenueAdjustmentPage")
+);
+const AccruedExpenseAdjustmentPage = lazy(
+    () => import("./features/accounting/AccruedExpenseAdjustmentPage")
 );
 const RatioAnalysisWorkspacePage = lazy(
     () => import("./features/accounting/RatioAnalysisWorkspacePage")
@@ -296,6 +311,12 @@ const CashRunwayPlannerPage = lazy(
 const HighLowCostEstimationPage = lazy(
     () => import("./features/business/HighLowCostEstimationPage")
 );
+const ProductionBudgetPage = lazy(
+    () => import("./features/business/ProductionBudgetPage")
+);
+const DirectMaterialsPurchasesBudgetPage = lazy(
+    () => import("./features/business/DirectMaterialsPurchasesBudgetPage")
+);
 const AdditionalFundsNeededPage = lazy(
     () => import("./features/business/AdditionalFundsNeededPage")
 );
@@ -305,6 +326,12 @@ const LeaseMeasurementWorkspacePage = lazy(
 );
 const ShareBasedPaymentPage = lazy(
     () => import("./features/far/ShareBasedPaymentPage")
+);
+const ImpairmentLossPage = lazy(
+    () => import("./features/far/ImpairmentLossPage")
+);
+const AssetDisposalAnalysisPage = lazy(
+    () => import("./features/far/AssetDisposalAnalysisPage")
 );
 const RetainedEarningsRollforwardPage = lazy(
     () => import("./features/far/RetainedEarningsRollforwardPage")
@@ -329,6 +356,9 @@ const BookTaxDifferenceWorkspacePage = lazy(
 );
 const TaxComplianceReviewPage = lazy(
     () => import("./features/tax/TaxComplianceReviewPage")
+);
+const WithholdingTaxPage = lazy(
+    () => import("./features/tax/WithholdingTaxPage")
 );
 const PercentageTaxPage = lazy(
     () => import("./features/tax/PercentageTaxPage")
@@ -484,6 +514,8 @@ export default function App() {
                         <Route path="business/capacity-utilization" element={renderRoute("/business/capacity-utilization", <CapacityUtilizationPage />)} />
                         <Route path="business/additional-funds-needed" element={renderRoute("/business/additional-funds-needed", <AdditionalFundsNeededPage />)} />
                         <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
+                        <Route path="business/production-budget" element={renderRoute("/business/production-budget", <ProductionBudgetPage />)} />
+                        <Route path="business/direct-materials-purchases-budget" element={renderRoute("/business/direct-materials-purchases-budget", <DirectMaterialsPurchasesBudgetPage />)} />
                         <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
@@ -500,6 +532,8 @@ export default function App() {
                         <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
                         <Route path="far/lease-measurement-workspace" element={renderRoute("/far/lease-measurement-workspace", <LeaseMeasurementWorkspacePage />)} />
                         <Route path="far/share-based-payment-workspace" element={renderRoute("/far/share-based-payment-workspace", <ShareBasedPaymentPage />)} />
+                        <Route path="far/impairment-loss-workspace" element={renderRoute("/far/impairment-loss-workspace", <ImpairmentLossPage />)} />
+                        <Route path="far/asset-disposal-analysis" element={renderRoute("/far/asset-disposal-analysis", <AssetDisposalAnalysisPage />)} />
                         <Route path="far/retained-earnings-rollforward" element={renderRoute("/far/retained-earnings-rollforward", <RetainedEarningsRollforwardPage />)} />
                         <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
@@ -508,6 +542,7 @@ export default function App() {
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
                         <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
+                        <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
                         <Route path="tax/tax-compliance-review" element={renderRoute("/tax/tax-compliance-review", <TaxComplianceReviewPage />)} />
                         <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
@@ -536,6 +571,7 @@ export default function App() {
                         <Route path="accounting/lower-of-cost-or-nrv" element={renderRoute("/accounting/lower-of-cost-or-nrv", <LowerOfCostOrNRVPage />)} />
                         <Route path="accounting/gross-profit-rate" element={renderRoute("/accounting/gross-profit-rate", <GrossProfitRatePage />)} />
                         <Route path="accounting/bank-reconciliation" element={renderRoute("/accounting/bank-reconciliation", <BankReconciliationPage />)} />
+                        <Route path="accounting/petty-cash-reconciliation" element={renderRoute("/accounting/petty-cash-reconciliation", <PettyCashReconciliationPage />)} />
                         <Route path="accounting/allowance-doubtful-accounts" element={renderRoute("/accounting/allowance-doubtful-accounts", <AllowanceForDoubtfulAccountsPage />)} />
                         <Route path="accounting/bond-amortization-schedule" element={renderRoute("/accounting/bond-amortization-schedule", <BondAmortizationSchedulePage />)} />
                         <Route path="accounting/partnership-profit-sharing" element={renderRoute("/accounting/partnership-profit-sharing", <PartnershipProfitSharingPage />)} />
@@ -586,6 +622,10 @@ export default function App() {
                         <Route path="accounting/common-size-income-statement" element={renderRoute("/accounting/common-size-income-statement", <CommonSizeIncomeStatementPage />)} />
                         <Route path="accounting/common-size-balance-sheet" element={renderRoute("/accounting/common-size-balance-sheet", <CommonSizeBalanceSheetPage />)} />
                         <Route path="accounting/adjusting-entries-workspace" element={renderRoute("/accounting/adjusting-entries-workspace", <AdjustingEntriesWorkspacePage />)} />
+                        <Route path="accounting/prepaid-expense-adjustment" element={renderRoute("/accounting/prepaid-expense-adjustment", <PrepaidExpenseAdjustmentPage />)} />
+                        <Route path="accounting/unearned-revenue-adjustment" element={renderRoute("/accounting/unearned-revenue-adjustment", <UnearnedRevenueAdjustmentPage />)} />
+                        <Route path="accounting/accrued-revenue-adjustment" element={renderRoute("/accounting/accrued-revenue-adjustment", <AccruedRevenueAdjustmentPage />)} />
+                        <Route path="accounting/accrued-expense-adjustment" element={renderRoute("/accounting/accrued-expense-adjustment", <AccruedExpenseAdjustmentPage />)} />
                         <Route path="accounting/working-capital-planner" element={renderRoute("/accounting/working-capital-planner", <WorkingCapitalPlannerPage />)} />
                         <Route path="accounting/inventory-control-workspace" element={renderRoute("/accounting/inventory-control-workspace", <InventoryControlWorkspacePage />)} />
                         <Route path="accounting/vertical-analysis" element={renderRoute("/accounting/vertical-analysis", <VerticalAnalysisPage />)} />

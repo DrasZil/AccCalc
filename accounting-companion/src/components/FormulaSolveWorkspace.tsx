@@ -6,12 +6,14 @@ import InputGrid from "./InputGrid";
 import ResultCard from "./resultCard";
 import ResultGrid from "./ResultGrid";
 import SectionCard from "./SectionCard";
+import StudySupportPanel from "./StudySupportPanel";
 import {
     getFormulaTarget,
     getInputColumns,
     isFormulaSolveFailure,
     type FormulaCalculatorDefinition,
 } from "../utils/formulaIntelligence";
+import { getFormulaStudySupport } from "../utils/formulaStudyContent";
 import { useSmartSolverConnector } from "../features/smart/smartSolver.connector";
 
 type FormulaSolveWorkspaceProps = {
@@ -106,6 +108,7 @@ export default function FormulaSolveWorkspace({
     }, [allInputsFilled, definition, inputKeys, parsedInputs, target.key]);
 
     const emptyState = definition.getEmptyState(target.key);
+    const studySupport = getFormulaStudySupport(definition.id);
 
     return (
         <CalculatorPageLayout
@@ -217,15 +220,28 @@ export default function FormulaSolveWorkspace({
             }
             explanationSection={
                 result && !isFormulaSolveFailure(result) ? (
-                    <FormulaCard
-                        formula={result.formula}
-                        steps={result.steps}
-                        glossary={result.glossary}
-                        interpretation={result.interpretation}
-                        assumptions={result.assumptions}
-                        notes={result.notes}
-                        warnings={result.warnings}
-                    />
+                    <div className="space-y-4">
+                        {studySupport ? (
+                            <StudySupportPanel
+                                topicId={studySupport.topicId}
+                                topicTitle={studySupport.topicTitle}
+                                intro={studySupport.intro}
+                                sections={studySupport.sections}
+                                relatedTools={studySupport.relatedTools}
+                                lessonPath={studySupport.lessonPath}
+                                quizPath={studySupport.quizPath}
+                            />
+                        ) : null}
+                        <FormulaCard
+                            formula={result.formula}
+                            steps={result.steps}
+                            glossary={result.glossary}
+                            interpretation={result.interpretation}
+                            assumptions={result.assumptions}
+                            notes={result.notes}
+                            warnings={result.warnings}
+                        />
+                    </div>
                 ) : null
             }
         />

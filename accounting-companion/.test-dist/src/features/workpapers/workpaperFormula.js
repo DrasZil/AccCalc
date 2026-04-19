@@ -33,6 +33,22 @@ function tokenizeFormula(formula) {
             index += 1;
             continue;
         }
+        if (char === ">" || char === "<" || char === "=") {
+            const nextChar = formula[index + 1] ?? "";
+            if ((char === ">" || char === "<") && nextChar === "=") {
+                tokens.push({ type: "comparison", value: `${char}=` });
+                index += 2;
+                continue;
+            }
+            if (char === "<" && nextChar === ">") {
+                tokens.push({ type: "comparison", value: "<>" });
+                index += 2;
+                continue;
+            }
+            tokens.push({ type: "comparison", value: char });
+            index += 1;
+            continue;
+        }
         if (char === "^") {
             tokens.push({ type: "operator", value: "^" });
             index += 1;
@@ -135,6 +151,25 @@ function valueToNumber(value) {
     }
     return 0;
 }
+function valueToBoolean(value) {
+    if (Array.isArray(value))
+        return value.some((item) => item !== 0);
+    if (typeof value === "boolean")
+        return value;
+    if (typeof value === "number")
+        return value !== 0;
+    if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === "true")
+            return true;
+        if (normalized === "false" || normalized === "")
+            return false;
+        if (!Number.isNaN(Number(normalized)))
+            return Number(normalized) !== 0;
+        return true;
+    }
+    return false;
+}
 function valueToDisplay(value) {
     if (value === null || value === "")
         return "";
@@ -233,7 +268,7 @@ function parseFormulaExpression(tokens, context, currentSheet) {
         }
         if (token.type === "paren" && token.value === "(") {
             consume();
-            const value = parseExpression();
+            const value = parseComparison();
             const closing = peek();
             if (!closing || closing.type !== "paren" || closing.value !== ")") {
                 return { kind: "error", message: "Missing closing parenthesis." };
@@ -267,7 +302,7 @@ function parseFormulaExpression(tokens, context, currentSheet) {
                 if (!nextToken || (nextToken.type === "paren" && nextToken.value === ")")) {
                     break;
                 }
-                const value = parseExpression();
+                const value = parseComparison();
                 if (value.kind === "error")
                     return value;
                 args.push(value.value);
@@ -391,10 +426,30 @@ function parseFormulaExpression(tokens, context, currentSheet) {
                 }
                 case "PI":
                     return { kind: "value", value: Math.PI };
+                case "IF":
+                    return {
+                        kind: "value",
+                        value: valueToBoolean(args[0] ?? false) ? args[1] ?? "" : args[2] ?? "",
+                    };
+                case "AND":
+                    return {
+                        kind: "value",
+                        value: args.every((value) => valueToBoolean(value)),
+                    };
+                case "OR":
+                    return {
+                        kind: "value",
+                        value: args.some((value) => valueToBoolean(value)),
+                    };
+                case "NOT":
+                    return {
+                        kind: "value",
+                        value: !valueToBoolean(args[0] ?? false),
+                    };
                 default:
                     return {
                         kind: "error",
-                        message: `${identifier} is not supported yet. Try SUM, AVERAGE, ROUND, SQRT, POWER, MIN, MAX, PRODUCT, COUNT, or ABS.`,
+                        message: `${identifier} is not supported yet. Try SUM, AVERAGE, IF, ROUND, SQRT, POWER, MIN, MAX, PRODUCT, COUNT, or ABS.`,
                     };
             }
         }
@@ -502,7 +557,55 @@ function parseFormulaExpression(tokens, context, currentSheet) {
         }
         return left;
     }
-    const result = parseExpression();
+    function parseComparison() {
+        let left = parseExpression();
+        if (left.kind === "error")
+            return left;
+        while (true) {
+            const nextToken = peek();
+            if (!nextToken || nextToken.type !== "comparison") {
+                break;
+            }
+            const operator = consume();
+            if (!operator || operator.type !== "comparison") {
+                return { kind: "error", message: "Expected a comparison operator." };
+            }
+            const right = parseExpression();
+            if (right.kind === "error")
+                return right;
+            const leftValue = valueToNumber(left.value);
+            const rightValue = valueToNumber(right.value);
+            const leftDisplay = String(left.value);
+            const rightDisplay = String(right.value);
+            let comparisonResult = false;
+            switch (operator.value) {
+                case ">":
+                    comparisonResult = leftValue > rightValue;
+                    break;
+                case "<":
+                    comparisonResult = leftValue < rightValue;
+                    break;
+                case ">=":
+                    comparisonResult = leftValue >= rightValue;
+                    break;
+                case "<=":
+                    comparisonResult = leftValue <= rightValue;
+                    break;
+                case "=":
+                    comparisonResult = leftDisplay === rightDisplay || leftValue === rightValue;
+                    break;
+                case "<>":
+                    comparisonResult = !(leftDisplay === rightDisplay || leftValue === rightValue);
+                    break;
+            }
+            left = {
+                kind: "value",
+                value: comparisonResult,
+            };
+        }
+        return left;
+    }
+    const result = parseComparison();
     if (result.kind === "error")
         return result;
     if (index < tokens.length) {

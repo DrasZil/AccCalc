@@ -219,6 +219,30 @@ export function computeStraightLineDepreciation({ cost, salvageValue, usefulLife
         annualDepreciation,
     };
 }
+export function computeImpairmentLoss({ carryingAmount, fairValueLessCostsToSell, valueInUse, }) {
+    const recoverableAmount = Math.max(fairValueLessCostsToSell, valueInUse);
+    const impairmentLoss = Math.max(carryingAmount - recoverableAmount, 0);
+    const carryingAmountAfterImpairment = carryingAmount - impairmentLoss;
+    return {
+        recoverableAmount,
+        impairmentLoss,
+        carryingAmountAfterImpairment,
+        measurementBasis: fairValueLessCostsToSell >= valueInUse
+            ? "fair-value-less-costs-to-sell"
+            : "value-in-use",
+    };
+}
+export function computeAssetDisposal({ assetCost, accumulatedDepreciation, proceeds, disposalCosts = 0, }) {
+    const bookValue = safeSubtract(assetCost, accumulatedDepreciation);
+    const netProceeds = safeSubtract(proceeds, disposalCosts);
+    const gainOrLoss = safeSubtract(netProceeds, bookValue);
+    return {
+        bookValue,
+        netProceeds,
+        gainOrLoss,
+        outcome: gainOrLoss === 0 ? "break-even" : gainOrLoss > 0 ? "gain" : "loss",
+    };
+}
 export function computeDoubleDecliningBalance({ cost, salvageValue, usefulLifeYears, yearNumber, }) {
     const rate = 2 / usefulLifeYears;
     let beginningBookValue = cost;
@@ -280,6 +304,20 @@ export function computeCashDiscount({ invoiceAmount, discountRatePercent, discou
         rateDecimal,
         discountAmount,
         amountToPay,
+    };
+}
+export function computePettyCashReconciliation({ fundAmount, cashOnHand, pettyCashVouchers, stampsOnHand = 0, otherReceipts = 0, }) {
+    const totalAccountedFor = safeAdd(safeAdd(cashOnHand, pettyCashVouchers), safeAdd(stampsOnHand, otherReceipts));
+    const shortageOrOverage = safeSubtract(totalAccountedFor, fundAmount);
+    return {
+        totalAccountedFor,
+        shortageOrOverage,
+        status: shortageOrOverage === 0
+            ? "balanced"
+            : shortageOrOverage > 0
+                ? "over"
+                : "short",
+        replenishmentAmount: safeSubtract(fundAmount, cashOnHand),
     };
 }
 export function computeTradeDiscount(listPrice, discountRatePercent) {
@@ -1086,6 +1124,27 @@ export function computeCashBudget({ beginningCashBalance, cashCollections, cashD
         excessCashAfterFinancing: endingCashAfterFinancing - minimumCashBalance,
     };
 }
+export function computeProductionBudget({ budgetedSalesUnits, desiredEndingFinishedGoodsUnits, beginningFinishedGoodsUnits, }) {
+    const requiredProductionUnits = budgetedSalesUnits +
+        desiredEndingFinishedGoodsUnits -
+        beginningFinishedGoodsUnits;
+    return {
+        requiredProductionUnits,
+        finishedGoodsUnitsAvailable: beginningFinishedGoodsUnits + requiredProductionUnits,
+    };
+}
+export function computeDirectMaterialsPurchasesBudget({ budgetedProductionUnits, materialsPerFinishedUnit, desiredEndingMaterialsUnits, beginningMaterialsUnits, materialCostPerUnit, }) {
+    const materialsNeededForProduction = safeMultiply(budgetedProductionUnits, materialsPerFinishedUnit);
+    const materialsRequired = safeAdd(materialsNeededForProduction, desiredEndingMaterialsUnits);
+    const materialsToPurchaseUnits = safeSubtract(materialsRequired, beginningMaterialsUnits);
+    const purchasesCost = safeMultiply(materialsToPurchaseUnits, materialCostPerUnit);
+    return {
+        materialsNeededForProduction,
+        materialsRequired,
+        materialsToPurchaseUnits,
+        purchasesCost,
+    };
+}
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
     const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
     const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;
@@ -1730,5 +1789,52 @@ export function computeConstructionRevenue({ contractPrice, costsIncurredToDate,
         positionLabel: contractAssetLiabilityPosition >= 0
             ? "Contract asset / due from customer"
             : "Contract liability / due to customer",
+    };
+}
+export function computeRetainedEarningsRollforward({ beginningRetainedEarnings, netIncome, dividendsDeclared, priorPeriodAdjustment = 0, }) {
+    const endingRetainedEarnings = beginningRetainedEarnings + netIncome + priorPeriodAdjustment - dividendsDeclared;
+    return {
+        endingRetainedEarnings,
+        netIncomeRetained: netIncome - dividendsDeclared,
+    };
+}
+export function computePercentageTax({ taxableSales, ratePercent, }) {
+    const rateDecimal = ratePercent / 100;
+    const taxDue = taxableSales * rateDecimal;
+    return {
+        rateDecimal,
+        taxDue,
+        totalWithTax: taxableSales + taxDue,
+    };
+}
+export function computeWithholdingTax({ taxBase, ratePercent, }) {
+    const rateDecimal = ratePercent / 100;
+    const taxWithheld = taxBase * rateDecimal;
+    return {
+        rateDecimal,
+        taxWithheld,
+        netAfterWithholding: taxBase - taxWithheld,
+    };
+}
+export function computeAccountingRateOfReturn({ averageAnnualAccountingIncome, initialInvestment, salvageValue = 0, }) {
+    const averageInvestment = (initialInvestment + salvageValue) / 2;
+    const accountingRateOfReturnPercent = averageInvestment === 0
+        ? 0
+        : (averageAnnualAccountingIncome / averageInvestment) * 100;
+    return {
+        averageInvestment,
+        accountingRateOfReturnPercent,
+    };
+}
+export function computeEquivalentAnnualAnnuity({ netPresentValue, discountRatePercent, projectLife, }) {
+    const rateDecimal = discountRatePercent / 100;
+    const annuityFactor = rateDecimal === 0
+        ? projectLife
+        : (1 - Math.pow(1 + rateDecimal, -projectLife)) / rateDecimal;
+    const equivalentAnnualAnnuity = annuityFactor === 0 ? 0 : netPresentValue / annuityFactor;
+    return {
+        rateDecimal,
+        annuityFactor,
+        equivalentAnnualAnnuity,
     };
 }

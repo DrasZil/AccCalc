@@ -2508,7 +2508,7 @@ function escapeRegExp(value) {
 export function normalizeText(text = "") {
     const normalized = String(text)
         .toLowerCase()
-        .replace(/â‚±/g, " php ")
+        .replace(/?/g, " php ")
         .replace(/[,_]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -2536,7 +2536,7 @@ const MATCH_STOP_WORDS = new Set([
 ]);
 function tokenizeForMatching(value) {
     return normalizeText(value)
-        .replace(/['â€™]/g, "")
+        .replace(/['’]/g, "")
         .replace(/[/:()-]/g, " ")
         .split(/\s+/)
         .filter((token) => token.length > 1 && !MATCH_STOP_WORDS.has(token));
@@ -2546,7 +2546,7 @@ function buildPhraseVariants(phrase) {
     if (!normalized)
         return [];
     const variants = new Set([normalized]);
-    variants.add(normalized.replace(/['â€™]/g, ""));
+    variants.add(normalized.replace(/['’]/g, ""));
     variants.add(normalized.replace(/\s*&\s*/g, " and "));
     variants.add(normalized.replace(/\band\b/g, "&"));
     variants.add(normalized.replace(/-/g, " "));

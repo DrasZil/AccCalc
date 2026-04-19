@@ -45,6 +45,11 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/accounting/transferred-in-cost-helper",
     "/accounting/process-costing-practice-checker",
     "/accounting/adjusting-entries-workspace",
+    "/accounting/petty-cash-reconciliation",
+    "/accounting/prepaid-expense-adjustment",
+    "/accounting/unearned-revenue-adjustment",
+    "/accounting/accrued-revenue-adjustment",
+    "/accounting/accrued-expense-adjustment",
     "/accounting/working-capital-planner",
     "/accounting/inventory-control-workspace",
     "/economics/economics-analysis-workspace",
@@ -59,7 +64,10 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/cash-runway-planner",
     "/business/cvp-analysis",
     "/business/capacity-utilization",
+    "/business/additional-funds-needed",
     "/business/high-low-cost-estimation",
+    "/business/production-budget",
+    "/business/direct-materials-purchases-budget",
     "/business/roi-ri-eva",
     "/accounting/partnership-dissolution",
     "/study",
@@ -69,11 +77,16 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/operations/eoq-and-reorder-point",
     "/far/lease-measurement-workspace",
     "/far/share-based-payment-workspace",
+    "/far/impairment-loss-workspace",
+    "/far/asset-disposal-analysis",
+    "/far/retained-earnings-rollforward",
     "/far/cash-flow-statement-builder",
     "/audit/audit-planning-workspace",
     "/audit/audit-cycle-reviewer",
     "/audit/audit-completion-and-opinion",
     "/tax/book-tax-difference-workspace",
+    "/tax/percentage-tax",
+    "/tax/withholding-tax",
     "/tax/tax-compliance-review",
     "/afar/business-combination-analysis",
     "/afar/foreign-currency-translation",
@@ -85,6 +98,8 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/rfbt/commercial-transactions-reviewer",
     "/strategic/integrative-case-mapper",
     "/strategic/strategic-business-analysis",
+    "/finance/accounting-rate-of-return",
+    "/finance/equivalent-annual-annuity",
 ]);
 const SUBTOPIC_ORDER = {
     General: ["Workspace", "Utilities", "Settings"],
@@ -275,8 +290,9 @@ function inferSubtopic(category, path, tags, label) {
             }
             return "Reporting & Completion";
         case "Taxation":
-            if (haystack.includes("vat"))
+            if (haystack.includes("vat") || haystack.includes("business tax") || haystack.includes("percentage tax")) {
                 return "VAT & Business Taxes";
+            }
             if (haystack.includes("difference") || haystack.includes("income")) {
                 return "Income Tax & Differences";
             }
@@ -315,7 +331,10 @@ function inferSubtopic(category, path, tags, label) {
                 haystack.includes("internal-rate") ||
                 haystack.includes("irr") ||
                 haystack.includes("profitability-index") ||
-                haystack.includes("payback")) {
+                haystack.includes("payback") ||
+                haystack.includes("arr") ||
+                haystack.includes("annual annuity") ||
+                haystack.includes("eaa")) {
                 return "Capital Budgeting";
             }
             if (haystack.includes("loan") ||
@@ -443,6 +462,7 @@ export const APP_ROUTE_META = [
     feature("/accounting/gross-profit-method", "Gross Profit Method", "Accounting", "Estimate gross profit, COGS, and ending inventory.", ["gp method", "inventory estimate"], ["inventory", "estimate"]),
     feature("/accounting/lower-of-cost-or-nrv", "Lower of Cost or NRV", "Accounting", "Compare inventory cost and net realizable value item by item or in aggregate.", ["lower of cost and net realizable value", "lcnrv", "lc nrv"], ["inventory", "valuation", "nrv"], undefined, true, ["lower of cost", "nrv", "inventory write-down"]),
     feature("/accounting/bank-reconciliation", "Bank Reconciliation", "Accounting", "Reconcile bank and book balances.", ["bank recon", "cash reconciliation", "adjusted cash balance", "balance per books"], ["cash", "reconciliation"], undefined, true, ["bank reconciliation", "balance per bank", "balance per books", "deposits in transit", "outstanding checks"]),
+    feature("/accounting/petty-cash-reconciliation", "Petty Cash Reconciliation", "Accounting", "Reconcile a petty cash fund using cash on hand, vouchers, and other accountable items.", ["petty cash count", "petty cash proof", "petty cash fund reconciliation"], ["cash", "reconciliation", "control"], "Petty Cash", true, ["petty cash", "cash count", "short and over", "vouchers", "replenishment"]),
     feature("/accounting/allowance-doubtful-accounts", "Allowance for Doubtful Accounts", "Accounting", "Estimate bad debt allowance and NRV.", ["bad debts", "net realizable value", "ada"], ["receivables", "allowance"]),
     feature("/accounting/receivables-aging-schedule", "Receivables Aging Schedule", "Accounting", "Build an aging-based required allowance and adjustment entry.", ["aging of receivables", "ageing schedule", "aging schedule"], ["receivables", "allowance", "aging"], undefined, true, ["receivables", "aging", "allowance", "nrv"]),
     feature("/accounting/bond-amortization-schedule", "Bond Amortization Schedule", "Accounting", "Build effective-interest or straight-line premium and discount bond schedules.", ["bond discount amortization", "bond premium schedule", "effective interest bond"], ["bonds", "liabilities", "amortization"], undefined, true, ["bond", "premium", "discount", "effective interest"]),
@@ -476,6 +496,10 @@ export const APP_ROUTE_META = [
     feature("/accounting/common-size-income-statement", "Common-Size Income Statement", "Accounting", "Express income-statement lines as percentages of net sales.", ["vertical analysis income statement", "common size income"], ["analysis", "statements", "common-size"], "Common-Size IS", true, ["common size", "income statement", "vertical analysis"]),
     feature("/accounting/common-size-balance-sheet", "Common-Size Balance Sheet", "Accounting", "Express balance-sheet lines as percentages of total assets.", ["vertical analysis balance sheet", "common size balance sheet"], ["analysis", "statements", "common-size"], "Common-Size BS", true, ["common size", "balance sheet", "vertical analysis"]),
     feature("/accounting/adjusting-entries-workspace", "Adjusting Entries Workspace", "Accounting", "Handle prepaid, unearned, accrued revenue, and accrued expense adjustments from one worksheet.", ["adjusting entries", "adjustment worksheet", "prepaid adjustment", "accrued expense"], ["adjustments", "worksheet", "accruals"], "Adjustments", true, ["adjusting entries", "accruals", "deferrals", "journal entry"]),
+    feature("/accounting/prepaid-expense-adjustment", "Prepaid Expense Adjustment", "Accounting", "Compute expense recognized or ending prepaid balance for a deferral adjustment.", ["prepaid adjustment", "insurance adjustment", "supplies adjustment", "insurance expired adjusting entry", "supplies used adjusting entry"], ["adjustments", "deferrals", "accruals"], "Prepaid", true, ["prepaid expense", "deferral", "expense recognized", "adjusting entry", "insurance expired", "supplies used"]),
+    feature("/accounting/unearned-revenue-adjustment", "Unearned Revenue Adjustment", "Accounting", "Compute revenue recognized or ending unearned revenue for a deferral adjustment.", ["unearned revenue adjustment", "deferred revenue adjustment", "liability method adjustment"], ["adjustments", "deferrals", "revenue"], "Unearned", true, ["unearned revenue", "deferred revenue", "revenue recognized", "adjusting entry"]),
+    feature("/accounting/accrued-revenue-adjustment", "Accrued Revenue Adjustment", "Accounting", "Compute accrued revenue when services are earned before cash collection.", ["accrued revenue adjustment", "revenue earned not collected", "receivable adjustment"], ["adjustments", "accruals", "revenue"], "Accrued Rev", true, ["accrued revenue", "revenue earned", "cash collected", "adjusting entry"]),
+    feature("/accounting/accrued-expense-adjustment", "Accrued Expense Adjustment", "Accounting", "Compute accrued expense when costs are incurred before cash payment.", ["accrued expense adjustment", "expense incurred not paid", "payable adjustment"], ["adjustments", "accruals", "expense"], "Accrued Exp", true, ["accrued expense", "expense incurred", "cash paid", "adjusting entry"]),
     feature("/accounting/working-capital-planner", "Working Capital Planner", "Accounting", "Combine liquidity, turnover days, operating cycle, and cash conversion cycle in one planner.", ["working capital planner", "operating cycle planner", "ccc planner", "working capital control"], ["working capital", "analysis", "planner", "cash"], "WC Planner", true, ["working capital", "operating cycle", "cash conversion cycle", "planner", "cash pressure", "short-term liquidity"]),
     feature("/accounting/inventory-control-workspace", "Inventory Control Workspace", "Accounting", "Review shrinkage and purchase-discount discipline in one control-focused workspace.", ["inventory control", "shrinkage", "inventory shrinkage", "purchase discount control", "stock shrinkage review"], ["inventory", "control", "shrinkage", "discount"], "Inventory Control", true, ["inventory shrinkage", "inventory control", "cash discount", "purchase discipline", "book versus physical", "physical count"]),
     feature("/accounting/vertical-analysis", "Vertical Analysis", "Accounting", "Common-size statement percentage.", ["common size"], ["analysis", "statements"]),
@@ -492,7 +516,9 @@ export const APP_ROUTE_META = [
     feature("/finance/sinking-fund-deposit", "Sinking Fund Deposit", "Finance", "Regular deposit needed to reach a target amount.", ["required deposit", "sinking fund"], ["annuity", "savings"]),
     feature("/finance/loan-amortization", "Loan Amortization", "Finance", "Monthly payment, total paid, and total interest.", ["monthly payment", "loan payment"], ["loan", "payment"]),
     feature("/finance/npv", "Net Present Value", "Finance", "Discount cash flows and compare them with the initial investment.", ["npv", "discounted cash flow"], ["capital budgeting"], "NPV", true),
+    feature("/finance/accounting-rate-of-return", "Accounting Rate of Return", "Finance", "Read ARR from average accounting income and average investment, or reverse-solve the supporting project figures.", ["arr", "accounting rate of return", "average investment"], ["capital budgeting", "arr", "project evaluation"], "ARR", true, ["accounting rate of return", "arr", "average investment", "capital budgeting"]),
     feature("/finance/capital-budgeting-comparison", "Capital Budgeting Comparison", "Finance", "Read NPV, PI, IRR, and discounted payback from one project cash-flow set.", ["capital budgeting dashboard", "project comparison"], ["capital budgeting", "analysis", "workspace"], "Capital Compare", true, ["capital budgeting", "npv", "irr", "profitability index", "discounted payback"]),
+    feature("/finance/equivalent-annual-annuity", "Equivalent Annual Annuity", "Finance", "Annualize NPV for projects with unequal lives so rankings can be compared on a yearly basis.", ["eaa", "equivalent annual annuity", "annualized npv"], ["capital budgeting", "eaa", "analysis"], "EAA", true, ["equivalent annual annuity", "eaa", "annualized npv", "unequal project lives"]),
     feature("/finance/internal-rate-of-return", "Internal Rate of Return", "Finance", "Estimate the discount rate that makes NPV equal zero and flag multiple-IRR risk when applicable.", ["irr", "internal rate", "internal rate of return"], ["capital budgeting", "irr"], "IRR", true, ["irr", "internal rate of return", "project rate"]),
     feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
     feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
@@ -511,8 +537,11 @@ export const APP_ROUTE_META = [
     feature("/business/cash-collections-schedule", "Cash Collections Schedule", "Managerial & Cost", "Build a month-based receipts schedule from sales and collection lag patterns.", ["schedule of cash collections", "cash receipts schedule", "receivables collection schedule", "collections lag schedule"], ["budgeting", "collections", "cash"], undefined, true, ["cash collections", "collections schedule", "cash receipts", "receivables collection", "collection lag", "receipts timing"]),
     feature("/business/cash-disbursements-schedule", "Cash Disbursements Schedule", "Managerial & Cost", "Build a month-based disbursement schedule from purchases and payment lag patterns.", ["schedule of cash disbursements", "cash payments schedule", "accounts payable payment schedule", "purchases payment schedule"], ["budgeting", "disbursements", "cash"], undefined, true, ["cash disbursements", "cash payments", "payments schedule", "payment lag", "accounts payable schedule", "purchases timing"]),
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget", "minimum cash planning", "cash budget with financing"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash", "ending cash balance", "financing need"]),
+    feature("/business/production-budget", "Production Budget", "Managerial & Cost", "Translate sales and desired finished-goods policy into required production units.", ["schedule of production", "production planning budget", "finished goods budget"], ["budgeting", "production", "manufacturing"], "Production", true, ["production budget", "required production", "finished goods policy", "budgeted sales units"]),
+    feature("/business/direct-materials-purchases-budget", "Direct Materials Purchases Budget", "Managerial & Cost", "Convert production requirements and materials policy into units to purchase and budgeted purchase cost.", ["materials purchases budget", "direct materials budget", "materials purchase schedule"], ["budgeting", "materials", "manufacturing"], "DM Budget", true, ["direct materials purchases", "materials to purchase", "materials required", "purchase cost"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
     feature("/business/capacity-utilization", "Capacity Utilization", "Managerial & Cost", "Compare actual output with practical capacity so idle or strained capacity stays visible.", ["capacity usage", "practical capacity", "idle capacity", "capacity rate"], ["operations", "capacity", "planning"], undefined, true, ["capacity utilization", "practical capacity", "idle capacity", "operating capacity", "capacity planning"]),
+    feature("/business/additional-funds-needed", "Additional Funds Needed", "Managerial & Cost", "Estimate the outside financing required to support forecasted sales growth using a compact percentage-of-sales model.", ["afn", "additional funds needed", "forecast financing"], ["forecasting", "planning", "financing"], "AFN", true, ["additional funds needed", "afn", "forecast financing", "percentage of sales"]),
     feature("/business/high-low-cost-estimation", "High-Low Cost Estimation", "Managerial & Cost", "Estimate variable and fixed cost components from high-low activity data.", ["mixed cost split", "high low method", "cost behavior estimate"], ["cost behavior", "mixed cost", "planning"], "High-Low", true, ["high-low", "mixed cost", "cost behavior", "cost estimation"]),
     feature("/business/roi-ri-eva", "ROI, RI, and EVA Workspace", "Managerial & Cost", "Compare ROI, residual income, and EVA-style capital-charge reading from one performance workspace.", ["roi", "residual income", "eva", "investment center"], ["performance", "responsibility accounting", "roi"], "ROI / RI", true, ["roi", "residual income", "eva", "investment center", "responsibility accounting"]),
     feature("/economics/price-elasticity-demand", "Price Elasticity of Demand", "Economics", "Midpoint elasticity, revenue movement, and demand classification.", ["ped", "demand elasticity"], ["elasticity", "microeconomics"], "Elasticity", true, ["price elasticity", "elastic demand", "inelastic demand"]),
@@ -528,11 +557,16 @@ export const APP_ROUTE_META = [
     feature("/operations/eoq-and-reorder-point", "EOQ and Reorder Point", "Managerial & Cost", "Plan order quantity, order frequency, and reorder point from one inventory-management workspace.", ["economic order quantity", "reorder point", "inventory replenishment"], ["operations", "inventory planning", "supply chain"], "EOQ", true, ["eoq", "reorder point", "economic order quantity", "inventory control"]),
     feature("/far/lease-measurement-workspace", "Lease Measurement Workspace", "Accounting", "Estimate the initial lease liability and right-of-use asset using lease payments, discounting, and related adjustments.", ["lease accounting", "right of use asset", "lease liability"], ["far", "lease", "measurement"], "Leases", true, ["lease liability", "right-of-use asset", "lease measurement", "lease accounting"]),
     feature("/far/share-based-payment-workspace", "Share-Based Payment Workspace", "Accounting", "Estimate expected vesting, cumulative compensation cost, and current-period expense for equity-settled awards.", ["stock options", "share options", "equity settled award"], ["far", "equity", "share-based payment"], "Share-Based", true, ["share-based payment", "stock options", "compensation cost", "vesting"]),
+    feature("/far/impairment-loss-workspace", "Impairment Loss Workspace", "Accounting", "Compare carrying amount with recoverable amount using fair value less costs to sell and value in use.", ["asset impairment", "recoverable amount", "impairment testing"], ["far", "impairment", "assets"], "Impairment", true, ["impairment loss", "recoverable amount", "value in use", "fair value less costs to sell"]),
+    feature("/far/asset-disposal-analysis", "Asset Disposal Analysis", "Accounting", "Review book value, net proceeds, and gain or loss on disposal of long-lived assets.", ["disposal of asset", "gain on sale of equipment", "retirement and disposal"], ["far", "disposal", "ppe"], "Disposal", true, ["asset disposal", "gain or loss", "book value", "net proceeds", "retirement"]),
+    feature("/far/retained-earnings-rollforward", "Retained Earnings Rollforward", "Accounting", "Reconcile beginning retained earnings, net income, dividends, and prior-period adjustments into the ending equity balance.", ["retained earnings", "dividends", "statement of changes in equity"], ["far", "equity", "retained earnings"], "Retained Earnings", true, ["retained earnings", "dividends", "statement of changes in equity", "equity rollforward"]),
     feature("/far/cash-flow-statement-builder", "Statement of Cash Flows Builder", "Accounting", "Build an indirect-method cash-flow view across operating, investing, and financing activities.", ["cash flow statement", "indirect method", "cash flows from operations"], ["far", "cash flows", "financial statements"], "Cash Flows", true, ["statement of cash flows", "indirect method", "cash flow classification", "operating investing financing"]),
     feature("/audit/audit-planning-workspace", "Audit Planning Workspace", "Accounting", "Estimate materiality, performance materiality, and an audit-risk response signal from one planning workspace.", ["audit materiality", "audit risk", "planning materiality"], ["audit", "materiality", "risk"], "Audit Plan", true, ["audit planning", "planning materiality", "performance materiality", "audit risk"]),
     feature("/audit/audit-cycle-reviewer", "Audit Cycle Reviewer", "Accounting", "Review assertions, control points, and likely procedures across revenue, expenditure, conversion, and financing cycles.", ["transaction cycle auditing", "revenue cycle audit", "expenditure cycle audit"], ["audit", "cycle", "assertions"], "Audit Cycles", true, ["audit cycle", "revenue cycle", "expenditure cycle", "conversion cycle", "financing cycle"]),
     feature("/audit/audit-completion-and-opinion", "Audit Completion and Opinion Workspace", "Accounting", "Review completion procedures, going concern, subsequent events, modified reports, and key audit matters.", ["modified audit report", "key audit matters", "going concern audit"], ["audit", "reporting", "completion"], "Audit Opinion", true, ["completion procedures", "going concern", "subsequent events", "modified report", "key audit matters"]),
     feature("/tax/book-tax-difference-workspace", "Book-Tax Difference Workspace", "Accounting", "Bridge accounting income and taxable income through book-tax difference analysis.", ["book tax differences", "tax reconciliation", "temporary differences"], ["tax", "income tax", "differences"], "Book-Tax", true, ["book tax differences", "temporary differences", "current tax", "deferred tax"]),
+    feature("/tax/percentage-tax", "Percentage Tax", "Accounting", "Compute percentage tax due or reverse-solve the tax base and rate for business-tax review questions.", ["business tax", "percentage tax due", "gross receipts tax"], ["tax", "business tax", "percentage tax"], "Percentage Tax", true, ["percentage tax", "business tax", "tax due", "gross receipts"]),
+    feature("/tax/withholding-tax", "Withholding Tax", "Accounting", "Compute withholding tax, rate effect, and net amount after withholding for Philippine tax review problems.", ["expanded withholding tax", "creditable withholding tax", "tax withheld"], ["tax", "withholding", "philippines"], "WHT", true, ["withholding tax", "tax withheld", "net of withholding", "expanded withholding"]),
     feature("/tax/tax-compliance-review", "Tax Compliance and Incentive Review", "Accounting", "Review withholding, transfer and special taxes, local taxation, treaty concepts, and incentive-regime logic.", ["withholding tax review", "estate donor tax", "tax treaty"], ["tax", "compliance", "incentives"], "Tax Review", true, ["withholding tax", "documentary stamp tax", "estate tax", "donor's tax", "local taxation", "tax treaty", "peza", "boi", "bmbe"]),
     feature("/afar/business-combination-analysis", "Business Combination Analysis", "Accounting", "Estimate goodwill or bargain purchase gain under full-goodwill or proportionate-share measurement.", ["goodwill calculator", "business combination", "consolidation goodwill", "non controlling interest", "non-controlling interest"], ["afar", "business combination", "goodwill", "non controlling interest"], "Combination", true, ["business combination", "goodwill", "nci", "consolidation", "non controlling interest", "non-controlling interest"]),
     feature("/afar/foreign-currency-translation", "Foreign Currency Translation Workspace", "Accounting", "Translate foreign-currency monetary items at transaction, closing, and settlement rates.", ["foreign currency transaction", "exchange difference", "forex translation"], ["afar", "foreign currency", "translation"], "FX Translation", true, ["foreign currency", "exchange difference", "translation", "settlement rate"]),

@@ -187,6 +187,46 @@ const ROUTE_RULES: RouteRule[] = [
         bonus: [/\bunadjusted\b/i, /\badjusted\b/i],
     },
     {
+        path: "/accounting/petty-cash-reconciliation",
+        label: "Petty Cash Reconciliation",
+        category: "Accounting",
+        patterns: [/\bpetty cash\b/i, /\bimprest\b/i, /\bshort and over\b/i],
+        bonus: [/\bvouchers?\b/i, /\bcash on hand\b/i, /\breplenishment\b/i],
+        kindBoosts: { "word-problem": 3, "worked-solution": 2, "accounting-worksheet": 4 },
+    },
+    {
+        path: "/accounting/prepaid-expense-adjustment",
+        label: "Prepaid Expense Adjustment",
+        category: "Accounting",
+        patterns: [/\bprepaid\b/i, /\binsurance expired\b/i, /\bsupplies used\b/i],
+        bonus: [/\badjusting entry\b/i, /\bexpense recognized\b/i, /\bending prepaid\b/i],
+        kindBoosts: { "word-problem": 3, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/accounting/unearned-revenue-adjustment",
+        label: "Unearned Revenue Adjustment",
+        category: "Accounting",
+        patterns: [/\bunearned revenue\b/i, /\bdeferred revenue\b/i, /\brevenue recognized\b/i],
+        bonus: [/\badjusting entry\b/i, /\bearned portion\b/i, /\bending unearned\b/i],
+        kindBoosts: { "word-problem": 3, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/accounting/accrued-revenue-adjustment",
+        label: "Accrued Revenue Adjustment",
+        category: "Accounting",
+        patterns: [/\baccrued revenue\b/i, /\brevenue earned but not collected\b/i, /\bservice revenue earned\b/i],
+        bonus: [/\breceivable\b/i, /\badjusting entry\b/i, /\bcash collected\b/i],
+        kindBoosts: { "word-problem": 3, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/accounting/accrued-expense-adjustment",
+        label: "Accrued Expense Adjustment",
+        category: "Accounting",
+        patterns: [/\baccrued expense\b/i, /\bexpense incurred but unpaid\b/i, /\bpayable adjustment\b/i],
+        bonus: [/\bsalaries payable\b/i, /\binterest payable\b/i, /\badjusting entry\b/i],
+        kindBoosts: { "word-problem": 3, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
         path: "/finance/npv",
         label: "Net Present Value",
         category: "Finance",
@@ -225,6 +265,22 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "word-problem": 3, "notes-reference": 3 },
     },
     {
+        path: "/far/impairment-loss-workspace",
+        label: "Impairment Loss Workspace",
+        category: "FAR",
+        patterns: [/\bimpairment loss\b/i, /\brecoverable amount\b/i, /\bvalue in use\b/i],
+        bonus: [/\bfair value less costs? to sell\b/i, /\bcarrying amount\b/i, /\bwrite[- ]down\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/far/asset-disposal-analysis",
+        label: "Asset Disposal Analysis",
+        category: "FAR",
+        patterns: [/\bdisposal\b/i, /\bretirement of asset\b/i, /\bgain or loss on sale\b/i],
+        bonus: [/\baccumulated depreciation\b/i, /\bbook value\b/i, /\bnet proceeds\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "textbook-page": 2 },
+    },
+    {
         path: "/far/cash-flow-statement-builder",
         label: "Statement of Cash Flows Builder",
         category: "FAR",
@@ -241,6 +297,14 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "word-problem": 3, "notes-reference": 3 },
     },
     {
+        path: "/tax/withholding-tax",
+        label: "Withholding Tax",
+        category: "Taxation",
+        patterns: [/\bwithholding tax\b/i, /\btax withheld\b/i, /\bexpanded withholding\b/i],
+        bonus: [/\bcreditable withholding\b/i, /\bwithholding rate\b/i, /\bnet of tax\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 2, "notes-reference": 2 },
+    },
+    {
         path: "/tax/tax-compliance-review",
         label: "Tax Compliance and Incentive Review",
         category: "Taxation",
@@ -255,6 +319,22 @@ const ROUTE_RULES: RouteRule[] = [
         patterns: [/\beoq\b/i, /\beconomic order quantity\b/i, /\breorder point\b/i],
         bonus: [/\blead time\b/i, /\bsafety stock\b/i, /\bordering cost\b/i],
         kindBoosts: { "word-problem": 3, "textbook-page": 2 },
+    },
+    {
+        path: "/business/production-budget",
+        label: "Production Budget",
+        category: "Managerial & Cost",
+        patterns: [/\bproduction budget\b/i, /\brequired production\b/i, /\bfinished goods budget\b/i],
+        bonus: [/\bdesired ending finished goods\b/i, /\bbudgeted sales units\b/i, /\bunits to produce\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
+    },
+    {
+        path: "/business/direct-materials-purchases-budget",
+        label: "Direct Materials Purchases Budget",
+        category: "Managerial & Cost",
+        patterns: [/\bdirect materials purchases budget\b/i, /\bmaterials to purchase\b/i, /\bmaterials required\b/i],
+        bonus: [/\bmaterials per unit\b/i, /\bdesired ending materials\b/i, /\bpurchase cost\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
     },
     {
         path: "/afar/business-combination-analysis",
@@ -392,6 +472,18 @@ export function recommendScanRoutes(
             reason:
                 "Use Smart Solver if the scan is incomplete, mixed-topic, or still needs a human-style interpretation before opening a calculator.",
             score: 18,
+            confidence: "moderate",
+        });
+    }
+
+    if (ranked.length > 1 && ranked[0].score - ranked[1].score <= 4) {
+        ranked.push({
+            path: "/smart/solver",
+            label: "Smart Solver",
+            category: "Smart Tools",
+            reason:
+                "The two strongest route matches are still close together, so Smart Solver is a safer fallback if the scan mixes topics or some labels may be wrong.",
+            score: Math.max(18, ranked[1].score),
             confidence: "moderate",
         });
     }

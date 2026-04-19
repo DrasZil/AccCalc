@@ -61,6 +61,19 @@ type StraightLineParams = {
     usefulLifeYears: number;
 };
 
+type ImpairmentLossParams = {
+    carryingAmount: number;
+    fairValueLessCostsToSell: number;
+    valueInUse: number;
+};
+
+type AssetDisposalParams = {
+    assetCost: number;
+    accumulatedDepreciation: number;
+    proceeds: number;
+    disposalCosts?: number;
+};
+
 type DoubleDecliningParams = {
     cost: number;
     salvageValue: number;
@@ -91,6 +104,14 @@ type CashDiscountParams = {
     discountRatePercent: number;
     discountDays: number;
     daysPaid: number;
+};
+
+type PettyCashReconciliationParams = {
+    fundAmount: number;
+    cashOnHand: number;
+    pettyCashVouchers: number;
+    stampsOnHand?: number;
+    otherReceipts?: number;
 };
 
 type PartnershipSharingParams = {
@@ -215,6 +236,20 @@ type CashBudgetParams = {
     cashCollections: number;
     cashDisbursements: number;
     minimumCashBalance: number;
+};
+
+type ProductionBudgetParams = {
+    budgetedSalesUnits: number;
+    desiredEndingFinishedGoodsUnits: number;
+    beginningFinishedGoodsUnits: number;
+};
+
+type DirectMaterialsPurchasesBudgetParams = {
+    budgetedProductionUnits: number;
+    materialsPerFinishedUnit: number;
+    desiredEndingMaterialsUnits: number;
+    beginningMaterialsUnits: number;
+    materialCostPerUnit: number;
 };
 
 type CapacityUtilizationParams = {
@@ -622,6 +657,45 @@ export function computeStraightLineDepreciation({
     };
 }
 
+export function computeImpairmentLoss({
+    carryingAmount,
+    fairValueLessCostsToSell,
+    valueInUse,
+}: ImpairmentLossParams) {
+    const recoverableAmount = Math.max(fairValueLessCostsToSell, valueInUse);
+    const impairmentLoss = Math.max(carryingAmount - recoverableAmount, 0);
+    const carryingAmountAfterImpairment = carryingAmount - impairmentLoss;
+
+    return {
+        recoverableAmount,
+        impairmentLoss,
+        carryingAmountAfterImpairment,
+        measurementBasis:
+            fairValueLessCostsToSell >= valueInUse
+                ? "fair-value-less-costs-to-sell"
+                : "value-in-use",
+    };
+}
+
+export function computeAssetDisposal({
+    assetCost,
+    accumulatedDepreciation,
+    proceeds,
+    disposalCosts = 0,
+}: AssetDisposalParams) {
+    const bookValue = safeSubtract(assetCost, accumulatedDepreciation);
+    const netProceeds = safeSubtract(proceeds, disposalCosts);
+    const gainOrLoss = safeSubtract(netProceeds, bookValue);
+
+    return {
+        bookValue,
+        netProceeds,
+        gainOrLoss,
+        outcome:
+            gainOrLoss === 0 ? "break-even" : gainOrLoss > 0 ? "gain" : "loss",
+    };
+}
+
 export function computeDoubleDecliningBalance({
     cost,
     salvageValue,
@@ -722,6 +796,32 @@ export function computeCashDiscount({
         rateDecimal,
         discountAmount,
         amountToPay,
+    };
+}
+
+export function computePettyCashReconciliation({
+    fundAmount,
+    cashOnHand,
+    pettyCashVouchers,
+    stampsOnHand = 0,
+    otherReceipts = 0,
+}: PettyCashReconciliationParams) {
+    const totalAccountedFor = safeAdd(
+        safeAdd(cashOnHand, pettyCashVouchers),
+        safeAdd(stampsOnHand, otherReceipts)
+    );
+    const shortageOrOverage = safeSubtract(totalAccountedFor, fundAmount);
+
+    return {
+        totalAccountedFor,
+        shortageOrOverage,
+        status:
+            shortageOrOverage === 0
+                ? "balanced"
+                : shortageOrOverage > 0
+                  ? "over"
+                  : "short",
+        replenishmentAmount: safeSubtract(fundAmount, cashOnHand),
     };
 }
 
@@ -1914,6 +2014,55 @@ export function computeCashBudget({
         endingCashAfterFinancing,
         excessCashAfterFinancing:
             endingCashAfterFinancing - minimumCashBalance,
+    };
+}
+
+export function computeProductionBudget({
+    budgetedSalesUnits,
+    desiredEndingFinishedGoodsUnits,
+    beginningFinishedGoodsUnits,
+}: ProductionBudgetParams) {
+    const requiredProductionUnits =
+        budgetedSalesUnits +
+        desiredEndingFinishedGoodsUnits -
+        beginningFinishedGoodsUnits;
+
+    return {
+        requiredProductionUnits,
+        finishedGoodsUnitsAvailable:
+            beginningFinishedGoodsUnits + requiredProductionUnits,
+    };
+}
+
+export function computeDirectMaterialsPurchasesBudget({
+    budgetedProductionUnits,
+    materialsPerFinishedUnit,
+    desiredEndingMaterialsUnits,
+    beginningMaterialsUnits,
+    materialCostPerUnit,
+}: DirectMaterialsPurchasesBudgetParams) {
+    const materialsNeededForProduction = safeMultiply(
+        budgetedProductionUnits,
+        materialsPerFinishedUnit
+    );
+    const materialsRequired = safeAdd(
+        materialsNeededForProduction,
+        desiredEndingMaterialsUnits
+    );
+    const materialsToPurchaseUnits = safeSubtract(
+        materialsRequired,
+        beginningMaterialsUnits
+    );
+    const purchasesCost = safeMultiply(
+        materialsToPurchaseUnits,
+        materialCostPerUnit
+    );
+
+    return {
+        materialsNeededForProduction,
+        materialsRequired,
+        materialsToPurchaseUnits,
+        purchasesCost,
     };
 }
 
@@ -3331,6 +3480,23 @@ export function computePercentageTax({
         rateDecimal,
         taxDue,
         totalWithTax: taxableSales + taxDue,
+    };
+}
+
+export function computeWithholdingTax({
+    taxBase,
+    ratePercent,
+}: {
+    taxBase: number;
+    ratePercent: number;
+}) {
+    const rateDecimal = ratePercent / 100;
+    const taxWithheld = taxBase * rateDecimal;
+
+    return {
+        rateDecimal,
+        taxWithheld,
+        netAfterWithholding: taxBase - taxWithheld,
     };
 }
 

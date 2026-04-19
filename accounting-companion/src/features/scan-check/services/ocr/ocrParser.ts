@@ -78,6 +78,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         accountingPageType
     );
     const primaryRecommendation = recommendations[0];
+    const secondRecommendation = recommendations[1];
     const studyRecommendations = recommendStudyTopicsFromText(
         isAccountingWorksheet ? normalizedAccountingText : cleanedText,
         primaryRecommendation?.path
@@ -111,6 +112,21 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
                         : "Send to SmartSolver";
 
     const routeHint = primaryRecommendation?.path;
+    const routeGap =
+        primaryRecommendation && secondRecommendation
+            ? primaryRecommendation.score - secondRecommendation.score
+            : null;
+    const routeLooksAmbiguous =
+        routeGap !== null &&
+        (routeGap <= 4 ||
+            (primaryRecommendation?.confidence === secondRecommendation?.confidence &&
+                primaryRecommendation?.confidence !== "high"));
+
+    if (routeLooksAmbiguous) {
+        likelyIssues.push(
+            `Route selection is still close between ${primaryRecommendation?.label} and ${secondRecommendation?.label}, so confirm the topic before trusting the first recommendation.`
+        );
+    }
 
     const notes = [
         kind === "accounting-worksheet"
@@ -128,6 +144,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         primaryRecommendation
             ? `Best-fit route: ${primaryRecommendation.label}. ${primaryRecommendation.reason}`
             : "No confident specialized route was found, so Smart Solver remains the safest fallback.",
+        routeLooksAmbiguous && secondRecommendation
+            ? `The top route is only slightly ahead of ${secondRecommendation.label}, so treat the recommendation as a guided shortlist instead of a final classification.`
+            : "Routing confidence is separated from OCR confidence so you can review topic fit independently of text accuracy.",
         ...cleanup.cleanupNotes,
     ];
 

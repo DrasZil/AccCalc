@@ -693,6 +693,334 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         "error in book record",
         ],
     },
+    fundAmount: {
+        label: "Petty Cash Fund",
+        placeholder: "5000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["petty cash fund", "imprest fund", "fund amount"],
+    },
+    cashOnHand: {
+        label: "Cash on Hand",
+        placeholder: "3200",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["cash on hand", "cash counted", "actual cash"],
+    },
+    pettyCashVouchers: {
+        label: "Petty Cash Vouchers",
+        placeholder: "1400",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["petty cash vouchers", "vouchers", "paid vouchers"],
+    },
+    stampsOnHand: {
+        label: "Stamps on Hand",
+        placeholder: "200",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["stamps on hand", "unused stamps", "postage on hand"],
+    },
+    otherReceipts: {
+        label: "Other Receipts",
+        placeholder: "100",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["other receipts", "other accountable items", "miscellaneous receipts"],
+    },
+    shortageOrOverage: {
+        label: "Shortage or Overage",
+        placeholder: "0",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["shortage or overage", "short and over", "cash shortage", "cash overage"],
+    },
+    beginningPrepaid: {
+        label: "Beginning Prepaid",
+        placeholder: "25000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["beginning prepaid", "opening prepaid", "prepaid balance at start"],
+    },
+    endingPrepaid: {
+        label: "Ending Prepaid",
+        placeholder: "8000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["ending prepaid", "remaining prepaid", "unused prepaid"],
+    },
+    expenseRecognized: {
+        label: "Expense Recognized",
+        placeholder: "17000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["expense recognized", "adjustment expense", "expired portion"],
+    },
+    beginningUnearnedRevenue: {
+        label: "Beginning Unearned Revenue",
+        placeholder: "18000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["beginning unearned revenue", "opening unearned revenue", "deferred revenue at start"],
+    },
+    endingUnearnedRevenue: {
+        label: "Ending Unearned Revenue",
+        placeholder: "7000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["ending unearned revenue", "remaining unearned revenue", "deferred revenue at end"],
+    },
+    revenueRecognized: {
+        label: "Revenue Recognized",
+        placeholder: "11000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["revenue recognized", "earned revenue", "revenue earned from unearned"],
+    },
+    revenueEarned: {
+        label: "Revenue Earned",
+        placeholder: "24000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["revenue earned", "service revenue earned", "earned this period"],
+    },
+    cashCollected: {
+        label: "Cash Collected",
+        placeholder: "9000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["cash collected", "cash received", "collections to date"],
+    },
+    accruedRevenue: {
+        label: "Accrued Revenue",
+        placeholder: "15000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["accrued revenue", "revenue earned but not collected", "receivable adjustment"],
+    },
+    expenseIncurred: {
+        label: "Expense Incurred",
+        placeholder: "19500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["expense incurred", "incurred expense", "expense for the period"],
+    },
+    cashPaid: {
+        label: "Cash Paid",
+        placeholder: "11000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["cash paid", "cash payment", "paid to date"],
+    },
+    accruedExpense: {
+        label: "Accrued Expense",
+        placeholder: "8500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["accrued expense", "expense incurred but unpaid", "payable adjustment"],
+    },
+    carryingAmount: {
+        label: "Carrying Amount",
+        placeholder: "520000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["carrying amount", "book value before impairment", "asset carrying value"],
+    },
+    fairValueLessCostsToSell: {
+        label: "Fair Value Less Costs to Sell",
+        placeholder: "430000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["fair value less costs to sell", "fvlcts", "fair value net of disposal costs"],
+    },
+    valueInUse: {
+        label: "Value in Use",
+        placeholder: "450000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["value in use", "present value of future cash flows", "discounted use value"],
+    },
+    impairmentLoss: {
+        label: "Impairment Loss",
+        placeholder: "70000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["impairment loss", "write-down", "loss on impairment"],
+    },
+    assetCost: {
+        label: "Asset Cost",
+        placeholder: "500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["asset cost", "cost of asset", "historical cost"],
+    },
+    accumulatedDepreciation: {
+        label: "Accumulated Depreciation",
+        placeholder: "360000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["accumulated depreciation", "accumulated depreciation at disposal"],
+    },
+    proceeds: {
+        label: "Proceeds",
+        placeholder: "155000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["proceeds", "selling price", "cash received on disposal"],
+    },
+    disposalCosts: {
+        label: "Disposal Costs",
+        placeholder: "5000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["disposal costs", "costs to sell", "selling costs"],
+    },
+    gainOrLoss: {
+        label: "Gain or Loss",
+        placeholder: "10000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["gain or loss", "gain on disposal", "loss on disposal"],
+    },
+    budgetedSalesUnits: {
+        label: "Budgeted Sales Units",
+        placeholder: "12000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted sales units", "expected sales units", "planned sales units"],
+    },
+    desiredEndingFinishedGoodsUnits: {
+        label: "Desired Ending FG Units",
+        placeholder: "1800",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["desired ending finished goods", "ending finished goods units", "target ending fg"],
+    },
+    beginningFinishedGoodsUnits: {
+        label: "Beginning FG Units",
+        placeholder: "1500",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["beginning finished goods units", "opening finished goods units", "beginning fg"],
+    },
+    requiredProductionUnits: {
+        label: "Required Production Units",
+        placeholder: "12300",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["required production units", "units to produce", "production required"],
+    },
+    budgetedProductionUnits: {
+        label: "Budgeted Production Units",
+        placeholder: "12300",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted production units", "planned production units", "units planned for production"],
+    },
+    materialsPerFinishedUnit: {
+        label: "Materials per Finished Unit",
+        placeholder: "2.5",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["materials per finished unit", "materials per unit", "direct materials per unit"],
+    },
+    desiredEndingMaterialsUnits: {
+        label: "Desired Ending Materials Units",
+        placeholder: "1200",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["desired ending materials units", "ending materials inventory", "target ending materials"],
+    },
+    beginningMaterialsUnits: {
+        label: "Beginning Materials Units",
+        placeholder: "900",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["beginning materials units", "opening materials inventory", "beginning materials"],
+    },
+    materialCostPerUnit: {
+        label: "Material Cost per Unit",
+        placeholder: "18",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["material cost per unit", "cost per material unit", "purchase cost per unit"],
+    },
+    materialsToPurchaseUnits: {
+        label: "Materials to Purchase",
+        placeholder: "31050",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["materials to purchase", "units to purchase", "purchases units"],
+    },
+    purchasesCost: {
+        label: "Purchases Cost",
+        placeholder: "558900",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["purchases cost", "budgeted purchase cost", "direct materials purchases cost"],
+    },
+    taxBase: {
+        label: "Tax Base",
+        placeholder: "85000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["tax base", "amount subject to withholding", "gross amount"],
+    },
+    ratePercent: {
+        label: "Rate (%)",
+        placeholder: "10",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["withholding rate", "rate percent", "ewt rate", "tax rate"],
+    },
+    taxWithheld: {
+        label: "Tax Withheld",
+        placeholder: "8500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["tax withheld", "withholding tax", "amount withheld"],
+    },
     accountsReceivable: {
         label: "Accounts Receivable",
         placeholder: "50000",
@@ -1837,6 +2165,51 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "production-budget",
+        name: "Production Budget",
+        route: "/business/production-budget",
+        description:
+        "Best when the user is converting budgeted sales and finished-goods policy into required production units.",
+        required: [
+        "budgetedSalesUnits",
+        "desiredEndingFinishedGoodsUnits",
+        "beginningFinishedGoodsUnits",
+        ],
+        optional: ["requiredProductionUnits"],
+        aliases: ["schedule of production", "production planning budget", "finished goods budget"],
+        keywords: [
+        /production budget/i,
+        /required production/i,
+        /units to produce/i,
+        /desired ending finished goods/i,
+        /budgeted sales units/i,
+        ],
+    },
+    {
+        id: "direct-materials-purchases-budget",
+        name: "Direct Materials Purchases Budget",
+        route: "/business/direct-materials-purchases-budget",
+        description:
+        "Best when the user wants materials required, materials to purchase, or budgeted purchases cost from a production plan.",
+        required: [
+        "budgetedProductionUnits",
+        "materialsPerFinishedUnit",
+        "desiredEndingMaterialsUnits",
+        "beginningMaterialsUnits",
+        "materialCostPerUnit",
+        ],
+        optional: ["materialsToPurchaseUnits", "purchasesCost"],
+        aliases: ["materials purchases budget", "direct materials budget", "materials purchase schedule"],
+        keywords: [
+        /direct materials purchases budget/i,
+        /materials to purchase/i,
+        /materials required/i,
+        /materials per unit/i,
+        /desired ending materials/i,
+        /purchase cost/i,
+        ],
+    },
+    {
         id: "flexible-budget",
         name: "Flexible Budget",
         route: "/business/flexible-budget",
@@ -2238,6 +2611,24 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /adjusted cash balance/i,
         /reconciling items?/i,
         /balance per books/i,
+        ],
+    },
+    {
+        id: "petty-cash-reconciliation",
+        name: "Petty Cash Reconciliation",
+        route: "/accounting/petty-cash-reconciliation",
+        description:
+        "Best when the user is proving a petty cash fund using cash on hand, vouchers, stamps, and a short-or-over check.",
+        required: ["fundAmount", "cashOnHand", "pettyCashVouchers"],
+        optional: ["stampsOnHand", "otherReceipts", "shortageOrOverage"],
+        aliases: ["petty cash count", "petty cash proof", "petty cash fund reconciliation"],
+        keywords: [
+        /petty cash/i,
+        /imprest fund/i,
+        /short and over/i,
+        /cash on hand/i,
+        /petty cash vouchers?/i,
+        /replenishment/i,
         ],
     },
     {
@@ -2942,6 +3333,74 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "prepaid-expense-adjustment",
+        name: "Prepaid Expense Adjustment",
+        route: "/accounting/prepaid-expense-adjustment",
+        description:
+            "Best when the user is adjusting a prepaid asset into expense recognized for the period.",
+        required: ["beginningPrepaid", "endingPrepaid"],
+        optional: ["expenseRecognized"],
+        aliases: ["prepaid adjustment", "insurance adjustment", "supplies adjustment"],
+        keywords: [
+            /prepaid expense/i,
+            /prepaid adjustment/i,
+            /insurance expired/i,
+            /supplies used/i,
+            /expense recognized/i,
+        ],
+    },
+    {
+        id: "unearned-revenue-adjustment",
+        name: "Unearned Revenue Adjustment",
+        route: "/accounting/unearned-revenue-adjustment",
+        description:
+            "Best when the user is moving part of unearned revenue into earned revenue through an adjusting entry.",
+        required: ["beginningUnearnedRevenue", "endingUnearnedRevenue"],
+        optional: ["revenueRecognized"],
+        aliases: ["deferred revenue adjustment", "unearned revenue adjustment"],
+        keywords: [
+            /unearned revenue/i,
+            /deferred revenue/i,
+            /revenue recognized/i,
+            /earned portion/i,
+            /adjusting entry/i,
+        ],
+    },
+    {
+        id: "accrued-revenue-adjustment",
+        name: "Accrued Revenue Adjustment",
+        route: "/accounting/accrued-revenue-adjustment",
+        description:
+            "Best when revenue has been earned before collection and the user needs the accrued amount or adjustment.",
+        required: ["revenueEarned", "cashCollected"],
+        optional: ["accruedRevenue"],
+        aliases: ["accrued revenue adjustment", "revenue earned but uncollected", "receivable adjustment"],
+        keywords: [
+            /accrued revenue/i,
+            /revenue earned but not collected/i,
+            /service revenue earned/i,
+            /cash collected/i,
+            /receivable adjustment/i,
+        ],
+    },
+    {
+        id: "accrued-expense-adjustment",
+        name: "Accrued Expense Adjustment",
+        route: "/accounting/accrued-expense-adjustment",
+        description:
+            "Best when an expense has been incurred before payment and the user needs the accrued amount or adjustment.",
+        required: ["expenseIncurred", "cashPaid"],
+        optional: ["accruedExpense"],
+        aliases: ["accrued expense adjustment", "expense incurred but unpaid", "payable adjustment"],
+        keywords: [
+            /accrued expense/i,
+            /expense incurred but unpaid/i,
+            /cash paid/i,
+            /payable adjustment/i,
+            /adjusting entry/i,
+        ],
+    },
+    {
         id: "working-capital-planner",
         name: "Working Capital Planner",
         route: "/accounting/working-capital-planner",
@@ -3230,6 +3689,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/share[- ]based payment/i, /stock options?/i, /share options?/i, /vesting/i, /compensation cost/i],
     },
     {
+        id: "impairment-loss-workspace",
+        name: "Impairment Loss Workspace",
+        route: "/far/impairment-loss-workspace",
+        description:
+            "Best when the user is comparing carrying amount with recoverable amount using fair value less costs to sell and value in use.",
+        required: ["carryingAmount"],
+        optional: ["fairValueLessCostsToSell", "valueInUse", "impairmentLoss"],
+        aliases: ["asset impairment", "recoverable amount", "impairment testing"],
+        keywords: [/impairment loss/i, /recoverable amount/i, /value in use/i, /fair value less costs to sell/i, /write[- ]down/i],
+    },
+    {
+        id: "asset-disposal-analysis",
+        name: "Asset Disposal Analysis",
+        route: "/far/asset-disposal-analysis",
+        description:
+            "Best when the user needs book value, net proceeds, or gain or loss on disposal of property, plant, and equipment.",
+        required: ["assetCost", "accumulatedDepreciation", "proceeds"],
+        optional: ["disposalCosts", "gainOrLoss"],
+        aliases: ["disposal of asset", "gain on sale of equipment", "retirement and disposal"],
+        keywords: [/asset disposal/i, /gain or loss on sale/i, /retirement of asset/i, /accumulated depreciation/i, /book value/i],
+    },
+    {
         id: "cash-flow-statement-builder",
         name: "Statement of Cash Flows Builder",
         route: "/far/cash-flow-statement-builder",
@@ -3278,6 +3759,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         required: [],
         aliases: ["book tax differences", "temporary differences", "tax reconciliation"],
         keywords: [/book tax/i, /temporary differences/i, /deferred tax/i, /tax reconciliation/i],
+    },
+    {
+        id: "withholding-tax",
+        name: "Withholding Tax",
+        route: "/tax/withholding-tax",
+        description:
+            "Best when the user is computing tax withheld or net proceeds after withholding from a payment base and rate.",
+        required: ["taxBase", "ratePercent"],
+        optional: ["taxWithheld"],
+        aliases: ["expanded withholding tax", "creditable withholding tax", "tax withheld"],
+        keywords: [/withholding tax/i, /tax withheld/i, /expanded withholding/i, /creditable withholding/i, /withholding rate/i],
     },
     {
         id: "tax-compliance-review",
@@ -4179,6 +4671,121 @@ export function normalizeText(text: string = ""): string {
     );
     const bankError = extractNumberByAliases(text, FIELD_META.bankError.aliases ?? []);
     const bookError = extractNumberByAliases(text, FIELD_META.bookError.aliases ?? []);
+    const fundAmount = extractNumberByAliases(text, FIELD_META.fundAmount.aliases ?? []);
+    const cashOnHand = extractNumberByAliases(text, FIELD_META.cashOnHand.aliases ?? []);
+    const pettyCashVouchers = extractNumberByAliases(
+        text,
+        FIELD_META.pettyCashVouchers.aliases ?? []
+    );
+    const stampsOnHand = extractNumberByAliases(text, FIELD_META.stampsOnHand.aliases ?? []);
+    const otherReceipts = extractNumberByAliases(text, FIELD_META.otherReceipts.aliases ?? []);
+    const shortageOrOverage = extractNumberByAliases(
+        text,
+        FIELD_META.shortageOrOverage.aliases ?? []
+    );
+    const beginningPrepaid = extractNumberByAliases(
+        text,
+        FIELD_META.beginningPrepaid.aliases ?? []
+    );
+    const endingPrepaid = extractNumberByAliases(text, FIELD_META.endingPrepaid.aliases ?? []);
+    const expenseRecognized = extractNumberByAliases(
+        text,
+        FIELD_META.expenseRecognized.aliases ?? []
+    );
+    const beginningUnearnedRevenue = extractNumberByAliases(
+        text,
+        FIELD_META.beginningUnearnedRevenue.aliases ?? []
+    );
+    const endingUnearnedRevenue = extractNumberByAliases(
+        text,
+        FIELD_META.endingUnearnedRevenue.aliases ?? []
+    );
+    const revenueRecognized = extractNumberByAliases(
+        text,
+        FIELD_META.revenueRecognized.aliases ?? []
+    );
+    const revenueEarned = extractNumberByAliases(text, FIELD_META.revenueEarned.aliases ?? []);
+    const cashCollected = extractNumberByAliases(text, FIELD_META.cashCollected.aliases ?? []);
+    const accruedRevenue = extractNumberByAliases(
+        text,
+        FIELD_META.accruedRevenue.aliases ?? []
+    );
+    const expenseIncurred = extractNumberByAliases(
+        text,
+        FIELD_META.expenseIncurred.aliases ?? []
+    );
+    const cashPaid = extractNumberByAliases(text, FIELD_META.cashPaid.aliases ?? []);
+    const accruedExpense = extractNumberByAliases(text, FIELD_META.accruedExpense.aliases ?? []);
+    const carryingAmount = extractNumberByAliases(text, FIELD_META.carryingAmount.aliases ?? []);
+    const fairValueLessCostsToSell = extractNumberByAliases(
+        text,
+        FIELD_META.fairValueLessCostsToSell.aliases ?? []
+    );
+    const valueInUse = extractNumberByAliases(text, FIELD_META.valueInUse.aliases ?? []);
+    const impairmentLoss = extractNumberByAliases(text, FIELD_META.impairmentLoss.aliases ?? []);
+    const assetCost = extractNumberByAliases(text, FIELD_META.assetCost.aliases ?? []);
+    const accumulatedDepreciation = extractNumberByAliases(
+        text,
+        FIELD_META.accumulatedDepreciation.aliases ?? []
+    );
+    const proceeds = extractNumberByAliases(text, FIELD_META.proceeds.aliases ?? []);
+    const disposalCosts = extractNumberByAliases(text, FIELD_META.disposalCosts.aliases ?? []);
+    const gainOrLoss = extractNumberByAliases(text, FIELD_META.gainOrLoss.aliases ?? []);
+    const budgetedSalesUnits = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedSalesUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const desiredEndingFinishedGoodsUnits = extractNumberByAliases(
+        text,
+        FIELD_META.desiredEndingFinishedGoodsUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const beginningFinishedGoodsUnits = extractNumberByAliases(
+        text,
+        FIELD_META.beginningFinishedGoodsUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const requiredProductionUnits = extractNumberByAliases(
+        text,
+        FIELD_META.requiredProductionUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const budgetedProductionUnits = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedProductionUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const materialsPerFinishedUnit = extractNumberByAliases(
+        text,
+        FIELD_META.materialsPerFinishedUnit.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const desiredEndingMaterialsUnits = extractNumberByAliases(
+        text,
+        FIELD_META.desiredEndingMaterialsUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const beginningMaterialsUnits = extractNumberByAliases(
+        text,
+        FIELD_META.beginningMaterialsUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const materialCostPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.materialCostPerUnit.aliases ?? []
+    );
+    const materialsToPurchaseUnits = extractNumberByAliases(
+        text,
+        FIELD_META.materialsToPurchaseUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const purchasesCost = extractNumberByAliases(text, FIELD_META.purchasesCost.aliases ?? []);
+    const taxBase = extractNumberByAliases(text, FIELD_META.taxBase.aliases ?? []);
+    const ratePercent = extractNumberByAliases(text, FIELD_META.ratePercent.aliases ?? [], {
+        percent: true,
+    });
+    const taxWithheld = extractNumberByAliases(text, FIELD_META.taxWithheld.aliases ?? []);
 
     const creditTerms = extractCreditTerms(text);
     const partnershipRatios = extractPartnershipRatios(text);
@@ -4246,6 +4853,47 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "notesCollectedByBank", notesCollectedByBank);
     setFact(facts, "bankError", bankError);
     setFact(facts, "bookError", bookError);
+    setFact(facts, "fundAmount", fundAmount);
+    setFact(facts, "cashOnHand", cashOnHand);
+    setFact(facts, "pettyCashVouchers", pettyCashVouchers);
+    setFact(facts, "stampsOnHand", stampsOnHand);
+    setFact(facts, "otherReceipts", otherReceipts);
+    setFact(facts, "shortageOrOverage", shortageOrOverage);
+    setFact(facts, "beginningPrepaid", beginningPrepaid);
+    setFact(facts, "endingPrepaid", endingPrepaid);
+    setFact(facts, "expenseRecognized", expenseRecognized);
+    setFact(facts, "beginningUnearnedRevenue", beginningUnearnedRevenue);
+    setFact(facts, "endingUnearnedRevenue", endingUnearnedRevenue);
+    setFact(facts, "revenueRecognized", revenueRecognized);
+    setFact(facts, "revenueEarned", revenueEarned);
+    setFact(facts, "cashCollected", cashCollected);
+    setFact(facts, "accruedRevenue", accruedRevenue);
+    setFact(facts, "expenseIncurred", expenseIncurred);
+    setFact(facts, "cashPaid", cashPaid);
+    setFact(facts, "accruedExpense", accruedExpense);
+    setFact(facts, "carryingAmount", carryingAmount);
+    setFact(facts, "fairValueLessCostsToSell", fairValueLessCostsToSell);
+    setFact(facts, "valueInUse", valueInUse);
+    setFact(facts, "impairmentLoss", impairmentLoss);
+    setFact(facts, "assetCost", assetCost);
+    setFact(facts, "accumulatedDepreciation", accumulatedDepreciation);
+    setFact(facts, "proceeds", proceeds);
+    setFact(facts, "disposalCosts", disposalCosts);
+    setFact(facts, "gainOrLoss", gainOrLoss);
+    setFact(facts, "budgetedSalesUnits", budgetedSalesUnits);
+    setFact(facts, "desiredEndingFinishedGoodsUnits", desiredEndingFinishedGoodsUnits);
+    setFact(facts, "beginningFinishedGoodsUnits", beginningFinishedGoodsUnits);
+    setFact(facts, "requiredProductionUnits", requiredProductionUnits);
+    setFact(facts, "budgetedProductionUnits", budgetedProductionUnits);
+    setFact(facts, "materialsPerFinishedUnit", materialsPerFinishedUnit);
+    setFact(facts, "desiredEndingMaterialsUnits", desiredEndingMaterialsUnits);
+    setFact(facts, "beginningMaterialsUnits", beginningMaterialsUnits);
+    setFact(facts, "materialCostPerUnit", materialCostPerUnit);
+    setFact(facts, "materialsToPurchaseUnits", materialsToPurchaseUnits);
+    setFact(facts, "purchasesCost", purchasesCost);
+    setFact(facts, "taxBase", taxBase);
+    setFact(facts, "ratePercent", ratePercent);
+    setFact(facts, "taxWithheld", taxWithheld);
 
     setFact(facts, "accountsReceivable", accountsReceivable);
     setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);

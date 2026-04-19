@@ -11,6 +11,7 @@ import {
     computeCashConversionCycle,
     computeCashDisbursementsSchedule,
     computeCashRatio,
+    computePettyCashReconciliation,
     computeCapitalBudgetingComparison,
     computeCapacityUtilization,
     computeConstructionRevenue,
@@ -36,6 +37,7 @@ import {
     computeHorizontalAnalysisWorkspace,
     computeHighLowCostEstimation,
     computeInternalRateOfReturn,
+    computeImpairmentLoss,
     computeInventoryShrinkage,
     computeInventoryMethodComparison,
     computeJobOrderCostSheet,
@@ -56,6 +58,7 @@ import {
     computePaybackPeriod,
     computePresentValue,
     computePresentValueOfOrdinaryAnnuity,
+    computeProductionBudget,
     computePrepaidExpenseAdjustment,
     computePricingPlanner,
     computeProfitabilityIndex,
@@ -76,12 +79,15 @@ import {
     computeStandardDeviation,
     computeStartupCostPlan,
     computeStraightLineDepreciation,
+    computeDirectMaterialsPurchasesBudget,
     computeUnearnedRevenueAdjustment,
     computeTargetProfit,
     computeTradeDiscount,
     computeTrialBalance,
     computeTurnoverWithDayBasis,
     computeUnitEconomics,
+    computeAssetDisposal,
+    computeWithholdingTax,
     computeWeightedMean,
     computeWorkingCapitalCycle,
     computeLeaseMeasurement,
@@ -390,6 +396,16 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     assert.ok(sheet);
     assert.equal(sheet?.kind, "template");
     assert.equal(sheet?.templateId, "cash-budget-support");
+
+    const pettyCash = getWorkpaperTemplate("petty-cash-count-sheet");
+    const adjustments = getWorkpaperTemplate("adjusting-entries-support");
+    const production = getWorkpaperTemplate("production-budget-support");
+    const materials = getWorkpaperTemplate("direct-materials-purchases-support");
+
+    assert.ok(pettyCash);
+    assert.ok(adjustments);
+    assert.ok(production);
+    assert.ok(materials);
 });
 
 runTest("cash discount and partnership helpers return standard values", () => {
@@ -1056,6 +1072,70 @@ runTest("3.1 helper workspaces cover adjustments, pricing, splits, shrinkage, an
     assertClose(elasticity.elasticity, -0.5744680851, 1e-6);
 });
 
+runTest("5.6.5 helper additions stay mathematically consistent", () => {
+    const pettyCash = computePettyCashReconciliation({
+        fundAmount: 5000,
+        cashOnHand: 3200,
+        pettyCashVouchers: 1400,
+        stampsOnHand: 200,
+        otherReceipts: 100,
+    });
+    const impairment = computeImpairmentLoss({
+        carryingAmount: 520000,
+        fairValueLessCostsToSell: 430000,
+        valueInUse: 450000,
+    });
+    const disposal = computeAssetDisposal({
+        assetCost: 500000,
+        accumulatedDepreciation: 360000,
+        proceeds: 155000,
+        disposalCosts: 5000,
+    });
+    const productionBudget = computeProductionBudget({
+        budgetedSalesUnits: 12000,
+        desiredEndingFinishedGoodsUnits: 1800,
+        beginningFinishedGoodsUnits: 1500,
+    });
+    const materialsBudget = computeDirectMaterialsPurchasesBudget({
+        budgetedProductionUnits: 12300,
+        materialsPerFinishedUnit: 2.5,
+        desiredEndingMaterialsUnits: 1200,
+        beginningMaterialsUnits: 900,
+        materialCostPerUnit: 18,
+    });
+    const withholdingTax = computeWithholdingTax({
+        taxBase: 85000,
+        ratePercent: 10,
+    });
+
+    assertClose(pettyCash.totalAccountedFor, 4900);
+    assertClose(pettyCash.shortageOrOverage, -100);
+    assertClose(pettyCash.replenishmentAmount, 1800);
+    assert.equal(pettyCash.status, "short");
+
+    assertClose(impairment.recoverableAmount, 450000);
+    assertClose(impairment.impairmentLoss, 70000);
+    assertClose(impairment.carryingAmountAfterImpairment, 450000);
+    assert.equal(impairment.measurementBasis, "value-in-use");
+
+    assertClose(disposal.bookValue, 140000);
+    assertClose(disposal.netProceeds, 150000);
+    assertClose(disposal.gainOrLoss, 10000);
+    assert.equal(disposal.outcome, "gain");
+
+    assertClose(productionBudget.requiredProductionUnits, 12300);
+    assertClose(productionBudget.finishedGoodsUnitsAvailable, 13800);
+
+    assertClose(materialsBudget.materialsNeededForProduction, 30750);
+    assertClose(materialsBudget.materialsRequired, 31950);
+    assertClose(materialsBudget.materialsToPurchaseUnits, 31050);
+    assertClose(materialsBudget.purchasesCost, 558900);
+
+    assertClose(withholdingTax.rateDecimal, 0.1);
+    assertClose(withholdingTax.taxWithheld, 8500);
+    assertClose(withholdingTax.netAfterWithholding, 76500);
+});
+
 runTest("capital budgeting comparison combines project metrics", () => {
     const result = computeCapitalBudgetingComparison(
         100000,
@@ -1299,6 +1379,13 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const transactionsResults = searchAppRoutes("contracts of security");
     const strategicAnalysisResults = searchAppRoutes("strategic cost management");
     const workpaperResults = searchAppRoutes("spreadsheet workpaper xlsx");
+    const pettyCashResults = searchAppRoutes("petty cash short and over");
+    const prepaidResults = searchAppRoutes("insurance expired adjusting entry");
+    const productionResults = searchAppRoutes("schedule of production");
+    const materialsBudgetResults = searchAppRoutes("materials purchase schedule");
+    const impairmentResults = searchAppRoutes("recoverable amount value in use");
+    const disposalResults = searchAppRoutes("gain on sale of equipment");
+    const withholdingResults = searchAppRoutes("expanded withholding tax");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1321,7 +1408,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(equilibriumResults[0]?.path, "/economics/market-equilibrium");
     assert.equal(startupResults[0]?.path, "/entrepreneurship/startup-cost-planner");
     assert.equal(runwayResults[0]?.path, "/entrepreneurship/cash-runway-planner");
-    assert.equal(adjustmentsResults[0]?.path, "/accounting/adjusting-entries-workspace");
+    assert.equal(adjustmentsResults[0]?.path, "/accounting/accrued-expense-adjustment");
     assert.equal(workingCapitalPlannerResults[0]?.path, "/accounting/working-capital-planner");
     assert.equal(inventoryControlResults[0]?.path, "/accounting/inventory-control-workspace");
     assert.equal(elasticityWorkspaceResults[0]?.path, "/economics/economics-analysis-workspace");
@@ -1353,6 +1440,13 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(transactionsResults[0]?.path, "/rfbt/commercial-transactions-reviewer");
     assert.equal(strategicAnalysisResults[0]?.path, "/strategic/strategic-business-analysis");
     assert.equal(workpaperResults[0]?.path, "/workpapers");
+    assert.equal(pettyCashResults[0]?.path, "/accounting/petty-cash-reconciliation");
+    assert.equal(prepaidResults[0]?.path, "/accounting/prepaid-expense-adjustment");
+    assert.equal(productionResults[0]?.path, "/business/production-budget");
+    assert.equal(materialsBudgetResults[0]?.path, "/business/direct-materials-purchases-budget");
+    assert.equal(impairmentResults[0]?.path, "/far/impairment-loss-workspace");
+    assert.equal(disposalResults[0]?.path, "/far/asset-disposal-analysis");
+    assert.equal(withholdingResults[0]?.path, "/tax/withholding-tax");
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
@@ -1367,6 +1461,18 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
             "solve for current liabilities using current ratio"
         ),
         "currentLiabilities"
+    );
+    assert.equal(
+        suggestSolveTarget("petty-cash-reconciliation", "find the shortage or overage"),
+        "shortageOrOverage"
+    );
+    assert.equal(
+        suggestSolveTarget("production-budget", "how many units should be produced"),
+        "requiredProductionUnits"
+    );
+    assert.equal(
+        suggestSolveTarget("withholding-tax", "compute the amount withheld"),
+        "taxWithheld"
     );
 });
 
