@@ -1,4 +1,6 @@
 import { useDeferredValue, useMemo, useState } from "react";
+import DisclosurePanel from "../../components/DisclosurePanel";
+import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
@@ -73,13 +75,22 @@ function TopicCard({
 
 export default function StudyHubPage() {
     const [query, setQuery] = useState("");
+    const [activeTrack, setActiveTrack] = useState<string>("All");
     const deferredQuery = useDeferredValue(query);
     const studyProgress = useStudyProgress();
 
     const allTopics = useMemo(() => getAllStudyTopics(), []);
+    const studyTracks = useMemo(
+        () => ["All", ...Array.from(new Set(allTopics.map((topic) => getStudyCategoryTrack(topic.category))))],
+        [allTopics]
+    );
+
     const visibleTopics = useMemo(
-        () => (deferredQuery.trim() ? searchStudyTopics(deferredQuery) : allTopics),
-        [allTopics, deferredQuery]
+        () =>
+            (deferredQuery.trim() ? searchStudyTopics(deferredQuery) : allTopics).filter((topic) =>
+                activeTrack === "All" ? true : getStudyCategoryTrack(topic.category) === activeTrack
+            ),
+        [activeTrack, allTopics, deferredQuery]
     );
 
     const recentTopics = useMemo(
@@ -151,8 +162,8 @@ export default function StudyHubPage() {
         <div className="app-page-stack">
             <PageHeader
                 badge="Study Hub"
-                title="Browse lessons, review procedures, and practice by topic"
-                description="Use the Study Hub as the learning center of AccCalc. Open topic lessons, revisit bookmarked subjects, continue where you stopped, and move into quiz mode when you want active practice instead of passive reading."
+                title="Study topics step by step, then move into practice"
+                description="Use Study Hub when you need plain-language review before solving, when you want a stronger explanation after a calculator result, or when you need a short quiz to confirm that the topic really makes sense."
                 compactDescriptionOnMobile
                 actions={
                     <>
@@ -172,26 +183,31 @@ export default function StudyHubPage() {
                 }
             />
 
-            <section className="app-card-grid-readable--compact">
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Learn</p>
-                    <p className="app-body-md mt-2 text-sm">
-                        Topic pages explain what a concept means, when to use it, the formula logic, the solving method, and how to interpret the result.
-                    </p>
-                </SectionCard>
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Practice</p>
-                    <p className="app-body-md mt-2 text-sm">
-                        Each quiz gives a short review path with answer explanations so practice teaches instead of only scoring.
-                    </p>
-                </SectionCard>
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Continue</p>
-                    <p className="app-body-md mt-2 text-sm">
-                        Your bookmarks, reviewed sections, quiz attempts, and notes stay on this device with no account or backend required.
-                    </p>
-                </SectionCard>
-            </section>
+            <GuidedStartPanel
+                badge="Study path"
+                title="Keep learning layered: lesson first, quiz second, deeper support only when needed"
+                summary="The Study Hub is meant to reduce intimidation. Start with a topic overview, move into a short practice set, and return to deeper sections only for the parts that still feel weak."
+                steps={[
+                    {
+                        title: "Open one lesson",
+                        description:
+                            "Start with a topic page when you need the meaning, formula logic, procedure, and common mistakes in plain language.",
+                        badge: "Lesson",
+                    },
+                    {
+                        title: "Use a mini quiz",
+                        description:
+                            "Practice after the concept already feels familiar so the quiz becomes self-check, not blind guessing.",
+                        badge: "Quiz",
+                    },
+                    {
+                        title: "Return only to the weak spots",
+                        description:
+                            "Bookmarks, notes, reviewed sections, and scores stay on this device so you can keep studying without re-reading everything.",
+                        badge: "Review",
+                    },
+                ]}
+            />
 
             <SectionCard>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -212,6 +228,26 @@ export default function StudyHubPage() {
                             placeholder="Search study topics..."
                             className="app-input-shell w-full rounded-[1rem] px-4 py-3 text-sm"
                         />
+                    </div>
+                </div>
+
+                <div className="mt-4">
+                    <div className="app-panel rounded-[1rem] p-1.5">
+                        <div className="app-guide-tabs">
+                            {studyTracks.map((track) => (
+                                <button
+                                    key={track}
+                                    type="button"
+                                    onClick={() => setActiveTrack(track)}
+                                    className={[
+                                        "app-guide-tab-button rounded-xl px-3 py-2 text-sm font-semibold",
+                                        activeTrack === track ? "app-button-primary" : "app-button-ghost",
+                                    ].join(" ")}
+                                >
+                                    {track}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </SectionCard>
@@ -296,6 +332,11 @@ export default function StudyHubPage() {
                     <h2 className="app-section-title mt-2">
                         {deferredQuery.trim() ? "Search results" : "Structured study categories"}
                     </h2>
+                    <p className="app-helper mt-2 text-xs">
+                        {activeTrack === "All"
+                            ? "Browse the full study catalog by track, then open one lesson instead of scanning every topic at once."
+                            : `Showing ${activeTrack} topics first so the study view stays narrower and easier to scan.`}
+                    </p>
                 </div>
 
                 {Object.entries(categoryGroups).map(([category, topics]) => (
@@ -354,15 +395,11 @@ export default function StudyHubPage() {
                 ))}
             </section>
 
-            <section className="space-y-4">
-                <div>
-                    <p className="app-section-kicker text-[0.68rem]">Calculator coverage</p>
-                    <h2 className="app-section-title mt-2">Study Hub now spans every current calculator family</h2>
-                    <p className="app-body-md mt-2 text-sm">
-                        Use these groups when you want to move from topic study into the exact calculator or workspace that matches your assignment, check, or review set.
-                    </p>
-                </div>
-
+            <DisclosurePanel
+                title="Browse calculator families from the study layer"
+                summary="Open this only when you already know the topic and want the matching calculator or workspace after reviewing the lesson."
+                badge={`${calculatorGroups.length} groups`}
+            >
                 <div className="app-card-grid-readable">
                     {calculatorGroups.map((group) => (
                         <RelatedLinksPanel
@@ -370,7 +407,7 @@ export default function StudyHubPage() {
                             title={group.title}
                             summary={
                                 group.items.length > 8
-                                    ? `${group.hint}. The most-used routes are surfaced first to keep narrow-width browsing cleaner.`
+                                    ? `${group.hint}. The most-used routes are surfaced first to keep browsing cleaner.`
                                     : group.hint
                             }
                             badge={`${group.items.length} tools`}
@@ -384,7 +421,7 @@ export default function StudyHubPage() {
                         />
                     ))}
                 </div>
-            </section>
+            </DisclosurePanel>
         </div>
     );
 }

@@ -3296,3 +3296,85 @@ export function computeConstructionRevenue({
                 : "Contract liability / due to customer",
     };
 }
+
+export function computeRetainedEarningsRollforward({
+    beginningRetainedEarnings,
+    netIncome,
+    dividendsDeclared,
+    priorPeriodAdjustment = 0,
+}: {
+    beginningRetainedEarnings: number;
+    netIncome: number;
+    dividendsDeclared: number;
+    priorPeriodAdjustment?: number;
+}) {
+    const endingRetainedEarnings =
+        beginningRetainedEarnings + netIncome + priorPeriodAdjustment - dividendsDeclared;
+
+    return {
+        endingRetainedEarnings,
+        netIncomeRetained: netIncome - dividendsDeclared,
+    };
+}
+
+export function computePercentageTax({
+    taxableSales,
+    ratePercent,
+}: {
+    taxableSales: number;
+    ratePercent: number;
+}) {
+    const rateDecimal = ratePercent / 100;
+    const taxDue = taxableSales * rateDecimal;
+
+    return {
+        rateDecimal,
+        taxDue,
+        totalWithTax: taxableSales + taxDue,
+    };
+}
+
+export function computeAccountingRateOfReturn({
+    averageAnnualAccountingIncome,
+    initialInvestment,
+    salvageValue = 0,
+}: {
+    averageAnnualAccountingIncome: number;
+    initialInvestment: number;
+    salvageValue?: number;
+}) {
+    const averageInvestment = (initialInvestment + salvageValue) / 2;
+    const accountingRateOfReturnPercent =
+        averageInvestment === 0
+            ? 0
+            : (averageAnnualAccountingIncome / averageInvestment) * 100;
+
+    return {
+        averageInvestment,
+        accountingRateOfReturnPercent,
+    };
+}
+
+export function computeEquivalentAnnualAnnuity({
+    netPresentValue,
+    discountRatePercent,
+    projectLife,
+}: {
+    netPresentValue: number;
+    discountRatePercent: number;
+    projectLife: number;
+}) {
+    const rateDecimal = discountRatePercent / 100;
+    const annuityFactor =
+        rateDecimal === 0
+            ? projectLife
+            : (1 - Math.pow(1 + rateDecimal, -projectLife)) / rateDecimal;
+    const equivalentAnnualAnnuity =
+        annuityFactor === 0 ? 0 : netPresentValue / annuityFactor;
+
+    return {
+        rateDecimal,
+        annuityFactor,
+        equivalentAnnualAnnuity,
+    };
+}

@@ -198,6 +198,7 @@ export default function SmartSolverPage() {
     const [showCoverage, setShowCoverage] = useState<boolean>(false);
     const [showDetectedValues, setShowDetectedValues] = useState<boolean>(false);
     const [showMoreMatches, setShowMoreMatches] = useState<boolean>(false);
+    const [showGuidanceDetails, setShowGuidanceDetails] = useState<boolean>(false);
     const [expandedFieldKeys, setExpandedFieldKeys] = useState<FieldKey[]>([]);
     const [guidanceMode, setGuidanceMode] = useState<
         "compute" | "beginner" | "professional"
@@ -607,8 +608,31 @@ export default function SmartSolverPage() {
         <CalculatorPageLayout
             badge="Smart Tools"
             title="Smart Solver"
-            description={`Describe the problem naturally or send reviewed scan text. Smart Solver reads the prompt, prepares likely inputs, surfaces confidence-aware review when extraction looks uncertain, and routes you into one of ${totalCoveredTools} supported tools across ${solverCoverageGroups.length} categories. Matching runs locally, while opening the suggested page offline still depends on this release already being cached.`}
+            description={`Describe a typed problem, cleaned worksheet text, or a mixed accounting prompt and Smart Solver will route you to the most likely supported tool first. It is best for text-based problem matching and input preparation, not for raw image OCR or open-ended general advice.`}
             prioritizeResultSection={hasAnyInput}
+            startGuide={{
+                badge: "What to do first",
+                title: "Tell Smart Solver what the problem is before worrying about the exact calculator",
+                summary:
+                    "This page is meant to reduce guesswork. Write the problem naturally, check the extracted values if needed, then open the matched tool only after the route looks reasonable.",
+                steps: [
+                    {
+                        title: "Write the problem naturally",
+                        description:
+                            "Use classroom wording, abbreviations, or plain language. You do not need perfect accounting jargon to start.",
+                    },
+                    {
+                        title: "Review only the risky values",
+                        description:
+                            "If confidence is mixed, correct the important inputs first instead of reading every detail in the prompt.",
+                    },
+                    {
+                        title: "Open the suggested tool",
+                        description:
+                            "When the match and inputs look right, continue into the calculator, lesson, or quiz that fits the problem best.",
+                    },
+                ],
+            }}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard className="overflow-hidden">
@@ -700,10 +724,31 @@ export default function SmartSolverPage() {
                         </div>
                     </SectionCard>
 
+                    <div className="grid gap-3 xl:grid-cols-3">
+                        <div className="app-subtle-surface rounded-[1.15rem] px-4 py-4">
+                            <p className="app-card-title text-sm">Best for</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Typed or pasted problem statements, mixed classroom wording, and cases where you know the topic area but not the exact calculator yet.
+                            </p>
+                        </div>
+                        <div className="app-tone-warning rounded-[1.15rem] px-4 py-4">
+                            <p className="app-card-title text-sm">Not ideal for</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Raw photos, unreadable worksheet images, unsupported topics, or broad “teach me everything” requests that need a lesson instead of a route.
+                            </p>
+                        </div>
+                        <div className="app-tone-info rounded-[1.15rem] px-4 py-4">
+                            <p className="app-card-title text-sm">Choose another tool when</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Use Scan & Check for image-based inputs, open Study Hub when the concept is still unclear, and go straight to a calculator when you already know the exact tool.
+                            </p>
+                        </div>
+                    </div>
+
                     <div className="grid gap-4 xl:grid-cols-2">
                         <CollapsibleSection
-                            title="How To Use Smart Solver"
-                            description="A short workflow so users can understand the tool quickly without extra clutter."
+                            title="How Smart Solver decides"
+                            description="Open this when you want to see the routing workflow without crowding the main solving surface."
                             open={showGuide}
                             onToggle={() => setShowGuide((prev) => !prev)}
                         >
@@ -979,10 +1024,10 @@ export default function SmartSolverPage() {
 
                     {solverInterpretation ? (
                         <CollapsibleSection
-                            title="Guidance"
-                            description="Switch between direct routing, study help, and practice-focused reading before opening the matched tool."
-                            open
-                            onToggle={() => undefined}
+                            title="Guidance and study follow-up"
+                            description="Open this when you want the deeper interpretation, study note, and follow-up lesson links after the main route is already clear."
+                            open={showGuidanceDetails}
+                            onToggle={() => setShowGuidanceDetails((prev) => !prev)}
                         >
                             <div className="flex flex-wrap gap-2">
                                 <button

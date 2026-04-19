@@ -1,10 +1,10 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
+import GuidedStartPanel, { type GuidedStartStep } from "./GuidedStartPanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageBackButton from "./PageBackButton";
 import PageHeader from "./PageHeader";
-import RelatedLinksPanel from "./RelatedLinksPanel";
 import ToolAboutPanel from "./ToolAboutPanel";
 import ToolPinButton from "./ToolPinButton";
 import {
@@ -36,6 +36,15 @@ type CalculatorPageLayoutProps = {
     backButtonLabel?: string;
     backButtonTo?: string;
     showBackButton?: boolean;
+    startGuide?:
+        | {
+              badge?: string;
+              title?: string;
+              summary?: string;
+              steps?: GuidedStartStep[];
+              actions?: ReactNode;
+          }
+        | false;
 };
 
 type SectionKey = "inputs" | "results" | "learn";
@@ -74,6 +83,7 @@ export default function CalculatorPageLayout({
     backButtonLabel = "Back",
     backButtonTo = "/",
     showBackButton = true,
+    startGuide,
 }: CalculatorPageLayoutProps) {
     const location = useLocation();
     const settings = useAppSettings();
@@ -214,6 +224,67 @@ export default function CalculatorPageLayout({
             : pageWidth === "study"
               ? "app-page-shell-study"
               : "";
+    const resolvedStartGuide = useMemo(() => {
+        if (startGuide === false) return null;
+
+        const defaultSteps: GuidedStartStep[] = resultSection
+            ? [
+                  {
+                      title: "Enter the values you already know",
+                      description:
+                          "Start with the problem data in plain order. You do not need to remember every formula before typing.",
+                  },
+                  {
+                      title: "Read the answer before opening deeper help",
+                      description:
+                          "Check the result, units, and main meaning first so the page feels simpler on first view.",
+                  },
+                  {
+                      title: explanationSection
+                          ? "Open Learn only when you need it"
+                          : "Use related tools only when needed",
+                      description: explanationSection
+                          ? "Formula breakdowns, cautions, mistakes, and study support stay available without crowding the solving surface."
+                          : "Keep follow-up tools as the next step after the main answer is clear.",
+                  },
+              ]
+            : [
+                  {
+                      title: "Start with the main inputs",
+                      description:
+                          "Translate the problem into the fields shown here one line at a time.",
+                  },
+                  {
+                      title: "Use the page as a guided workspace",
+                      description:
+                          "Focus on the current section first before opening supporting notes or nearby tools.",
+                  },
+                  {
+                      title: "Study deeper only when needed",
+                      description:
+                          "The supporting material is still here, but it should not block the first task.",
+                  },
+              ];
+
+        return {
+            badge: startGuide?.badge ?? "Start here",
+            title:
+                startGuide?.title ??
+                (resultSection
+                    ? "Solve first, then open explanation only when you need it"
+                    : "Work through the main task before opening deeper support"),
+            summary:
+                startGuide?.summary ??
+                (resultSection
+                    ? "AccCalc keeps the first step simple: enter the known values, read the answer, then study the method if the meaning still feels unclear."
+                    : "This page is designed to keep the working surface visible first and move supporting detail later."),
+            steps: startGuide?.steps ?? defaultSteps,
+            actions: startGuide?.actions ?? null,
+        };
+    }, [explanationSection, resultSection, startGuide]);
+    const shouldShowAvailabilityBanner =
+        routeAvailability !== null &&
+        (!routeAvailability.canOpen || routeAvailability.support !== "full");
 
     return (
         <div className={["app-page-stack", pageWidthClass].join(" ").trim()}>
@@ -241,19 +312,18 @@ export default function CalculatorPageLayout({
                 mobileMeta={mobileHeaderMeta}
             />
 
-            <div className="md:hidden">
-                {currentMeta ? (
-                    <ToolAboutPanel
-                        route={currentMeta}
-                        availability={routeAvailability}
-                        relatedRoutes={relatedRoutes}
-                        compact
-                        includeDescription={!settings.compactMobileChrome}
-                    />
-                ) : null}
-            </div>
+            {resolvedStartGuide ? (
+                <GuidedStartPanel
+                    badge={resolvedStartGuide.badge}
+                    title={resolvedStartGuide.title}
+                    summary={resolvedStartGuide.summary}
+                    steps={resolvedStartGuide.steps}
+                    actions={resolvedStartGuide.actions}
+                    compact
+                />
+            ) : null}
 
-            {routeAvailability ? (
+            {shouldShowAvailabilityBanner ? (
                 <div
                     className={[
                         "hidden rounded-[1.35rem] px-4 py-3.5 text-sm leading-6 md:block",
@@ -261,17 +331,6 @@ export default function CalculatorPageLayout({
                     ].join(" ")}
                 >
                     {routeAvailability.reason}
-                </div>
-            ) : null}
-
-            {currentMeta ? (
-                <div className="hidden md:block">
-                    <ToolAboutPanel
-                        route={currentMeta}
-                        availability={routeAvailability}
-                        relatedRoutes={relatedRoutes}
-                        includeDescription={false}
-                    />
                 </div>
             ) : null}
 
@@ -404,25 +463,16 @@ export default function CalculatorPageLayout({
                 )}
             </div>
 
-            <RelatedLinksPanel
-                title="Related study"
-                summary="Open the matching lesson or short practice set when you need concept review after solving."
-                badge={`${relatedStudyLinks.length} study links`}
-                items={relatedStudyLinks}
-                showDescriptions
-            />
-
-            <RelatedLinksPanel
-                title="Related tools"
-                summary="Keep follow-up routes collapsed until you need the next calculator, checker, or lesson."
-                badge={`${relatedRoutes.length} tools`}
-                items={relatedRoutes.map((route) => ({
-                    path: route.path,
-                    label: route.shortLabel ?? route.label,
-                    description: route.description,
-                }))}
-                showDescriptions
-            />
+            {currentMeta ? (
+                <ToolAboutPanel
+                    route={currentMeta}
+                    availability={routeAvailability}
+                    relatedStudyLinks={relatedStudyLinks}
+                    relatedRoutes={relatedRoutes}
+                    compact={settings.compactMobileChrome}
+                    includeDescription={!settings.compactMobileChrome}
+                />
+            ) : null}
         </div>
     );
 }

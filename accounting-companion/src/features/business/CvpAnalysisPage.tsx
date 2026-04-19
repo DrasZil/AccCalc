@@ -145,10 +145,32 @@ export default function CvpAnalysisPage() {
         <CalculatorPageLayout
             badge="Managerial & Cost"
             title="CVP Analysis"
-            description="Study contribution margin, break-even, target profit, margin of safety, operating leverage, and basic sensitivity from one cleaner decision-support page."
+            description="Enter the cost and sales data, then read what the answer means for break-even, target profit, safety margin, and sales risk in plain language."
             desktopLayout="result-focus"
             pageWidth="wide"
             headerActions={<SendToWorkpaperButton bundle={workpaperBundle} />}
+            startGuide={{
+                title: "Set up the problem in business terms before reading the formulas",
+                summary:
+                    "CVP becomes easier when you think in three pieces first: fixed costs for the period, contribution margin from each unit, and the sales volume you are planning to reach.",
+                steps: [
+                    {
+                        title: "Enter period fixed costs and per-unit data",
+                        description:
+                            "Keep fixed costs as totals for the period and keep selling price and variable cost on a per-unit basis.",
+                    },
+                    {
+                        title: "Read the planning checkpoints",
+                        description:
+                            "Break-even, target-profit units, and margin of safety show whether the current sales plan is comfortable or risky.",
+                    },
+                    {
+                        title: "Open Learn for the deeper procedure",
+                        description:
+                            "Use the study layer when you want the why, the common mistakes, or the worked reasoning behind the calculator.",
+                    },
+                ],
+            }}
             inputSection={
                 <SectionCard>
                     <InputGrid columns={3}>
@@ -196,6 +218,18 @@ export default function CvpAnalysisPage() {
                     </SectionCard>
                 ) : result ? (
                     <div className="space-y-4">
+                        <SectionCard className="app-tone-accent">
+                            <p className="app-card-title text-sm">What these results are saying</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Each unit currently contributes {formatPHP(result.contributionMarginPerUnit)} toward fixed costs first, then profit. That is why break-even happens at {result.breakEvenUnits.toFixed(2)} units and why the target-profit plan needs {result.targetUnits.toFixed(2)} units.
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {result.expectedSales >= result.breakEvenSales
+                                    ? `Your current sales plan is above break-even with a margin of safety of ${formatPHP(result.marginOfSafetyAmount)}.`
+                                    : `Your current sales plan is still below break-even by ${formatPHP(Math.abs(result.marginOfSafetyAmount))}, so the business is not yet covering fixed costs.`}
+                            </p>
+                        </SectionCard>
+
                         <ResultGrid columns={3}>
                             <ResultCard
                                 title="Contribution Margin / Unit"

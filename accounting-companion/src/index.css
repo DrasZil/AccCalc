@@ -4,16 +4,16 @@
     --app-header-height: 5rem;
     --app-mobile-nav-height: 0px;
     --app-keyboard-inset: 0px;
-    --app-page-max-width: 92rem;
-    --app-page-max-width-wide: 116rem;
-    --app-page-max-width-study: 108rem;
-    --app-page-max-width-data: 128rem;
-    --app-page-gap: clamp(0.8rem, 1.35vw, 1.05rem);
-    --app-page-gap-lg: clamp(1rem, 1.7vw, 1.45rem);
-    --app-radius-sm: 0.85rem;
-    --app-radius-md: 1.1rem;
-    --app-radius-lg: 1.45rem;
-    --app-radius-xl: 1.75rem;
+    --app-page-max-width: 88rem;
+    --app-page-max-width-wide: 110rem;
+    --app-page-max-width-study: 100rem;
+    --app-page-max-width-data: 122rem;
+    --app-page-gap: clamp(1rem, 1.5vw, 1.28rem);
+    --app-page-gap-lg: clamp(1.4rem, 2vw, 1.95rem);
+    --app-radius-sm: 0.8rem;
+    --app-radius-md: 1.05rem;
+    --app-radius-lg: 1.35rem;
+    --app-radius-xl: 1.7rem;
     --app-font-sans:
         "Space Grotesk",
         "Sora",
@@ -43,80 +43,80 @@
 
 html[data-theme="dark"] {
     color-scheme: dark;
-    --app-bg: #0b1118;
-    --app-surface: #111925;
-    --app-elevated: #162131;
-    --app-card: #1a2738;
-    --app-card-hover: #203047;
-    --app-border: #2a3a50;
-    --app-border-subtle: #223046;
-    --app-border-strong: rgba(73, 138, 255, 0.28);
-    --app-border-secondary: rgba(36, 198, 176, 0.24);
-    --app-text: #eff5fb;
-    --app-text-secondary: #c3d0de;
-    --app-text-muted: #8d9aae;
-    --app-text-disabled: #6e7c92;
-    --app-accent: #498aff;
-    --app-accent-hover: #6aa1ff;
-    --app-accent-soft: rgba(73, 138, 255, 0.14);
-    --app-accent-soft-strong: rgba(73, 138, 255, 0.22);
-    --app-accent-secondary: #24c6b0;
-    --app-accent-secondary-hover: #41d6c1;
-    --app-accent-secondary-soft: rgba(36, 198, 176, 0.13);
-    --app-highlight: #dc9247;
-    --app-highlight-soft: rgba(220, 146, 71, 0.14);
+    --app-bg: #0c1016;
+    --app-surface: #141922;
+    --app-elevated: #1a202c;
+    --app-card: #1d2430;
+    --app-card-hover: #232c39;
+    --app-border: #2b3445;
+    --app-border-subtle: #212938;
+    --app-border-strong: rgba(255, 135, 95, 0.34);
+    --app-border-secondary: rgba(143, 166, 255, 0.22);
+    --app-text: #f4f7fb;
+    --app-text-secondary: #cad3df;
+    --app-text-muted: #8f9aac;
+    --app-text-disabled: #667287;
+    --app-accent: #ff875f;
+    --app-accent-hover: #ff9a78;
+    --app-accent-soft: rgba(255, 135, 95, 0.13);
+    --app-accent-soft-strong: rgba(255, 135, 95, 0.22);
+    --app-accent-secondary: #92a6ff;
+    --app-accent-secondary-hover: #acbaff;
+    --app-accent-secondary-soft: rgba(146, 166, 255, 0.14);
+    --app-highlight: #f0b86d;
+    --app-highlight-soft: rgba(240, 184, 109, 0.16);
     --app-success: #34d399;
     --app-success-soft: rgba(52, 211, 153, 0.13);
     --app-warning: #f59e0b;
     --app-warning-soft: rgba(245, 158, 11, 0.14);
     --app-danger: #f87171;
     --app-danger-soft: rgba(248, 113, 113, 0.14);
-    --app-info: #60a5fa;
-    --app-info-soft: rgba(96, 165, 250, 0.14);
-    --app-overlay: rgba(11, 13, 18, 0.68);
-    --app-header-bg: rgba(14, 21, 32, 0.84);
-    --app-sidebar-bg: rgba(10, 17, 27, 0.93);
-    --app-panel-bg: rgba(24, 37, 55, 0.88);
-    --app-panel-bg-soft: rgba(18, 28, 42, 0.96);
-    --app-field-bg: rgba(14, 23, 35, 0.8);
-    --app-field-bg-strong: rgba(22, 34, 51, 0.92);
-    --app-sidebar-item-bg: rgba(17, 27, 40, 0.88);
-    --app-sidebar-item-hover: rgba(24, 38, 56, 0.96);
-    --app-sidebar-item-active: rgba(73, 138, 255, 0.16);
-    --app-sidebar-text: #edf4fb;
-    --app-sidebar-text-muted: #a3b4c9;
-    --app-shadow-sm: 0 10px 24px rgba(4, 5, 10, 0.18);
-    --app-shadow: 0 18px 38px rgba(4, 5, 10, 0.24);
-    --app-shadow-lg: 0 24px 54px rgba(4, 5, 10, 0.3);
-    --app-bg-accent-a: rgba(73, 138, 255, 0.16);
-    --app-bg-accent-b: rgba(36, 198, 176, 0.08);
-    --app-bg-accent-c: rgba(220, 146, 71, 0.08);
+    --app-info: #7baeff;
+    --app-info-soft: rgba(123, 174, 255, 0.14);
+    --app-overlay: rgba(8, 10, 15, 0.72);
+    --app-header-bg: rgba(12, 16, 22, 0.86);
+    --app-sidebar-bg: rgba(15, 19, 27, 0.96);
+    --app-panel-bg: rgba(20, 25, 34, 0.96);
+    --app-panel-bg-soft: rgba(17, 22, 31, 0.98);
+    --app-field-bg: rgba(16, 22, 31, 0.92);
+    --app-field-bg-strong: rgba(22, 29, 40, 0.98);
+    --app-sidebar-item-bg: rgba(255, 255, 255, 0.02);
+    --app-sidebar-item-hover: rgba(255, 255, 255, 0.04);
+    --app-sidebar-item-active: rgba(255, 135, 95, 0.1);
+    --app-sidebar-text: #f2f5fa;
+    --app-sidebar-text-muted: #98a2b4;
+    --app-shadow-sm: 0 10px 30px rgba(2, 6, 12, 0.2);
+    --app-shadow: 0 18px 40px rgba(2, 6, 12, 0.24);
+    --app-shadow-lg: 0 26px 60px rgba(2, 6, 12, 0.32);
+    --app-bg-accent-a: rgba(255, 135, 95, 0.08);
+    --app-bg-accent-b: rgba(146, 166, 255, 0.08);
+    --app-bg-accent-c: rgba(240, 184, 109, 0.05);
 }
 
 html[data-theme="light"] {
     color-scheme: light;
-    --app-bg: #f6f8fc;
+    --app-bg: #f4f4f6;
     --app-surface: #ffffff;
-    --app-elevated: #eef3fb;
+    --app-elevated: #eff1f5;
     --app-card: #ffffff;
-    --app-card-hover: #f7faff;
-    --app-border: #d9e2f0;
-    --app-border-subtle: #e4ebf6;
-    --app-border-strong: rgba(73, 138, 255, 0.22);
-    --app-border-secondary: rgba(36, 198, 176, 0.22);
-    --app-text: #0f172a;
-    --app-text-secondary: #475569;
-    --app-text-muted: #64748b;
-    --app-text-disabled: #94a3b8;
-    --app-accent: #498aff;
-    --app-accent-hover: #3278f7;
-    --app-accent-soft: rgba(73, 138, 255, 0.1);
-    --app-accent-soft-strong: rgba(73, 138, 255, 0.16);
-    --app-accent-secondary: #0fa38f;
-    --app-accent-secondary-hover: #0b8b7a;
-    --app-accent-secondary-soft: rgba(15, 163, 143, 0.1);
-    --app-highlight: #d7852a;
-    --app-highlight-soft: rgba(215, 133, 42, 0.1);
+    --app-card-hover: #f8f5f2;
+    --app-border: #dde2ea;
+    --app-border-subtle: #e7ebf2;
+    --app-border-strong: rgba(233, 103, 61, 0.28);
+    --app-border-secondary: rgba(84, 104, 232, 0.18);
+    --app-text: #131823;
+    --app-text-secondary: #4d5668;
+    --app-text-muted: #6d778a;
+    --app-text-disabled: #98a2b3;
+    --app-accent: #e9673d;
+    --app-accent-hover: #d55931;
+    --app-accent-soft: rgba(233, 103, 61, 0.1);
+    --app-accent-soft-strong: rgba(233, 103, 61, 0.17);
+    --app-accent-secondary: #5468e8;
+    --app-accent-secondary-hover: #4557cc;
+    --app-accent-secondary-soft: rgba(84, 104, 232, 0.1);
+    --app-highlight: #c88a37;
+    --app-highlight-soft: rgba(200, 138, 55, 0.1);
     --app-success: #16a34a;
     --app-success-soft: rgba(22, 163, 74, 0.1);
     --app-warning: #d97706;
@@ -125,24 +125,24 @@ html[data-theme="light"] {
     --app-danger-soft: rgba(220, 38, 38, 0.1);
     --app-info: #0284c7;
     --app-info-soft: rgba(2, 132, 199, 0.1);
-    --app-overlay: rgba(15, 23, 42, 0.2);
-    --app-header-bg: rgba(246, 248, 252, 0.88);
-    --app-sidebar-bg: rgba(255, 255, 255, 0.92);
-    --app-panel-bg: rgba(255, 255, 255, 0.92);
-    --app-panel-bg-soft: rgba(244, 247, 252, 0.98);
-    --app-field-bg: rgba(239, 243, 251, 0.82);
-    --app-field-bg-strong: rgba(247, 249, 253, 0.96);
-    --app-sidebar-item-bg: rgba(244, 247, 252, 0.94);
-    --app-sidebar-item-hover: rgba(236, 241, 250, 0.98);
-    --app-sidebar-item-active: rgba(79, 110, 247, 0.1);
-    --app-sidebar-text: #172132;
-    --app-sidebar-text-muted: #5b697d;
-    --app-shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.05);
-    --app-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
-    --app-shadow-lg: 0 22px 46px rgba(15, 23, 42, 0.1);
-    --app-bg-accent-a: rgba(73, 138, 255, 0.1);
-    --app-bg-accent-b: rgba(15, 163, 143, 0.06);
-    --app-bg-accent-c: rgba(215, 133, 42, 0.05);
+    --app-overlay: rgba(15, 23, 42, 0.18);
+    --app-header-bg: rgba(244, 244, 246, 0.9);
+    --app-sidebar-bg: rgba(250, 250, 251, 0.96);
+    --app-panel-bg: rgba(255, 255, 255, 0.96);
+    --app-panel-bg-soft: rgba(251, 251, 252, 0.98);
+    --app-field-bg: rgba(244, 245, 248, 0.94);
+    --app-field-bg-strong: rgba(255, 255, 255, 0.98);
+    --app-sidebar-item-bg: rgba(0, 0, 0, 0);
+    --app-sidebar-item-hover: rgba(19, 24, 35, 0.04);
+    --app-sidebar-item-active: rgba(233, 103, 61, 0.08);
+    --app-sidebar-text: #151a24;
+    --app-sidebar-text-muted: #5e6778;
+    --app-shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.05);
+    --app-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+    --app-shadow-lg: 0 24px 54px rgba(15, 23, 42, 0.12);
+    --app-bg-accent-a: rgba(233, 103, 61, 0.06);
+    --app-bg-accent-b: rgba(84, 104, 232, 0.06);
+    --app-bg-accent-c: rgba(200, 138, 55, 0.04);
 }
 
 html[data-contrast="high"] {
@@ -165,7 +165,8 @@ body {
     min-height: 100vh;
     background:
         radial-gradient(circle at top left, var(--app-bg-accent-a), transparent 24%),
-        radial-gradient(circle at top right, var(--app-bg-accent-b), transparent 20%),
+        radial-gradient(circle at 82% 0%, var(--app-bg-accent-b), transparent 20%),
+        radial-gradient(circle at 50% 100%, var(--app-bg-accent-c), transparent 16%),
         linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg) 100%);
     color: var(--app-text);
     font-family: var(--app-font-sans);
@@ -185,9 +186,9 @@ body::before {
     inset: 0;
     pointer-events: none;
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 18%),
-        radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.015) 100%);
-    opacity: 0.35;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 14%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0, transparent 22%, transparent 78%, rgba(255, 255, 255, 0.012) 100%);
+    opacity: 0.32;
 }
 
 #root {
@@ -387,6 +388,31 @@ a:active {
     min-width: 0;
 }
 
+.app-page-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.app-page-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0.32rem;
+    background: linear-gradient(180deg, var(--app-accent), color-mix(in srgb, var(--app-accent-secondary) 72%, transparent));
+    opacity: 0.72;
+}
+
+.app-page-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 92% 16%, var(--app-accent-soft), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 32%);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
 .app-page-header__row,
 .app-page-header__intro,
 .app-page-header__meta {
@@ -395,10 +421,15 @@ a:active {
 
 .app-page-header__intro h1,
 .app-page-header__intro p,
-.app-page-header__meta > * {
+.app-page-header__meta > *,
+.app-page-header > * {
     min-width: 0;
     max-width: 100%;
     overflow-wrap: anywhere;
+}
+
+.app-page-header > * {
+    position: relative;
 }
 
 .app-page-header__actions > * {
@@ -436,17 +467,17 @@ a:active {
 }
 
 .app-kicker {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--app-highlight);
+    color: var(--app-accent);
 }
 
 .app-section-kicker {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--app-text-muted);
 }
@@ -466,31 +497,31 @@ a:active {
 }
 
 .app-body-md {
-    font-size: 0.92rem;
-    line-height: 1.66;
+    font-size: 0.93rem;
+    line-height: 1.68;
     color: var(--app-text-secondary);
     font-style: normal;
 }
 
 .app-body-lg {
-    font-size: 0.96rem;
-    line-height: 1.7;
+    font-size: 0.98rem;
+    line-height: 1.72;
     color: var(--app-text-secondary);
     font-style: normal;
 }
 
 .app-helper {
-    font-size: 0.79rem;
-    line-height: 1.55;
+    font-size: 0.8rem;
+    line-height: 1.62;
     color: var(--app-text-muted);
     overflow-wrap: anywhere;
 }
 
 .app-label {
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
     color: var(--app-text-secondary);
 }
 
@@ -844,6 +875,7 @@ mjx-assistive-mml {
         background-color 220ms ease,
         border-color 220ms ease,
         box-shadow 220ms ease;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .app-shell-header__bar,
@@ -862,6 +894,11 @@ mjx-assistive-mml {
         line-height 220ms ease,
         margin 220ms ease,
         padding 220ms ease;
+}
+
+.app-shell-header__bar {
+    width: min(100%, 120rem);
+    margin-inline: auto;
 }
 
 .app-shell-header--condensed {
@@ -888,7 +925,7 @@ mjx-assistive-mml {
 }
 
 .app-shell-header--condensed .app-shell-header__search {
-    max-width: 12rem;
+    max-width: 13rem;
 }
 
 .app-bottom-nav {
@@ -955,6 +992,40 @@ mjx-assistive-mml {
     max-width: none;
     overflow-wrap: anywhere;
     word-break: break-word;
+}
+
+.app-guided-start {
+    position: relative;
+    overflow: hidden;
+}
+
+.app-guided-start::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--app-accent), transparent 68%);
+    opacity: 0.45;
+}
+
+.app-guided-start__step {
+    position: relative;
+    overflow: hidden;
+}
+
+.app-guided-start__step::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0.2rem;
+    background: linear-gradient(180deg, var(--app-accent), transparent);
+    opacity: 0.75;
+}
+
+.app-guided-start__index {
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-accent) 22%, transparent);
 }
 
 .app-formula-layout {
@@ -1038,7 +1109,18 @@ mjx-assistive-mml {
     min-height: 8.75rem;
     flex-direction: column;
     justify-content: flex-start;
-    gap: 0.15rem;
+    gap: 0.35rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-result-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 0.2rem;
+    background: linear-gradient(90deg, var(--app-accent), color-mix(in srgb, var(--app-accent-secondary) 70%, transparent));
+    opacity: 0.82;
 }
 
 .app-result-label,
@@ -1142,11 +1224,8 @@ mjx-assistive-mml {
 
 .app-panel {
     border: 1px solid var(--app-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
-        linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
+    background: linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
     box-shadow: var(--app-shadow-sm);
-    backdrop-filter: blur(18px);
 }
 
 html[data-contrast="high"] .app-panel,
@@ -1162,18 +1241,14 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-panel-elevated {
     border: 1px solid var(--app-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent),
-        linear-gradient(180deg, var(--app-panel-bg), var(--app-surface));
-    box-shadow: var(--app-shadow-lg);
-    backdrop-filter: blur(22px);
+    background: linear-gradient(180deg, var(--app-surface), var(--app-panel-bg-soft));
+    box-shadow: var(--app-shadow);
 }
 
 .app-subtle-surface {
     border: 1px solid var(--app-border-subtle);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent),
-        var(--app-field-bg);
+    background: color-mix(in srgb, var(--app-field-bg) 88%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.022);
 }
 
 .app-card-hover {
@@ -1186,12 +1261,12 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-card-hover:hover {
     border-color: var(--app-border-strong);
-    transform: translateY(-2px);
-    box-shadow: var(--app-shadow-lg);
+    transform: translateY(-1px);
+    box-shadow: var(--app-shadow);
 }
 
 .app-chip {
-    border: 1px solid var(--app-border-subtle);
+    border: 1px solid transparent;
     background: var(--app-field-bg);
     color: var(--app-text-secondary);
     max-width: 100%;
@@ -1202,11 +1277,11 @@ html[data-contrast="high"] .app-sidebar-link {
     overflow-wrap: anywhere;
     word-break: break-word;
     white-space: normal;
-    font-size: 0.68rem;
-    font-weight: 650;
-    letter-spacing: 0.14em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     line-height: 1.35;
-    text-transform: uppercase;
+    text-transform: none;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -1215,8 +1290,8 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .app-chip-accent {
-    border: 1px solid var(--app-border-strong);
-    background: var(--app-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--app-accent) 20%, transparent);
+    background: color-mix(in srgb, var(--app-accent-soft) 88%, transparent);
     color: var(--app-accent);
     max-width: 100%;
     display: inline-flex;
@@ -1226,11 +1301,11 @@ html[data-contrast="high"] .app-sidebar-link {
     overflow-wrap: anywhere;
     word-break: break-word;
     white-space: normal;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     line-height: 1.35;
-    text-transform: uppercase;
+    text-transform: none;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -1243,36 +1318,36 @@ html[data-contrast="high"] .app-sidebar-link {
     .app-chip-accent {
         max-width: 100%;
         width: auto;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.02em;
     }
 }
 
 .app-badge-new {
-    border: 1px solid rgba(244, 184, 96, 0.24);
-    background: var(--app-highlight-soft);
-    color: var(--app-highlight);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border: 1px solid color-mix(in srgb, var(--app-accent-secondary) 30%, transparent);
+    background: var(--app-accent-secondary-soft);
+    color: var(--app-accent-secondary);
+    box-shadow: none;
     max-width: 100%;
 }
 
 .app-icon-button {
     border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-field-bg-strong), var(--app-field-bg));
+    background: var(--app-field-bg);
     color: var(--app-text-secondary);
-    box-shadow: var(--app-shadow-sm);
+    box-shadow: none;
 }
 
 .app-icon-button:hover {
-    background: linear-gradient(180deg, var(--app-accent-soft), var(--app-field-bg));
-    border-color: var(--app-border-strong);
+    background: var(--app-field-bg-strong);
+    border-color: var(--app-border);
     color: var(--app-text);
 }
 
 .app-button-primary {
-    border: 1px solid transparent;
-    background: linear-gradient(180deg, var(--app-accent-hover), var(--app-accent));
-    color: #fbf8ff;
-    box-shadow: 0 12px 28px rgba(73, 138, 255, 0.22);
+    border: 1px solid color-mix(in srgb, var(--app-accent) 34%, transparent);
+    background: var(--app-accent);
+    color: #fff8f4;
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--app-accent) 26%, transparent);
     font-weight: 650;
     letter-spacing: -0.01em;
     min-width: 0;
@@ -1283,14 +1358,14 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .app-button-primary:hover {
-    background: linear-gradient(180deg, var(--app-accent-hover), var(--app-accent-hover));
-    box-shadow: 0 16px 34px rgba(73, 138, 255, 0.26);
+    background: var(--app-accent-hover);
+    box-shadow: 0 14px 28px color-mix(in srgb, var(--app-accent) 28%, transparent);
 }
 
 .app-button-secondary,
 .app-button-ghost {
-    border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-field-bg-strong), var(--app-field-bg));
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
     color: var(--app-text);
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -1304,7 +1379,7 @@ html[data-contrast="high"] .app-sidebar-link {
 .app-button-secondary:hover,
 .app-button-ghost:hover {
     border-color: var(--app-border-strong);
-    background: linear-gradient(180deg, var(--app-accent-soft), var(--app-field-bg));
+    background: var(--app-field-bg);
 }
 
 .app-button-ghost {
@@ -1317,18 +1392,16 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-input-shell {
     border: 1px solid var(--app-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent),
-        linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
-    box-shadow: var(--app-shadow-sm);
+    background: linear-gradient(180deg, var(--app-panel-bg), var(--app-field-bg));
+    box-shadow: none;
 }
 
 .app-field,
 .app-select {
     border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-field-bg-strong), var(--app-field-bg));
+    background: var(--app-field-bg-strong);
     color: var(--app-text);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    box-shadow: none;
     line-height: 1.55;
     min-width: 0;
     max-width: 100%;
@@ -1379,20 +1452,14 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-search-shell {
     border: 1px solid var(--app-border-subtle);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
-        linear-gradient(180deg, var(--app-field-bg-strong), var(--app-field-bg));
-    box-shadow: var(--app-shadow-sm);
-    backdrop-filter: blur(18px);
+    background: var(--app-field-bg-strong);
+    box-shadow: none;
 }
 
 .app-search-panel {
     border: 1px solid var(--app-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-        linear-gradient(180deg, var(--app-panel-bg), var(--app-surface));
-    box-shadow: var(--app-shadow-lg);
-    backdrop-filter: blur(24px);
+    background: linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
+    box-shadow: var(--app-shadow);
 }
 
 .app-divider {
@@ -1418,28 +1485,27 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .app-sidebar-group {
-    border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-sidebar-item-bg), transparent);
+    border: 1px solid transparent;
+    background: var(--app-sidebar-item-bg);
     color: var(--app-sidebar-text);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    box-shadow: none;
 }
 
 .app-sidebar-group:hover {
-    border-color: var(--app-border);
-    background: linear-gradient(180deg, var(--app-sidebar-item-hover), var(--app-sidebar-item-bg));
+    border-color: var(--app-border-subtle);
+    background: var(--app-sidebar-item-hover);
 }
 
 .app-sidebar-group-active {
-    border-color: var(--app-border-strong);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.024), transparent),
-        linear-gradient(180deg, var(--app-sidebar-item-active), var(--app-sidebar-item-bg));
-    box-shadow: 0 10px 24px rgba(4, 5, 10, 0.12);
+    border-color: var(--app-border);
+    background: color-mix(in srgb, var(--app-sidebar-item-active) 88%, var(--app-sidebar-item-bg));
+    box-shadow: none;
 }
 
 .app-sidebar-icon {
-    border: 1px solid var(--app-border-subtle);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    border: 1px solid color-mix(in srgb, var(--app-accent) 16%, var(--app-border-subtle));
+    background: color-mix(in srgb, var(--app-accent-soft) 50%, var(--app-field-bg));
+    box-shadow: none;
 }
 
 .app-sidebar-group-title,
@@ -1455,13 +1521,13 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-sidebar-link {
     border: 1px solid transparent;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent);
+    background: transparent;
     color: var(--app-sidebar-text);
 }
 
 .app-sidebar-link:hover {
     border-color: var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-sidebar-item-hover), var(--app-sidebar-item-bg));
+    background: var(--app-sidebar-item-hover);
 }
 
 .app-sidebar-link:hover .app-sidebar-link-meta {
@@ -1469,11 +1535,9 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .app-sidebar-link-active {
-    border-color: var(--app-border-strong);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent),
-        linear-gradient(180deg, var(--app-sidebar-item-active), rgba(61, 214, 181, 0.06));
-    box-shadow: 0 10px 22px rgba(4, 5, 10, 0.1);
+    border-color: color-mix(in srgb, var(--app-accent) 28%, var(--app-border));
+    background: color-mix(in srgb, var(--app-sidebar-item-active) 92%, transparent);
+    box-shadow: none;
 }
 
 .app-sidebar-link-active .app-sidebar-link-title {
@@ -1484,9 +1548,46 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-accent);
 }
 
+.app-sidebar-start-grid {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.app-sidebar-start-link {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.95rem;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--app-field-bg) 86%, transparent);
+    padding: 0.9rem 0.95rem;
+}
+
+.app-sidebar-start-link:hover {
+    border-color: var(--app-border-strong);
+    background: color-mix(in srgb, var(--app-accent-soft) 42%, var(--app-field-bg));
+}
+
+.app-sidebar-start-tag {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--app-accent);
+}
+
+.app-sidebar-count {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--app-sidebar-text-muted);
+}
+
 .app-tone-accent {
     border: 1px solid var(--app-border-strong);
-    background: var(--app-accent-soft);
+    background: color-mix(in srgb, var(--app-accent-soft) 88%, transparent);
     color: var(--app-text);
 }
 
@@ -1511,6 +1612,9 @@ html[data-contrast="high"] .app-sidebar-link {
 .app-hero-panel {
     position: relative;
     overflow: hidden;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--app-accent-soft) 64%, transparent), transparent 44%),
+        linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
 }
 
 .app-hero-panel::before {
@@ -1518,10 +1622,10 @@ html[data-contrast="high"] .app-sidebar-link {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at top left, var(--app-accent-soft-strong), transparent 30%),
-        radial-gradient(circle at top right, var(--app-accent-secondary-soft), transparent 24%),
-        radial-gradient(circle at 85% 70%, var(--app-highlight-soft), transparent 24%);
-    opacity: 0.42;
+        radial-gradient(circle at top left, var(--app-accent-soft-strong), transparent 28%),
+        radial-gradient(circle at 88% 16%, var(--app-accent-secondary-soft), transparent 18%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 38%);
+    opacity: 0.78;
     pointer-events: none;
 }
 
@@ -1531,10 +1635,8 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-metric-tile {
     border: 1px solid var(--app-border-subtle);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
-        var(--app-field-bg);
-    box-shadow: var(--app-shadow-sm);
+    background: color-mix(in srgb, var(--app-field-bg-strong) 86%, transparent);
+    box-shadow: none;
 }
 
 .app-metric-label {
@@ -1556,17 +1658,13 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-link-card {
     border: 1px solid var(--app-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.016), transparent),
-        linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
-    box-shadow: var(--app-shadow-sm);
+    background: linear-gradient(180deg, var(--app-panel-bg), var(--app-field-bg));
+    box-shadow: none;
 }
 
 .app-link-card:hover {
     border-color: var(--app-border-strong);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-        linear-gradient(180deg, var(--app-card-hover), var(--app-panel-bg-soft));
+    background: linear-gradient(180deg, var(--app-card-hover), var(--app-field-bg));
 }
 
 .workpaper-studio-page {
@@ -1946,6 +2044,43 @@ html[data-contrast="high"] .app-sidebar-link {
         linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent),
         var(--app-field-bg);
     padding: 0.72rem 0.82rem;
+}
+
+.workpaper-quickbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 0.95rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent),
+        var(--app-field-bg);
+    padding: 0.68rem 0.82rem;
+}
+
+.workpaper-quickbar__summary,
+.workpaper-quickbar__actions {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.workpaper-quickbar__summary {
+    flex: 1 1 14rem;
+}
+
+.workpaper-quickbar__summary strong {
+    color: var(--app-text);
+    font-size: 0.84rem;
+}
+
+.workpaper-quickbar__actions {
+    flex: 1 1 24rem;
+    justify-content: flex-end;
 }
 
 .workpaper-helpers-row {
@@ -2550,6 +2685,9 @@ html[data-contrast="high"] .app-sidebar-link {
     }
 
     .workpaper-formula-bar {
+        position: sticky;
+        top: calc(var(--app-header-height) + 0.6rem);
+        z-index: 14;
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -2642,9 +2780,17 @@ html[data-contrast="high"] .app-sidebar-link {
         justify-content: space-between;
     }
 
+    .workpaper-quickbar__actions {
+        justify-content: flex-start;
+    }
+
+    .workpaper-quickbar__actions > * {
+        flex: 1 1 9rem;
+    }
+
     .workpaper-grid {
-        --workpaper-cell-width: 5.5rem;
-        --workpaper-cell-height: 2.8rem;
+        --workpaper-cell-width: 6.25rem;
+        --workpaper-cell-height: 3.1rem;
     }
 }
 
@@ -2676,9 +2822,9 @@ html[data-contrast="high"] .app-sidebar-link {
     min-width: 0;
     flex-direction: column;
     justify-content: center;
-    gap: 0.2rem;
+    gap: 0.3rem;
     border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-field-bg), transparent);
+    background: color-mix(in srgb, var(--app-field-bg) 86%, transparent);
     color: var(--app-text);
     line-height: 1.35;
     overflow-wrap: anywhere;
@@ -2752,21 +2898,19 @@ html[data-contrast="high"] .app-sidebar-link {
 
 .app-list-link:hover {
     border-color: var(--app-border-strong);
-    background:
-        linear-gradient(180deg, var(--app-accent-soft), var(--app-field-bg));
+    background: color-mix(in srgb, var(--app-accent-soft) 50%, var(--app-field-bg));
 }
 
 .app-scrolltop {
     border: 1px solid var(--app-border-subtle);
-    background: linear-gradient(180deg, var(--app-field-bg-strong), var(--app-panel-bg));
+    background: var(--app-field-bg-strong);
     color: var(--app-text-secondary);
-    box-shadow: var(--app-shadow);
-    backdrop-filter: blur(16px);
+    box-shadow: var(--app-shadow-sm);
 }
 
 .app-scrolltop:hover {
     border-color: var(--app-border-strong);
-    background: linear-gradient(180deg, var(--app-accent-soft), var(--app-field-bg));
+    background: color-mix(in srgb, var(--app-accent-soft) 42%, var(--app-field-bg));
     color: var(--app-text);
 }
 
@@ -2992,8 +3136,8 @@ body[data-motion="off"] * {
 @media (max-width: 767px) {
     :root {
         --app-header-height: 5.75rem;
-        --app-page-gap: 0.75rem;
-        --app-page-gap-lg: 0.88rem;
+        --app-page-gap: 0.88rem;
+        --app-page-gap-lg: 1rem;
     }
 
     body {
@@ -3009,7 +3153,7 @@ body[data-motion="off"] * {
     .app-label,
     .app-chip,
     .app-chip-accent {
-        letter-spacing: 0.14em;
+        letter-spacing: 0.04em;
     }
 
     .app-panel,

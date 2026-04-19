@@ -54,7 +54,7 @@ export default function DisclosurePanel({
                 aria-controls={contentId}
                 className={[
                     "app-disclosure__button flex w-full min-w-0 flex-col items-stretch gap-3 text-left sm:flex-row sm:items-start sm:justify-between sm:gap-4",
-                    compact ? "px-3.5 py-3 md:px-4 md:py-3.5" : "px-4 py-4 md:px-5",
+                    compact ? "px-4 py-3.5 md:px-4.5 md:py-4" : "px-4.5 py-4.5 md:px-5.5 md:py-5",
                 ].join(" ")}
             >
                 <div className="app-disclosure__intro min-w-0 flex-1">
@@ -62,8 +62,8 @@ export default function DisclosurePanel({
                         <h3
                             className={[
                                 "font-semibold tracking-[-0.02em] text-[color:var(--app-text)]",
-                                compact ? "text-[0.92rem]" : "text-[0.96rem]",
-                            ].join(" ")}
+                            compact ? "text-[0.93rem]" : "text-[1rem]",
+                        ].join(" ")}
                         >
                             {title}
                         </h3>
@@ -74,7 +74,7 @@ export default function DisclosurePanel({
                         ) : null}
                     </div>
                     {summary ? (
-                        <p className="app-disclosure__summary app-helper mt-1.5 text-xs leading-5">
+                        <p className="app-disclosure__summary app-helper mt-1.5 text-xs leading-5 md:text-[0.8rem]">
                             {summary}
                         </p>
                     ) : null}
@@ -84,7 +84,7 @@ export default function DisclosurePanel({
                     {headerActions}
                     <span
                         className={[
-                            "app-button-ghost inline-flex items-center gap-2 rounded-full font-semibold uppercase tracking-[0.14em]",
+                            "app-button-ghost inline-flex items-center gap-2 rounded-full font-semibold tracking-[0.01em]",
                             compact ? "px-2.5 py-1.5 text-[0.64rem]" : "px-3 py-1.5 text-[0.68rem]",
                         ].join(" ")}
                     >
@@ -105,7 +105,9 @@ export default function DisclosurePanel({
                     <div
                         className={[
                             "border-t app-divider",
-                            compact ? "px-3.5 py-3.5 md:px-4 md:py-4" : "px-4 py-4 md:px-5",
+                            compact
+                                ? "px-4 py-4 md:px-4.5 md:py-4.5"
+                                : "px-4.5 py-4.5 md:px-5.5 md:py-5.5",
                             contentClassName,
                         ].join(" ")}
                     >

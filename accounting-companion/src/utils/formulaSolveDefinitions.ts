@@ -1,13 +1,17 @@
 import formatPHP from "./formatPHP.js";
 import {
+    computeAccountingRateOfReturn,
     computeBreakEven,
     computeCompoundInterest,
     computeCurrentRatio,
+    computeEquivalentAnnualAnnuity,
     computeFutureValue,
     computeGrossProfitRate,
     computeMarkupMargin,
+    computePercentageTax,
     computePresentValue,
     computeQuickRatio,
+    computeRetainedEarningsRollforward,
     computeSimpleInterest,
     computeStraightLineDepreciation,
     computeTurnoverWithDayBasis,
@@ -1744,3 +1748,436 @@ export const receivablesTurnoverSolveDefinition = createTurnoverDefinition({
     ratioLabel: "Receivables Turnover",
     dayLabel: "Average Collection Period",
 });
+
+export const retainedEarningsRollforwardSolveDefinition: FormulaCalculatorDefinition = {
+    id: "retained-earnings-rollforward-solve",
+    defaultTarget: "endingRetainedEarnings",
+    fields: {
+        beginningRetainedEarnings: {
+            key: "beginningRetainedEarnings",
+            label: "Beginning Retained Earnings",
+            placeholder: "500000",
+            kind: "money",
+        },
+        netIncome: { key: "netIncome", label: "Net Income", placeholder: "125000", kind: "money" },
+        dividendsDeclared: {
+            key: "dividendsDeclared",
+            label: "Dividends Declared",
+            placeholder: "40000",
+            kind: "money",
+        },
+        priorPeriodAdjustment: {
+            key: "priorPeriodAdjustment",
+            label: "Prior Period Adjustment",
+            placeholder: "0",
+            kind: "money",
+            helperText: "Use a negative amount when the correction reduces retained earnings.",
+        },
+        endingRetainedEarnings: {
+            key: "endingRetainedEarnings",
+            label: "Ending Retained Earnings",
+            placeholder: "585000",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "endingRetainedEarnings",
+            label: "Ending RE",
+            summary: "Roll beginning retained earnings into the ending balance after income, dividends, and prior-period corrections.",
+        },
+        {
+            key: "beginningRetainedEarnings",
+            label: "Beginning RE",
+            summary: "Back-solve the opening retained earnings balance.",
+        },
+        {
+            key: "netIncome",
+            label: "Net Income",
+            summary: "Solve the net income needed to reach the ending retained earnings balance.",
+        },
+        {
+            key: "dividendsDeclared",
+            label: "Dividends",
+            summary: "Solve the dividends declared that reconcile beginning and ending retained earnings.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        switch (targetKey) {
+            case "beginningRetainedEarnings":
+                return ["netIncome", "dividendsDeclared", "priorPeriodAdjustment", "endingRetainedEarnings"];
+            case "netIncome":
+                return ["beginningRetainedEarnings", "dividendsDeclared", "priorPeriodAdjustment", "endingRetainedEarnings"];
+            case "dividendsDeclared":
+                return ["beginningRetainedEarnings", "netIncome", "priorPeriodAdjustment", "endingRetainedEarnings"];
+            default:
+                return ["beginningRetainedEarnings", "netIncome", "dividendsDeclared", "priorPeriodAdjustment"];
+        }
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Retained earnings rollforward",
+            body: `Enter the visible equity amounts to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let beginningRetainedEarnings = values.beginningRetainedEarnings;
+        let netIncome = values.netIncome;
+        let dividendsDeclared = values.dividendsDeclared;
+        const priorPeriodAdjustment = values.priorPeriodAdjustment ?? 0;
+        let endingRetainedEarnings = values.endingRetainedEarnings;
+
+        if (targetKey === "beginningRetainedEarnings") {
+            beginningRetainedEarnings =
+                endingRetainedEarnings - netIncome - priorPeriodAdjustment + dividendsDeclared;
+        } else if (targetKey === "netIncome") {
+            netIncome =
+                endingRetainedEarnings - beginningRetainedEarnings - priorPeriodAdjustment + dividendsDeclared;
+        } else if (targetKey === "dividendsDeclared") {
+            dividendsDeclared =
+                beginningRetainedEarnings + netIncome + priorPeriodAdjustment - endingRetainedEarnings;
+        } else {
+            endingRetainedEarnings = computeRetainedEarningsRollforward({
+                beginningRetainedEarnings,
+                netIncome,
+                dividendsDeclared,
+                priorPeriodAdjustment,
+            }).endingRetainedEarnings;
+        }
+
+        const recomputed = computeRetainedEarningsRollforward({
+            beginningRetainedEarnings,
+            netIncome,
+            dividendsDeclared,
+            priorPeriodAdjustment,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "beginningRetainedEarnings"
+                        ? "Beginning Retained Earnings"
+                        : targetKey === "netIncome"
+                          ? "Net Income"
+                          : targetKey === "dividendsDeclared"
+                            ? "Dividends Declared"
+                            : "Ending Retained Earnings",
+                value:
+                    targetKey === "beginningRetainedEarnings"
+                        ? formatPHP(beginningRetainedEarnings)
+                        : targetKey === "netIncome"
+                          ? formatPHP(netIncome)
+                          : targetKey === "dividendsDeclared"
+                            ? formatPHP(dividendsDeclared)
+                            : formatPHP(endingRetainedEarnings),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Net Income Retained", value: formatPHP(recomputed.netIncomeRetained) },
+                { title: "Prior Adjustment", value: formatPHP(priorPeriodAdjustment) },
+            ],
+            formula: "Ending RE = Beginning RE + Net Income + Prior Period Adjustment - Dividends",
+            steps: [
+                `Start with beginning retained earnings of ${formatPHP(beginningRetainedEarnings)}.`,
+                `Add net income of ${formatPHP(netIncome)} and prior-period adjustment of ${formatPHP(priorPeriodAdjustment)}.`,
+                `Subtract dividends declared of ${formatPHP(dividendsDeclared)} to reach ending retained earnings of ${formatPHP(recomputed.endingRetainedEarnings)}.`,
+            ],
+            glossary: [
+                { term: "Retained earnings", meaning: "Cumulative profits kept in the business rather than distributed to owners." },
+                { term: "Prior period adjustment", meaning: "Correction of an error or change applied directly to retained earnings rather than current-period profit." },
+            ],
+            interpretation: `This rollforward explains how the equity balance moved from ${formatPHP(beginningRetainedEarnings)} to ${formatPHP(recomputed.endingRetainedEarnings)} after current-period results and distributions.`,
+            assumptions: [
+                "This layout assumes a simple retained-earnings rollforward and does not separate other comprehensive income or treasury-share movements.",
+            ],
+            notes: [
+                "Use this as support for the statement of changes in equity, dividend questions, and retained-earnings reconciliation items.",
+            ],
+        };
+    },
+};
+
+export const percentageTaxSolveDefinition: FormulaCalculatorDefinition = {
+    id: "percentage-tax-solve",
+    defaultTarget: "taxDue",
+    fields: {
+        taxableSales: { key: "taxableSales", label: "Taxable Sales", placeholder: "250000", kind: "money" },
+        ratePercent: {
+            key: "ratePercent",
+            label: "Rate (%)",
+            placeholder: "3",
+            kind: "percent",
+            helperText: "Use the rate applicable to the percentage-tax scenario being reviewed.",
+        },
+        taxDue: { key: "taxDue", label: "Percentage Tax Due", placeholder: "7500", kind: "money" },
+    },
+    targets: [
+        { key: "taxDue", label: "Tax Due", summary: "Compute the percentage tax due from taxable sales and the applicable rate." },
+        { key: "taxableSales", label: "Taxable Sales", summary: "Back-solve taxable sales when the tax due and rate are known." },
+        { key: "ratePercent", label: "Rate", summary: "Back-solve the implied percentage-tax rate." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "taxableSales") return ["taxDue", "ratePercent"];
+        if (targetKey === "ratePercent") return ["taxableSales", "taxDue"];
+        return ["taxableSales", "ratePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Percentage-tax check",
+            body: `Enter the visible values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let taxableSales = values.taxableSales;
+        let ratePercent = values.ratePercent;
+        let taxDue = values.taxDue;
+
+        if (targetKey === "taxableSales") {
+            if (ratePercent <= 0) return { error: "Rate must be greater than zero when solving for taxable sales." };
+            taxableSales = taxDue / (ratePercent / 100);
+        } else if (targetKey === "ratePercent") {
+            if (taxableSales <= 0) return { error: "Taxable sales must be greater than zero when solving for the rate." };
+            ratePercent = (taxDue / taxableSales) * 100;
+        } else {
+            taxDue = computePercentageTax({ taxableSales, ratePercent }).taxDue;
+        }
+
+        const computed = computePercentageTax({ taxableSales, ratePercent });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "taxableSales"
+                        ? "Taxable Sales"
+                        : targetKey === "ratePercent"
+                          ? "Rate"
+                          : "Percentage Tax Due",
+                value:
+                    targetKey === "taxableSales"
+                        ? formatPHP(taxableSales)
+                        : targetKey === "ratePercent"
+                          ? formatPercent(ratePercent)
+                          : formatPHP(taxDue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Rate (decimal)", value: computed.rateDecimal.toFixed(4) },
+                { title: "Amount Including Tax", value: formatPHP(computed.totalWithTax) },
+            ],
+            formula:
+                targetKey === "taxDue"
+                    ? "Tax Due = Taxable Sales × Rate"
+                    : targetKey === "taxableSales"
+                      ? "Taxable Sales = Tax Due / Rate"
+                      : "Rate = Tax Due / Taxable Sales",
+            steps: [
+                `Convert ${formatPercent(ratePercent)} to ${computed.rateDecimal.toFixed(4)} in decimal form.`,
+                `Percentage tax due = ${formatPHP(taxableSales)} × ${computed.rateDecimal.toFixed(4)} = ${formatPHP(computed.taxDue)}.`,
+            ],
+            interpretation: `The selected values imply percentage tax of ${formatPHP(computed.taxDue)} on taxable sales of ${formatPHP(taxableSales)}.`,
+            assumptions: [
+                "This tool is for percentage-tax drills and assumes the tax base is already identified correctly for the scenario.",
+            ],
+            warnings: [
+                "Check whether the case should use VAT, percentage tax, or a special tax regime before relying on this result.",
+            ],
+        };
+    },
+};
+
+export const accountingRateOfReturnSolveDefinition: FormulaCalculatorDefinition = {
+    id: "accounting-rate-of-return-solve",
+    defaultTarget: "accountingRateOfReturnPercent",
+    fields: {
+        averageAnnualAccountingIncome: {
+            key: "averageAnnualAccountingIncome",
+            label: "Average Annual Accounting Income",
+            placeholder: "60000",
+            kind: "money",
+        },
+        initialInvestment: { key: "initialInvestment", label: "Initial Investment", placeholder: "400000", kind: "money" },
+        salvageValue: {
+            key: "salvageValue",
+            label: "Salvage Value",
+            placeholder: "40000",
+            kind: "money",
+        },
+        accountingRateOfReturnPercent: {
+            key: "accountingRateOfReturnPercent",
+            label: "ARR (%)",
+            placeholder: "27.27",
+            kind: "percent",
+        },
+    },
+    targets: [
+        { key: "accountingRateOfReturnPercent", label: "ARR", summary: "Compute the accounting rate of return from average accounting income and average investment." },
+        { key: "averageAnnualAccountingIncome", label: "Income", summary: "Back-solve the average annual accounting income implied by the ARR target." },
+        { key: "initialInvestment", label: "Initial Investment", summary: "Back-solve the initial investment while keeping the salvage estimate visible." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "averageAnnualAccountingIncome") return ["initialInvestment", "salvageValue", "accountingRateOfReturnPercent"];
+        if (targetKey === "initialInvestment") return ["averageAnnualAccountingIncome", "salvageValue", "accountingRateOfReturnPercent"];
+        return ["averageAnnualAccountingIncome", "initialInvestment", "salvageValue"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "ARR calculator",
+            body: `Enter the visible project values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let averageAnnualAccountingIncome = values.averageAnnualAccountingIncome;
+        let initialInvestment = values.initialInvestment;
+        const salvageValue = values.salvageValue ?? 0;
+        let accountingRateOfReturnPercent = values.accountingRateOfReturnPercent;
+
+        if (targetKey === "averageAnnualAccountingIncome") {
+            averageAnnualAccountingIncome =
+                ((initialInvestment + salvageValue) / 2) * (accountingRateOfReturnPercent / 100);
+        } else if (targetKey === "initialInvestment") {
+            if (accountingRateOfReturnPercent <= 0) {
+                return { error: "ARR must be greater than zero when solving for initial investment." };
+            }
+            initialInvestment =
+                (2 * averageAnnualAccountingIncome) / (accountingRateOfReturnPercent / 100) - salvageValue;
+        } else {
+            accountingRateOfReturnPercent = computeAccountingRateOfReturn({
+                averageAnnualAccountingIncome,
+                initialInvestment,
+                salvageValue,
+            }).accountingRateOfReturnPercent;
+        }
+
+        const computed = computeAccountingRateOfReturn({
+            averageAnnualAccountingIncome,
+            initialInvestment,
+            salvageValue,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "averageAnnualAccountingIncome"
+                        ? "Average Annual Accounting Income"
+                        : targetKey === "initialInvestment"
+                          ? "Initial Investment"
+                          : "ARR",
+                value:
+                    targetKey === "averageAnnualAccountingIncome"
+                        ? formatPHP(averageAnnualAccountingIncome)
+                        : targetKey === "initialInvestment"
+                          ? formatPHP(initialInvestment)
+                          : formatPercent(accountingRateOfReturnPercent),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Average Investment", value: formatPHP(computed.averageInvestment) },
+                { title: "Salvage Value", value: formatPHP(salvageValue) },
+            ],
+            formula: "ARR = Average Annual Accounting Income / Average Investment",
+            steps: [
+                `Average investment = (${formatPHP(initialInvestment)} + ${formatPHP(salvageValue)}) / 2 = ${formatPHP(computed.averageInvestment)}.`,
+                `ARR = ${formatPHP(averageAnnualAccountingIncome)} / ${formatPHP(computed.averageInvestment)} = ${formatPercent(computed.accountingRateOfReturnPercent)}.`,
+            ],
+            interpretation: `The project earns about ${formatPercent(computed.accountingRateOfReturnPercent)} on its average invested amount based on accounting income, not discounted cash flow.`,
+            assumptions: [
+                "ARR is accounting-based and does not discount cash flows, so it should not replace NPV or IRR for time-value-sensitive decisions.",
+            ],
+            notes: [
+                "This measure is often used in class alongside payback, NPV, PI, and IRR to compare how accounting-based and cash-flow-based rankings differ.",
+            ],
+        };
+    },
+};
+
+export const equivalentAnnualAnnuitySolveDefinition: FormulaCalculatorDefinition = {
+    id: "equivalent-annual-annuity-solve",
+    defaultTarget: "equivalentAnnualAnnuity",
+    fields: {
+        netPresentValue: { key: "netPresentValue", label: "Net Present Value", placeholder: "180000", kind: "money" },
+        discountRatePercent: { key: "discountRatePercent", label: "Discount Rate (%)", placeholder: "10", kind: "percent" },
+        projectLife: { key: "projectLife", label: "Project Life (years)", placeholder: "5", kind: "time" },
+        equivalentAnnualAnnuity: { key: "equivalentAnnualAnnuity", label: "Equivalent Annual Annuity", placeholder: "47482.34", kind: "money" },
+    },
+    targets: [
+        { key: "equivalentAnnualAnnuity", label: "EAA", summary: "Convert NPV into an annual equivalent amount for mutually exclusive projects with different lives." },
+        { key: "netPresentValue", label: "NPV", summary: "Back-solve the NPV that corresponds to the annual equivalent amount." },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "netPresentValue"
+            ? ["equivalentAnnualAnnuity", "discountRatePercent", "projectLife"]
+            : ["netPresentValue", "discountRatePercent", "projectLife"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Equivalent annual annuity",
+            body: `Enter the visible capital-budgeting values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let netPresentValue = values.netPresentValue;
+        const discountRatePercent = values.discountRatePercent;
+        const projectLife = values.projectLife;
+        let equivalentAnnualAnnuity = values.equivalentAnnualAnnuity;
+
+        if (projectLife <= 0) return { error: "Project life must be greater than zero." };
+        if (discountRatePercent < 0) return { error: "Discount rate cannot be negative." };
+
+        const computedForInputs = computeEquivalentAnnualAnnuity({
+            netPresentValue: targetKey === "netPresentValue" ? 1 : netPresentValue,
+            discountRatePercent,
+            projectLife,
+        });
+
+        if (targetKey === "netPresentValue") {
+            netPresentValue = equivalentAnnualAnnuity * computedForInputs.annuityFactor;
+        } else {
+            equivalentAnnualAnnuity = computeEquivalentAnnualAnnuity({
+                netPresentValue,
+                discountRatePercent,
+                projectLife,
+            }).equivalentAnnualAnnuity;
+        }
+
+        const computed = computeEquivalentAnnualAnnuity({
+            netPresentValue,
+            discountRatePercent,
+            projectLife,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "netPresentValue" ? "Net Present Value" : "Equivalent Annual Annuity",
+                value:
+                    targetKey === "netPresentValue"
+                        ? formatPHP(netPresentValue)
+                        : formatPHP(equivalentAnnualAnnuity),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Annuity Factor", value: formatPlain(computed.annuityFactor, 4) },
+                { title: "Project Life", value: `${formatPlain(projectLife)} year(s)` },
+            ],
+            formula: "EAA = NPV / Present Value Annuity Factor",
+            steps: [
+                `Annuity factor at ${formatPercent(discountRatePercent)} for ${formatPlain(projectLife)} year(s) = ${formatPlain(computed.annuityFactor, 4)}.`,
+                `Equivalent annual annuity = ${formatPHP(netPresentValue)} / ${formatPlain(computed.annuityFactor, 4)} = ${formatPHP(computed.equivalentAnnualAnnuity)}.`,
+            ],
+            interpretation: `Use the annual equivalent amount of ${formatPHP(computed.equivalentAnnualAnnuity)} when comparing projects that have unequal lives but similar risk and timing assumptions.`,
+            assumptions: [
+                "EAA assumes the project can be repeated on similar terms and that the discount rate stays relevant across the compared lives.",
+            ],
+            notes: [
+                "This is most useful after NPV is already known and you need a same-length annualized comparison for mutually exclusive projects.",
+            ],
+        };
+    },
+};

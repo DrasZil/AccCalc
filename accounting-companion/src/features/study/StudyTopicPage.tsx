@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
+import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
@@ -184,6 +185,30 @@ export default function StudyTopicPage() {
                 }
             />
 
+            <GuidedStartPanel
+                badge="Lesson flow"
+                title="Start with the big picture, then open the deeper panels only when needed"
+                summary="This lesson is intentionally layered so beginners do not have to read everything at once. Use the overview first, then move into formulas, procedure, mistakes, and practice only as needed."
+                steps={[
+                    {
+                        title: "Read the overview first",
+                        description:
+                            "Start with what the topic means, why it matters, and where it usually appears in class.",
+                    },
+                    {
+                        title: "Open formulas and procedure next",
+                        description:
+                            "Use the method sections only after the big picture already makes sense in plain language.",
+                    },
+                    {
+                        title: "Finish with mistakes and quiz",
+                        description:
+                            "Use the self-check prompts, common traps, and mini quiz to see whether the topic is actually sticking.",
+                    },
+                ]}
+                compact
+            />
+
             <section className="app-study-layout">
                 <TopicSectionCard
                     topicId={topic.id}
@@ -333,7 +358,6 @@ export default function StudyTopicPage() {
                 sectionKey="formula"
                 title="Formula overview"
                 summary="Open the key equations, variable meaning, and what each formula is actually measuring."
-                defaultOpen
                 reviewed={reviewedSections.has("formula")}
             >
                 <DisclosurePanel
@@ -390,7 +414,6 @@ export default function StudyTopicPage() {
                 sectionKey="procedure"
                 title="Procedure and solving method"
                 summary="Use this when you need the order of operations, not just the final formula."
-                defaultOpen
                 reviewed={reviewedSections.has("procedure")}
             >
                 <DisclosurePanel

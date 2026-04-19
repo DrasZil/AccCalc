@@ -329,6 +329,7 @@ export default function WorkpaperStudioPage() {
     });
     const [showFormulaExamples, setShowFormulaExamples] = useState(false);
     const [showFunctionPicker, setShowFunctionPicker] = useState(false);
+    const [showFormattingTools, setShowFormattingTools] = useState(false);
     const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
     const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -1003,7 +1004,7 @@ export default function WorkpaperStudioPage() {
             : "1 cell selected";
     const shouldShowGuidance =
         Boolean(activeSheet) &&
-        ((!guidanceDismissed && (!hasSheetContent || !cellDraft.trim())) ||
+        ((!guidanceDismissed && !hasSheetContent) ||
             showFormulaExamples ||
             Boolean(liveFormulaError));
 
@@ -1154,30 +1155,6 @@ export default function WorkpaperStudioPage() {
                         </p>
                     ) : null}
 
-                    {recentWorkbookIds.length > 0 ? (
-                        <section className="workpaper-recent-strip">
-                            <span className="workpaper-recent-strip__label">Recent</span>
-                            <div className="workpaper-recent-strip__items scrollbar-premium">
-                                {recentWorkbookIds.map((workbookId) => {
-                                    const workbook = library.workbooks[workbookId];
-                                    if (!workbook) return null;
-                                    return (
-                                        <button
-                                            key={workbook.id}
-                                            type="button"
-                                            onClick={() =>
-                                                startTransition(() => setSelectedWorkbookId(workbook.id))
-                                            }
-                                            className="workpaper-recent-strip__button"
-                                        >
-                                            {workbook.title}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    ) : null}
-
                     {importError ? (
                         <p className="rounded-xl px-3 py-2 text-sm app-tone-warning">
                             {importError}
@@ -1307,7 +1284,56 @@ export default function WorkpaperStudioPage() {
                                 </button>
                             </section>
 
-                            {(showFunctionPicker || selectedCellStyle || selectedCellKeys.length > 0) && (
+                            <section className="workpaper-quickbar">
+                                <div className="workpaper-quickbar__summary">
+                                    <span className="workpaper-format-strip__label">Active selection</span>
+                                    <strong>{selectedRangeLabel}</strong>
+                                    <span className="workpaper-format-strip__hint">{selectionSummary}</span>
+                                </div>
+                                <div className="workpaper-quickbar__actions">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowFormattingTools((current) => !current)}
+                                        className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                    >
+                                        {showFormattingTools ? "Hide format" : "Format"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowFunctionPicker((current) => !current)}
+                                        className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                    >
+                                        {showFunctionPicker ? "Hide fx" : "Functions"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setActivePanel((current) =>
+                                                current === "details" ? "none" : "details"
+                                            )
+                                        }
+                                        className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                    >
+                                        {activePanel === "details" ? "Hide details" : "Details"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => void copySelectedRange()}
+                                        className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                    >
+                                        Copy
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => void pasteIntoSelection()}
+                                        className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                    >
+                                        Paste
+                                    </button>
+                                </div>
+                            </section>
+
+                            {(showFunctionPicker || showFormattingTools) && (
                                 <section className="workpaper-helpers-row">
                                     {showFunctionPicker ? (
                                         <div className="workpaper-function-picker">
@@ -1347,26 +1373,10 @@ export default function WorkpaperStudioPage() {
                                         </div>
                                     ) : null}
 
-                                    <div className="workpaper-format-strip">
+                                    {showFormattingTools ? (
+                                        <div className="workpaper-format-strip">
                                         <div className="workpaper-format-strip__group">
-                                            <span className="workpaper-format-strip__label">Selection</span>
-                                            <span className="workpaper-format-strip__hint">
-                                                {selectedRangeLabel} | {selectionSummary}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => void copySelectedRange()}
-                                                className="workpaper-format-button workpaper-format-button--wide"
-                                            >
-                                                Copy
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => void pasteIntoSelection()}
-                                                className="workpaper-format-button workpaper-format-button--wide"
-                                            >
-                                                Paste
-                                            </button>
+                                            <span className="workpaper-format-strip__label">Selection tools</span>
                                             <button
                                                 type="button"
                                                 onClick={() => fillSelection("down")}
@@ -1568,6 +1578,7 @@ export default function WorkpaperStudioPage() {
                                             </button>
                                         </div>
                                     </div>
+                                    ) : null}
                                 </section>
                             )}
 
@@ -1577,8 +1588,8 @@ export default function WorkpaperStudioPage() {
                                         <strong>How to use this sheet</strong>
                                         <span className="app-helper text-xs">
                                             Type values directly, start formulas with <code>=</code>,
-                                            use <code>fx</code> for guided functions, and format the selected
-                                            cell from the strip above.
+                                            use <code>Functions</code> for guided formulas, and open
+                                            <code> Format</code> only when you need styling or workpaper blocks.
                                         </span>
                                         {liveFormulaError ? (
                                             <span className="workpaper-inline-guide__error">
@@ -1624,50 +1635,44 @@ export default function WorkpaperStudioPage() {
                                         </p>
                                     </div>
                                     <div className="workpaper-grid-shell__header-actions">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                mutateActiveSheet(
-                                                    (sheet) => ({
-                                                        ...sheet,
-                                                        rowCount: clampSheetDimension(
-                                                            sheet.rowCount + 5,
-                                                            24,
-                                                            MAX_ROWS
-                                                        ),
-                                                    }),
-                                                    "Added more rows to the active sheet."
-                                                )
-                                            }
-                                            className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                        >
-                                            Rows
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                mutateActiveSheet(
-                                                    (sheet) => ({
-                                                        ...sheet,
-                                                        columnCount: clampSheetDimension(
-                                                            sheet.columnCount + 1,
-                                                            8,
-                                                            MAX_COLUMNS
-                                                        ),
-                                                    }),
-                                                    "Added a new column to the active sheet."
-                                                )
-                                            }
-                                            className="app-button-ghost rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                        >
-                                            Columns
-                                        </button>
                                         <WorkpaperActionMenu
                                             menuKey="structure"
                                             openMenu={openMenu}
                                             setOpenMenu={setOpenMenu}
                                             label="Structure"
                                             items={[
+                                                {
+                                                    label: "Add 5 rows at the bottom",
+                                                    detail: "Extend the sheet for more working lines.",
+                                                    onSelect: () =>
+                                                        mutateActiveSheet(
+                                                            (sheet) => ({
+                                                                ...sheet,
+                                                                rowCount: clampSheetDimension(
+                                                                    sheet.rowCount + 5,
+                                                                    24,
+                                                                    MAX_ROWS
+                                                                ),
+                                                            }),
+                                                            "Added more rows to the active sheet."
+                                                        ),
+                                                },
+                                                {
+                                                    label: "Add 1 column at the end",
+                                                    detail: "Extend the sheet for more schedules or notes.",
+                                                    onSelect: () =>
+                                                        mutateActiveSheet(
+                                                            (sheet) => ({
+                                                                ...sheet,
+                                                                columnCount: clampSheetDimension(
+                                                                    sheet.columnCount + 1,
+                                                                    8,
+                                                                    MAX_COLUMNS
+                                                                ),
+                                                            }),
+                                                            "Added a new column to the active sheet."
+                                                        ),
+                                                },
                                                 {
                                                     label: "Insert row",
                                                     detail: `Insert a row around ${selectedRangeLabel}.`,
@@ -1938,17 +1943,42 @@ export default function WorkpaperStudioPage() {
 
                             {activePanel !== "none" ? (
                                 <section className="workpaper-panel-surface">
-                                    {activePanel === "workbooks" ? (
-                                        <DisclosurePanel
-                                            title="Workbooks"
-                                            summary="Open and manage workbook files without taking over the worksheet."
-                                            badge={`${library.workbookOrder.length} files`}
-                                            defaultOpen
-                                            compact
-                                        >
-                                            <div className="workpaper-card-grid">
-                                                {library.workbookOrder.map((workbookId) => {
-                                                    const workbook = library.workbooks[workbookId];
+                                      {activePanel === "workbooks" ? (
+                                          <DisclosurePanel
+                                              title="Workbooks"
+                                              summary="Open and manage workbook files without taking over the worksheet."
+                                              badge={`${library.workbookOrder.length} files`}
+                                              defaultOpen
+                                              compact
+                                          >
+                                              {recentWorkbookIds.length > 0 ? (
+                                                  <div className="mb-4 space-y-2">
+                                                      <p className="app-helper text-xs">Recent workbooks</p>
+                                                      <div className="flex flex-wrap gap-2">
+                                                          {recentWorkbookIds.map((workbookId) => {
+                                                              const workbook = library.workbooks[workbookId];
+                                                              if (!workbook) return null;
+                                                              return (
+                                                                  <button
+                                                                      key={workbook.id}
+                                                                      type="button"
+                                                                      onClick={() =>
+                                                                          startTransition(() =>
+                                                                              setSelectedWorkbookId(workbook.id)
+                                                                          )
+                                                                      }
+                                                                      className="workpaper-recent-strip__button"
+                                                                  >
+                                                                      {workbook.title}
+                                                                  </button>
+                                                              );
+                                                          })}
+                                                      </div>
+                                                  </div>
+                                              ) : null}
+                                              <div className="workpaper-card-grid">
+                                                  {library.workbookOrder.map((workbookId) => {
+                                                      const workbook = library.workbooks[workbookId];
                                                     if (!workbook) return null;
                                                     return (
                                                         <button

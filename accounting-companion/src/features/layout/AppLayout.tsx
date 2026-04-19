@@ -76,41 +76,6 @@ function isPathActive(currentPath: string, itemPath: string) {
     return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
 }
 
-function getSidebarTone(groupTitle: AppNavGroupTitle) {
-    switch (groupTitle) {
-        case "General":
-            return "linear-gradient(135deg, rgba(220, 146, 71, 0.24), rgba(28, 121, 204, 0.08))";
-        case "Smart Tools":
-            return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(14, 148, 136, 0.1))";
-        case "Study Hub":
-            return "linear-gradient(135deg, rgba(69, 210, 175, 0.22), rgba(28, 121, 204, 0.08))";
-        case "FAR":
-            return "linear-gradient(135deg, rgba(14, 148, 136, 0.24), rgba(28, 121, 204, 0.08))";
-        case "AFAR":
-            return "linear-gradient(135deg, rgba(28, 121, 204, 0.22), rgba(14, 148, 136, 0.08))";
-        case "Cost & Managerial":
-            return "linear-gradient(135deg, rgba(220, 146, 71, 0.18), rgba(43, 70, 229, 0.08))";
-        case "Audit & Assurance":
-            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(43, 70, 229, 0.1))";
-        case "Taxation":
-            return "linear-gradient(135deg, rgba(214, 77, 121, 0.18), rgba(220, 146, 71, 0.08))";
-        case "RFBT & Law":
-            return "linear-gradient(135deg, rgba(74, 86, 219, 0.2), rgba(220, 146, 71, 0.08))";
-        case "AIS & IT Controls":
-            return "linear-gradient(135deg, rgba(36, 198, 176, 0.18), rgba(73, 138, 255, 0.08))";
-        case "Operations & Supply Chain":
-            return "linear-gradient(135deg, rgba(220, 146, 71, 0.2), rgba(36, 198, 176, 0.08))";
-        case "Governance & Ethics":
-            return "linear-gradient(135deg, rgba(43, 70, 229, 0.18), rgba(220, 146, 71, 0.08))";
-        case "Strategic & Integrative":
-            return "linear-gradient(135deg, rgba(28, 121, 204, 0.2), rgba(14, 148, 136, 0.1))";
-        case "Finance / Econ / Math":
-            return "linear-gradient(135deg, rgba(73, 138, 255, 0.18), rgba(43, 70, 229, 0.08))";
-        default:
-            return "linear-gradient(135deg, rgba(43, 70, 229, 0.16), rgba(14, 148, 136, 0.06))";
-    }
-}
-
 function getDraftStorageKey(pathname: string) {
     return `${ROUTE_DRAFT_STORAGE_PREFIX}:${pathname}`;
 }
@@ -320,6 +285,8 @@ function SidebarContent({
     bundleReady,
     onUnavailableRoute,
 }: SidebarContentProps) {
+    const [showShortcuts, setShowShortcuts] = useState(false);
+
     function resolveRouteAvailability(route: { path: string }) {
         const routeMeta = getRouteMeta(route.path);
         if (!routeMeta) {
@@ -353,45 +320,67 @@ function SidebarContent({
     }
 
     return (
-        <div
-            className="flex h-full flex-col"
-            style={{
-                background: "linear-gradient(180deg, var(--app-surface), var(--app-elevated))",
-            }}
-        >
-            <div className="border-b app-divider px-4 py-3.5">
-                <div className="flex items-start justify-between gap-3">
+        <div className="flex h-full flex-col" style={{ background: "var(--app-sidebar-bg)" }}>
+            <div className="border-b app-divider px-3 py-2.5">
+                <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                         <Link to="/" onClick={closeMobileSidebar} className="block">
-                            <div className="app-chip-accent inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
-                                Release {APP_VERSION}
-                            </div>
-                            <div className="mt-3">
+                            <p className="app-kicker text-[0.62rem]">AccCalc {APP_VERSION}</p>
+                            <div className="mt-1.5">
                                 <AppBrandMark
                                     compact
                                     labelClassName="text-[color:var(--app-sidebar-text)]"
                                 />
                             </div>
                         </Link>
-
-                        <p className="mt-1.5 max-w-xs text-[0.76rem] leading-5 app-sidebar-group-hint">
-                            Solve, check, and learn across accounting, finance, business, and related coursework from one clearer workspace.
-                        </p>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={closeMobileSidebar}
-                        aria-label="Close sidebar"
-                        className="app-icon-button inline-flex rounded-xl p-2.5 xl:hidden"
-                    >
-                        <ShellIcon kind="close" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            to="/history"
+                            onClick={closeMobileSidebar}
+                            className="app-button-ghost rounded-full px-2.5 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.12em]"
+                        >
+                            Activity
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={closeMobileSidebar}
+                            aria-label="Close sidebar"
+                            className="app-icon-button inline-flex rounded-xl p-2.5 xl:hidden"
+                        >
+                            <ShellIcon kind="close" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto px-2.5 py-3 scrollbar-premium">
-                {pinnedRoutes.length > 0 ? (
+                {(pinnedRoutes.length > 0 || mostUsedRoutes.length > 0 || recentRoutes.length > 0) ? (
+                    <div className="mb-4">
+                        <button
+                            type="button"
+                            onClick={() => setShowShortcuts((current) => !current)}
+                            className="flex w-full items-center justify-between gap-3 rounded-[0.95rem] px-3 py-2 text-left app-button-ghost"
+                        >
+                            <div>
+                                <p className="app-section-kicker text-[0.62rem]">Shortcuts</p>
+                                <p className="app-helper mt-1 text-xs">
+                                    Pins, recent pages, and popular routes
+                                </p>
+                            </div>
+                            <span
+                                className={`shrink-0 transition duration-300 ${
+                                    showShortcuts ? "rotate-0" : "-rotate-90"
+                                } text-[color:var(--app-sidebar-text-muted)]`}
+                            >
+                                <ShellIcon kind="chevron" className="h-4 w-4" />
+                            </span>
+                        </button>
+                    </div>
+                ) : null}
+
+                {showShortcuts && pinnedRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
                         <p className="app-section-kicker px-2 text-[0.64rem]">Pins</p>
                         <div className="space-y-1.5">
@@ -405,7 +394,7 @@ function SidebarContent({
                                     to={route.path}
                                     onClick={(event) => handleRouteIntent(event, route)}
                                     className={[
-                                        "app-sidebar-link flex items-center justify-between gap-3 rounded-[1.05rem] px-3.5 py-3 text-sm font-medium leading-5 transition duration-300",
+                                        "app-sidebar-link flex items-center justify-between gap-3 rounded-[1rem] px-3.5 py-3 text-sm font-medium leading-5 transition duration-300",
                                         isPathActive(locationPathname, route.path)
                                             ? "app-sidebar-link-active"
                                             : "",
@@ -416,8 +405,8 @@ function SidebarContent({
                                     <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
                                         {getNavLabel(route)}
                                     </span>
-                                    <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {availability.canOpen ? "Pin" : availability.label}
+                                    <span className="app-sidebar-link-meta shrink-0 text-[0.68rem]">
+                                        {availability.canOpen ? "Pinned" : availability.label}
                                     </span>
                                 </Link>
                                     );
@@ -427,7 +416,7 @@ function SidebarContent({
                     </div>
                 ) : null}
 
-                {mostUsedRoutes.length > 0 ? (
+                {showShortcuts && mostUsedRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
                         <p className="app-section-kicker px-2 text-[0.64rem]">Popular</p>
                         <div className="grid gap-2">
@@ -457,7 +446,7 @@ function SidebarContent({
                     </div>
                 ) : null}
 
-                {recentRoutes.length > 0 ? (
+                {showShortcuts && recentRoutes.length > 0 ? (
                     <div className="mb-4 space-y-2">
                         <p className="app-section-kicker px-2 text-[0.64rem]">Recent</p>
                         <div className="grid gap-2">
@@ -507,15 +496,12 @@ function SidebarContent({
                                     type="button"
                                     onClick={() => toggleGroup(group.title)}
                                     className={[
-                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1.1rem] px-3 py-2.5 text-left transition duration-300",
+                                        "group app-sidebar-group flex w-full items-center gap-3 rounded-[1rem] px-3 py-2.5 text-left transition duration-300",
                                         groupHasActiveItem ? "app-sidebar-group-active" : "",
                                     ].join(" ")}
                                 >
-                                    <div
-                                        className="app-sidebar-icon inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.95rem] text-[color:var(--app-sidebar-text)]"
-                                        style={{ background: getSidebarTone(group.title) }}
-                                    >
-                                        <ShellIcon kind={group.title} className="h-[1rem] w-[1rem]" />
+                                    <div className="app-sidebar-icon inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-[0.85rem] text-[color:var(--app-sidebar-text)]">
+                                        <ShellIcon kind={group.title} className="h-[0.95rem] w-[0.95rem]" />
                                     </div>
 
                                     <div className="min-w-0 flex-1">
@@ -526,13 +512,10 @@ function SidebarContent({
                                                 </p>
                                                 {hasUnseenItem ? <NewBadge /> : null}
                                             </div>
-                                            <span className="app-chip rounded-full px-2.5 py-1">
+                                            <span className="app-sidebar-count">
                                                 {group.items.length}
                                             </span>
                                         </div>
-                                        <p className="app-sidebar-group-hint mt-0.5 text-[0.72rem] leading-5">
-                                            {group.hint}
-                                        </p>
                                     </div>
 
                                     <span
@@ -586,7 +569,7 @@ function SidebarContent({
                                                                                     handleRouteIntent(event, item)
                                                                                 }
                                                                                 className={[
-                                                                                    "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[1rem] px-3 py-2.25 text-sm font-medium leading-5 transition duration-300",
+                                                                                    "group/item app-sidebar-link flex items-center justify-between gap-3 rounded-[0.95rem] px-3 py-2.25 text-sm font-medium leading-5 transition duration-300",
                                                                                     isActive
                                                                                         ? "app-sidebar-link-active"
                                                                                         : "",
@@ -596,25 +579,17 @@ function SidebarContent({
                                                                                 ].join(" ")}
                                                                                 title={availability.reason}
                                                                             >
-                                                                                <span className="app-sidebar-link-title min-w-0 truncate text-[0.88rem]">
-                                                                                    {getNavLabel(item)}
-                                                                                </span>
-                                                                                {isNew ? (
-                                                                                    <NewBadge />
-                                                                                ) : (
-                                                                                    <span
-                                                                                        className={[
-                                                                                            "app-sidebar-link-meta rounded-full px-2.5 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em]",
-                                                                                            isActive
-                                                                                                ? "app-chip-accent"
-                                                                                                : "",
-                                                                                        ].join(" ")}
-                                                                                    >
+                                                                                <div className="min-w-0">
+                                                                                    <span className="app-sidebar-link-title block min-w-0 truncate text-[0.88rem]">
+                                                                                        {getNavLabel(item)}
+                                                                                    </span>
+                                                                                    <span className="app-sidebar-link-meta mt-0.5 block text-[0.68rem]">
                                                                                         {isActive
-                                                                                            ? "Open"
+                                                                                            ? "Current page"
                                                                                             : availability.label}
                                                                                     </span>
-                                                                                )}
+                                                                                </div>
+                                                                                {isNew ? <NewBadge /> : null}
                                                                             </Link>
                                                                         );
                                                                     })()
@@ -633,23 +608,6 @@ function SidebarContent({
                 </nav>
             </div>
 
-            <div className="border-t app-divider px-4 py-3">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <p className="app-helper text-xs">Release</p>
-                        <p className="text-sm font-semibold text-[color:var(--app-sidebar-text)]">
-                            Version {APP_VERSION}
-                        </p>
-                    </div>
-                    <Link
-                        to="/history"
-                        onClick={closeMobileSidebar}
-                        className="app-button-ghost rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em]"
-                    >
-                        Activity
-                    </Link>
-                </div>
-            </div>
         </div>
     );
 }

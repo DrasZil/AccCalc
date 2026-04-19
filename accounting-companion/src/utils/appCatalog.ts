@@ -155,6 +155,7 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/entrepreneurship/cash-runway-planner",
     "/business/cvp-analysis",
     "/business/capacity-utilization",
+    "/business/additional-funds-needed",
     "/business/high-low-cost-estimation",
     "/business/roi-ri-eva",
     "/accounting/partnership-dissolution",
@@ -165,11 +166,13 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/operations/eoq-and-reorder-point",
     "/far/lease-measurement-workspace",
     "/far/share-based-payment-workspace",
+    "/far/retained-earnings-rollforward",
     "/far/cash-flow-statement-builder",
     "/audit/audit-planning-workspace",
     "/audit/audit-cycle-reviewer",
     "/audit/audit-completion-and-opinion",
     "/tax/book-tax-difference-workspace",
+    "/tax/percentage-tax",
     "/tax/tax-compliance-review",
     "/afar/business-combination-analysis",
     "/afar/foreign-currency-translation",
@@ -181,6 +184,8 @@ const CURRENT_RELEASE_NEW_PATHS = new Set([
     "/rfbt/commercial-transactions-reviewer",
     "/strategic/integrative-case-mapper",
     "/strategic/strategic-business-analysis",
+    "/finance/accounting-rate-of-return",
+    "/finance/equivalent-annual-annuity",
 ]);
 
 const SUBTOPIC_ORDER: Partial<Record<AppNavGroupTitle, string[]>> = {
@@ -404,7 +409,9 @@ function inferSubtopic(
             }
             return "Reporting & Completion";
         case "Taxation":
-            if (haystack.includes("vat")) return "VAT & Business Taxes";
+            if (haystack.includes("vat") || haystack.includes("business tax") || haystack.includes("percentage tax")) {
+                return "VAT & Business Taxes";
+            }
             if (haystack.includes("difference") || haystack.includes("income")) {
                 return "Income Tax & Differences";
             }
@@ -439,7 +446,10 @@ function inferSubtopic(
                 haystack.includes("internal-rate") ||
                 haystack.includes("irr") ||
                 haystack.includes("profitability-index") ||
-                haystack.includes("payback")
+                haystack.includes("payback") ||
+                haystack.includes("arr") ||
+                haystack.includes("annual annuity") ||
+                haystack.includes("eaa")
             ) {
                 return "Capital Budgeting";
             }
@@ -649,7 +659,9 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/finance/sinking-fund-deposit", "Sinking Fund Deposit", "Finance", "Regular deposit needed to reach a target amount.", ["required deposit", "sinking fund"], ["annuity", "savings"]),
     feature("/finance/loan-amortization", "Loan Amortization", "Finance", "Monthly payment, total paid, and total interest.", ["monthly payment", "loan payment"], ["loan", "payment"]),
     feature("/finance/npv", "Net Present Value", "Finance", "Discount cash flows and compare them with the initial investment.", ["npv", "discounted cash flow"], ["capital budgeting"], "NPV", true),
+    feature("/finance/accounting-rate-of-return", "Accounting Rate of Return", "Finance", "Read ARR from average accounting income and average investment, or reverse-solve the supporting project figures.", ["arr", "accounting rate of return", "average investment"], ["capital budgeting", "arr", "project evaluation"], "ARR", true, ["accounting rate of return", "arr", "average investment", "capital budgeting"]),
     feature("/finance/capital-budgeting-comparison", "Capital Budgeting Comparison", "Finance", "Read NPV, PI, IRR, and discounted payback from one project cash-flow set.", ["capital budgeting dashboard", "project comparison"], ["capital budgeting", "analysis", "workspace"], "Capital Compare", true, ["capital budgeting", "npv", "irr", "profitability index", "discounted payback"]),
+    feature("/finance/equivalent-annual-annuity", "Equivalent Annual Annuity", "Finance", "Annualize NPV for projects with unequal lives so rankings can be compared on a yearly basis.", ["eaa", "equivalent annual annuity", "annualized npv"], ["capital budgeting", "eaa", "analysis"], "EAA", true, ["equivalent annual annuity", "eaa", "annualized npv", "unequal project lives"]),
     feature("/finance/internal-rate-of-return", "Internal Rate of Return", "Finance", "Estimate the discount rate that makes NPV equal zero and flag multiple-IRR risk when applicable.", ["irr", "internal rate", "internal rate of return"], ["capital budgeting", "irr"], "IRR", true, ["irr", "internal rate of return", "project rate"]),
     feature("/finance/profitability-index", "Profitability Index", "Finance", "Discounted inflows per peso of investment.", ["pi", "benefit cost ratio"], ["capital budgeting"], "PI", true),
     feature("/finance/payback-period", "Payback Period", "Finance", "How long it takes to recover the initial investment.", ["payback", "recovery period"], ["capital budgeting"], undefined, true),
@@ -672,6 +684,7 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/business/cash-budget", "Cash Budget", "Managerial & Cost", "Single-period cash budget with financing need visibility.", ["cash planning budget", "cash forecast budget", "minimum cash planning", "cash budget with financing"], ["budgeting", "cash"], undefined, true, ["cash budget", "financing", "minimum cash", "ending cash balance", "financing need"]),
     feature("/business/flexible-budget", "Flexible Budget", "Managerial & Cost", "Separate activity variance from spending variance using a flexible cost budget.", ["static versus flexible budget", "budget variance"], ["budgeting", "variance"], undefined, true, ["flexible budget", "activity variance", "spending variance"]),
     feature("/business/capacity-utilization", "Capacity Utilization", "Managerial & Cost", "Compare actual output with practical capacity so idle or strained capacity stays visible.", ["capacity usage", "practical capacity", "idle capacity", "capacity rate"], ["operations", "capacity", "planning"], undefined, true, ["capacity utilization", "practical capacity", "idle capacity", "operating capacity", "capacity planning"]),
+    feature("/business/additional-funds-needed", "Additional Funds Needed", "Managerial & Cost", "Estimate the outside financing required to support forecasted sales growth using a compact percentage-of-sales model.", ["afn", "additional funds needed", "forecast financing"], ["forecasting", "planning", "financing"], "AFN", true, ["additional funds needed", "afn", "forecast financing", "percentage of sales"]),
     feature("/business/high-low-cost-estimation", "High-Low Cost Estimation", "Managerial & Cost", "Estimate variable and fixed cost components from high-low activity data.", ["mixed cost split", "high low method", "cost behavior estimate"], ["cost behavior", "mixed cost", "planning"], "High-Low", true, ["high-low", "mixed cost", "cost behavior", "cost estimation"]),
     feature("/business/roi-ri-eva", "ROI, RI, and EVA Workspace", "Managerial & Cost", "Compare ROI, residual income, and EVA-style capital-charge reading from one performance workspace.", ["roi", "residual income", "eva", "investment center"], ["performance", "responsibility accounting", "roi"], "ROI / RI", true, ["roi", "residual income", "eva", "investment center", "responsibility accounting"]),
     feature("/economics/price-elasticity-demand", "Price Elasticity of Demand", "Economics", "Midpoint elasticity, revenue movement, and demand classification.", ["ped", "demand elasticity"], ["elasticity", "microeconomics"], "Elasticity", true, ["price elasticity", "elastic demand", "inelastic demand"]),
@@ -688,11 +701,13 @@ export const APP_ROUTE_META: RouteMeta[] = [
     feature("/operations/eoq-and-reorder-point", "EOQ and Reorder Point", "Managerial & Cost", "Plan order quantity, order frequency, and reorder point from one inventory-management workspace.", ["economic order quantity", "reorder point", "inventory replenishment"], ["operations", "inventory planning", "supply chain"], "EOQ", true, ["eoq", "reorder point", "economic order quantity", "inventory control"]),
     feature("/far/lease-measurement-workspace", "Lease Measurement Workspace", "Accounting", "Estimate the initial lease liability and right-of-use asset using lease payments, discounting, and related adjustments.", ["lease accounting", "right of use asset", "lease liability"], ["far", "lease", "measurement"], "Leases", true, ["lease liability", "right-of-use asset", "lease measurement", "lease accounting"]),
     feature("/far/share-based-payment-workspace", "Share-Based Payment Workspace", "Accounting", "Estimate expected vesting, cumulative compensation cost, and current-period expense for equity-settled awards.", ["stock options", "share options", "equity settled award"], ["far", "equity", "share-based payment"], "Share-Based", true, ["share-based payment", "stock options", "compensation cost", "vesting"]),
+    feature("/far/retained-earnings-rollforward", "Retained Earnings Rollforward", "Accounting", "Reconcile beginning retained earnings, net income, dividends, and prior-period adjustments into the ending equity balance.", ["retained earnings", "dividends", "statement of changes in equity"], ["far", "equity", "retained earnings"], "Retained Earnings", true, ["retained earnings", "dividends", "statement of changes in equity", "equity rollforward"]),
     feature("/far/cash-flow-statement-builder", "Statement of Cash Flows Builder", "Accounting", "Build an indirect-method cash-flow view across operating, investing, and financing activities.", ["cash flow statement", "indirect method", "cash flows from operations"], ["far", "cash flows", "financial statements"], "Cash Flows", true, ["statement of cash flows", "indirect method", "cash flow classification", "operating investing financing"]),
     feature("/audit/audit-planning-workspace", "Audit Planning Workspace", "Accounting", "Estimate materiality, performance materiality, and an audit-risk response signal from one planning workspace.", ["audit materiality", "audit risk", "planning materiality"], ["audit", "materiality", "risk"], "Audit Plan", true, ["audit planning", "planning materiality", "performance materiality", "audit risk"]),
     feature("/audit/audit-cycle-reviewer", "Audit Cycle Reviewer", "Accounting", "Review assertions, control points, and likely procedures across revenue, expenditure, conversion, and financing cycles.", ["transaction cycle auditing", "revenue cycle audit", "expenditure cycle audit"], ["audit", "cycle", "assertions"], "Audit Cycles", true, ["audit cycle", "revenue cycle", "expenditure cycle", "conversion cycle", "financing cycle"]),
     feature("/audit/audit-completion-and-opinion", "Audit Completion and Opinion Workspace", "Accounting", "Review completion procedures, going concern, subsequent events, modified reports, and key audit matters.", ["modified audit report", "key audit matters", "going concern audit"], ["audit", "reporting", "completion"], "Audit Opinion", true, ["completion procedures", "going concern", "subsequent events", "modified report", "key audit matters"]),
     feature("/tax/book-tax-difference-workspace", "Book-Tax Difference Workspace", "Accounting", "Bridge accounting income and taxable income through book-tax difference analysis.", ["book tax differences", "tax reconciliation", "temporary differences"], ["tax", "income tax", "differences"], "Book-Tax", true, ["book tax differences", "temporary differences", "current tax", "deferred tax"]),
+    feature("/tax/percentage-tax", "Percentage Tax", "Accounting", "Compute percentage tax due or reverse-solve the tax base and rate for business-tax review questions.", ["business tax", "percentage tax due", "gross receipts tax"], ["tax", "business tax", "percentage tax"], "Percentage Tax", true, ["percentage tax", "business tax", "tax due", "gross receipts"]),
     feature("/tax/tax-compliance-review", "Tax Compliance and Incentive Review", "Accounting", "Review withholding, transfer and special taxes, local taxation, treaty concepts, and incentive-regime logic.", ["withholding tax review", "estate donor tax", "tax treaty"], ["tax", "compliance", "incentives"], "Tax Review", true, ["withholding tax", "documentary stamp tax", "estate tax", "donor's tax", "local taxation", "tax treaty", "peza", "boi", "bmbe"]),
     feature("/afar/business-combination-analysis", "Business Combination Analysis", "Accounting", "Estimate goodwill or bargain purchase gain under full-goodwill or proportionate-share measurement.", ["goodwill calculator", "business combination", "consolidation goodwill", "non controlling interest", "non-controlling interest"], ["afar", "business combination", "goodwill", "non controlling interest"], "Combination", true, ["business combination", "goodwill", "nci", "consolidation", "non controlling interest", "non-controlling interest"]),
     feature("/afar/foreign-currency-translation", "Foreign Currency Translation Workspace", "Accounting", "Translate foreign-currency monetary items at transaction, closing, and settlement rates.", ["foreign currency transaction", "exchange difference", "forex translation"], ["afar", "foreign currency", "translation"], "FX Translation", true, ["foreign currency", "exchange difference", "translation", "settlement rate"]),

@@ -42,12 +42,12 @@ function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
 }
 
 function resultBadge(result: AppSearchResult) {
-    if (result.matchLabel === "new") return "New";
-    if (result.matchLabel === "abbreviation") return "Abbrev";
-    if (result.matchLabel === "alias" || result.matchLabel === "alias prefix") return "Alias";
-    if (result.matchLabel === "category") return "Category";
-    if (result.matchLabel === "tag") return "Tag";
-    return "Match";
+    if (result.matchLabel === "new") return "New result";
+    if (result.matchLabel === "abbreviation") return "Abbreviation match";
+    if (result.matchLabel === "alias" || result.matchLabel === "alias prefix") return "Alias match";
+    if (result.matchLabel === "category") return "Category match";
+    if (result.matchLabel === "tag") return "Tag match";
+    return "Closest match";
 }
 
 export default function FeatureSearch({
@@ -198,7 +198,7 @@ export default function FeatureSearch({
                                 setActiveIndex(0);
                                 inputRef.current?.focus();
                             }}
-                            className="app-button-ghost rounded-full px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.16em]"
+                            className="app-button-ghost rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
                         >
                             Clear
                         </button>
@@ -262,17 +262,17 @@ export default function FeatureSearch({
                                                 <p className="text-[0.96rem] font-semibold tracking-[-0.02em] text-[color:var(--app-text)]">
                                                     {result.label}
                                                 </p>
-                                                <span className="app-chip rounded-full px-2 py-0.5 text-[0.62rem]">
-                                                    {result.subtopic
-                                                        ? `${result.category} / ${result.subtopic}`
-                                                        : result.category}
-                                                </span>
                                                 <OfflineCapabilityBadge
                                                     level={result.offlineSupport}
                                                     className="px-2 py-0.5 text-[0.62rem]"
                                                     label={availability.label}
                                                 />
                                             </div>
+                                            <p className="app-helper mt-1 text-[0.72rem]">
+                                                {result.subtopic
+                                                    ? `${result.category} / ${result.subtopic}`
+                                                    : result.category}
+                                            </p>
                                             <p className="app-body-md mt-1 text-sm">
                                                 {result.description}
                                             </p>
@@ -285,7 +285,7 @@ export default function FeatureSearch({
                                                 </p>
                                             ) : null}
                                         </div>
-                                        <span className="app-chip-accent shrink-0 rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        <span className="app-helper shrink-0 text-[0.68rem] font-semibold">
                                             {resultBadge(result)}
                                         </span>
                                     </button>

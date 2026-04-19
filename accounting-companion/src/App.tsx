@@ -238,8 +238,14 @@ const SinkingFundDepositPage = lazy(
 );
 const CompoundInterestPage = lazy(() => import("./features/finance/CompoundInterestPage"));
 const NetPresentValuePage = lazy(() => import("./features/finance/NetPresentValuePage"));
+const AccountingRateOfReturnPage = lazy(
+    () => import("./features/finance/AccountingRateOfReturnPage")
+);
 const CapitalBudgetingComparisonPage = lazy(
     () => import("./features/finance/CapitalBudgetingComparisonPage")
+);
+const EquivalentAnnualAnnuityPage = lazy(
+    () => import("./features/finance/EquivalentAnnualAnnuityPage")
 );
 const InternalRateOfReturnPage = lazy(
     () => import("./features/finance/InternalRateOfReturnPage")
@@ -290,12 +296,18 @@ const CashRunwayPlannerPage = lazy(
 const HighLowCostEstimationPage = lazy(
     () => import("./features/business/HighLowCostEstimationPage")
 );
+const AdditionalFundsNeededPage = lazy(
+    () => import("./features/business/AdditionalFundsNeededPage")
+);
 const RoiRiEvaPage = lazy(() => import("./features/business/RoiRiEvaPage"));
 const LeaseMeasurementWorkspacePage = lazy(
     () => import("./features/far/LeaseMeasurementWorkspacePage")
 );
 const ShareBasedPaymentPage = lazy(
     () => import("./features/far/ShareBasedPaymentPage")
+);
+const RetainedEarningsRollforwardPage = lazy(
+    () => import("./features/far/RetainedEarningsRollforwardPage")
 );
 const CashFlowStatementBuilderPage = lazy(
     () => import("./features/far/CashFlowStatementBuilderPage")
@@ -317,6 +329,9 @@ const BookTaxDifferenceWorkspacePage = lazy(
 );
 const TaxComplianceReviewPage = lazy(
     () => import("./features/tax/TaxComplianceReviewPage")
+);
+const PercentageTaxPage = lazy(
+    () => import("./features/tax/PercentageTaxPage")
 );
 const BusinessCombinationAnalysisPage = lazy(
     () => import("./features/afar/BusinessCombinationAnalysisPage")
@@ -444,7 +459,9 @@ export default function App() {
                         <Route path="finance/sinking-fund-deposit" element={renderRoute("/finance/sinking-fund-deposit", <SinkingFundDepositPage />)} />
                         <Route path="finance/loan-amortization" element={renderRoute("/finance/loan-amortization", <LoanAmortizationPage />)} />
                         <Route path="finance/npv" element={renderRoute("/finance/npv", <NetPresentValuePage />)} />
+                        <Route path="finance/accounting-rate-of-return" element={renderRoute("/finance/accounting-rate-of-return", <AccountingRateOfReturnPage />)} />
                         <Route path="finance/capital-budgeting-comparison" element={renderRoute("/finance/capital-budgeting-comparison", <CapitalBudgetingComparisonPage />)} />
+                        <Route path="finance/equivalent-annual-annuity" element={renderRoute("/finance/equivalent-annual-annuity", <EquivalentAnnualAnnuityPage />)} />
                         <Route path="finance/internal-rate-of-return" element={renderRoute("/finance/internal-rate-of-return", <InternalRateOfReturnPage />)} />
                         <Route path="finance/profitability-index" element={renderRoute("/finance/profitability-index", <ProfitabilityIndexPage />)} />
                         <Route path="finance/payback-period" element={renderRoute("/finance/payback-period", <PaybackPeriodPage />)} />
@@ -465,6 +482,7 @@ export default function App() {
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
                         <Route path="business/flexible-budget" element={renderRoute("/business/flexible-budget", <FlexibleBudgetPage />)} />
                         <Route path="business/capacity-utilization" element={renderRoute("/business/capacity-utilization", <CapacityUtilizationPage />)} />
+                        <Route path="business/additional-funds-needed" element={renderRoute("/business/additional-funds-needed", <AdditionalFundsNeededPage />)} />
                         <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
                         <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
@@ -482,12 +500,14 @@ export default function App() {
                         <Route path="entrepreneurship/cash-runway-planner" element={renderRoute("/entrepreneurship/cash-runway-planner", <CashRunwayPlannerPage />)} />
                         <Route path="far/lease-measurement-workspace" element={renderRoute("/far/lease-measurement-workspace", <LeaseMeasurementWorkspacePage />)} />
                         <Route path="far/share-based-payment-workspace" element={renderRoute("/far/share-based-payment-workspace", <ShareBasedPaymentPage />)} />
+                        <Route path="far/retained-earnings-rollforward" element={renderRoute("/far/retained-earnings-rollforward", <RetainedEarningsRollforwardPage />)} />
                         <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
+                        <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
                         <Route path="tax/tax-compliance-review" element={renderRoute("/tax/tax-compliance-review", <TaxComplianceReviewPage />)} />
                         <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import FeatureSearch from "../../components/FeatureSearch";
+import GuidedStartPanel from "../../components/GuidedStartPanel";
 import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
 import {
@@ -59,18 +60,23 @@ const FEATURED_PATHS = [
     "/study",
     "/study/practice",
     "/business/cvp-analysis",
+    "/business/additional-funds-needed",
     "/accounting/partnership-dissolution",
     "/accounting/process-costing-workspace",
     "/smart/solver",
     "/accounting/ratio-analysis-workspace",
     "/finance/internal-rate-of-return",
+    "/finance/accounting-rate-of-return",
+    "/finance/equivalent-annual-annuity",
     "/finance/capital-budgeting-comparison",
     "/accounting/common-size-income-statement",
     "/audit/audit-planning-workspace",
     "/tax/book-tax-difference-workspace",
+    "/tax/percentage-tax",
     "/tax/tax-compliance-review",
     "/operations/eoq-and-reorder-point",
     "/far/lease-measurement-workspace",
+    "/far/retained-earnings-rollforward",
     "/far/cash-flow-statement-builder",
     "/afar/business-combination-analysis",
     "/afar/foreign-currency-translation",
@@ -159,6 +165,7 @@ const WORKFLOW_COLLECTIONS = [
             "/business/cash-disbursements-schedule",
             "/business/cash-budget",
             "/business/flexible-budget",
+            "/business/additional-funds-needed",
             "/business/margin-of-safety",
         ],
     },
@@ -167,7 +174,9 @@ const WORKFLOW_COLLECTIONS = [
         description: "Compare discounted value, project rate, and recovery tools in one decision workflow.",
         paths: [
             "/finance/npv",
+            "/finance/accounting-rate-of-return",
             "/finance/capital-budgeting-comparison",
+            "/finance/equivalent-annual-annuity",
             "/finance/internal-rate-of-return",
             "/finance/profitability-index",
             "/finance/discounted-payback-period",
@@ -179,6 +188,7 @@ const WORKFLOW_COLLECTIONS = [
         paths: [
             "/far/lease-measurement-workspace",
             "/far/share-based-payment-workspace",
+            "/far/retained-earnings-rollforward",
             "/far/cash-flow-statement-builder",
             "/accounting/earnings-per-share",
         ],
@@ -199,6 +209,7 @@ const WORKFLOW_COLLECTIONS = [
         description: "Move from book-tax differences into VAT review and broader integrative tax interpretation.",
         paths: [
             "/tax/book-tax-difference-workspace",
+            "/tax/percentage-tax",
             "/tax/tax-compliance-review",
             "/accounting/philippine-vat",
             "/strategic/integrative-case-mapper",
@@ -393,42 +404,36 @@ export default function HomePage() {
                         </div>
 
                         <h1 className="mt-3.5 max-w-2xl text-[clamp(1.55rem,1.2rem+1.25vw,2.35rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Solve faster, check carefully, learn deeper.
+                            Solve, check, and learn accounting with less overwhelm.
                         </h1>
                         <p className="app-body-md mt-2.5 max-w-2xl text-sm">
-                            AccCalc helps you solve accounting and business problems, fact-check your answers, and study the procedure behind them. Start from Scan & Check, open Smart Solver, or jump straight into a focused calculator when you already know the topic.
+                            Pick one clear path: solve a known topic, check a worksheet or worked answer, or open a lesson when the terms still feel unfamiliar. AccCalc is built to help beginners start quickly without losing access to deeper review.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2.5">
                             <Link
-                                to="/study"
+                                to="/smart/solver"
                                 className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open Study Hub
+                                Start with Smart Solver
                             </Link>
                             <Link
                                 to="/scan-check"
-                                className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
                                 Open Scan & Check
                             </Link>
                             <Link
-                                to="/smart/solver"
+                                to="/study"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open Smart Solver
+                                Open Study Hub
                             </Link>
                             <Link
                                 to="/study/practice"
-                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
                                 Practice quizzes
-                            </Link>
-                            <Link
-                                to="/history"
-                                className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
-                            >
-                                Open history
                             </Link>
                             <ShareAppButton
                                 className="rounded-xl px-4 py-2.5"
@@ -442,6 +447,9 @@ export default function HomePage() {
                             className="mt-5 max-w-2xl"
                             placeholder="Search ratios, inventory, depreciation, Smart Solver..."
                         />
+                        <p className="app-helper mt-3 text-xs leading-5">
+                            New to the topic? Search plain-language terms like “break-even,” “journal entry,” “loan payment,” or “partnership dissolution.”
+                        </p>
                     </div>
 
                     <div className="space-y-3">
@@ -481,14 +489,40 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            <GuidedStartPanel
+                badge="Beginner flow"
+                title="Choose the simplest first step"
+                summary="AccCalc works best when you start with the path that matches your situation instead of opening a random calculator."
+                steps={[
+                    {
+                        title: "Solve a known topic",
+                        description:
+                            "Use Smart Solver or search when you already know the type of problem but want the fastest route into the right tool.",
+                        badge: "Solve",
+                    },
+                    {
+                        title: "Check a worksheet or answer",
+                        description:
+                            "Use Scan & Check when the problem is in an image, handwritten sheet, or worked solution that still needs careful review.",
+                        badge: "Check",
+                    },
+                    {
+                        title: "Study before solving",
+                        description:
+                            "Open Study Hub when the formula, terms, or interpretation still feel unclear and you want a lesson or quiz first.",
+                        badge: "Learn",
+                    },
+                ]}
+            />
             <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="app-section-kicker text-[0.68rem]">Start</p>
-                            <h2 className="app-section-title mt-2">Pick up your workflow</h2>
+                                <p className="app-section-kicker text-[0.68rem]">Start</p>
+                            <h2 className="app-section-title mt-2">Continue from where you are</h2>
                             <p className="app-helper mt-2 text-xs">
-                                Pinned and recommended tools stay close to the top.
+                                Pinned and recommended tools stay near the top so you do not need to browse the full catalog first.
                             </p>
                         </div>
                         <Link to="/history" className="app-link-accent text-sm font-medium">

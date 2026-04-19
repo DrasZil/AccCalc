@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
+import GuidedStartPanel from "../../components/GuidedStartPanel";
 import MathText from "../../components/math/MathText";
 import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
+import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
 import {
@@ -133,30 +135,82 @@ export default function TopicQuizPage() {
                 }
             />
 
+            <GuidedStartPanel
+                badge="Before you submit"
+                title="Try your own reasoning first, then use the explanations to correct it"
+                summary="These questions are meant to feel like a guided self-check. Answer them first from memory, then open the explanation panels only after you commit to an answer."
+                steps={[
+                    {
+                        title: "Read the question carefully",
+                        description:
+                            "Focus on what is being asked before scanning the options for familiar words.",
+                    },
+                    {
+                        title: "Choose the best answer on your own",
+                        description:
+                            "Use the quiz to test recall and interpretation, not to hunt for clues inside the explanations.",
+                    },
+                    {
+                        title: "Review why after submitting",
+                        description:
+                            "Open the explanation only after submission so the mistake becomes a learning point instead of a guess.",
+                    },
+                ]}
+                compact
+            />
+
             {submitted && score !== null ? (
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Quiz result</p>
-                    <div className="mt-4 grid gap-3 md:grid-cols-3">
-                        <div className="app-tone-accent rounded-[1rem] px-4 py-3.5">
-                            <p className="app-metric-label">Score</p>
-                            <p className="app-metric-value mt-2">
-                                {score}/{activeTopic.quiz.questions.length}
-                            </p>
+                <div className="space-y-4">
+                    <SectionCard>
+                        <p className="app-section-kicker text-[0.68rem]">Quiz result</p>
+                        <div className="mt-4 grid gap-3 md:grid-cols-3">
+                            <div className="app-tone-accent rounded-[1rem] px-4 py-3.5">
+                                <p className="app-metric-label">Score</p>
+                                <p className="app-metric-value mt-2">
+                                    {score}/{activeTopic.quiz.questions.length}
+                                </p>
+                            </div>
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-metric-label">Accuracy</p>
+                                <p className="app-metric-value mt-2">
+                                    {Math.round((score / activeTopic.quiz.questions.length) * 100)}%
+                                </p>
+                            </div>
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-metric-label">Study next</p>
+                                <p className="app-body-md mt-2 text-sm">
+                                    Review explanations below, then return to the lesson if the logic still feels weak.
+                                </p>
+                            </div>
                         </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-metric-label">Accuracy</p>
-                            <p className="app-metric-value mt-2">
-                                {Math.round((score / activeTopic.quiz.questions.length) * 100)}%
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-metric-label">Study next</p>
-                            <p className="app-body-md mt-2 text-sm">
-                                Review explanations below, then return to the lesson if the logic still feels weak.
-                            </p>
-                        </div>
-                    </div>
-                </SectionCard>
+                    </SectionCard>
+
+                    <RelatedLinksPanel
+                        title="Review and revisit"
+                        summary="Use the lesson for weak concepts, then return to Study Hub if you want another topic instead of rereading everything here."
+                        badge="Next steps"
+                        compact
+                        showDescriptions
+                        defaultOpen
+                        items={[
+                            {
+                                path: topicPath,
+                                label: `Return to ${activeTopic.shortTitle} lesson`,
+                                description: "Review the explanation, formulas, and worked examples for the questions that still felt weak.",
+                            },
+                            {
+                                path: "/study/practice",
+                                label: "Open practice mode",
+                                description: "Switch to another short quiz if you want a fresh self-check after this topic.",
+                            },
+                            {
+                                path: "/study",
+                                label: "Back to Study Hub",
+                                description: "Browse another lesson track without scrolling back through this quiz.",
+                            },
+                        ]}
+                    />
+                </div>
             ) : null}
 
             <section className="space-y-4">

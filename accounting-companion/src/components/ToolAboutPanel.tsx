@@ -6,6 +6,7 @@ type ToolAboutPanelProps = {
     route: RouteMeta;
     availability: RouteAvailability | null;
     relatedRoutes: RouteMeta[];
+    relatedStudyLinks?: Array<{ path: string; label: string; description?: string }>;
     compact?: boolean;
     includeDescription?: boolean;
 };
@@ -148,6 +149,7 @@ export default function ToolAboutPanel({
     route,
     availability,
     relatedRoutes,
+    relatedStudyLinks = [],
     compact = false,
     includeDescription = true,
 }: ToolAboutPanelProps) {
@@ -191,6 +193,17 @@ export default function ToolAboutPanel({
                         <p className="app-label text-[0.66rem]">Offline and availability</p>
                         <p className="app-body-md mt-1.5 text-sm leading-6">{availability.reason}</p>
                     </div>
+                ) : null}
+
+                {relatedStudyLinks.length > 0 ? (
+                    <RelatedLinksPanel
+                        title="Related study"
+                        summary="Use the linked lesson or short quiz only when you want concept support after the main answer."
+                        badge={`${relatedStudyLinks.length} study links`}
+                        items={relatedStudyLinks}
+                        compact
+                        showDescriptions
+                    />
                 ) : null}
 
                 <RelatedLinksPanel

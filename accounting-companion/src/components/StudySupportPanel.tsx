@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import DisclosurePanel from "./DisclosurePanel";
+import GuidedStartPanel from "./GuidedStartPanel";
 import RelatedLinksPanel from "./RelatedLinksPanel";
 import SectionCard from "./SectionCard";
 import {
@@ -129,6 +130,32 @@ export default function StudySupportPanel({
                         {topicProgress?.bookmarked ? "Bookmarked" : "Bookmark topic"}
                     </button>
                 </div>
+            </div>
+
+            <div className="mt-5">
+                <GuidedStartPanel
+                    badge="Simple first"
+                    title="Use this study layer after the main answer, not before it"
+                    summary="The goal is to keep studying supportive instead of overwhelming. Start with the core idea, then open deeper review only when you need more explanation."
+                    steps={[
+                        {
+                            title: "Read the core section first",
+                            description:
+                                "Start with the main meaning or procedure so you do not get buried in extra detail too early.",
+                        },
+                        {
+                            title: "Open support only for weak spots",
+                            description:
+                                "Use the support panels for mistakes, cautions, or self-check when a specific part still feels unclear.",
+                        },
+                        {
+                            title: "Finish with practice or a related tool",
+                            description:
+                                "Move into the lesson, quiz, or calculator once the concept already makes sense in plain language.",
+                        },
+                    ]}
+                    compact
+                />
             </div>
 
             {lessonPath || quizPath ? (

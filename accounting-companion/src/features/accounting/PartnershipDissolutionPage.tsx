@@ -104,9 +104,31 @@ export default function PartnershipDissolutionPage() {
         <CalculatorPageLayout
             badge="Accounting | Partnership"
             title="Partnership Dissolution"
-            description="Review realization gain or loss, liquidation cash available to partners, and capital-deficiency handling from one course-aligned dissolution workflow."
+            description="Work through realization, liability settlement, and final partner distributions in the same order your textbook solution expects."
             desktopLayout="result-focus"
             pageWidth="wide"
+            startGuide={{
+                title: "Follow the liquidation order one stage at a time",
+                summary:
+                    "Dissolution problems get intimidating when the entire schedule is treated as one step. Start with realization, then liabilities, then partner capital effects.",
+                steps: [
+                    {
+                        title: "Enter realization and liability data",
+                        description:
+                            "Start with the book value of noncash assets, the cash realized, and the liabilities that must be settled first.",
+                    },
+                    {
+                        title: "Add partner capitals and ratios",
+                        description:
+                            "Use the same profit-and-loss ratio that the problem gives for allocating the realization gain or loss.",
+                    },
+                    {
+                        title: "Turn on insolvency only when stated",
+                        description:
+                            "Use deficiency absorption only if the problem clearly says the deficient partner cannot contribute the shortage.",
+                    },
+                ],
+            }}
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
@@ -219,6 +241,20 @@ export default function PartnershipDissolutionPage() {
                     </SectionCard>
                 ) : result ? (
                     <div className="space-y-4">
+                        <SectionCard className="app-tone-accent">
+                            <p className="app-card-title text-sm">What this liquidation schedule is telling you</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Realization produced {formatPHP(result.gainOrLossOnRealization)} and left {formatPHP(result.cashAvailableForPartners)} after outside liabilities. The next question is not just the total cash, but how that amount moves through each partner&apos;s adjusted capital balance.
+                            </p>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                {result.deficiencyTotal > 0
+                                    ? assumeDeficiencyInsolvent
+                                        ? `A capital deficiency of ${formatPHP(result.deficiencyTotal)} is being absorbed by the solvent partners because insolvency is assumed.`
+                                        : `A capital deficiency of ${formatPHP(result.deficiencyTotal)} remains and still needs separate contribution or problem-specific treatment.`
+                                    : "No capital deficiency appears after the realization gain or loss is allocated."}
+                            </p>
+                        </SectionCard>
+
                         <ResultGrid columns={4}>
                             <ResultCard
                                 title="Gain or Loss on Realization"

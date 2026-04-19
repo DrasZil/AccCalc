@@ -490,10 +490,33 @@ export default function ScanCheckPage() {
             <CalculatorPageLayout
                 badge="Smart Tools / Scan & Check"
                 title="Scan & Check"
-                description="A cleaner browser-first scan flow for equations, textbook pages, worked solutions, and accounting worksheets. It now keeps your scan session on-device while using a lighter review experience across mobile and desktop."
+                description="Upload a worksheet, textbook page, or worked solution, let AccCalc read it, then review only the uncertain parts before moving into the next tool or lesson."
                 desktopLayout="result-focus"
                 pageWidth="data"
                 prioritizeResultSection
+                startGuide={{
+                    badge: "How to use it",
+                    title: "Check the uncertain parts first",
+                    summary:
+                        "This workflow is meant to stay calm: upload the page, verify the risky values, then continue into the suggested route when the text already makes sense.",
+                    steps: [
+                        {
+                            title: "Add the image or worksheet page",
+                            description:
+                                "AccCalc preprocesses and reads it automatically, then detects the likely topic and next route.",
+                        },
+                        {
+                            title: "Review flagged values only",
+                            description:
+                                "Focus on low-confidence numbers, labels, and percentages instead of re-reading every clean line.",
+                        },
+                        {
+                            title: "Open the suggested tool or lesson",
+                            description:
+                                "Once the important values look right, continue into the matched workspace, study topic, or quiz.",
+                        },
+                    ],
+                }}
                 inputSection={
                     <div className="space-y-4">
                         <SectionCard className="app-hero-panel">
@@ -562,6 +585,27 @@ export default function ScanCheckPage() {
                                 </p>
                             ) : null}
                         </SectionCard>
+
+                        <div className="grid gap-3 xl:grid-cols-3">
+                            <div className="app-subtle-surface rounded-[1.15rem] px-4 py-4">
+                                <p className="app-card-title text-sm">Best for</p>
+                                <p className="app-body-md mt-2 text-sm">
+                                    Worksheet photos, textbook pages, screenshots, and worked solutions that need cleanup before solving or checking.
+                                </p>
+                            </div>
+                            <div className="app-tone-warning rounded-[1.15rem] px-4 py-4">
+                                <p className="app-card-title text-sm">Not ideal for</p>
+                                <p className="app-body-md mt-2 text-sm">
+                                    Trusting every extracted number instantly, using OCR as a final answer checker, or solving a topic before the risky values are verified.
+                                </p>
+                            </div>
+                            <div className="app-tone-info rounded-[1.15rem] px-4 py-4">
+                                <p className="app-card-title text-sm">Choose another tool when</p>
+                                <p className="app-body-md mt-2 text-sm">
+                                    Use Smart Solver when the text is already typed, and open a lesson or quiz when the topic itself is still unclear after the scan.
+                                </p>
+                            </div>
+                        </div>
 
                         {queue.items.length > 0 ? (
                             <ScanProgressPanel
@@ -684,26 +728,39 @@ export default function ScanCheckPage() {
                                         }
                                     />
 
-                                    <ScanExtractedTextPanel
-                                        items={queue.items}
-                                        mergedText={mergedText || queue.mergedSelectedText}
-                                        onMergedTextChange={(value) => {
-                                            setMergedText(value);
-                                            setMergedTextDirty(true);
-                                        }}
-                                    />
+                                    <DisclosurePanel
+                                        title="Merged extracted text"
+                                        summary="Open this when you want to edit, copy, or send the cleaned text to another tool."
+                                        badge={mergedTextDirty ? "Edited" : "Review"}
+                                    >
+                                        <ScanExtractedTextPanel
+                                            items={queue.items}
+                                            mergedText={mergedText || queue.mergedSelectedText}
+                                            onMergedTextChange={(value) => {
+                                                setMergedText(value);
+                                                setMergedTextDirty(true);
+                                            }}
+                                        />
+                                    </DisclosurePanel>
                                 </div>
 
                                 <div className="app-workspace-side">
-                                    {primaryStudyRecommendation ? (
-                                        <SectionCard>
-                                            <p className="app-card-title text-sm">Study follow-up</p>
-                                            <p className="app-body-md mt-2 text-sm">
-                                                {primaryStudyRecommendation.title}
+                                    <SectionCard>
+                                        <p className="app-card-title text-sm">Next best move</p>
+                                        <div className="mt-3 space-y-2">
+                                            <p className="app-helper app-wrap-anywhere text-xs">
+                                                Best next tool: {getRouteLabel(primaryRouteHint)}.
                                             </p>
-                                            <p className="app-helper app-wrap-anywhere mt-2 text-xs leading-5">
-                                                {primaryStudyRecommendation.reason}
+                                            <p className="app-helper app-wrap-anywhere text-xs">
+                                                Review only flagged values first, then use the merged text editor only if the important lines still look wrong.
                                             </p>
+                                            <p className="app-helper app-wrap-anywhere text-xs">
+                                                {primaryStudyRecommendation
+                                                    ? `Study follow-up: ${primaryStudyRecommendation.title}.`
+                                                    : "If the topic still feels mixed or incomplete, continue into Smart Solver after the scan summary is clear."}
+                                            </p>
+                                        </div>
+                                        {primaryStudyRecommendation ? (
                                             <div className="app-card-grid-readable--compact mt-4">
                                                 <button
                                                     type="button"
@@ -720,59 +777,75 @@ export default function ScanCheckPage() {
                                                     Practice quiz
                                                 </button>
                                             </div>
-                                        </SectionCard>
-                                    ) : null}
+                                        ) : null}
+                                    </SectionCard>
 
-                                    <div className="app-workspace-side-grid">
-                                        <SectionCard>
-                                            <p className="app-card-title text-sm">After processing</p>
-                                            <div className="mt-3 space-y-2">
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    1. Confirm the detected topic, then verify only flagged values first.
-                                                </p>
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    2. Use the merged text editor when the OCR is mostly right but still needs cleanup.
-                                                </p>
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    3. Continue into the suggested workspace, lesson, or quiz once the risky lines make sense.
-                                                </p>
+                                    <DisclosurePanel
+                                        title="Route and worksheet details"
+                                        summary="Open this when you want the full session reasoning, accounting worksheet grouping, or the detailed after-processing checklist."
+                                        badge={accountingSession ? "Worksheet" : "Route"}
+                                        compact
+                                    >
+                                        <div className="space-y-4">
+                                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                                <p className="app-card-title text-sm">After processing</p>
+                                                <div className="mt-3 space-y-2">
+                                                    <p className="app-helper app-wrap-anywhere text-xs">
+                                                        1. Confirm the detected topic, then verify only flagged values first.
+                                                    </p>
+                                                    <p className="app-helper app-wrap-anywhere text-xs">
+                                                        2. Use the merged text editor when OCR is mostly right but still needs cleanup.
+                                                    </p>
+                                                    <p className="app-helper app-wrap-anywhere text-xs">
+                                                        3. Continue into the suggested workspace, lesson, or quiz once the risky lines make sense.
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </SectionCard>
 
-                                        <SectionCard>
-                                            <p className="app-card-title text-sm">Recommended workflow</p>
-                                            <div className="mt-3 space-y-2">
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    Best next tool: {getRouteLabel(primaryRouteHint)}.
-                                                </p>
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    Study follow-up: {primaryStudyRecommendation?.title ?? "Open Smart Solver if the topic still feels mixed or incomplete."}
-                                                </p>
-                                                <p className="app-helper app-wrap-anywhere text-xs">
-                                                    Practice step: {primaryStudyRecommendation ? "Use the topic quiz after checking the extracted values." : "Open a related route or Smart Solver after reviewing the session summary."}
-                                                </p>
-                                            </div>
-                                        </SectionCard>
-                                    </div>
+                                            <ScanProblemSessionPanel
+                                                session={accountingSession}
+                                                onOpenWorkspace={openProcessCostingWorkspace}
+                                            />
+                                        </div>
+                                    </DisclosurePanel>
 
-                                    <ScanProblemSessionPanel
-                                        session={accountingSession}
-                                        onOpenWorkspace={openProcessCostingWorkspace}
-                                    />
-
-                                    {scanRecommendations.length > 0 ? (
-                                        <RelatedLinksPanel
-                                            title="Other suggested tools"
-                                            summary="Keep alternate calculators tucked away until you want to compare a second route or open a follow-up workspace."
-                                            badge={`${scanRecommendations.length} routes`}
-                                            showDescriptions
+                                    {(scanRecommendations.length > 0 || primaryStudyRecommendation) ? (
+                                        <DisclosurePanel
+                                            title="Other study and tool options"
+                                            summary="Keep alternate routes and follow-up study hidden until you actually want a second path."
+                                            badge={`${scanRecommendations.length + (primaryStudyRecommendation ? 1 : 0)} options`}
                                             compact
-                                            items={scanRecommendations.map((entry) => ({
-                                                path: entry.path,
-                                                label: entry.label,
-                                                description: entry.reason,
-                                            }))}
-                                        />
+                                        >
+                                            <div className="space-y-4">
+                                                {primaryStudyRecommendation ? (
+                                                    <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
+                                                        <p className="app-card-title text-sm">Study follow-up</p>
+                                                        <p className="app-body-md mt-2 text-sm">
+                                                            {primaryStudyRecommendation.title}
+                                                        </p>
+                                                        <p className="app-helper app-wrap-anywhere mt-2 text-xs leading-5">
+                                                            {primaryStudyRecommendation.reason}
+                                                        </p>
+                                                    </div>
+                                                ) : null}
+
+                                                {scanRecommendations.length > 0 ? (
+                                                    <RelatedLinksPanel
+                                                        title="Other suggested tools"
+                                                        summary="Alternate calculators stay tucked away until you want to compare a second route."
+                                                        badge={`${scanRecommendations.length} routes`}
+                                                        showDescriptions
+                                                        compact
+                                                        defaultOpen
+                                                        items={scanRecommendations.map((entry) => ({
+                                                            path: entry.path,
+                                                            label: entry.label,
+                                                            description: entry.reason,
+                                                        }))}
+                                                    />
+                                                ) : null}
+                                            </div>
+                                        </DisclosurePanel>
                                     ) : null}
                                 </div>
                             </div>
