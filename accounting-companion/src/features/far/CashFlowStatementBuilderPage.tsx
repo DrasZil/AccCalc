@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
 import CalculatorPageLayout from "../../components/CalculatorPageLayout";
+import ComparisonBarsChart from "../../components/ComparisonBarsChart";
+import ChartInsightPanel from "../../components/charts/ChartInsightPanel";
 import FormulaCard from "../../components/FormulaCard";
 import InputCard from "../../components/INputCard";
 import InputGrid from "../../components/InputGrid";
 import ResultCard from "../../components/resultCard";
 import ResultGrid from "../../components/ResultGrid";
 import SectionCard from "../../components/SectionCard";
+import { buildChartHighlights } from "../../utils/charts/chartHighlights";
+import { buildComparisonNarrative } from "../../utils/charts/chartNarratives";
 import formatPHP from "../../utils/formatPHP";
 import { computeStatementOfCashFlows } from "../../utils/calculatorMath";
 
@@ -117,6 +121,39 @@ export default function CashFlowStatementBuilderPage() {
                             <ResultCard title="Net Change in Cash" value={formatPHP(result.netChangeInCash)} />
                             <ResultCard title="Ending Cash Balance" value={formatPHP(result.endingCashBalance)} />
                         </ResultGrid>
+                        <ComparisonBarsChart
+                            title="Cash-flow section comparison"
+                            description="Read which statement section is adding cash and which section is absorbing cash in the current setup."
+                            items={[
+                                { label: "Operating", value: result.operatingCashFlow, accent: "primary" },
+                                { label: "Investing", value: result.investingCashFlow, accent: "secondary" },
+                                { label: "Financing", value: result.financingCashFlow, accent: "highlight" },
+                            ]}
+                            formatter={formatPHP}
+                            referenceValue={0}
+                            referenceLabel="neutral cash line"
+                            caption="Positive bars increase cash, while negative bars show sections that consume cash in this indirect-method view."
+                        />
+                        <ChartInsightPanel
+                            title="Cash-flow interpretation"
+                            meaning={buildComparisonNarrative(
+                                [
+                                    { label: "Operating", value: Math.abs(result.operatingCashFlow) },
+                                    { label: "Investing", value: Math.abs(result.investingCashFlow) },
+                                    { label: "Financing", value: Math.abs(result.financingCashFlow) },
+                                ],
+                                { formatter: formatPHP }
+                            )}
+                            importance={`Net cash changed by ${formatPHP(result.netChangeInCash)}, leading to an ending cash balance of ${formatPHP(result.endingCashBalance)} after combining operating, investing, and financing movements.`}
+                            highlights={buildChartHighlights(
+                                [
+                                    { label: "Operating", value: Math.abs(result.operatingCashFlow) },
+                                    { label: "Investing", value: Math.abs(result.investingCashFlow) },
+                                    { label: "Financing", value: Math.abs(result.financingCashFlow) },
+                                ],
+                                { formatter: formatPHP }
+                            )}
+                        />
                         <SectionCard>
                             <p className="app-card-title text-sm">Classification reminders</p>
                             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">

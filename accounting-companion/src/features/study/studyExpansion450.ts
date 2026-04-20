@@ -783,6 +783,7 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         keywords: ["budget flow", "production budget", "inventory budget", "operating expense budget", "cash budget"],
         scanSignals: ["production budget", "inventory budget", "operating expenses", "cash budget", "merchandise purchases"],
         relatedCalculatorPaths: [
+            "/business/sales-budget",
             "/business/production-budget",
             "/business/direct-materials-purchases-budget",
             "/business/inventory-budget",
@@ -790,6 +791,79 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
             "/business/cash-budget",
         ],
         relatedTopicIds: ["forecasting-afn-and-growth-financing", "operations-forecasting-inventory-and-quality"],
+    }),
+    makeTopic({
+        id: "tax-vat-output-input-and-remittance-logic",
+        title: "Tax: VAT Output, Input, and Period Reconciliation",
+        shortTitle: "VAT Reconciliation",
+        category: "Taxation",
+        summary:
+            "Review output VAT, input VAT, VATable classification, and the net-remittance position without treating VAT as a one-step multiplication only.",
+        intro:
+            "VAT questions often become unreliable when classification is skipped, so this reviewer path keeps legal treatment, tax base, and period matching visible before computation.",
+        focus: "output VAT, input VAT, classification, and the net-remittance position",
+        workedScenario:
+            "A case gives taxable sales, VATable purchases, and asks whether the period shows VAT payable or excess input VAT.",
+        workedResult:
+            "The strongest answer computes output and input VAT separately, then explains whether the resulting position is payable, balanced, or excess-input in nature.",
+        checkpointScenario:
+            "A student multiplies everything by the VAT rate without first deciding whether all amounts are actually VATable.",
+        checkpointResult:
+            "A correct VAT answer still depends on classification and period matching, not arithmetic alone.",
+        keywords: ["vat", "output vat", "input vat", "vat payable", "vat reconciliation"],
+        scanSignals: ["output vat", "input vat", "vat payable", "vatable sales", "vatable purchases"],
+        relatedCalculatorPaths: ["/tax/vat-reconciliation", "/tax/percentage-tax", "/tax/tax-compliance-review"],
+        relatedTopicIds: ["tax-book-tax-vat-and-compliance", "tax-withholding-transfer-and-incentive-regimes"],
+    }),
+    makeTopic({
+        id: "afar-intercompany-inventory-and-profit-elimination",
+        title: "AFAR: Intercompany Inventory and Unrealized Profit Elimination",
+        shortTitle: "Intercompany Inventory",
+        category: "AFAR / Consolidation",
+        summary:
+            "Review markup basis, unsold inventory, and consolidation elimination logic for intercompany inventory-profit cases.",
+        intro:
+            "These AFAR problems become much safer when students separate transfer profit, markup basis, and the still-unsold portion before attempting elimination entries.",
+        focus: "markup basis, unrealized profit, and consolidation elimination support",
+        workedScenario:
+            "A parent transfers goods to a subsidiary at a markup, some inventory remains unsold at year-end, and the case asks for the unrealized profit requiring elimination.",
+        workedResult:
+            "The strongest answer isolates the internal profit first, then limits the elimination to the portion still embedded in ending inventory from the group perspective.",
+        checkpointScenario:
+            "A student eliminates the full transfer profit even though only part of the inventory remains unsold to outsiders.",
+        checkpointResult:
+            "AFAR elimination is stronger when the unrealized portion is identified precisely instead of assuming all transfer profit stays unrealized.",
+        keywords: ["intercompany inventory", "unrealized profit", "consolidation elimination", "markup on cost"],
+        scanSignals: ["intercompany transfer", "unsold inventory", "markup on cost", "unrealized profit"],
+        relatedCalculatorPaths: ["/afar/intercompany-inventory-profit", "/afar/business-combination-analysis"],
+        relatedTopicIds: ["afar-business-combinations-and-consolidation", "integrative-review-and-case-mapping"],
+    }),
+    makeTopic({
+        id: "far-equity-rollforward-and-statement-of-changes-in-equity",
+        title: "FAR: Equity Rollforward and Statement of Changes in Equity",
+        shortTitle: "Equity Rollforward",
+        category: "Financial Accounting",
+        summary:
+            "Study share capital, APIC, retained earnings, OCI, treasury shares, and the statement-of-changes-in-equity format as one coherent FAR reporting topic.",
+        intro:
+            "Equity questions become more reliable when each component is rolled forward separately instead of collapsing everything into one retained-earnings shortcut.",
+        focus: "equity components, rollforward logic, and statement preparation",
+        workedScenario:
+            "A reporting case gives beginning equity balances, current income, OCI, dividends, share issuances, and treasury-share activity, then asks for ending equity presentation.",
+        workedResult:
+            "The strongest answer preserves each component's movement and shows how total equity changes without losing the role of treasury shares as a deduction.",
+        checkpointScenario:
+            "A student adds treasury shares to equity instead of treating them as a contra-equity balance.",
+        checkpointResult:
+            "Statement reliability improves when students distinguish positive equity components from deduction balances and disclose each movement clearly.",
+        keywords: ["statement of changes in equity", "retained earnings", "apic", "treasury shares", "oci"],
+        scanSignals: ["statement of changes in equity", "share capital", "retained earnings", "treasury shares", "oci"],
+        relatedCalculatorPaths: [
+            "/far/statement-of-changes-in-equity-builder",
+            "/far/retained-earnings-rollforward",
+            "/far/cash-flow-statement-builder",
+        ],
+        relatedTopicIds: ["far-financial-statements-and-disclosure", "integrative-review-and-case-mapping"],
     }),
     makeTopic({
         id: "far-cash-control-petty-cash-and-adjustments",

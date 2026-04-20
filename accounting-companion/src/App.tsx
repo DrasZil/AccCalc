@@ -324,6 +324,9 @@ const InventoryBudgetPage = lazy(
 const OperatingExpenseBudgetPage = lazy(
     () => import("./features/business/OperatingExpenseBudgetPage")
 );
+const SalesBudgetPage = lazy(
+    () => import("./features/business/SalesBudgetPage")
+);
 const AdditionalFundsNeededPage = lazy(
     () => import("./features/business/AdditionalFundsNeededPage")
 );
@@ -345,6 +348,9 @@ const RetainedEarningsRollforwardPage = lazy(
 );
 const CashFlowStatementBuilderPage = lazy(
     () => import("./features/far/CashFlowStatementBuilderPage")
+);
+const StatementOfChangesInEquityBuilderPage = lazy(
+    () => import("./features/far/StatementOfChangesInEquityBuilderPage")
 );
 const EoqReorderPointPage = lazy(
     () => import("./features/operations/EoqReorderPointPage")
@@ -370,6 +376,9 @@ const WithholdingTaxPage = lazy(
 const PercentageTaxPage = lazy(
     () => import("./features/tax/PercentageTaxPage")
 );
+const VatReconciliationPage = lazy(
+    () => import("./features/tax/VatReconciliationPage")
+);
 const BusinessCombinationAnalysisPage = lazy(
     () => import("./features/afar/BusinessCombinationAnalysisPage")
 );
@@ -378,6 +387,9 @@ const ForeignCurrencyTranslationPage = lazy(
 );
 const ConstructionRevenuePage = lazy(
     () => import("./features/afar/ConstructionRevenuePage")
+);
+const IntercompanyInventoryProfitPage = lazy(
+    () => import("./features/afar/IntercompanyInventoryProfitPage")
 );
 const ItControlMatrixPage = lazy(() => import("./features/ais/ItControlMatrixPage"));
 const AisLifecycleAndRecoveryPage = lazy(
@@ -530,6 +542,7 @@ export default function App() {
                         <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
                         <Route path="business/production-budget" element={renderRoute("/business/production-budget", <ProductionBudgetPage />)} />
                         <Route path="business/direct-materials-purchases-budget" element={renderRoute("/business/direct-materials-purchases-budget", <DirectMaterialsPurchasesBudgetPage />)} />
+                        <Route path="business/sales-budget" element={renderRoute("/business/sales-budget", <SalesBudgetPage />)} />
                         <Route path="business/inventory-budget" element={renderRoute("/business/inventory-budget", <InventoryBudgetPage />)} />
                         <Route path="business/operating-expense-budget" element={renderRoute("/business/operating-expense-budget", <OperatingExpenseBudgetPage />)} />
                         <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
@@ -552,15 +565,18 @@ export default function App() {
                         <Route path="far/asset-disposal-analysis" element={renderRoute("/far/asset-disposal-analysis", <AssetDisposalAnalysisPage />)} />
                         <Route path="far/retained-earnings-rollforward" element={renderRoute("/far/retained-earnings-rollforward", <RetainedEarningsRollforwardPage />)} />
                         <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
+                        <Route path="far/statement-of-changes-in-equity-builder" element={renderRoute("/far/statement-of-changes-in-equity-builder", <StatementOfChangesInEquityBuilderPage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
                         <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
+                        <Route path="tax/vat-reconciliation" element={renderRoute("/tax/vat-reconciliation", <VatReconciliationPage />)} />
                         <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
                         <Route path="tax/tax-compliance-review" element={renderRoute("/tax/tax-compliance-review", <TaxComplianceReviewPage />)} />
                         <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
+                        <Route path="afar/intercompany-inventory-profit" element={renderRoute("/afar/intercompany-inventory-profit", <IntercompanyInventoryProfitPage />)} />
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
                         <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
                         <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />

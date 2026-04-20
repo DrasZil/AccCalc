@@ -57,6 +57,7 @@ import {
     computePartnershipRetirementBonus,
     computePartnershipSalaryInterestAllocation,
     computeOperatingExpenseBudget,
+    computeSalesBudget,
     computePaybackPeriod,
     computePresentValue,
     computePresentValueOfOrdinaryAnnuity,
@@ -89,6 +90,9 @@ import {
     computeTurnoverWithDayBasis,
     computeUnitEconomics,
     computeAssetDisposal,
+    computeIntercompanyInventoryProfit,
+    computeStatementOfChangesInEquity,
+    computeVatReconciliation,
     computeWithholdingTax,
     computeWeightedMean,
     computeWorkingCapitalCycle,
@@ -405,6 +409,10 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     const materials = getWorkpaperTemplate("direct-materials-purchases-support");
     const inventoryBudget = getWorkpaperTemplate("inventory-budget-support");
     const operatingExpenseBudget = getWorkpaperTemplate("operating-expense-budget-support");
+    const salesBudget = getWorkpaperTemplate("sales-budget-support");
+    const vatReconciliation = getWorkpaperTemplate("vat-reconciliation-support");
+    const intercompanyElimination = getWorkpaperTemplate("intercompany-inventory-elimination-support");
+    const equityRollforward = getWorkpaperTemplate("equity-rollforward-support");
 
     assert.ok(pettyCash);
     assert.ok(adjustments);
@@ -412,6 +420,10 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     assert.ok(materials);
     assert.ok(inventoryBudget);
     assert.ok(operatingExpenseBudget);
+    assert.ok(salesBudget);
+    assert.ok(vatReconciliation);
+    assert.ok(intercompanyElimination);
+    assert.ok(equityRollforward);
 });
 
 runTest("cash discount and partnership helpers return standard values", () => {
@@ -1161,6 +1173,52 @@ runTest("5.6.5 helper additions stay mathematically consistent", () => {
     assertClose(withholdingTax.netAfterWithholding, 76500);
 });
 
+runTest("5.7.0 helper additions stay mathematically consistent", () => {
+    const salesBudget = computeSalesBudget({
+        budgetedUnitSales: 12500,
+        sellingPricePerUnit: 85,
+    });
+    const vat = computeVatReconciliation({
+        taxableSalesAmount: 850000,
+        vatablePurchasesAmount: 420000,
+        vatRatePercent: 12,
+    });
+    const intercompany = computeIntercompanyInventoryProfit({
+        transferPrice: 240000,
+        markupRateOnCostPercent: 25,
+        percentUnsoldAtPeriodEnd: 40,
+    });
+    const equity = computeStatementOfChangesInEquity({
+        beginningShareCapital: 5000000,
+        beginningAdditionalPaidInCapital: 900000,
+        beginningRetainedEarnings: 2100000,
+        beginningAccumulatedOci: 120000,
+        beginningTreasuryShares: 180000,
+        shareIssuances: 300000,
+        additionalPaidInCapitalChanges: 45000,
+        netIncome: 680000,
+        dividendsDeclared: 210000,
+        priorPeriodAdjustments: 0,
+        otherComprehensiveIncome: 35000,
+        treasuryShareRepurchases: 60000,
+        treasuryShareReissuances: 20000,
+    });
+
+    assertClose(salesBudget.budgetedSalesRevenue, 1062500);
+    assertClose(vat.outputVat, 102000);
+    assertClose(vat.inputVat, 50400);
+    assertClose(vat.netVatPayable, 51600);
+    assert.equal(vat.remittancePosition, "payable");
+    assertClose(intercompany.transferredCost, 192000);
+    assertClose(intercompany.intercompanyGrossProfit, 48000);
+    assertClose(intercompany.unrealizedProfitInEndingInventory, 19200);
+    assertClose(intercompany.realizedProfitPortion, 28800);
+    assertClose(equity.endingRetainedEarnings, 2570000);
+    assertClose(equity.endingTreasuryShares, 220000);
+    assertClose(equity.totalEndingEquity, 8750000);
+    assertClose(equity.totalChangeInEquity, 810000);
+});
+
 runTest("capital budgeting comparison combines project metrics", () => {
     const result = computeCapitalBudgetingComparison(
         100000,
@@ -1413,6 +1471,10 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     const impairmentResults = searchAppRoutes("recoverable amount value in use");
     const disposalResults = searchAppRoutes("gain on sale of equipment");
     const withholdingResults = searchAppRoutes("expanded withholding tax");
+    const salesBudgetResults = searchAppRoutes("budgeted sales revenue");
+    const vatResults = searchAppRoutes("output vat less input vat");
+    const intercompanyResults = searchAppRoutes("inventory profit elimination");
+    const equityResults = searchAppRoutes("statement of changes in equity");
 
     assert.equal(npvResults[0]?.path, "/finance/npv");
     assert.equal(typoResults[0]?.path, "/accounting/trial-balance-checker");
@@ -1476,6 +1538,15 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(impairmentResults[0]?.path, "/far/impairment-loss-workspace");
     assert.equal(disposalResults[0]?.path, "/far/asset-disposal-analysis");
     assert.equal(withholdingResults[0]?.path, "/tax/withholding-tax");
+    assert.equal(salesBudgetResults[0]?.path, "/business/sales-budget");
+    assert.equal(vatResults[0]?.path, "/tax/vat-reconciliation");
+    assert.equal(intercompanyResults[0]?.path, "/afar/intercompany-inventory-profit");
+    assert.equal(
+        equityResults.some(
+            (result) => result.path === "/far/statement-of-changes-in-equity-builder"
+        ),
+        true
+    );
 });
 
 runTest("smart solver target intent prefers explicit reverse-solve wording", () => {
@@ -1504,12 +1575,27 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
         "purchasesRequiredCost"
     );
     assert.equal(
+        suggestSolveTarget("sales-budget", "find the budgeted sales revenue"),
+        "budgetedSalesAmount"
+    );
+    assert.equal(
         suggestSolveTarget("operating-expense-budget", "find the cash operating expenses"),
         "cashOperatingExpenses"
     );
     assert.equal(
+        suggestSolveTarget("vat-reconciliation", "compute the vat payable"),
+        "netVatPayable"
+    );
+    assert.equal(
         suggestSolveTarget("withholding-tax", "compute the amount withheld"),
         "taxWithheld"
+    );
+    assert.equal(
+        suggestSolveTarget(
+            "intercompany-inventory-profit",
+            "find unrealized profit in ending inventory"
+        ),
+        "unrealizedProfitInEndingInventory"
     );
 });
 

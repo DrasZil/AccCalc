@@ -265,6 +265,23 @@ type OperatingExpenseBudgetParams = {
     nonCashOperatingExpenses?: number;
 };
 
+type SalesBudgetParams = {
+    budgetedUnitSales: number;
+    sellingPricePerUnit: number;
+};
+
+type VatReconciliationParams = {
+    taxableSalesAmount: number;
+    vatablePurchasesAmount: number;
+    vatRatePercent: number;
+};
+
+type IntercompanyInventoryProfitParams = {
+    transferPrice: number;
+    markupRateOnCostPercent: number;
+    percentUnsoldAtPeriodEnd: number;
+};
+
 type CapacityUtilizationParams = {
     actualUnits: number;
     practicalCapacityUnits: number;
@@ -2126,6 +2143,18 @@ export function computeOperatingExpenseBudget({
     };
 }
 
+export function computeSalesBudget({
+    budgetedUnitSales,
+    sellingPricePerUnit,
+}: SalesBudgetParams) {
+    return {
+        budgetedSalesRevenue: safeMultiply(
+            budgetedUnitSales,
+            sellingPricePerUnit
+        ),
+    };
+}
+
 export function computeFlexibleBudget({
     budgetedUnits,
     actualUnits,
@@ -2684,6 +2713,22 @@ type StatementOfCashFlowsParams = {
     shareIssuanceProceeds?: number;
     dividendsPaid?: number;
     openingCashBalance?: number;
+};
+
+type StatementOfChangesInEquityParams = {
+    beginningShareCapital: number;
+    beginningAdditionalPaidInCapital: number;
+    beginningRetainedEarnings: number;
+    beginningAccumulatedOci: number;
+    beginningTreasuryShares: number;
+    shareIssuances?: number;
+    additionalPaidInCapitalChanges?: number;
+    netIncome?: number;
+    dividendsDeclared?: number;
+    priorPeriodAdjustments?: number;
+    otherComprehensiveIncome?: number;
+    treasuryShareRepurchases?: number;
+    treasuryShareReissuances?: number;
 };
 
 type ForeignCurrencyTranslationParams = {
@@ -3433,6 +3478,77 @@ export function computeStatementOfCashFlows({
     };
 }
 
+export function computeStatementOfChangesInEquity({
+    beginningShareCapital,
+    beginningAdditionalPaidInCapital,
+    beginningRetainedEarnings,
+    beginningAccumulatedOci,
+    beginningTreasuryShares,
+    shareIssuances = 0,
+    additionalPaidInCapitalChanges = 0,
+    netIncome = 0,
+    dividendsDeclared = 0,
+    priorPeriodAdjustments = 0,
+    otherComprehensiveIncome = 0,
+    treasuryShareRepurchases = 0,
+    treasuryShareReissuances = 0,
+}: StatementOfChangesInEquityParams) {
+    const endingShareCapital = safeAdd(beginningShareCapital, shareIssuances);
+    const endingAdditionalPaidInCapital = safeAdd(
+        beginningAdditionalPaidInCapital,
+        additionalPaidInCapitalChanges
+    );
+    const endingRetainedEarnings = safeAdd(
+        safeAdd(beginningRetainedEarnings, netIncome),
+        safeSubtract(priorPeriodAdjustments, dividendsDeclared)
+    );
+    const endingAccumulatedOci = safeAdd(
+        beginningAccumulatedOci,
+        otherComprehensiveIncome
+    );
+    const endingTreasuryShares = safeAdd(
+        beginningTreasuryShares,
+        safeSubtract(treasuryShareRepurchases, treasuryShareReissuances)
+    );
+    const totalBeginningEquity = safeSubtract(
+        safeAdd(
+            safeAdd(
+                safeAdd(
+                    beginningShareCapital,
+                    beginningAdditionalPaidInCapital
+                ),
+                beginningRetainedEarnings
+            ),
+            beginningAccumulatedOci
+        ),
+        beginningTreasuryShares
+    );
+    const totalEndingEquity = safeSubtract(
+        safeAdd(
+            safeAdd(
+                safeAdd(
+                    endingShareCapital,
+                    endingAdditionalPaidInCapital
+                ),
+                endingRetainedEarnings
+            ),
+            endingAccumulatedOci
+        ),
+        endingTreasuryShares
+    );
+
+    return {
+        endingShareCapital,
+        endingAdditionalPaidInCapital,
+        endingRetainedEarnings,
+        endingAccumulatedOci,
+        endingTreasuryShares,
+        totalBeginningEquity,
+        totalEndingEquity,
+        totalChangeInEquity: safeSubtract(totalEndingEquity, totalBeginningEquity),
+    };
+}
+
 export function computeForeignCurrencyTranslation({
     foreignCurrencyAmount,
     transactionRate,
@@ -3557,6 +3673,62 @@ export function computeWithholdingTax({
         rateDecimal,
         taxWithheld,
         netAfterWithholding: taxBase - taxWithheld,
+    };
+}
+
+export function computeVatReconciliation({
+    taxableSalesAmount,
+    vatablePurchasesAmount,
+    vatRatePercent,
+}: VatReconciliationParams) {
+    const vatRateDecimal = vatRatePercent / 100;
+    const outputVat = safeMultiply(taxableSalesAmount, vatRateDecimal);
+    const inputVat = safeMultiply(vatablePurchasesAmount, vatRateDecimal);
+    const netVatPayable = safeSubtract(outputVat, inputVat);
+
+    return {
+        vatRateDecimal,
+        outputVat,
+        inputVat,
+        netVatPayable,
+        grossSalesInclusiveOfVat: safeAdd(taxableSalesAmount, outputVat),
+        grossPurchasesInclusiveOfVat: safeAdd(vatablePurchasesAmount, inputVat),
+        remittancePosition:
+            netVatPayable > 0
+                ? "payable"
+                : netVatPayable < 0
+                  ? "excess-input-vat"
+                  : "balanced",
+    };
+}
+
+export function computeIntercompanyInventoryProfit({
+    transferPrice,
+    markupRateOnCostPercent,
+    percentUnsoldAtPeriodEnd,
+}: IntercompanyInventoryProfitParams) {
+    const markupRateDecimal = markupRateOnCostPercent / 100;
+    const percentUnsoldDecimal = percentUnsoldAtPeriodEnd / 100;
+    const transferredCost =
+        markupRateDecimal === -1
+            ? Number.NaN
+            : transferPrice / (1 + markupRateDecimal);
+    const intercompanyGrossProfit = safeSubtract(transferPrice, transferredCost);
+    const unrealizedProfitInEndingInventory = safeMultiply(
+        intercompanyGrossProfit,
+        percentUnsoldDecimal
+    );
+
+    return {
+        markupRateDecimal,
+        percentUnsoldDecimal,
+        transferredCost,
+        intercompanyGrossProfit,
+        unrealizedProfitInEndingInventory,
+        realizedProfitPortion: safeSubtract(
+            intercompanyGrossProfit,
+            unrealizedProfitInEndingInventory
+        ),
     };
 }
 

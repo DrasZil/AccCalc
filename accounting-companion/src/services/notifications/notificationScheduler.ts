@@ -15,6 +15,18 @@ export type ReminderSchedule = {
     nextAt: number;
 };
 
+export function isBrowserNotificationRuntimeSupported() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    return (
+        typeof Notification !== "undefined" &&
+        window.isSecureContext &&
+        window.location.protocol !== "file:"
+    );
+}
+
 export function readReminderSchedule() {
     if (typeof window === "undefined") return null;
 
@@ -53,7 +65,7 @@ export function sendReminderNotification(
     category: ReminderCategory,
     tone: ReminderTone
 ) {
-    if (typeof window === "undefined" || typeof Notification === "undefined") {
+    if (!isBrowserNotificationRuntimeSupported()) {
         return false;
     }
 
@@ -63,12 +75,15 @@ export function sendReminderNotification(
         Math.floor(Math.random() * getReminderCopy(category, tone).length)
     ];
 
-    new Notification("AccCalc reminder", {
-        body,
-        icon: `${window.location.origin}${import.meta.env.BASE_URL}icon-192.png`,
-        tag: "accalc-local-reminder",
-    });
+    try {
+        new Notification("AccCalc reminder", {
+            body,
+            icon: `${window.location.origin}${import.meta.env.BASE_URL}icon-192.png`,
+            tag: "accalc-local-reminder",
+        });
+    } catch {
+        return false;
+    }
 
     return true;
 }
-

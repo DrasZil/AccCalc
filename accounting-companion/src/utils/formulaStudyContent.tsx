@@ -518,6 +518,140 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             { path: "/tax/tax-compliance-review", label: "Tax Compliance Review" },
         ],
     },
+    "sales-budget-solve": {
+        topicId: "formula-sales-budget",
+        topicTitle: "Sales Budget",
+        intro:
+            "The sales budget usually anchors the master budget, so weak assumptions here can distort many later schedules that look more detailed but depend on the same starting plan.",
+        sections: [
+            {
+                key: "anchor",
+                label: "Why it matters",
+                summary: "This schedule often comes first in the budget flow.",
+                content: bullets([
+                    "Production, purchases, operating expense, and cash-planning schedules often begin with the sales budget.",
+                    "A weak unit-sales assumption can make later budgets look precise even when the demand assumption itself is shaky.",
+                    "Class questions may ask for units, price, or total revenue from the same core relationship.",
+                ]),
+            },
+            {
+                key: "class-use",
+                label: "Class and exam use",
+                summary: "Expect it in master-budget sequencing questions.",
+                emphasis: "support",
+                tone: "info",
+                content: bullets([
+                    "Some problems give total revenue and selling price, then ask you to back-solve units before moving into production or cash planning.",
+                    "A good answer explains where the sales budget sits in the wider budget sequence instead of treating it as an isolated multiplication only.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/production-budget", label: "Production Budget" },
+            { path: "/business/cash-budget", label: "Cash Budget" },
+        ],
+    },
+    "vat-reconciliation-solve": {
+        topicId: "formula-vat-reconciliation",
+        topicTitle: "VAT Reconciliation",
+        intro:
+            "VAT questions are not only about multiplication. The academic risk is often classification: whether the entered amounts are truly VATable and belong in the same reporting period.",
+        sections: [
+            {
+                key: "procedure",
+                label: "Procedure logic",
+                summary: "Compute output VAT and input VAT separately before reading the final position.",
+                content: bullets([
+                    "Output VAT usually comes from taxable sales multiplied by the applicable VAT rate.",
+                    "Input VAT usually comes from VATable purchases or costs that qualify for input-tax recognition.",
+                    "Net VAT payable is the excess of output VAT over allowable input VAT in this simplified classroom setup.",
+                ]),
+            },
+            {
+                key: "mistakes",
+                label: "Common mistakes",
+                summary: "Most errors come from classification or timing, not arithmetic.",
+                emphasis: "support",
+                tone: "warning",
+                content: bullets([
+                    "Including exempt, zero-rated, or differently treated items in a single-rate VAT computation.",
+                    "Mixing transactions from different reporting periods.",
+                    "Treating an excess-input position as though it automatically answers every filing or refund issue.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/tax/percentage-tax", label: "Percentage Tax" },
+            { path: "/tax/tax-compliance-review", label: "Tax Compliance Review" },
+        ],
+    },
+    "intercompany-inventory-profit-solve": {
+        topicId: "formula-intercompany-inventory-profit",
+        topicTitle: "Intercompany Inventory Profit Elimination",
+        intro:
+            "This is an AFAR elimination-support topic: the goal is to remove profit the group has not yet realized from outside customers.",
+        sections: [
+            {
+                key: "meaning",
+                label: "What the result means",
+                summary: "The unrealized portion is the seller's internal profit still sitting inside ending inventory.",
+                content: bullets([
+                    "If inventory remains unsold outside the group at period-end, part of the transfer profit is still unrealized at the consolidated level.",
+                    "That unrealized portion commonly requires an elimination entry in consolidation support.",
+                    "The answer is not the full transfer profit unless all transferred goods remain unsold externally.",
+                ]),
+            },
+            {
+                key: "cautions",
+                label: "Assumptions and cautions",
+                summary: "Markup basis matters a lot in AFAR cases.",
+                emphasis: "support",
+                tone: "warning",
+                content: bullets([
+                    "Do not confuse markup on cost with markup on selling price.",
+                    "Upstream versus downstream cases may affect attribution and NCI implications even when the unrealized-profit amount is similar.",
+                    "If the problem spans more than one period, previous-period unrealized profit may also matter.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/afar/business-combination-analysis", label: "Business Combination Analysis" },
+            { path: "/far/statement-of-changes-in-equity-builder", label: "Statement of Changes in Equity Builder" },
+        ],
+    },
+    "statement-of-changes-in-equity-solve": {
+        topicId: "formula-statement-of-changes-in-equity",
+        topicTitle: "Statement of Changes in Equity",
+        intro:
+            "A statement of changes in equity is a rollforward, not just a retained-earnings schedule. Strong answers keep each component of equity separate and reconcilable.",
+        sections: [
+            {
+                key: "structure",
+                label: "Statement structure",
+                summary: "Different equity components move for different reasons.",
+                content: bullets([
+                    "Share capital and APIC usually move because of equity transactions.",
+                    "Retained earnings usually move because of net income, dividends, and prior-period adjustments.",
+                    "Accumulated OCI and treasury shares require separate treatment because they do not behave like ordinary profit balances.",
+                ]),
+            },
+            {
+                key: "exam-use",
+                label: "How it appears in class",
+                summary: "Often used in FAR statement-building and disclosure review.",
+                emphasis: "support",
+                tone: "info",
+                content: bullets([
+                    "Some cases ask only for ending retained earnings, but broader statement questions require a full equity rollforward.",
+                    "Treasury-share activity and OCI are common points where partial answers become misleading.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/far/retained-earnings-rollforward", label: "Retained Earnings Rollforward" },
+            { path: "/far/cash-flow-statement-builder", label: "Statement of Cash Flows Builder" },
+        ],
+    },
 };
 
 export function getFormulaStudySupport(definitionId: string) {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPersistentStorageState } from "../services/storage/storageConsent";
+import { isBrowserNotificationRuntimeSupported } from "../services/notifications/notificationScheduler";
 
 type PermissionViewState = "enabled" | "blocked" | "unavailable" | "ask" | "unsupported";
 
@@ -26,10 +27,9 @@ function mapPermissionState(value?: PermissionState | NotificationPermission | n
 export function usePermissionState() {
     const [state, setState] = useState<PermissionStateSummary>({
         camera: "ask",
-        notifications:
-            typeof Notification === "undefined"
-                ? "unsupported"
-                : mapPermissionState(Notification.permission),
+        notifications: isBrowserNotificationRuntimeSupported()
+            ? mapPermissionState(Notification.permission)
+            : "unsupported",
         storage: "ask",
         persistentStorage: {
             supported: false,
@@ -45,10 +45,9 @@ export function usePermissionState() {
         async function sync() {
             const next: PermissionStateSummary = {
                 camera: "ask",
-                notifications:
-                    typeof Notification === "undefined"
-                        ? "unsupported"
-                        : mapPermissionState(Notification.permission),
+                notifications: isBrowserNotificationRuntimeSupported()
+                    ? mapPermissionState(Notification.permission)
+                    : "unsupported",
                 storage: "ask",
                 persistentStorage: {
                     supported: false,
@@ -71,10 +70,9 @@ export function usePermissionState() {
                 next.camera = "unsupported";
             }
 
-            next.notifications =
-                typeof Notification === "undefined"
-                    ? "unsupported"
-                    : mapPermissionState(Notification.permission);
+            next.notifications = isBrowserNotificationRuntimeSupported()
+                ? mapPermissionState(Notification.permission)
+                : "unsupported";
 
             const storage = await getPersistentStorageState();
             next.persistentStorage = storage;

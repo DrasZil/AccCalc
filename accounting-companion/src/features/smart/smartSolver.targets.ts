@@ -134,15 +134,30 @@ const SOLVE_TARGET_RULES: Record<
         { target: "budgetedCostOfGoodsSold", patterns: [/budgeted cogs/i, /budgeted cost of goods sold/i] },
         { target: "desiredEndingInventoryCost", patterns: [/desired ending inventory/i, /ending inventory target/i] },
     ],
+    "sales-budget": [
+        { target: "budgetedSalesAmount", patterns: [/sales budget/i, /budgeted sales revenue/i, /sales revenue budget/i] },
+        { target: "budgetedSalesUnits", patterns: [/budgeted unit sales/i, /planned unit sales/i, /sales units/i] },
+        { target: "sellingPricePerUnit", patterns: [/selling price per unit/i, /planned selling price/i, /price per unit/i] },
+    ],
     "operating-expense-budget": [
         { target: "totalOperatingExpenses", patterns: [/total operating expenses/i, /selling and administrative budget/i, /operating expense budget/i] },
         { target: "cashOperatingExpenses", patterns: [/cash operating expenses/i, /cash opex/i] },
         { target: "budgetedSalesAmount", patterns: [/budgeted sales/i, /sales budget/i] },
     ],
+    "vat-reconciliation": [
+        { target: "netVatPayable", patterns: [/net vat payable/i, /vat payable/i, /output vat less input vat/i] },
+        { target: "taxableSalesAmount", patterns: [/taxable sales/i, /vatable sales/i, /sales subject to vat/i] },
+        { target: "vatRatePercent", patterns: [/vat rate/i, /value added tax rate/i] },
+    ],
     "withholding-tax": [
         { target: "taxWithheld", patterns: [/withholding tax/i, /tax withheld/i, /amount withheld/i] },
         { target: "taxBase", patterns: [/tax base/i, /gross amount/i, /payment subject to withholding/i] },
         { target: "ratePercent", patterns: [/withholding rate/i, /rate percent/i, /ewt rate/i] },
+    ],
+    "intercompany-inventory-profit": [
+        { target: "unrealizedProfitInEndingInventory", patterns: [/unrealized profit/i, /inventory profit elimination/i, /profit in ending inventory/i] },
+        { target: "transferPrice", patterns: [/transfer price/i, /intercompany selling price/i] },
+        { target: "percentUnsoldAtPeriodEnd", patterns: [/percent unsold/i, /ending inventory unsold/i, /remaining unsold/i] },
     ],
 };
 

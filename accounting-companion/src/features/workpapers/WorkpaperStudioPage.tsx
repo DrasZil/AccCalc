@@ -336,7 +336,8 @@ export default function WorkpaperStudioPage() {
     const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
     const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const activeInputRef = useRef<HTMLInputElement | null>(null);
+    const formulaBarInputRef = useRef<HTMLInputElement | null>(null);
+    const selectedCellEditorRef = useRef<HTMLInputElement | null>(null);
     const selectedCellElementRef = useRef<HTMLElement | null>(null);
     const workspaceRef = useRef<HTMLDivElement | null>(null);
     const copiedRangeRef = useRef<{
@@ -550,13 +551,17 @@ export default function WorkpaperStudioPage() {
         );
     }
 
+    function focusSelectedCellEditor() {
+        window.requestAnimationFrame(() => selectedCellEditorRef.current?.focus());
+    }
+
     function selectCell(nextCellKey: string, options?: { extendRange?: boolean }) {
         commitCellDraft();
         setSelectedCellKey(nextCellKey);
         if (!options?.extendRange) {
             setSelectionAnchorKey(nextCellKey);
         }
-        window.requestAnimationFrame(() => activeInputRef.current?.focus());
+        focusSelectedCellEditor();
     }
 
     function moveSelection(
@@ -747,7 +752,7 @@ export default function WorkpaperStudioPage() {
         setCellDraft(template);
         setShowFunctionPicker(false);
         setShowFormulaExamples(false);
-        window.requestAnimationFrame(() => activeInputRef.current?.focus());
+        focusSelectedCellEditor();
     }
 
     function updateSelectedCellStyle(stylePatch: Partial<WorkpaperCellStyle>, message: string) {
@@ -1287,7 +1292,7 @@ export default function WorkpaperStudioPage() {
                                     fx
                                 </button>
                                 <input
-                                    ref={activeInputRef}
+                                    ref={formulaBarInputRef}
                                     value={cellDraft}
                                     onChange={(event) => setCellDraft(event.target.value)}
                                     onBlur={() => commitCellDraft({ staySelected: true })}
@@ -1324,6 +1329,17 @@ export default function WorkpaperStudioPage() {
                                     <span className="workpaper-format-strip__label">Active selection</span>
                                     <strong>{selectedRangeLabel}</strong>
                                     <span className="workpaper-format-strip__hint">{selectionSummary}</span>
+                                    <span className="workpaper-quickbar__preview">
+                                        Live display:{" "}
+                                        <strong>
+                                            {formatDisplayValue(
+                                                liveCellPreview?.display ||
+                                                    selectedCell?.input ||
+                                                    "Blank cell",
+                                                selectedCellStyle
+                                            )}
+                                        </strong>
+                                    </span>
                                 </div>
                                 <div className="workpaper-quickbar__actions">
                                     <button
@@ -1639,7 +1655,7 @@ export default function WorkpaperStudioPage() {
                                                 type="button"
                                                 onClick={() => {
                                                     setCellDraft(hint.value);
-                                                    activeInputRef.current?.focus();
+                                                    focusSelectedCellEditor();
                                                 }}
                                                 className="workpaper-inline-guide__chip"
                                             >
@@ -1821,6 +1837,14 @@ export default function WorkpaperStudioPage() {
                                                                 rowIndex,
                                                                 columnIndex
                                                             );
+                                                            const isFrozenColumn = Boolean(
+                                                                activeSheet.freezeColumns &&
+                                                                    columnIndex < activeSheet.freezeColumns
+                                                            );
+                                                            const isFrozenRow = Boolean(
+                                                                activeSheet.freezeRows &&
+                                                                    rowIndex < activeSheet.freezeRows
+                                                            );
 
                                                             return (
                                                                 <td
@@ -1830,26 +1854,24 @@ export default function WorkpaperStudioPage() {
                                                                         isInSelection
                                                                             ? "workpaper-grid__cell-wrap--range"
                                                                             : "",
-                                                                        activeSheet.freezeColumns &&
-                                                                        columnIndex < activeSheet.freezeColumns
+                                                                        isFrozenColumn
                                                                             ? "workpaper-grid__cell-wrap--frozen-column"
                                                                             : "",
-                                                                        activeSheet.freezeRows &&
-                                                                        rowIndex < activeSheet.freezeRows
+                                                                        isFrozenRow
                                                                             ? "workpaper-grid__cell-wrap--frozen-row"
+                                                                            : "",
+                                                                        isFrozenColumn && isFrozenRow
+                                                                            ? "workpaper-grid__cell-wrap--frozen-intersection"
                                                                             : "",
                                                                     ].join(" ")}
                                                                     style={{
-                                                                        left:
-                                                                            activeSheet.freezeColumns &&
-                                                                            columnIndex < activeSheet.freezeColumns
-                                                                                ? `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`
-                                                                                : undefined,
-                                                                        top:
-                                                                            activeSheet.freezeRows &&
-                                                                            rowIndex < activeSheet.freezeRows
-                                                                                ? `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`
-                                                                                : undefined,
+                                                                        left: isFrozenColumn
+                                                                            ? `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`
+                                                                            : undefined,
+                                                                        top: isFrozenRow
+                                                                            ? `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`
+                                                                            : undefined,
+                                                                        zIndex: isFrozenColumn && isFrozenRow ? 2 : isFrozenColumn || isFrozenRow ? 1 : undefined,
                                                                     }}
                                                                 >
                                                                     {isSelected ? (
@@ -1861,6 +1883,7 @@ export default function WorkpaperStudioPage() {
                                                                             style={getCellButtonStyle(cell?.style)}
                                                                         >
                                                                             <input
+                                                                                ref={selectedCellEditorRef}
                                                                                 value={cellDraft}
                                                                                 onChange={(event) =>
                                                                                     setCellDraft(event.target.value)
@@ -1870,25 +1893,11 @@ export default function WorkpaperStudioPage() {
                                                                                         staySelected: true,
                                                                                     })
                                                                                 }
-                                                                                onKeyDown={(event) => {
-                                                                                    if (event.key === "Enter" || event.key === "Tab") {
-                                                                                        handleEditorNavigation(event);
-                                                                                    }
-                                                                                }}
+                                                                                onKeyDown={handleEditorNavigation}
                                                                                 className="workpaper-grid__editor"
                                                                                 style={getCellEditorStyle(cell?.style)}
+                                                                                aria-label={`Edit ${getCellReference(rowIndex, columnIndex)}`}
                                                                             />
-                                                                            <span
-                                                                                className="workpaper-grid__preview"
-                                                                                style={getCellTextStyle(cell?.style)}
-                                                                            >
-                                                                                {cellDraft.trim().startsWith("=")
-                                                                                    ? formatDisplayValue(
-                                                                                          liveCellPreview?.display ?? "",
-                                                                                          cell?.style
-                                                                                      )
-                                                                                    : ""}
-                                                                            </span>
                                                                         </div>
                                                                     ) : (
                                                                         <button

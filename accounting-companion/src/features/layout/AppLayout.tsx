@@ -140,6 +140,77 @@ function getGroupDisplayLabel(groupTitle: AppNavGroupTitle) {
     return groupTitle;
 }
 
+function normalizeRuntimeIssue(reason: unknown) {
+    const rawMessage =
+        typeof reason === "string"
+            ? reason
+            : reason instanceof Error
+              ? reason.message
+              : typeof reason === "object" && reason && "message" in reason
+                ? String((reason as { message?: unknown }).message ?? "")
+                : "";
+    const message = rawMessage.trim();
+
+    if (!message) {
+        return null;
+    }
+
+    if (
+        /ResizeObserver loop limit exceeded/i.test(message) ||
+        /script error\.?/i.test(message)
+    ) {
+        return null;
+    }
+
+    if (
+        /dynamically imported module|Failed to fetch dynamically imported module|importing a module script failed/i.test(
+            message
+        )
+    ) {
+        return {
+            title: "Refresh recommended",
+            message:
+                "This tab hit a stale route-file mismatch after a deploy. Refresh to reconnect the current shell with the latest chunk set.",
+            tone: "warning" as const,
+            dedupeKey: "runtime:deployment-mismatch",
+            handled: true,
+        };
+    }
+
+    if (
+        /notification/i.test(message) &&
+        /secure context|permission|denied|unsupported/i.test(message)
+    ) {
+        return {
+            title: "Notifications limited",
+            message:
+                "Browser-level reminders are unavailable in this session, so AccCalc will keep using in-app notices without raising a false error state.",
+            tone: "info" as const,
+            dedupeKey: "runtime:notification-limited",
+            handled: true,
+        };
+    }
+
+    if (/service worker/i.test(message) && /register|registration|update/i.test(message)) {
+        return {
+            title: "Offline features limited",
+            message:
+                "Background update checks are unavailable in this browser session, but the main app can still keep running normally.",
+            tone: "info" as const,
+            dedupeKey: "runtime:service-worker-limited",
+            handled: true,
+        };
+    }
+
+    return {
+        title: "Unexpected issue",
+        message,
+        tone: "warning" as const,
+        dedupeKey: `runtime:${message}`,
+        handled: false,
+    };
+}
+
 function prefersWidePageShell(pathname: string) {
     return (
         pathname === "/" ||
@@ -760,9 +831,10 @@ export default function AppLayout() {
     function pushNotice(
         title: string,
         message: string,
-        tone: "info" | "success" | "warning" | "error" = "info"
+        tone: "info" | "success" | "warning" | "error" = "info",
+        options?: { dedupeKey?: string; durationMs?: number }
     ) {
-        notify({ title, message, tone });
+        notify({ title, message, tone, dedupeKey: options?.dedupeKey, durationMs: options?.durationMs });
     }
 
     useEffect(() => {
@@ -1180,20 +1252,25 @@ export default function AppLayout() {
         if (typeof window === "undefined") return;
 
         const handleError = (event: ErrorEvent) => {
-            pushNotice(
-                "Unexpected error",
-                event.message || "Something went wrong while using the app.",
-                "warning"
-            );
+            const runtimeIssue = normalizeRuntimeIssue(event.error ?? event.message);
+            if (!runtimeIssue) return;
+
+            pushNotice(runtimeIssue.title, runtimeIssue.message, runtimeIssue.tone, {
+                dedupeKey: runtimeIssue.dedupeKey,
+            });
         };
 
         const handleRejection = (event: PromiseRejectionEvent) => {
-            const reason =
-                typeof event.reason === "string"
-                    ? event.reason
-                    : event.reason?.message || "Unexpected background failure.";
+            const runtimeIssue = normalizeRuntimeIssue(event.reason);
+            if (!runtimeIssue) return;
 
-            pushNotice("Action issue", reason, "warning");
+            if (runtimeIssue.handled) {
+                event.preventDefault();
+            }
+
+            pushNotice(runtimeIssue.title, runtimeIssue.message, runtimeIssue.tone, {
+                dedupeKey: runtimeIssue.dedupeKey,
+            });
         };
 
         window.addEventListener("error", handleError);

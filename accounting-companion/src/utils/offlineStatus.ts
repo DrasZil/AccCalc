@@ -100,10 +100,15 @@ function queryServiceWorkerCacheStatus() {
     if (
         typeof navigator === "undefined" ||
         !("serviceWorker" in navigator) ||
+        !window.isSecureContext ||
+        window.location.protocol === "file:" ||
         !navigator.serviceWorker.controller
     ) {
         patchStatus({
-            supported: "serviceWorker" in navigator,
+            supported:
+                "serviceWorker" in navigator &&
+                window.isSecureContext &&
+                window.location.protocol !== "file:",
             ready: false,
             assetCount: 0,
         });
@@ -149,10 +154,17 @@ export function initializeOfflineStatusLifecycle() {
 
     initialized = true;
     patchStatus({
-        supported: "serviceWorker" in navigator,
+        supported:
+            "serviceWorker" in navigator &&
+            window.isSecureContext &&
+            window.location.protocol !== "file:",
     });
 
-    if (!("serviceWorker" in navigator)) {
+    if (
+        !("serviceWorker" in navigator) ||
+        !window.isSecureContext ||
+        window.location.protocol === "file:"
+    ) {
         return;
     }
 

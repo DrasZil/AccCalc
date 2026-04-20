@@ -1,38 +1,38 @@
-export const APP_VERSION = "5.6.5";
-export const APP_RELEASE_DATE = "2026-04-19";
+export const APP_VERSION = "5.7.0";
+export const APP_RELEASE_DATE = "2026-04-20";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 5.6.5 broadens calculator and workpaper coverage",
-        body: "This release adds new guided calculators and workbook support for petty cash reconciliation, adjusting entries, production budgeting, direct materials purchases, inventory budgeting, operating-expense budgeting, impairment review, asset disposal analysis, and withholding tax practice.",
+        title: "AccCalc 5.7.0 stabilizes Workpapers and expands core accounting coverage",
+        body: "This release removes intrusive sticky Workpaper input behavior, hardens narrow-screen sheet rendering, and adds new calculator and builder coverage for sales budgeting, VAT reconciliation, intercompany inventory-profit elimination, and statement-of-changes-in-equity preparation.",
     },
     {
-        title: "Smart Solver and Scan & Check route new accounting problems more safely",
-        body: "Natural-language routing and OCR recommendations now recognize more textbook phrasing for FAR, budgeting, adjusting entries, and tax problems while also warning more clearly when route confidence is still close or ambiguous.",
+        title: "Notifications and runtime handling are calmer and more reliable",
+        body: "Shared in-app notifications now filter noisy browser-runtime failures more intelligently, surface deployment mismatch and offline limitations more clearly, and avoid false error-thread style messaging that was especially disruptive on static deployments.",
     },
     {
-        title: "Layered study support and workbook links now reach more budget and FAR workflows",
-        body: "The formula workspace system now carries deeper concept, procedure, interpretation, caution, and classroom-use guidance into more routes, while matching workpaper templates make those same workflows easier to document and review.",
+        title: "Study support now reaches deeper into budget, tax, AFAR, and equity workflows",
+        body: "Layered educational guidance now links more directly to sales-budget, VAT, consolidation-elimination, and equity-statement tasks with clearer concept framing, common-mistake warnings, and result-linked follow-up study prompts.",
     },
     {
-        title: "Notifications and charts now fit the newer shell more cleanly",
-        body: "In-app notifications are now shared across the shell instead of split between page-local systems, and chart callouts now explain spread, checkpoints, and highlighted intersections more clearly.",
+        title: "Charts now teach more clearly on statement-style pages",
+        body: "Result visuals now do more than decorate: key pages surface composition, direction, and checkpoint-aware interpretation so students can see what the output means and not only what number was computed.",
     },
     {
-        title: "Reliability coverage improved across math helpers, templates, and routing",
-        body: "Shared calculation helpers, search metadata, workbook templates, Smart Solver targets, OCR cleanup, and route suggestions were expanded together so new tools remain discoverable, testable, and consistent across mobile and desktop use.",
+        title: "Shared reliability improved across math helpers, routing, OCR hints, and workbook templates",
+        body: "The shared calculation layer, route metadata, Smart Solver extraction, OCR route suggestions, offline-status handling, and workpaper templates were expanded together so new tools stay discoverable, academically trustworthy, and usable across mobile and desktop layouts.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
-    "5.6.5: Added new curriculum-aligned calculators and workspaces for petty cash reconciliation, prepaid and unearned adjustments, accrued revenue and expense adjustments, production budgeting, direct materials purchases budgeting, inventory budgeting, operating-expense budgeting, impairment review, asset disposal analysis, and withholding tax practice.",
-    "5.6.5: Expanded workbook coverage with new petty cash, adjusting-entry, production-budget, direct-materials, inventory-budget, and operating-expense templates so solve-and-support work can move into Workpaper Studio more naturally.",
-    "5.6.5: Broadened Smart Solver field extraction, route catalog coverage, and solve-target intent handling for the new accounting, FAR, managerial, and tax workflows instead of leaving them page-only.",
-    "5.6.5: Improved Scan & Check route recommendations for petty cash, adjusting entries, production budgeting, direct materials purchases, inventory budgeting, operating-expense budgeting, impairment, disposal, and withholding tax, then added stronger merged-token warnings when OCR may still be binding numbers and labels together.",
-    "5.6.5: Replaced page-local scan toasts with a shared in-app notification layer, then aligned workpaper action feedback with the same shell-aware notification behavior and calmer inline notice surfaces.",
-    "5.6.5: Strengthened chart interpretation with richer highlight summaries, better spread narration, clearer curve-guide markers, and more checkpoint-aware comparison feedback on high-value pages such as CVP, ratio analysis, market equilibrium, and scan review.",
-    "5.6.5: Extended layered study support into the new formula workspaces and broadened study-topic coverage for budget-flow and FAR cash-control review so results connect to concept overviews, procedural logic, worked interpretation, cautions, and classroom-use follow-up.",
-    "5.6.5: Added targeted validation coverage for the new calculator helpers, route aliases, Smart Solver targets, and workbook templates while preserving the existing responsive shell, workbook behaviors, and dark-light parity from earlier releases.",
+    "5.7.0: Fixed Workpaper Studio so the formula-input bar no longer stays annoyingly sticky on narrow layouts, while selected-cell editing again stays the primary interaction and frozen-cell layering behaves more predictably.",
+    "5.7.0: Hardened Workpaper grid sizing and overflow handling to stop cell-content overlap on mobile and narrow screens, then tightened compact row-height and cell-width behavior for touch use.",
+    "5.7.0: Added new curriculum-aligned tools for Sales Budget, VAT Reconciliation, Intercompany Inventory Profit Elimination, and Statement of Changes in Equity preparation, extending budgeting, taxation, AFAR, and FAR statement coverage together.",
+    "5.7.0: Expanded workbook-template coverage with new sales-budget, VAT-reconciliation, intercompany-elimination, and equity-rollforward support sheets so more solve-and-support workflows can move naturally into Workpaper Studio.",
+    "5.7.0: Refined Smart Solver field extraction, target detection, OCR route suggestions, and catalog metadata for the new sales-budget, VAT, equity-statement, and AFAR elimination workflows without attempting an unnecessary architecture rewrite.",
+    "5.7.0: Fixed the in-app runtime error-thread style messaging by normalizing noisy browser and deployment issues into calmer, deduplicated notices, then improved static-host compatibility for service-worker and notification limitations.",
+    "5.7.0: Improved chart teaching value on statement-heavy pages by adding composition-aware and flow-aware visual interpretation instead of leaving result pages as cards alone.",
+    "5.7.0: Broadened layered study support with deeper budget-flow, VAT logic, intercompany inventory-profit, and equity-statement guidance so outputs connect more directly to procedural logic, vocabulary, cautions, and review follow-up.",
     "5.5.1: Fixed Workpaper Studio centering and width behavior on narrower screens so the worksheet area, toolbar, formula bar, tabs, and workbook chrome stay balanced instead of drifting or overexposing utility controls.",
     "5.5.1: Replaced several always-visible workbook utility clusters with compact file, sheet, structure, and workspace menus so the route feels cleaner and more spreadsheet-like without hiding core editing actions.",
     "5.5.1: Tightened responsive wrapping and layout behavior around workbook actions, tab controls, grid header tools, and panel access so mobile, tablet, narrow laptop, and resized desktop views stay stable.",

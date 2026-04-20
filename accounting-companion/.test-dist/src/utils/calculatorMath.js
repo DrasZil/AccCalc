@@ -1164,6 +1164,11 @@ export function computeOperatingExpenseBudget({ budgetedSalesAmount, variableExp
         cashOperatingExpenses,
     };
 }
+export function computeSalesBudget({ budgetedUnitSales, sellingPricePerUnit, }) {
+    return {
+        budgetedSalesRevenue: safeMultiply(budgetedUnitSales, sellingPricePerUnit),
+    };
+}
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
     const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
     const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;
@@ -1771,6 +1776,25 @@ export function computeStatementOfCashFlows({ netIncome, depreciationExpense, im
         ],
     };
 }
+export function computeStatementOfChangesInEquity({ beginningShareCapital, beginningAdditionalPaidInCapital, beginningRetainedEarnings, beginningAccumulatedOci, beginningTreasuryShares, shareIssuances = 0, additionalPaidInCapitalChanges = 0, netIncome = 0, dividendsDeclared = 0, priorPeriodAdjustments = 0, otherComprehensiveIncome = 0, treasuryShareRepurchases = 0, treasuryShareReissuances = 0, }) {
+    const endingShareCapital = safeAdd(beginningShareCapital, shareIssuances);
+    const endingAdditionalPaidInCapital = safeAdd(beginningAdditionalPaidInCapital, additionalPaidInCapitalChanges);
+    const endingRetainedEarnings = safeAdd(safeAdd(beginningRetainedEarnings, netIncome), safeSubtract(priorPeriodAdjustments, dividendsDeclared));
+    const endingAccumulatedOci = safeAdd(beginningAccumulatedOci, otherComprehensiveIncome);
+    const endingTreasuryShares = safeAdd(beginningTreasuryShares, safeSubtract(treasuryShareRepurchases, treasuryShareReissuances));
+    const totalBeginningEquity = safeSubtract(safeAdd(safeAdd(safeAdd(beginningShareCapital, beginningAdditionalPaidInCapital), beginningRetainedEarnings), beginningAccumulatedOci), beginningTreasuryShares);
+    const totalEndingEquity = safeSubtract(safeAdd(safeAdd(safeAdd(endingShareCapital, endingAdditionalPaidInCapital), endingRetainedEarnings), endingAccumulatedOci), endingTreasuryShares);
+    return {
+        endingShareCapital,
+        endingAdditionalPaidInCapital,
+        endingRetainedEarnings,
+        endingAccumulatedOci,
+        endingTreasuryShares,
+        totalBeginningEquity,
+        totalEndingEquity,
+        totalChangeInEquity: safeSubtract(totalEndingEquity, totalBeginningEquity),
+    };
+}
 export function computeForeignCurrencyTranslation({ foreignCurrencyAmount, transactionRate, closingRate, settlementRate, }) {
     const initialRecognitionAmount = safeMultiply(foreignCurrencyAmount, transactionRate);
     const closingCarryingAmount = safeMultiply(foreignCurrencyAmount, closingRate);
@@ -1833,6 +1857,42 @@ export function computeWithholdingTax({ taxBase, ratePercent, }) {
         rateDecimal,
         taxWithheld,
         netAfterWithholding: taxBase - taxWithheld,
+    };
+}
+export function computeVatReconciliation({ taxableSalesAmount, vatablePurchasesAmount, vatRatePercent, }) {
+    const vatRateDecimal = vatRatePercent / 100;
+    const outputVat = safeMultiply(taxableSalesAmount, vatRateDecimal);
+    const inputVat = safeMultiply(vatablePurchasesAmount, vatRateDecimal);
+    const netVatPayable = safeSubtract(outputVat, inputVat);
+    return {
+        vatRateDecimal,
+        outputVat,
+        inputVat,
+        netVatPayable,
+        grossSalesInclusiveOfVat: safeAdd(taxableSalesAmount, outputVat),
+        grossPurchasesInclusiveOfVat: safeAdd(vatablePurchasesAmount, inputVat),
+        remittancePosition: netVatPayable > 0
+            ? "payable"
+            : netVatPayable < 0
+                ? "excess-input-vat"
+                : "balanced",
+    };
+}
+export function computeIntercompanyInventoryProfit({ transferPrice, markupRateOnCostPercent, percentUnsoldAtPeriodEnd, }) {
+    const markupRateDecimal = markupRateOnCostPercent / 100;
+    const percentUnsoldDecimal = percentUnsoldAtPeriodEnd / 100;
+    const transferredCost = markupRateDecimal === -1
+        ? Number.NaN
+        : transferPrice / (1 + markupRateDecimal);
+    const intercompanyGrossProfit = safeSubtract(transferPrice, transferredCost);
+    const unrealizedProfitInEndingInventory = safeMultiply(intercompanyGrossProfit, percentUnsoldDecimal);
+    return {
+        markupRateDecimal,
+        percentUnsoldDecimal,
+        transferredCost,
+        intercompanyGrossProfit,
+        unrealizedProfitInEndingInventory,
+        realizedProfitPortion: safeSubtract(intercompanyGrossProfit, unrealizedProfitInEndingInventory),
     };
 }
 export function computeAccountingRateOfReturn({ averageAnnualAccountingIncome, initialInvestment, salvageValue = 0, }) {

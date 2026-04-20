@@ -1037,6 +1037,38 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["budgeted sales", "planned sales amount", "sales budget"],
     },
+    taxableSalesAmount: {
+        label: "Taxable Sales",
+        placeholder: "850000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["taxable sales", "vatable sales amount", "sales subject to vat", "vatable sales"],
+    },
+    vatablePurchasesAmount: {
+        label: "Vatable Purchases",
+        placeholder: "420000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["vatable purchases", "taxable purchases", "purchases subject to vat", "input vat base"],
+    },
+    vatRatePercent: {
+        label: "VAT Rate (%)",
+        placeholder: "12",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["vat rate", "value added tax rate", "vat percentage", "vat percent"],
+    },
+    netVatPayable: {
+        label: "Net VAT Payable",
+        placeholder: "51600",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["net vat payable", "vat payable", "net vat due", "vat remittance"],
+    },
     variableExpenseRatePercent: {
         label: "Variable Expense Rate (%)",
         placeholder: "6.5",
@@ -1076,6 +1108,38 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         group: "business",
         visibleInManualInputs: false,
         aliases: ["cash operating expenses", "cash selling and administrative expenses", "cash opex"],
+    },
+    transferPrice: {
+        label: "Transfer Price",
+        placeholder: "240000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["transfer price", "intercompany transfer price", "intra-group selling price"],
+    },
+    markupRateOnCostPercent: {
+        label: "Markup on Cost (%)",
+        placeholder: "25",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["markup on cost", "markup rate on cost", "gross profit on cost"],
+    },
+    percentUnsoldAtPeriodEnd: {
+        label: "Unsold at Period-End (%)",
+        placeholder: "40",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["percent unsold", "unsold at period end", "remaining in ending inventory", "ending inventory unsold percent"],
+    },
+    unrealizedProfitInEndingInventory: {
+        label: "Unrealized Profit",
+        placeholder: "19200",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["unrealized profit", "unrealized profit in ending inventory", "inventory profit elimination"],
     },
     taxBase: {
         label: "Tax Base",
@@ -2308,6 +2372,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /budgeted cogs/i,
         /desired ending inventory/i,
         /required purchases/i,
+        ],
+    },
+    {
+        id: "sales-budget",
+        name: "Sales Budget",
+        route: "/business/sales-budget",
+        description:
+        "Best when the user needs budgeted sales revenue, planned unit sales, or implied selling price from a sales-budget setup.",
+        required: ["budgetedSalesUnits", "sellingPricePerUnit"],
+        optional: ["budgetedSalesAmount"],
+        aliases: ["sales budget", "budgeted sales revenue", "master budget sales"],
+        keywords: [
+        /sales budget/i,
+        /budgeted sales/i,
+        /sales revenue budget/i,
+        /planned selling price/i,
+        /budgeted unit sales/i,
         ],
     },
     {
@@ -3883,6 +3964,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/book tax/i, /temporary differences/i, /deferred tax/i, /tax reconciliation/i],
     },
     {
+        id: "vat-reconciliation",
+        name: "VAT Reconciliation",
+        route: "/tax/vat-reconciliation",
+        description:
+            "Best when the user is comparing output VAT and input VAT to read the net payable or excess-input position.",
+        required: ["taxableSalesAmount", "vatablePurchasesAmount", "vatRatePercent"],
+        optional: ["netVatPayable"],
+        aliases: ["vat payable", "output vat less input vat", "vat reconciliation"],
+        keywords: [/vat reconciliation/i, /output vat/i, /input vat/i, /vat payable/i, /vatable sales/i],
+    },
+    {
         id: "withholding-tax",
         name: "Withholding Tax",
         route: "/tax/withholding-tax",
@@ -3912,6 +4004,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         required: [],
         aliases: ["goodwill calculator", "business combination", "nci measurement"],
         keywords: [/business combination/i, /goodwill/i, /\bnci\b/i, /consolidation goodwill/i],
+    },
+    {
+        id: "intercompany-inventory-profit",
+        name: "Intercompany Inventory Profit Elimination",
+        route: "/afar/intercompany-inventory-profit",
+        description:
+            "Best when the user needs the unrealized intercompany profit still embedded in ending inventory.",
+        required: ["transferPrice", "markupRateOnCostPercent", "percentUnsoldAtPeriodEnd"],
+        optional: ["unrealizedProfitInEndingInventory"],
+        aliases: ["intercompany inventory profit", "inventory profit elimination", "unrealized profit in inventory"],
+        keywords: [
+            /intercompany inventory/i,
+            /unrealized profit/i,
+            /inventory elimination/i,
+            /markup on cost/i,
+            /ending inventory unsold/i,
+        ],
     },
     {
         id: "foreign-currency-translation",
@@ -4923,6 +5032,23 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.budgetedSalesAmount.aliases ?? []
     );
+    const taxableSalesAmount = extractNumberByAliases(
+        text,
+        FIELD_META.taxableSalesAmount.aliases ?? []
+    );
+    const vatablePurchasesAmount = extractNumberByAliases(
+        text,
+        FIELD_META.vatablePurchasesAmount.aliases ?? []
+    );
+    const vatRatePercent = extractNumberByAliases(
+        text,
+        FIELD_META.vatRatePercent.aliases ?? [],
+        { percent: true }
+    );
+    const netVatPayable = extractNumberByAliases(
+        text,
+        FIELD_META.netVatPayable.aliases ?? []
+    );
     const variableExpenseRatePercent = extractNumberByAliases(
         text,
         FIELD_META.variableExpenseRatePercent.aliases ?? [],
@@ -4943,6 +5069,21 @@ export function normalizeText(text: string = ""): string {
     const cashOperatingExpenses = extractNumberByAliases(
         text,
         FIELD_META.cashOperatingExpenses.aliases ?? []
+    );
+    const transferPrice = extractNumberByAliases(text, FIELD_META.transferPrice.aliases ?? []);
+    const markupRateOnCostPercent = extractNumberByAliases(
+        text,
+        FIELD_META.markupRateOnCostPercent.aliases ?? [],
+        { percent: true }
+    );
+    const percentUnsoldAtPeriodEnd = extractNumberByAliases(
+        text,
+        FIELD_META.percentUnsoldAtPeriodEnd.aliases ?? [],
+        { percent: true }
+    );
+    const unrealizedProfitInEndingInventory = extractNumberByAliases(
+        text,
+        FIELD_META.unrealizedProfitInEndingInventory.aliases ?? []
     );
     const taxBase = extractNumberByAliases(text, FIELD_META.taxBase.aliases ?? []);
     const ratePercent = extractNumberByAliases(text, FIELD_META.ratePercent.aliases ?? [], {
@@ -5059,11 +5200,19 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "beginningInventoryCost", beginningInventoryCost);
     setFact(facts, "purchasesRequiredCost", purchasesRequiredCost);
     setFact(facts, "budgetedSalesAmount", budgetedSalesAmount);
+    setFact(facts, "taxableSalesAmount", taxableSalesAmount);
+    setFact(facts, "vatablePurchasesAmount", vatablePurchasesAmount);
+    setFact(facts, "vatRatePercent", vatRatePercent);
+    setFact(facts, "netVatPayable", netVatPayable);
     setFact(facts, "variableExpenseRatePercent", variableExpenseRatePercent);
     setFact(facts, "fixedOperatingExpenses", fixedOperatingExpenses);
     setFact(facts, "nonCashOperatingExpenses", nonCashOperatingExpenses);
     setFact(facts, "totalOperatingExpenses", totalOperatingExpenses);
     setFact(facts, "cashOperatingExpenses", cashOperatingExpenses);
+    setFact(facts, "transferPrice", transferPrice);
+    setFact(facts, "markupRateOnCostPercent", markupRateOnCostPercent);
+    setFact(facts, "percentUnsoldAtPeriodEnd", percentUnsoldAtPeriodEnd);
+    setFact(facts, "unrealizedProfitInEndingInventory", unrealizedProfitInEndingInventory);
     setFact(facts, "taxBase", taxBase);
     setFact(facts, "ratePercent", ratePercent);
     setFact(facts, "taxWithheld", taxWithheld);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     buildNextSchedule,
+    isBrowserNotificationRuntimeSupported,
     sendReminderNotification,
     writeReminderSchedule,
 } from "../services/notifications/notificationScheduler";
@@ -26,7 +27,7 @@ export function useLocalNotifications({
 }: UseLocalNotificationsOptions) {
     const timerRef = useRef<number | null>(null);
     const [permission, setPermission] = useState<NotificationPermission | "unsupported">(
-        typeof Notification === "undefined" ? "unsupported" : Notification.permission
+        isBrowserNotificationRuntimeSupported() ? Notification.permission : "unsupported"
     );
 
     const preview = useMemo(() => getReminderPreview(category, tone), [category, tone]);
@@ -37,6 +38,12 @@ export function useLocalNotifications({
                 window.clearTimeout(timerRef.current);
                 timerRef.current = null;
             }
+            writeReminderSchedule(null);
+            return;
+        }
+
+        if (!isBrowserNotificationRuntimeSupported()) {
+            setPermission("unsupported");
             writeReminderSchedule(null);
             return;
         }
@@ -71,18 +78,23 @@ export function useLocalNotifications({
     }, [category, enabled, frequency, permission, tone]);
 
     async function requestPermission() {
-        if (typeof Notification === "undefined") {
+        if (!isBrowserNotificationRuntimeSupported()) {
             setPermission("unsupported");
             return "unsupported" as const;
         }
 
-        const nextPermission = await Notification.requestPermission();
-        setPermission(nextPermission);
-        return nextPermission;
+        try {
+            const nextPermission = await Notification.requestPermission();
+            setPermission(nextPermission);
+            return nextPermission;
+        } catch {
+            setPermission("unsupported");
+            return "unsupported" as const;
+        }
     }
 
     function sendPreview() {
-        if (permission !== "granted") return false;
+        if (permission !== "granted" || !isBrowserNotificationRuntimeSupported()) return false;
         return sendReminderNotification(category, tone);
     }
 

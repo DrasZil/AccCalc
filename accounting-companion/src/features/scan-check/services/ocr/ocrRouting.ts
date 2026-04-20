@@ -289,12 +289,28 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "worked-solution": 3, "textbook-page": 3 },
     },
     {
+        path: "/far/statement-of-changes-in-equity-builder",
+        label: "Statement of Changes in Equity Builder",
+        category: "FAR",
+        patterns: [/\bstatement of changes in equity\b/i, /\bequity rollforward\b/i, /\btreasury shares\b/i],
+        bonus: [/\bshare capital\b/i, /\bretained earnings\b/i, /\bother comprehensive income\b/i],
+        kindBoosts: { "worked-solution": 3, "textbook-page": 3, "accounting-worksheet": 2 },
+    },
+    {
         path: "/tax/book-tax-difference-workspace",
         label: "Book-Tax Difference Workspace",
         category: "Taxation",
         patterns: [/\bbook tax\b/i, /\btemporary difference\b/i, /\bdeferred tax\b/i],
         bonus: [/\btaxable income\b/i, /\bpermanent difference\b/i],
         kindBoosts: { "word-problem": 3, "notes-reference": 3 },
+    },
+    {
+        path: "/tax/vat-reconciliation",
+        label: "VAT Reconciliation",
+        category: "Taxation",
+        patterns: [/\bvat reconciliation\b/i, /\boutput vat\b/i, /\binput vat\b/i],
+        bonus: [/\bvat payable\b/i, /\bvatable sales\b/i, /\bvatable purchases\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "notes-reference": 2 },
     },
     {
         path: "/tax/withholding-tax",
@@ -329,6 +345,14 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
     },
     {
+        path: "/business/sales-budget",
+        label: "Sales Budget",
+        category: "Managerial & Cost",
+        patterns: [/\bsales budget\b/i, /\bbudgeted sales revenue\b/i, /\bbudgeted unit sales\b/i],
+        bonus: [/\bselling price per unit\b/i, /\bmaster budget\b/i, /\bsales forecast\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 2, "accounting-worksheet": 1 },
+    },
+    {
         path: "/business/direct-materials-purchases-budget",
         label: "Direct Materials Purchases Budget",
         category: "Managerial & Cost",
@@ -359,6 +383,14 @@ const ROUTE_RULES: RouteRule[] = [
         patterns: [/\bbusiness combination\b/i, /\bgoodwill\b/i, /\bnon[- ]controlling interest\b/i],
         bonus: [/\bconsolidated\b/i, /\bconsideration transferred\b/i],
         kindBoosts: { "word-problem": 4, "worked-solution": 3 },
+    },
+    {
+        path: "/afar/intercompany-inventory-profit",
+        label: "Intercompany Inventory Profit Elimination",
+        category: "AFAR",
+        patterns: [/\bintercompany inventory\b/i, /\bunrealized profit\b/i, /\binventory elimination\b/i],
+        bonus: [/\bmarkup on cost\b/i, /\bunsold at period[- ]end\b/i, /\bending inventory\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 2 },
     },
     {
         path: "/afar/foreign-currency-translation",

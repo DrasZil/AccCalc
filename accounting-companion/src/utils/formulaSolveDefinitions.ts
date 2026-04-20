@@ -13,6 +13,7 @@ import {
     computeGrossProfitRate,
     computeImpairmentLoss,
     computeInventoryBudget,
+    computeIntercompanyInventoryProfit,
     computeMarkupMargin,
     computeOperatingExpenseBudget,
     computePettyCashReconciliation,
@@ -22,10 +23,12 @@ import {
     computeProductionBudget,
     computeQuickRatio,
     computeRetainedEarningsRollforward,
+    computeSalesBudget,
     computeSimpleInterest,
     computeStraightLineDepreciation,
     computeTurnoverWithDayBasis,
     computeUnearnedRevenueAdjustment,
+    computeVatReconciliation,
     computeWithholdingTax,
 } from "./calculatorMath.js";
 import type { FormulaCalculatorDefinition } from "./formulaIntelligence.js";
@@ -2832,6 +2835,135 @@ export const productionBudgetSolveDefinition: FormulaCalculatorDefinition = {
     },
 };
 
+export const salesBudgetSolveDefinition: FormulaCalculatorDefinition = {
+    id: "sales-budget-solve",
+    defaultTarget: "budgetedSalesAmount",
+    fields: {
+        budgetedSalesUnits: {
+            key: "budgetedSalesUnits",
+            label: "Budgeted Unit Sales",
+            placeholder: "12500",
+            kind: "number",
+        },
+        sellingPricePerUnit: {
+            key: "sellingPricePerUnit",
+            label: "Selling Price / Unit",
+            placeholder: "85",
+            kind: "money",
+        },
+        budgetedSalesAmount: {
+            key: "budgetedSalesAmount",
+            label: "Budgeted Sales Revenue",
+            placeholder: "1062500",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "budgetedSalesAmount",
+            label: "Sales Revenue",
+            summary: "Compute the sales budget in currency terms from units and selling price.",
+        },
+        {
+            key: "budgetedSalesUnits",
+            label: "Unit Sales",
+            summary: "Back-solve the unit-sales plan implied by the total sales budget and price per unit.",
+        },
+        {
+            key: "sellingPricePerUnit",
+            label: "Selling Price / Unit",
+            summary: "Back-solve the planned selling price from unit sales and total sales budget.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "budgetedSalesUnits") {
+            return ["budgetedSalesAmount", "sellingPricePerUnit"];
+        }
+        if (targetKey === "sellingPricePerUnit") {
+            return ["budgetedSalesUnits", "budgetedSalesAmount"];
+        }
+        return ["budgetedSalesUnits", "sellingPricePerUnit"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Sales budget support",
+            body: `Enter the visible sales-budget values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let budgetedSalesUnits = values.budgetedSalesUnits;
+        let sellingPricePerUnit = values.sellingPricePerUnit;
+        let budgetedSalesAmount = values.budgetedSalesAmount;
+
+        if (targetKey === "budgetedSalesUnits") {
+            if (sellingPricePerUnit <= 0) {
+                return { error: "Selling price per unit must be greater than zero when solving for unit sales." };
+            }
+            budgetedSalesUnits = budgetedSalesAmount / sellingPricePerUnit;
+        } else if (targetKey === "sellingPricePerUnit") {
+            if (budgetedSalesUnits <= 0) {
+                return { error: "Budgeted unit sales must be greater than zero when solving for selling price." };
+            }
+            sellingPricePerUnit = budgetedSalesAmount / budgetedSalesUnits;
+        } else {
+            budgetedSalesAmount = computeSalesBudget({
+                budgetedUnitSales: budgetedSalesUnits,
+                sellingPricePerUnit,
+            }).budgetedSalesRevenue;
+        }
+
+        if (
+            ![budgetedSalesUnits, sellingPricePerUnit, budgetedSalesAmount].every(Number.isFinite) ||
+            budgetedSalesUnits < 0 ||
+            sellingPricePerUnit < 0 ||
+            budgetedSalesAmount < 0
+        ) {
+            return { error: "The selected sales-budget values do not produce a valid non-negative answer." };
+        }
+
+        const computed = computeSalesBudget({
+            budgetedUnitSales: budgetedSalesUnits,
+            sellingPricePerUnit,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "budgetedSalesUnits"
+                        ? "Budgeted Unit Sales"
+                        : targetKey === "sellingPricePerUnit"
+                          ? "Selling Price / Unit"
+                          : "Budgeted Sales Revenue",
+                value:
+                    targetKey === "budgetedSalesUnits"
+                        ? `${formatPlain(budgetedSalesUnits, 2)} units`
+                        : targetKey === "sellingPricePerUnit"
+                          ? formatPHP(sellingPricePerUnit)
+                          : formatPHP(computed.budgetedSalesRevenue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Budgeted Unit Sales", value: `${formatPlain(budgetedSalesUnits, 2)} units` },
+                { title: "Selling Price / Unit", value: formatPHP(sellingPricePerUnit) },
+            ],
+            formula: "Sales budget = Budgeted unit sales x Selling price per unit",
+            steps: [
+                `Budgeted sales revenue = ${formatPlain(budgetedSalesUnits, 2)} x ${formatPHP(sellingPricePerUnit)} = ${formatPHP(computed.budgetedSalesRevenue)}.`,
+                "This sales plan usually becomes the starting point for collections, production, and operating-expense budgeting.",
+            ],
+            interpretation: `The sales budget points to ${formatPHP(computed.budgetedSalesRevenue)} of planned revenue from ${formatPlain(budgetedSalesUnits, 2)} units at ${formatPHP(sellingPricePerUnit)} each.`,
+            assumptions: [
+                "This page assumes one planned selling price for the units in the period and does not yet separate cash timing or sales-mix complications.",
+            ],
+            notes: [
+                "Move next into collections, production, or operating-expense budgeting depending on whether the case is merchandising or manufacturing.",
+            ],
+        };
+    },
+};
+
 export const directMaterialsPurchasesBudgetSolveDefinition: FormulaCalculatorDefinition = {
     id: "direct-materials-purchases-budget-solve",
     defaultTarget: "materialsToPurchaseUnits",
@@ -3227,6 +3359,285 @@ export const operatingExpenseBudgetSolveDefinition: FormulaCalculatorDefinition 
             ],
             notes: [
                 "Use the cash portion when preparing the cash budget, because depreciation and other non-cash items affect expense but not cash disbursement.",
+            ],
+        };
+    },
+};
+
+export const intercompanyInventoryProfitSolveDefinition: FormulaCalculatorDefinition = {
+    id: "intercompany-inventory-profit-solve",
+    defaultTarget: "unrealizedProfitInEndingInventory",
+    fields: {
+        transferPrice: {
+            key: "transferPrice",
+            label: "Intercompany Transfer Price",
+            placeholder: "240000",
+            kind: "money",
+        },
+        markupRateOnCostPercent: {
+            key: "markupRateOnCostPercent",
+            label: "Markup on Cost (%)",
+            placeholder: "25",
+            kind: "percent",
+        },
+        percentUnsoldAtPeriodEnd: {
+            key: "percentUnsoldAtPeriodEnd",
+            label: "Unsold at Period-End (%)",
+            placeholder: "40",
+            kind: "percent",
+        },
+        unrealizedProfitInEndingInventory: {
+            key: "unrealizedProfitInEndingInventory",
+            label: "Unrealized Profit",
+            placeholder: "19200",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "unrealizedProfitInEndingInventory",
+            label: "Unrealized Profit",
+            summary: "Compute the intercompany profit still trapped in ending inventory.",
+        },
+        {
+            key: "transferPrice",
+            label: "Transfer Price",
+            summary: "Back-solve the intercompany transfer amount implied by markup and unrealized profit.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "transferPrice"
+            ? [
+                  "markupRateOnCostPercent",
+                  "percentUnsoldAtPeriodEnd",
+                  "unrealizedProfitInEndingInventory",
+              ]
+            : [
+                  "transferPrice",
+                  "markupRateOnCostPercent",
+                  "percentUnsoldAtPeriodEnd",
+              ];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Intercompany inventory profit elimination",
+            body: `Enter the transfer and inventory values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let transferPrice = values.transferPrice;
+        const markupRateOnCostPercent = values.markupRateOnCostPercent;
+        const percentUnsoldAtPeriodEnd = values.percentUnsoldAtPeriodEnd;
+        let unrealizedProfitInEndingInventory = values.unrealizedProfitInEndingInventory;
+
+        if (
+            markupRateOnCostPercent < 0 ||
+            percentUnsoldAtPeriodEnd < 0 ||
+            percentUnsoldAtPeriodEnd > 100
+        ) {
+            return {
+                error: "Markup rate must stay non-negative and the unsold percentage must stay between 0 and 100.",
+            };
+        }
+
+        const eliminationRate =
+            (markupRateOnCostPercent / 100) /
+            (1 + markupRateOnCostPercent / 100) *
+            (percentUnsoldAtPeriodEnd / 100);
+
+        if (targetKey === "transferPrice") {
+            if (eliminationRate <= 0) {
+                return {
+                    error: "Markup and unsold percentage must both be greater than zero when solving for transfer price.",
+                };
+            }
+
+            transferPrice = unrealizedProfitInEndingInventory / eliminationRate;
+        } else {
+            unrealizedProfitInEndingInventory = computeIntercompanyInventoryProfit({
+                transferPrice,
+                markupRateOnCostPercent,
+                percentUnsoldAtPeriodEnd,
+            }).unrealizedProfitInEndingInventory;
+        }
+
+        if (
+            ![transferPrice, unrealizedProfitInEndingInventory].every(Number.isFinite) ||
+            transferPrice < 0 ||
+            unrealizedProfitInEndingInventory < 0
+        ) {
+            return { error: "The selected intercompany-inventory values do not produce a valid non-negative answer." };
+        }
+
+        const computed = computeIntercompanyInventoryProfit({
+            transferPrice,
+            markupRateOnCostPercent,
+            percentUnsoldAtPeriodEnd,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "transferPrice"
+                        ? "Intercompany Transfer Price"
+                        : "Unrealized Profit in Ending Inventory",
+                value:
+                    targetKey === "transferPrice"
+                        ? formatPHP(transferPrice)
+                        : formatPHP(computed.unrealizedProfitInEndingInventory),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Transferred Cost", value: formatPHP(computed.transferredCost) },
+                { title: "Intercompany Gross Profit", value: formatPHP(computed.intercompanyGrossProfit) },
+                { title: "Realized Profit Portion", value: formatPHP(computed.realizedProfitPortion) },
+            ],
+            formula: "Unrealized profit = Transfer price x [markup / (100 + markup)] x Unsold %",
+            steps: [
+                `Profit in the transfer = ${formatPHP(transferPrice)} - ${formatPHP(computed.transferredCost)} = ${formatPHP(computed.intercompanyGrossProfit)}.`,
+                `Unrealized portion = ${formatPHP(computed.intercompanyGrossProfit)} x ${formatPercent(percentUnsoldAtPeriodEnd)} = ${formatPHP(computed.unrealizedProfitInEndingInventory)}.`,
+            ],
+            interpretation: `The group still carries ${formatPHP(computed.unrealizedProfitInEndingInventory)} of seller profit inside ending inventory, so that amount normally needs elimination in consolidation support.`,
+            assumptions: [
+                "This helper assumes markup is stated on cost and focuses only on the unrealized-profit amount, not the full upstream-versus-downstream attribution entry.",
+            ],
+            warnings: [
+                "If the case gives markup on selling price instead of markup on cost, convert the basis before relying on this result.",
+            ],
+        };
+    },
+};
+
+export const vatReconciliationSolveDefinition: FormulaCalculatorDefinition = {
+    id: "vat-reconciliation-solve",
+    defaultTarget: "netVatPayable",
+    fields: {
+        taxableSalesAmount: {
+            key: "taxableSalesAmount",
+            label: "Taxable Sales",
+            placeholder: "850000",
+            kind: "money",
+        },
+        vatablePurchasesAmount: {
+            key: "vatablePurchasesAmount",
+            label: "Vatable Purchases",
+            placeholder: "420000",
+            kind: "money",
+        },
+        vatRatePercent: {
+            key: "vatRatePercent",
+            label: "VAT Rate (%)",
+            placeholder: "12",
+            kind: "percent",
+        },
+        netVatPayable: {
+            key: "netVatPayable",
+            label: "Net VAT Payable",
+            placeholder: "51600",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "netVatPayable",
+            label: "Net VAT Payable",
+            summary: "Compute output VAT less input VAT from one sales-and-purchases setup.",
+        },
+        {
+            key: "taxableSalesAmount",
+            label: "Taxable Sales",
+            summary: "Back-solve the taxable sales base implied by VAT rate, purchases, and the net VAT position.",
+        },
+    ],
+    getInputKeys(targetKey) {
+        return targetKey === "taxableSalesAmount"
+            ? ["vatablePurchasesAmount", "vatRatePercent", "netVatPayable"]
+            : ["taxableSalesAmount", "vatablePurchasesAmount", "vatRatePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "VAT reconciliation support",
+            body: `Enter the visible VAT values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        let taxableSalesAmount = values.taxableSalesAmount;
+        const vatablePurchasesAmount = values.vatablePurchasesAmount;
+        const vatRatePercent = values.vatRatePercent;
+        let netVatPayable = values.netVatPayable;
+
+        if (vatRatePercent < 0 || vatablePurchasesAmount < 0) {
+            return { error: "VAT rate and vatable purchases must stay non-negative." };
+        }
+
+        const vatRateDecimal = vatRatePercent / 100;
+        if (targetKey === "taxableSalesAmount") {
+            if (vatRateDecimal <= 0) {
+                return { error: "VAT rate must be greater than zero when solving for taxable sales." };
+            }
+            taxableSalesAmount =
+                (netVatPayable + vatablePurchasesAmount * vatRateDecimal) / vatRateDecimal;
+        } else {
+            netVatPayable = computeVatReconciliation({
+                taxableSalesAmount,
+                vatablePurchasesAmount,
+                vatRatePercent,
+            }).netVatPayable;
+        }
+
+        if (!Number.isFinite(taxableSalesAmount) || taxableSalesAmount < 0) {
+            return { error: "The selected VAT values do not produce a valid non-negative taxable-sales base." };
+        }
+
+        const computed = computeVatReconciliation({
+            taxableSalesAmount,
+            vatablePurchasesAmount,
+            vatRatePercent,
+        });
+
+        return {
+            primaryResult: {
+                title:
+                    targetKey === "taxableSalesAmount"
+                        ? "Taxable Sales"
+                        : "Net VAT Payable",
+                value:
+                    targetKey === "taxableSalesAmount"
+                        ? formatPHP(taxableSalesAmount)
+                        : formatPHP(computed.netVatPayable),
+                tone:
+                    computed.remittancePosition === "payable"
+                        ? "accent"
+                        : computed.remittancePosition === "balanced"
+                          ? "success"
+                          : "warning",
+            },
+            supportingResults: [
+                { title: "Output VAT", value: formatPHP(computed.outputVat) },
+                { title: "Input VAT", value: formatPHP(computed.inputVat) },
+                { title: "Position", value: computed.remittancePosition.replaceAll("-", " ") },
+            ],
+            formula: "Net VAT payable = Output VAT - Input VAT",
+            steps: [
+                `Output VAT = ${formatPHP(taxableSalesAmount)} x ${computed.vatRateDecimal.toFixed(4)} = ${formatPHP(computed.outputVat)}.`,
+                `Input VAT = ${formatPHP(vatablePurchasesAmount)} x ${computed.vatRateDecimal.toFixed(4)} = ${formatPHP(computed.inputVat)}.`,
+                `Net VAT payable = ${formatPHP(computed.outputVat)} - ${formatPHP(computed.inputVat)} = ${formatPHP(computed.netVatPayable)}.`,
+            ],
+            interpretation:
+                computed.remittancePosition === "payable"
+                    ? `Output VAT exceeds input VAT by ${formatPHP(computed.netVatPayable)}, so the period points to a VAT remittance payable.`
+                    : computed.remittancePosition === "balanced"
+                      ? "Output VAT and input VAT offset each other exactly in this simplified setup."
+                      : `Input VAT exceeds output VAT by ${formatPHP(Math.abs(computed.netVatPayable))}, so the setup points to excess input VAT rather than an immediate net payable.`,
+            assumptions: [
+                "This classroom helper assumes one VAT rate across the entered taxable sales and vatable purchases and does not replace full legal classification of zero-rated, exempt, or specially treated items.",
+            ],
+            warnings: [
+                "Always confirm that the sales and purchases you entered are actually VATable and belong to the same reporting period before treating the result as a filing answer.",
             ],
         };
     },

@@ -428,13 +428,21 @@ export function initializeAppUpdateLifecycle(swUrl: string, version: string) {
     emitState(
         Object.freeze({
             ...DEFAULT_STATE,
-            supported: "serviceWorker" in navigator,
+            supported:
+                "serviceWorker" in navigator &&
+                window.isSecureContext &&
+                window.location.protocol !== "file:",
             currentVersion: version,
             deferredUntil: readDeferredState(null),
         })
     );
 
-    if (!("serviceWorker" in navigator) || !import.meta.env.PROD) {
+    if (
+        !("serviceWorker" in navigator) ||
+        !window.isSecureContext ||
+        window.location.protocol === "file:" ||
+        !import.meta.env.PROD
+    ) {
         return;
     }
 
@@ -478,7 +486,7 @@ export function initializeAppUpdateLifecycle(swUrl: string, version: string) {
                 }, CHECK_INTERVAL_MS);
             })
             .catch((error) => {
-                console.error("Service worker registration failed:", error);
+                console.warn("Service worker features unavailable in this session:", error);
                 patchState({ supported: false });
             });
     });

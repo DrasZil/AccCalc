@@ -34,13 +34,18 @@ export default function NotificationPreferencesCard({
     onRequestPermission,
     onSendPreview,
 }: NotificationPreferencesCardProps) {
+    const notificationsUnavailable = permissionState === "unsupported" || permissionState === "unavailable";
+    const notificationsBlocked = permissionState === "blocked";
+
     return (
         <div className="space-y-4 rounded-[1rem] border app-divider px-4 py-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <p className="app-card-title text-sm">Reminder preferences</p>
                     <p className="app-body-md mt-1 text-sm">
-                        Browser-first reminders work best while the app is open or recently active.
+                        {notificationsUnavailable
+                            ? "This browser session can keep using in-app notices, but system-level browser reminders are unavailable here."
+                            : "Browser-first reminders work best while the app is open or recently active."}
                     </p>
                 </div>
                 <PermissionStatusBadge state={permissionState} />
@@ -107,13 +112,17 @@ export default function NotificationPreferencesCard({
                 <button
                     type="button"
                     onClick={onRequestPermission}
+                    disabled={notificationsUnavailable}
                     className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
                 >
-                    Explain and request notifications
+                    {notificationsUnavailable
+                        ? "Browser notifications unavailable"
+                        : "Explain and request notifications"}
                 </button>
                 <button
                     type="button"
                     onClick={onSendPreview}
+                    disabled={notificationsUnavailable || notificationsBlocked}
                     className="app-button-ghost rounded-xl px-4 py-2 text-sm font-medium"
                 >
                     Send preview
@@ -122,4 +131,3 @@ export default function NotificationPreferencesCard({
         </div>
     );
 }
-
