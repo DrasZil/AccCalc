@@ -4,6 +4,7 @@ import {
     computeBankReconciliation,
     computeBookTaxDifference,
     computeBondAmortizationSchedule,
+    computeBudgetVarianceAnalysis,
     computeBusinessCombination,
     computeCashDiscount,
     computeCashBudget,
@@ -104,16 +105,27 @@ import {
     computeWorkingCapitalCycle,
     computeLeaseMeasurement,
     computeMarketEquilibrium,
+    computeMakeOrBuyDecision,
+    computeMovingAverageForecast,
     computeSurplusAtEquilibrium,
+    computeSellProcessFurther,
+    computeSpecialOrderDecision,
     computeCashRunway,
+    computeConstrainedResourceProductMix,
 } from "../src/utils/calculatorMath.js";
 import {
+    budgetVarianceAnalysisSolveDefinition,
     breakEvenSolveDefinition,
     budgetedIncomeStatementSolveDefinition,
+    constrainedResourceProductMixSolveDefinition,
     currentRatioSolveDefinition,
     directLaborBudgetSolveDefinition,
+    makeOrBuyDecisionSolveDefinition,
+    movingAverageForecastSolveDefinition,
     priceCostMarginSolveDefinition,
+    sellProcessFurtherSolveDefinition,
     simpleInterestSolveDefinition,
+    specialOrderDecisionSolveDefinition,
     timeValueSolveDefinition,
 } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
@@ -1493,7 +1505,7 @@ runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () =
     assert.equal(agingResults[0]?.path, "/accounting/receivables-aging-schedule");
     assert.equal(salesMixResults[0]?.path, "/business/sales-mix-break-even");
     assert.equal(bondResults[0]?.path, "/accounting/bond-amortization-schedule");
-    assert.equal(budgetResults[0]?.path, "/business/flexible-budget");
+    assert.equal(budgetResults[0]?.path, "/business/budget-variance-analysis");
     assert.equal(irrResults[0]?.path, "/finance/internal-rate-of-return");
     assert.equal(collectionsResults[0]?.path, "/business/cash-collections-schedule");
     assert.equal(disbursementsResults[0]?.path, "/business/cash-disbursements-schedule");
@@ -1617,6 +1629,33 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
         suggestSolveTarget("equity-method-investment", "find the ending investment balance"),
         "endingInvestmentBalance"
     );
+    assert.equal(
+        suggestSolveTarget("special-order-analysis", "find the minimum acceptable price"),
+        "minimumAcceptablePricePerUnit"
+    );
+    assert.equal(
+        suggestSolveTarget("make-or-buy-analysis", "which option has the cost advantage"),
+        "costAdvantageAmount"
+    );
+    assert.equal(
+        suggestSolveTarget("sell-or-process-further", "find incremental profit from processing"),
+        "incrementalProfitFromProcessing"
+    );
+    assert.equal(
+        suggestSolveTarget(
+            "constrained-resource-product-mix",
+            "compute contribution margin per constrained resource unit"
+        ),
+        "contributionMarginPerConstraintUnit"
+    );
+    assert.equal(
+        suggestSolveTarget("budget-variance-analysis", "solve for spending variance"),
+        "spendingVariance"
+    );
+    assert.equal(
+        suggestSolveTarget("moving-average-forecast", "weighted moving average forecast"),
+        "weightedMovingAverageForecast"
+    );
 });
 
 runTest("new 6.0.0 shared budgeting and AFAR helpers compute expected rollforwards", () => {
@@ -1661,6 +1700,78 @@ runTest("new 6.0.0 shared budgeting and AFAR helpers compute expected rollforwar
     assertClose(ppe.unamortizedIntercompanyProfit, 48000);
 });
 
+runTest("new 7.0.0 managerial decision and forecasting helpers stay accurate", () => {
+    const specialOrder = computeSpecialOrderDecision({
+        specialOrderUnits: 1000,
+        specialOrderPricePerUnit: 90,
+        variableCostPerUnit: 65,
+        incrementalFixedCosts: 12000,
+    });
+    const makeOrBuy = computeMakeOrBuyDecision({
+        unitsNeeded: 2000,
+        variableManufacturingCostPerUnit: 32,
+        avoidableFixedCosts: 18000,
+        purchasePricePerUnit: 44,
+    });
+    const processFurther = computeSellProcessFurther({
+        units: 5000,
+        salesValueAtSplitoffPerUnit: 20,
+        salesValueAfterProcessingPerUnit: 29,
+        separableProcessingCostPerUnit: 6,
+    });
+    const constrainedMix = computeConstrainedResourceProductMix({
+        sellingPricePerUnit: 85,
+        variableCostPerUnit: 55,
+        constrainedResourceUnitsPerProduct: 4,
+        constrainedResourceAvailableUnits: 2400,
+    });
+    const variance = computeBudgetVarianceAnalysis({
+        actualResultAmount: 528000,
+        flexibleBudgetAmount: 510000,
+        staticBudgetAmount: 495000,
+    });
+    const forecast = computeMovingAverageForecast({
+        period1Demand: 920,
+        period2Demand: 980,
+        period3Demand: 1040,
+        weight1Percent: 20,
+        weight2Percent: 30,
+        weight3Percent: 50,
+    });
+
+    assertClose(specialOrder.incrementalRevenue, 90000);
+    assertClose(specialOrder.incrementalCosts, 77000);
+    assertClose(specialOrder.incrementalProfit, 13000);
+    assertClose(specialOrder.minimumAcceptablePricePerUnit, 77);
+
+    assertClose(makeOrBuy.relevantMakeCost, 82000);
+    assertClose(makeOrBuy.relevantBuyCost, 88000);
+    assertClose(makeOrBuy.costAdvantageAmount, 6000);
+    assertClose(makeOrBuy.maximumAcceptablePurchasePricePerUnit, 41);
+    assert.equal(makeOrBuy.preferredOption, "Make");
+
+    assertClose(processFurther.incrementalRevenueFromProcessing, 45000);
+    assertClose(processFurther.separableProcessingCosts, 30000);
+    assertClose(processFurther.incrementalProfitFromProcessing, 15000);
+    assertClose(processFurther.minimumFurtherProcessingPricePerUnit, 26);
+
+    assertClose(constrainedMix.contributionMarginPerUnit, 30);
+    assertClose(constrainedMix.contributionMarginPerConstraintUnit, 7.5);
+    assertClose(constrainedMix.maximumUnitsFromConstraint, 600);
+    assertClose(constrainedMix.totalContributionMarginAtConstraint, 18000);
+
+    assertClose(variance.spendingVariance, 18000);
+    assertClose(variance.activityVariance, 15000);
+    assertClose(variance.totalBudgetVariance, 33000);
+    assert.equal(variance.spendingVarianceLabel, "Unfavorable");
+    assert.equal(variance.activityVarianceLabel, "Above static plan");
+
+    assertClose(forecast.simpleMovingAverageForecast, 980);
+    assertClose(forecast.weightedMovingAverageForecast, 998);
+    assertClose(forecast.totalWeightPercent, 100);
+    assertClose(forecast.latestTrendChange, 60);
+});
+
 runTest("notes discounting helper separates maturity value and bank discount", () => {
     const result = computeNotesReceivableDiscounting({
         faceValue: 250000,
@@ -1699,12 +1810,102 @@ runTest("new formula solve definitions stay mathematically aligned", () => {
     }
 });
 
+runTest("new 7.0.0 solve definitions stay aligned with shared decision math", () => {
+    const specialOrderSolve = specialOrderDecisionSolveDefinition.solve(
+        "minimumAcceptablePricePerUnit",
+        {
+            specialOrderUnits: 1000,
+            specialOrderPricePerUnit: 90,
+            variableCostPerUnit: 65,
+            incrementalFixedCosts: 12000,
+        }
+    );
+    const makeOrBuySolve = makeOrBuyDecisionSolveDefinition.solve("costAdvantageAmount", {
+        unitsNeeded: 2000,
+        variableManufacturingCostPerUnit: 32,
+        avoidableFixedCosts: 18000,
+        purchasePricePerUnit: 44,
+    });
+    const processFurtherSolve = sellProcessFurtherSolveDefinition.solve(
+        "incrementalProfitFromProcessing",
+        {
+            units: 5000,
+            salesValueAtSplitoffPerUnit: 20,
+            salesValueAfterProcessingPerUnit: 29,
+            separableProcessingCostPerUnit: 6,
+        }
+    );
+    const constrainedMixSolve = constrainedResourceProductMixSolveDefinition.solve(
+        "contributionMarginPerConstraintUnit",
+        {
+            sellingPricePerUnit: 85,
+            variableCostPerUnit: 55,
+            constrainedResourceUnitsPerProduct: 4,
+            constrainedResourceAvailableUnits: 2400,
+        }
+    );
+    const budgetVarianceSolve = budgetVarianceAnalysisSolveDefinition.solve(
+        "spendingVariance",
+        {
+            actualResultAmount: 528000,
+            flexibleBudgetAmount: 510000,
+            staticBudgetAmount: 495000,
+        }
+    );
+    const forecastSolve = movingAverageForecastSolveDefinition.solve(
+        "weightedMovingAverageForecast",
+        {
+            period1Demand: 920,
+            period2Demand: 980,
+            period3Demand: 1040,
+            weight1Percent: 20,
+            weight2Percent: 30,
+            weight3Percent: 50,
+        }
+    );
+
+    assert.equal("error" in specialOrderSolve, false);
+    assert.equal("error" in makeOrBuySolve, false);
+    assert.equal("error" in processFurtherSolve, false);
+    assert.equal("error" in constrainedMixSolve, false);
+    assert.equal("error" in budgetVarianceSolve, false);
+    assert.equal("error" in forecastSolve, false);
+
+    if (!("error" in specialOrderSolve)) {
+        assert.equal(specialOrderSolve.primaryResult.value, "₱77.00");
+    }
+    if (!("error" in makeOrBuySolve)) {
+        assert.equal(makeOrBuySolve.primaryResult.value, "₱6,000.00");
+    }
+    if (!("error" in processFurtherSolve)) {
+        assert.equal(processFurtherSolve.primaryResult.value, "₱15,000.00");
+    }
+    if (!("error" in constrainedMixSolve)) {
+        assert.equal(constrainedMixSolve.primaryResult.value, "₱7.50");
+    }
+    if (!("error" in budgetVarianceSolve)) {
+        assert.equal(budgetVarianceSolve.primaryResult.value, "₱18,000.00");
+    }
+    if (!("error" in forecastSolve)) {
+        assert.equal(forecastSolve.primaryResult.value, "998");
+    }
+});
+
 runTest("search routes surfaces new 6.0.0 budgeting and AFAR tools", () => {
     assert.equal(searchAppRoutes("direct labor budget")[0]?.path, "/business/direct-labor-budget");
     assert.equal(searchAppRoutes("pro forma income statement")[0]?.path, "/business/budgeted-income-statement");
     assert.equal(searchAppRoutes("bank discount on note")[0]?.path, "/accounting/notes-receivable-discounting");
     assert.equal(searchAppRoutes("equity method investment")[0]?.path, "/afar/equity-method-investment");
     assert.equal(searchAppRoutes("intercompany equipment transfer")[0]?.path, "/afar/intercompany-ppe-transfer");
+});
+
+runTest("search routes surfaces new 7.0.0 managerial and operations tools", () => {
+    assert.equal(searchAppRoutes("special order decision")[0]?.path, "/business/special-order-analysis");
+    assert.equal(searchAppRoutes("outsource or produce internally")[0]?.path, "/business/make-or-buy-analysis");
+    assert.equal(searchAppRoutes("split off processing decision")[0]?.path, "/business/sell-or-process-further");
+    assert.equal(searchAppRoutes("bottleneck contribution margin")[0]?.path, "/business/constrained-resource-product-mix");
+    assert.equal(searchAppRoutes("spending variance activity variance")[0]?.path, "/business/budget-variance-analysis");
+    assert.equal(searchAppRoutes("weighted moving average demand forecast")[0]?.path, "/operations/moving-average-forecast");
 });
 
 runTest("account reference search finds aliases and abbreviations", () => {

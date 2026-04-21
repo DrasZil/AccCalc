@@ -159,6 +159,31 @@ const SOLVE_TARGET_RULES: Record<
         { target: "grossProfit", patterns: [/gross profit/i, /gross margin amount/i] },
         { target: "incomeBeforeTax", patterns: [/income before tax/i, /pretax income/i, /profit before tax/i] },
     ],
+    "special-order-analysis": [
+        { target: "incrementalProfit", patterns: [/incremental profit/i, /special order decision/i, /accept the special order/i] },
+        { target: "minimumAcceptablePricePerUnit", patterns: [/minimum acceptable price/i, /break even special order price/i] },
+        { target: "incrementalRevenue", patterns: [/incremental revenue/i, /additional revenue/i] },
+    ],
+    "make-or-buy-analysis": [
+        { target: "costAdvantageAmount", patterns: [/cost advantage/i, /make or buy/i, /which is cheaper/i] },
+        { target: "relevantMakeCost", patterns: [/relevant make cost/i, /cost to make/i] },
+        { target: "maximumAcceptablePurchasePricePerUnit", patterns: [/maximum buy price/i, /indifference buy price/i] },
+    ],
+    "sell-or-process-further": [
+        { target: "incrementalProfitFromProcessing", patterns: [/incremental profit/i, /sell or process further/i, /process further decision/i] },
+        { target: "incrementalRevenueFromProcessing", patterns: [/incremental revenue/i, /additional revenue from processing/i] },
+        { target: "minimumFurtherProcessingPricePerUnit", patterns: [/minimum after processing price/i, /break even processed selling price/i] },
+    ],
+    "constrained-resource-product-mix": [
+        { target: "contributionMarginPerConstraintUnit", patterns: [/contribution per machine hour/i, /cm per constraint unit/i, /contribution margin per constrained resource unit/i, /bottleneck ranking/i] },
+        { target: "maximumUnitsFromConstraint", patterns: [/maximum units from constraint/i, /units supported by bottleneck/i] },
+        { target: "totalContributionMarginAtConstraint", patterns: [/total contribution margin/i, /total cm at constraint/i] },
+    ],
+    "budget-variance-analysis": [
+        { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },
+        { target: "spendingVariance", patterns: [/spending variance/i, /flexible budget variance/i] },
+        { target: "activityVariance", patterns: [/activity variance/i, /volume variance/i] },
+    ],
     "notes-receivable-discounting": [
         { target: "proceedsFromDiscounting", patterns: [/discounting proceeds/i, /cash proceeds from note/i, /proceeds from discounting/i] },
         { target: "maturityValue", patterns: [/maturity value/i, /note maturity value/i] },
@@ -187,6 +212,10 @@ const SOLVE_TARGET_RULES: Record<
     "intercompany-ppe-transfer": [
         { target: "unamortizedIntercompanyProfit", patterns: [/unamortized intercompany profit/i, /remaining unrealized gain/i] },
         { target: "annualExcessDepreciation", patterns: [/annual excess depreciation/i, /excess depreciation/i] },
+    ],
+    "moving-average-forecast": [
+        { target: "weightedMovingAverageForecast", patterns: [/weighted moving average/i, /weighted forecast/i] },
+        { target: "simpleMovingAverageForecast", patterns: [/simple moving average/i, /moving average forecast/i] },
     ],
 };
 

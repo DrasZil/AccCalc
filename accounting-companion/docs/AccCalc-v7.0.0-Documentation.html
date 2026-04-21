@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AccCalc v7.0.0 Documentation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #132238;
+      --muted: #526273;
+      --line: #d7e1ea;
+      --panel: #f6f9fc;
+      --accent: #0d6c91;
+      --accent-soft: #e7f4fa;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 28px 72px;
+    }
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+    h1 { font-size: 2.3rem; }
+    h2 {
+      margin-top: 34px;
+      padding-top: 10px;
+      border-top: 2px solid var(--line);
+      font-size: 1.4rem;
+    }
+    h3 { margin-top: 22px; font-size: 1.05rem; }
+    p, li { font-size: 0.98rem; }
+    .lede {
+      padding: 18px 20px;
+      background: linear-gradient(135deg, var(--accent-soft), #f9fcff);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin: 18px 0 28px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    code {
+      background: #edf3f8;
+      padding: 1px 5px;
+      border-radius: 6px;
+      font-family: Consolas, monospace;
+      font-size: 0.92em;
+    }
+    ul, ol { margin-top: 8px; }
+    .muted { color: var(--muted); }
+    @media print {
+      main { padding: 22px 18px 40px; }
+      .card { break-inside: avoid; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AccCalc v7.0.0 Documentation</h1>
+    <p class="muted">Release date: 2026-04-21</p>
+    <div class="lede">
+      <p><strong>AccCalc</strong> is a curriculum-aligned accounting companion built with React and TypeScript. It combines formula calculators, reviewer workspaces, OCR-assisted routing, Smart Solver discovery, and workbook-style workpapers so students and maintainers can move from problem identification to solution support in one system.</p>
+    </div>
+
+    <h2>Project Overview</h2>
+    <p>The app is organized around accounting and business curriculum families instead of purely technical layers. That choice makes navigation easier for users and also makes handoff easier for future developers who need to understand why a page exists and what academic area it supports.</p>
+
+    <h2>Architecture Overview</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Routing</h3>
+        <p><code>src/App.tsx</code> lazy-loads the route pages and keeps feature families grouped.</p>
+      </div>
+      <div class="card">
+        <h3>Shared UI</h3>
+        <p><code>src/components</code> provides the calculator shells, result cards, disclosure panels, and page layouts.</p>
+      </div>
+      <div class="card">
+        <h3>Shared Math</h3>
+        <p><code>src/utils/calculatorMath.ts</code> holds reusable business and accounting computations.</p>
+      </div>
+      <div class="card">
+        <h3>Solve Definitions</h3>
+        <p><code>src/utils/formulaSolveDefinitions.ts</code> keeps input fields, solve targets, steps, and interpretation aligned with the math.</p>
+      </div>
+      <div class="card">
+        <h3>Discovery</h3>
+        <p>Search, Smart Solver, and OCR routing all depend on the shared route catalog and naming discipline.</p>
+      </div>
+      <div class="card">
+        <h3>Tests</h3>
+        <p><code>tests/calculatorMath.test.ts</code> protects shared helpers, search, workpaper utilities, and solve-target behavior.</p>
+      </div>
+    </div>
+
+    <h2>Routing and Page Structure</h2>
+    <p>The main route registry is <code>src/App.tsx</code>. Important route families include <code>accounting</code>, <code>far</code>, <code>afar</code>, <code>business</code>, <code>operations</code>, <code>tax</code>, <code>audit</code>, <code>ais</code>, <code>rfbt</code>, <code>strategic</code>, <code>study</code>, <code>smart</code>, and <code>workpapers</code>.</p>
+
+    <h2>What 7.0.0 Added</h2>
+    <ul>
+      <li>Special Order Analysis</li>
+      <li>Make-or-Buy Analysis</li>
+      <li>Sell-or-Process-Further</li>
+      <li>Constrained Resource Product Mix</li>
+      <li>Budget Variance Analysis</li>
+      <li>Moving Average Forecast</li>
+    </ul>
+    <p>These routes were wired through route registration, app catalog metadata, Smart Solver extraction, OCR wording, Study Hub topic coverage, and workpaper templates.</p>
+
+    <h2>Major Shared Files</h2>
+    <ul>
+      <li><code>src/utils/appCatalog.ts</code>: route metadata, aliases, taxonomy, and discovery tags</li>
+      <li><code>src/utils/appSearch.ts</code>: route-search scoring and the precomputed search index</li>
+      <li><code>src/utils/calculatorMath.ts</code>: formula and workspace computations</li>
+      <li><code>src/utils/formulaStudyContent.tsx</code>: calculator-linked learning support</li>
+      <li><code>src/utils/taxConfig.ts</code>: centralized editable tax assumptions</li>
+      <li><code>src/features/smart/smartSolver.engine.ts</code>: extraction aliases and calculator configs</li>
+      <li><code>src/features/scan-check/services/ocr/ocrRouting.ts</code>: OCR route suggestion rules</li>
+      <li><code>src/features/workpapers/workpaperTemplates.ts</code>: starter workbook templates</li>
+    </ul>
+
+    <h2>How A Calculator Works</h2>
+    <ol>
+      <li>A route page loads from <code>src/App.tsx</code>.</li>
+      <li>The page passes a solve definition into <code>FormulaSolveWorkspace</code>.</li>
+      <li>The solve definition validates inputs and calls a helper in <code>calculatorMath.ts</code>.</li>
+      <li>The same solve definition returns steps, supporting results, assumptions, warnings, and interpretation.</li>
+      <li>Study and related-route panels help the user continue to the next useful page.</li>
+    </ol>
+
+    <h2>Workpaper System</h2>
+    <p>The workbook and workpaper layer lives under <code>src/features/workpapers</code>. It supports starter templates, workbook editing, formulas, formatting, import-export flows, and calculator-adjacent schedules. Version 7.0.0 extended this system with templates for special-order analysis, make-or-buy analysis, sell-or-process-further, constrained-resource product mix, budget variance analysis, and moving-average forecasting.</p>
+
+    <h2>Search, Smart Solver, and OCR</h2>
+    <p><code>appCatalog.ts</code> is the shared backbone for route identity. Search uses <code>appSearch.ts</code>, which now precomputes a search index to reduce repeated candidate-building work. Smart Solver uses field metadata and calculator configs to interpret prompts, while OCR routing maps extracted text patterns to likely destinations.</p>
+
+    <h2>Testing and Validation</h2>
+    <p>The regression suite covers core math helpers, route search, solve-target behavior, and workpaper utilities. The 7.0.0 release adds direct tests for new managerial decision and forecasting helpers plus the new solve definitions and search coverage.</p>
+
+    <h2>How To Safely Add A New Calculator</h2>
+    <ol>
+      <li>Add the shared helper in <code>calculatorMath.ts</code>.</li>
+      <li>Add a solve definition in <code>formulaSolveDefinitions.ts</code> if the calculator fits the shared workspace.</li>
+      <li>Create the route page under the correct feature folder.</li>
+      <li>Register the route in <code>App.tsx</code>.</li>
+      <li>Add metadata and aliases in <code>appCatalog.ts</code>.</li>
+      <li>Add Smart Solver and OCR support where discoverability matters.</li>
+      <li>Add study support and workpaper templates where the workflow benefits.</li>
+      <li>Add tests.</li>
+    </ol>
+
+    <h2>Known Limitations</h2>
+    <ul>
+      <li>Some heavy bundles still produce Vite chunk-size warnings.</li>
+      <li>The constrained-resource screen evaluates one product at a time rather than solving full multi-product optimization.</li>
+      <li>Tax tools remain educational helpers rather than filing systems.</li>
+    </ul>
+  </main>
+</body>
+</html>

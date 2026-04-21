@@ -1201,6 +1201,114 @@ export function computeBudgetedIncomeStatement({ budgetedSalesAmount, budgetedCo
         netIncome,
     };
 }
+export function computeSpecialOrderDecision({ specialOrderUnits, specialOrderPricePerUnit, variableCostPerUnit, incrementalFixedCosts = 0, }) {
+    const incrementalRevenue = safeMultiply(specialOrderUnits, specialOrderPricePerUnit);
+    const incrementalVariableCosts = safeMultiply(specialOrderUnits, variableCostPerUnit);
+    const incrementalCosts = safeAdd(incrementalVariableCosts, incrementalFixedCosts);
+    const incrementalProfit = safeSubtract(incrementalRevenue, incrementalCosts);
+    const minimumAcceptablePricePerUnit = specialOrderUnits <= 0
+        ? Number.NaN
+        : safeDivide(incrementalCosts, specialOrderUnits);
+    return {
+        incrementalRevenue,
+        incrementalVariableCosts,
+        incrementalCosts,
+        incrementalProfit,
+        minimumAcceptablePricePerUnit,
+        recommendation: incrementalProfit > 0
+            ? "Accepting the special order improves operating income under these assumptions."
+            : incrementalProfit < 0
+                ? "Rejecting the special order is safer because the order lowers operating income under these assumptions."
+                : "The order is financially indifferent before qualitative factors are considered.",
+    };
+}
+export function computeMakeOrBuyDecision({ unitsNeeded, variableManufacturingCostPerUnit, avoidableFixedCosts = 0, purchasePricePerUnit, }) {
+    const relevantMakeCost = safeAdd(safeMultiply(unitsNeeded, variableManufacturingCostPerUnit), avoidableFixedCosts);
+    const relevantBuyCost = safeMultiply(unitsNeeded, purchasePricePerUnit);
+    const costAdvantageAmount = safeSubtract(relevantBuyCost, relevantMakeCost);
+    const maximumAcceptablePurchasePricePerUnit = unitsNeeded <= 0
+        ? Number.NaN
+        : safeDivide(relevantMakeCost, unitsNeeded);
+    return {
+        relevantMakeCost,
+        relevantBuyCost,
+        costAdvantageAmount,
+        maximumAcceptablePurchasePricePerUnit,
+        preferredOption: costAdvantageAmount > 0
+            ? "Make"
+            : costAdvantageAmount < 0
+                ? "Buy"
+                : "Indifferent",
+    };
+}
+export function computeSellProcessFurther({ units, salesValueAtSplitoffPerUnit, salesValueAfterProcessingPerUnit, separableProcessingCostPerUnit, }) {
+    const incrementalRevenueFromProcessing = safeMultiply(units, safeSubtract(salesValueAfterProcessingPerUnit, salesValueAtSplitoffPerUnit));
+    const separableProcessingCosts = safeMultiply(units, separableProcessingCostPerUnit);
+    const incrementalProfitFromProcessing = safeSubtract(incrementalRevenueFromProcessing, separableProcessingCosts);
+    const minimumFurtherProcessingPricePerUnit = safeAdd(salesValueAtSplitoffPerUnit, separableProcessingCostPerUnit);
+    return {
+        incrementalRevenueFromProcessing,
+        separableProcessingCosts,
+        incrementalProfitFromProcessing,
+        minimumFurtherProcessingPricePerUnit,
+        recommendation: incrementalProfitFromProcessing > 0
+            ? "Processing further adds incremental profit under the entered assumptions."
+            : incrementalProfitFromProcessing < 0
+                ? "Selling at split-off is financially better because further processing destroys value under these assumptions."
+                : "Both choices are financially indifferent before qualitative factors are considered.",
+    };
+}
+export function computeConstrainedResourceProductMix({ sellingPricePerUnit, variableCostPerUnit, constrainedResourceUnitsPerProduct, constrainedResourceAvailableUnits, }) {
+    const contributionMarginPerUnit = safeSubtract(sellingPricePerUnit, variableCostPerUnit);
+    const contributionMarginPerConstraintUnit = constrainedResourceUnitsPerProduct <= 0
+        ? Number.NaN
+        : safeDivide(contributionMarginPerUnit, constrainedResourceUnitsPerProduct);
+    const maximumUnitsFromConstraint = constrainedResourceUnitsPerProduct <= 0
+        ? Number.NaN
+        : safeDivide(constrainedResourceAvailableUnits, constrainedResourceUnitsPerProduct);
+    const totalContributionMarginAtConstraint = Number.isFinite(maximumUnitsFromConstraint)
+        ? safeMultiply(contributionMarginPerUnit, maximumUnitsFromConstraint)
+        : Number.NaN;
+    return {
+        contributionMarginPerUnit,
+        contributionMarginPerConstraintUnit,
+        maximumUnitsFromConstraint,
+        totalContributionMarginAtConstraint,
+    };
+}
+export function computeBudgetVarianceAnalysis({ actualResultAmount, flexibleBudgetAmount, staticBudgetAmount, }) {
+    const spendingVariance = safeSubtract(actualResultAmount, flexibleBudgetAmount);
+    const activityVariance = safeSubtract(flexibleBudgetAmount, staticBudgetAmount);
+    const totalBudgetVariance = safeSubtract(actualResultAmount, staticBudgetAmount);
+    return {
+        spendingVariance,
+        activityVariance,
+        totalBudgetVariance,
+        spendingVarianceLabel: spendingVariance > 0
+            ? "Unfavorable"
+            : spendingVariance < 0
+                ? "Favorable"
+                : "On target",
+        activityVarianceLabel: activityVariance > 0
+            ? "Above static plan"
+            : activityVariance < 0
+                ? "Below static plan"
+                : "On static plan",
+    };
+}
+export function computeMovingAverageForecast({ period1Demand, period2Demand, period3Demand, weight1Percent, weight2Percent, weight3Percent, }) {
+    const simpleMovingAverageForecast = safeDivide(safeAdd(safeAdd(period1Demand, period2Demand), period3Demand), 3);
+    const totalWeightPercent = safeAdd(safeAdd(weight1Percent, weight2Percent), weight3Percent);
+    const weightedMovingAverageForecast = totalWeightPercent === 0
+        ? Number.NaN
+        : safeDivide(safeAdd(safeAdd(safeMultiply(period1Demand, weight1Percent), safeMultiply(period2Demand, weight2Percent)), safeMultiply(period3Demand, weight3Percent)), totalWeightPercent);
+    return {
+        simpleMovingAverageForecast,
+        weightedMovingAverageForecast,
+        totalWeightPercent,
+        latestTrendChange: safeSubtract(period3Demand, period2Demand),
+    };
+}
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
     const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
     const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;

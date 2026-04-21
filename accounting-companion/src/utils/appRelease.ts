@@ -1,30 +1,35 @@
-export const APP_VERSION = "6.0.0";
+export const APP_VERSION = "7.0.0";
 export const APP_RELEASE_DATE = "2026-04-21";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 6.0.0 completes more of the accounting curriculum and strengthens long-term survivability",
-        body: "This release broadens master-budget coverage, fills FAR and AFAR gaps with new note-discounting, equity-method, and intercompany-PPE support, and makes the app feel more complete as a self-sustaining accounting companion.",
+        title: "AccCalc 7.0.0 pushes much harder into managerial accounting, operations support, and curriculum depth",
+        body: "This release adds a heavier relevant-costing and forecasting expansion with special-order, make-or-buy, sell-or-process-further, bottleneck product-mix, budget-variance, and moving-average support wired into the same durable shared systems as the older calculators.",
     },
     {
-        title: "Budgeting now flows further from operational schedules into statement-level outputs",
-        body: "Direct labor, factory overhead, and budgeted income statement coverage now connect the earlier production and materials pages into a more realistic master-budget chain for coursework and review sessions.",
+        title: "Older categories were broadened instead of being left behind",
+        body: "Search, solve-target logic, study support, workpapers, and homepage discovery were expanded together so older budgeting and managerial routes now connect into a stronger course-ready decision-making family instead of remaining isolated tools.",
     },
     {
-        title: "Discovery, workpapers, and study support were expanded together",
-        body: "New calculators now ship with aliases, OCR routing hints, Smart Solver targets, study topics, and practical workpaper templates so the added breadth is usable instead of buried.",
+        title: "Search and discovery are faster and more useful",
+        body: "Route search now uses a precomputed search index so large catalog growth adds less lag, while new aliases and keywords make the expanding curriculum easier to find through search, Smart Solver, OCR, and homepage workflows.",
     },
     {
-        title: "Time-sensitive tax assumptions are centralized and visible",
-        body: "VAT, percentage-tax, and withholding guidance now point to one editable assumptions source so future tax maintenance is easier and the UI no longer hides time-sensitive defaults.",
+        title: "Accuracy and interpretation were reinforced through shared math and tests",
+        body: "New shared helpers and solve definitions now cover relevant-cost decisions, constrained-resource ranking, budget-variance analysis, and short-horizon forecasting with explicit assumptions, synchronized interpretation text, and direct regression tests.",
     },
     {
-        title: "Release documentation and handoff material now match the real system",
-        body: "The 6.0.0 release includes a rewritten README, detailed system documentation, a maintenance playbook, release notes, and a generated PDF package for low-context handoff.",
+        title: "Release documentation and handoff material were regenerated for the real 7.0.0 system",
+        body: "README, release notes, system docs, maintenance docs, HTML docs, and the PDF package were updated after implementation so future maintainers can trace the current app without stale release references.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "7.0.0: Added a new relevant-costing and short-term decision family with Special Order Analysis, Make-or-Buy Analysis, Sell-or-Process-Further, and Constrained Resource Product Mix.",
+    "7.0.0: Added Budget Variance Analysis and Moving Average Forecast so performance reporting and operations-planning support are broader and more connected to managerial workflows.",
+    "7.0.0: Expanded workpaper templates, Study Hub topics, Smart Solver extraction, solve-target mapping, OCR routing, homepage discovery, and route metadata together for the new managerial and operations calculators.",
+    "7.0.0: Improved search performance with a precomputed route-search index so the larger curriculum catalog adds less lookup overhead while remaining easier to discover by aliases and classroom wording.",
+    "7.0.0: Added deeper regression coverage for new shared math, solve definitions, and search behavior so the new breadth stays maintainable and safer to extend.",
     "6.0.0: Added direct labor budgeting, factory-overhead budgeting, and a budgeted income statement so AccCalc now carries the master-budget flow further from operations into statement-level planning.",
     "6.0.0: Added notes-receivable discounting support so maturity value, bank discount, and proceeds can be solved cleanly for FAR receivables and cash-management problems.",
     "6.0.0: Added AFAR coverage for equity-method investment rollforwards and intercompany PPE-transfer eliminations, including excess-depreciation support for multi-period consolidation review.",

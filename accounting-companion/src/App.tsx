@@ -221,6 +221,21 @@ const SalesMixBreakEvenPage = lazy(
     () => import("./features/business/SalesMixBreakEvenPage")
 );
 const CvpAnalysisPage = lazy(() => import("./features/business/CvpAnalysisPage"));
+const SpecialOrderDecisionPage = lazy(
+    () => import("./features/business/SpecialOrderDecisionPage")
+);
+const MakeOrBuyDecisionPage = lazy(
+    () => import("./features/business/MakeOrBuyDecisionPage")
+);
+const SellProcessFurtherPage = lazy(
+    () => import("./features/business/SellProcessFurtherPage")
+);
+const ConstrainedResourceProductMixPage = lazy(
+    () => import("./features/business/ConstrainedResourceProductMixPage")
+);
+const BudgetVarianceAnalysisPage = lazy(
+    () => import("./features/business/BudgetVarianceAnalysisPage")
+);
 const CashCollectionsSchedulePage = lazy(
     () => import("./features/business/CashCollectionsSchedulePage")
 );
@@ -366,6 +381,9 @@ const StatementOfChangesInEquityBuilderPage = lazy(
 );
 const EoqReorderPointPage = lazy(
     () => import("./features/operations/EoqReorderPointPage")
+);
+const MovingAverageForecastPage = lazy(
+    () => import("./features/operations/MovingAverageForecastPage")
 );
 const AuditPlanningWorkspacePage = lazy(
     () => import("./features/audit/AuditPlanningWorkspacePage")
@@ -551,6 +569,11 @@ export default function App() {
                         <Route path="business/operating-leverage" element={renderRoute("/business/operating-leverage", <OperatingLeveragePage />)} />
                         <Route path="business/sales-mix-break-even" element={renderRoute("/business/sales-mix-break-even", <SalesMixBreakEvenPage />)} />
                         <Route path="business/cvp-analysis" element={renderRoute("/business/cvp-analysis", <CvpAnalysisPage />)} />
+                        <Route path="business/special-order-analysis" element={renderRoute("/business/special-order-analysis", <SpecialOrderDecisionPage />)} />
+                        <Route path="business/make-or-buy-analysis" element={renderRoute("/business/make-or-buy-analysis", <MakeOrBuyDecisionPage />)} />
+                        <Route path="business/sell-or-process-further" element={renderRoute("/business/sell-or-process-further", <SellProcessFurtherPage />)} />
+                        <Route path="business/constrained-resource-product-mix" element={renderRoute("/business/constrained-resource-product-mix", <ConstrainedResourceProductMixPage />)} />
+                        <Route path="business/budget-variance-analysis" element={renderRoute("/business/budget-variance-analysis", <BudgetVarianceAnalysisPage />)} />
                         <Route path="business/cash-collections-schedule" element={renderRoute("/business/cash-collections-schedule", <CashCollectionsSchedulePage />)} />
                         <Route path="business/cash-disbursements-schedule" element={renderRoute("/business/cash-disbursements-schedule", <CashDisbursementsSchedulePage />)} />
                         <Route path="business/cash-budget" element={renderRoute("/business/cash-budget", <CashBudgetPage />)} />
@@ -588,6 +611,7 @@ export default function App() {
                         <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
                         <Route path="far/statement-of-changes-in-equity-builder" element={renderRoute("/far/statement-of-changes-in-equity-builder", <StatementOfChangesInEquityBuilderPage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
+                        <Route path="operations/moving-average-forecast" element={renderRoute("/operations/moving-average-forecast", <MovingAverageForecastPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />

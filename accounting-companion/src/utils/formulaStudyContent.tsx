@@ -715,6 +715,111 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             { path: "/business/operating-expense-budget", label: "Operating Expense Budget" },
         ],
     },
+    "special-order-decision-solve": {
+        topicId: "formula-special-order-decision",
+        topicTitle: "Special Order Decision",
+        intro: "Special-order analysis becomes safer when only incremental revenue and incremental cost are kept in view.",
+        sections: [
+            {
+                key: "relevance",
+                label: "Relevant costs only",
+                summary: "Do not let unchanged fixed costs distort the decision.",
+                content: bullets([
+                    "Include the extra revenue from the order.",
+                    "Include variable cost and any extra fixed cost caused by the order.",
+                    "Ignore fixed costs that stay the same whether the order is accepted or rejected.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/make-or-buy-analysis", label: "Make or Buy Decision" },
+            { path: "/business/cvp-analysis", label: "CVP Analysis" },
+        ],
+    },
+    "make-or-buy-decision-solve": {
+        topicId: "formula-make-or-buy-decision",
+        topicTitle: "Make or Buy Decision",
+        intro: "Make-or-buy cases depend on relevant cost comparison, not full absorption cost.",
+        sections: [
+            {
+                key: "threshold",
+                label: "Indifference price",
+                summary: "The maximum outside purchase price is a useful negotiation and screening check.",
+                content: bullets([
+                    "Compute relevant make cost from variable cost plus avoidable fixed cost.",
+                    "Compare that against the outside purchase cost.",
+                    "Convert relevant make cost into a maximum acceptable buy price per unit when needed.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/special-order-analysis", label: "Special Order Decision" },
+            { path: "/business/constrained-resource-product-mix", label: "Constrained Resource Product Mix" },
+        ],
+    },
+    "sell-or-process-further-solve": {
+        topicId: "formula-sell-or-process-further",
+        topicTitle: "Sell or Process Further",
+        intro: "Joint-product decisions after split-off should ignore sunk joint cost and focus on incremental benefit.",
+        sections: [
+            {
+                key: "joint",
+                label: "Ignore sunk joint cost",
+                summary: "Only the post-split-off difference matters.",
+                content: bullets([
+                    "Compare extra selling value after processing with separable processing cost.",
+                    "Joint cost before split-off does not change, so it is not relevant to the choice.",
+                    "Process further only when incremental revenue exceeds separable cost.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/special-order-analysis", label: "Special Order Decision" },
+            { path: "/business/break-even", label: "Break-even Point" },
+        ],
+    },
+    "constrained-resource-product-mix-solve": {
+        topicId: "formula-constrained-resource-product-mix",
+        topicTitle: "Constrained Resource Product Mix",
+        intro: "A bottleneck changes the ranking logic from contribution per unit to contribution per scarce-resource unit.",
+        sections: [
+            {
+                key: "ranking",
+                label: "Rank the bottleneck",
+                summary: "The scarce resource drives the ranking, not raw unit margin alone.",
+                content: bullets([
+                    "Compute contribution margin per unit first.",
+                    "Divide by the scarce resource consumed per unit, such as machine hours or labor hours.",
+                    "Use that result to rank products before building a broader product mix recommendation.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/make-or-buy-analysis", label: "Make or Buy Decision" },
+            { path: "/business/cvp-analysis", label: "CVP Analysis" },
+        ],
+    },
+    "budget-variance-analysis-solve": {
+        topicId: "formula-budget-variance-analysis",
+        topicTitle: "Budget Variance Analysis",
+        intro: "Performance reports are easier to explain when execution variance is separated from the effect of a different activity level.",
+        sections: [
+            {
+                key: "layers",
+                label: "Variance layers",
+                summary: "Use the right benchmark for each comparison.",
+                content: bullets([
+                    "Compare actual to flexible budget for spending variance.",
+                    "Compare flexible budget to static budget for activity variance.",
+                    "Compare actual to static budget for the full gap from plan.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/flexible-budget", label: "Flexible Budget" },
+            { path: "/business/budgeted-income-statement", label: "Budgeted Income Statement" },
+        ],
+    },
     "notes-receivable-discounting-solve": {
         topicId: "formula-notes-receivable-discounting",
         topicTitle: "Notes Receivable Discounting",
@@ -768,6 +873,27 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             },
         ],
         relatedTools: [{ path: "/afar/intercompany-inventory-profit", label: "Intercompany Inventory Profit" }],
+    },
+    "moving-average-forecast-solve": {
+        topicId: "formula-moving-average-forecast",
+        topicTitle: "Moving Average Forecast",
+        intro: "Moving averages give quick short-term forecasting support without jumping straight into heavier models.",
+        sections: [
+            {
+                key: "recency",
+                label: "Recency weighting",
+                summary: "Weighted moving averages let more recent demand matter more.",
+                content: bullets([
+                    "A simple moving average weights each included period equally.",
+                    "A weighted moving average emphasizes more recent demand when conditions are changing.",
+                    "Keep the total weight visible so the forecast remains easy to audit and explain.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/operations/eoq-and-reorder-point", label: "EOQ and Reorder Point" },
+            { path: "/business/sales-budget", label: "Sales Budget" },
+        ],
     },
 };
 

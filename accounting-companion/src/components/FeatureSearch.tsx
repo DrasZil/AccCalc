@@ -281,7 +281,7 @@ export default function FeatureSearch({
                                             </p>
                                             {result.tags.length > 0 ? (
                                                 <p className="app-helper mt-2 text-[0.68rem] uppercase tracking-[0.14em]">
-                                                    {result.tags.join(", ")}
+                                                    {result.tags.slice(0, 4).join(", ")}
                                                 </p>
                                             ) : null}
                                         </div>

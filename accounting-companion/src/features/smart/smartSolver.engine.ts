@@ -505,6 +505,15 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         aliases: ["purchase 2 cost", "second purchase cost"],
     },
 
+    units: {
+        label: "Units",
+        placeholder: "6000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["units", "quantity", "number of units"],
+    },
+
     unitsSold: {
         label: "Units Sold",
         placeholder: "150",
@@ -1101,6 +1110,262 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["budgeted sales", "planned sales amount", "sales budget"],
     },
+    specialOrderUnits: {
+        label: "Special Order Units",
+        placeholder: "4000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["special order units", "units in special order", "special order quantity"],
+    },
+    specialOrderPricePerUnit: {
+        label: "Special Order Price / Unit",
+        placeholder: "82",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["special order price", "special order price per unit", "special order selling price"],
+    },
+    incrementalFixedCosts: {
+        label: "Incremental Fixed Costs",
+        placeholder: "18000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental fixed costs", "additional fixed costs", "extra fixed costs"],
+    },
+    incrementalRevenue: {
+        label: "Incremental Revenue",
+        placeholder: "328000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental revenue", "additional revenue", "extra revenue"],
+    },
+    incrementalCost: {
+        label: "Incremental Cost",
+        placeholder: "274000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental cost", "relevant cost", "additional cost"],
+    },
+    incrementalProfit: {
+        label: "Incremental Profit",
+        placeholder: "54000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental profit", "incremental income", "extra profit"],
+    },
+    minimumAcceptablePricePerUnit: {
+        label: "Minimum Acceptable Price / Unit",
+        placeholder: "68.5",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["minimum acceptable price", "minimum special order price", "break even special order price"],
+    },
+    unitsNeeded: {
+        label: "Units Needed",
+        placeholder: "12000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["units needed", "required units", "units required"],
+    },
+    variableManufacturingCostPerUnit: {
+        label: "Variable Make Cost / Unit",
+        placeholder: "38",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable manufacturing cost per unit", "variable make cost", "variable production cost"],
+    },
+    avoidableFixedCosts: {
+        label: "Avoidable Fixed Costs",
+        placeholder: "90000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["avoidable fixed costs", "avoidable fixed cost", "avoidable overhead"],
+    },
+    purchasePricePerUnit: {
+        label: "Buy Price / Unit",
+        placeholder: "44",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["purchase price per unit", "buy price per unit", "outside purchase price"],
+    },
+    relevantMakeCost: {
+        label: "Relevant Make Cost",
+        placeholder: "546000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["relevant make cost", "total make cost", "cost to make"],
+    },
+    relevantBuyCost: {
+        label: "Relevant Buy Cost",
+        placeholder: "528000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["relevant buy cost", "total buy cost", "cost to buy"],
+    },
+    costAdvantageAmount: {
+        label: "Cost Advantage",
+        placeholder: "18000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["cost advantage", "advantage amount", "cost difference"],
+    },
+    maximumAcceptablePurchasePricePerUnit: {
+        label: "Maximum Buy Price / Unit",
+        placeholder: "45.5",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["maximum acceptable purchase price", "maximum buy price", "indifference buy price"],
+    },
+    salesValueAtSplitoffPerUnit: {
+        label: "Split-off Sales Value / Unit",
+        placeholder: "48",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["sales value at splitoff", "split-off value per unit", "splitoff price"],
+    },
+    salesValueAfterProcessingPerUnit: {
+        label: "Sales Value after Processing / Unit",
+        placeholder: "63",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["sales value after processing", "selling price after processing", "final selling price per unit"],
+    },
+    separableProcessingCostPerUnit: {
+        label: "Separable Processing Cost / Unit",
+        placeholder: "9",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["separable processing cost", "additional processing cost", "further processing cost per unit"],
+    },
+    incrementalRevenueFromProcessing: {
+        label: "Incremental Revenue from Processing",
+        placeholder: "90000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental revenue from processing", "additional revenue from processing", "further processing revenue"],
+    },
+    incrementalProfitFromProcessing: {
+        label: "Incremental Profit from Processing",
+        placeholder: "36000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["incremental profit from processing", "profit from further processing", "additional profit from processing"],
+    },
+    minimumFurtherProcessingPricePerUnit: {
+        label: "Minimum After-Processing Price / Unit",
+        placeholder: "57",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["minimum after processing price", "minimum further processing price", "break even processed selling price"],
+    },
+    constrainedResourceUnitsPerProduct: {
+        label: "Constraint Units / Product",
+        placeholder: "3",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["constraint units per product", "machine hours per unit", "scarce resource units per product"],
+    },
+    constrainedResourceAvailableUnits: {
+        label: "Available Constraint Units",
+        placeholder: "18000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["available constraint units", "available machine hours", "available scarce resource units"],
+    },
+    contributionMarginPerConstraintUnit: {
+        label: "CM per Constraint Unit",
+        placeholder: "20",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["contribution margin per constraint unit", "cm per machine hour", "contribution per bottleneck unit"],
+    },
+    maximumUnitsFromConstraint: {
+        label: "Maximum Units from Constraint",
+        placeholder: "6000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["maximum units from constraint", "units supported by bottleneck", "maximum production from constraint"],
+    },
+    totalContributionMarginAtConstraint: {
+        label: "Total CM at Constraint",
+        placeholder: "360000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total contribution margin at constraint", "total contribution from bottleneck", "total cm from product mix"],
+    },
+    actualResultAmount: {
+        label: "Actual Amount",
+        placeholder: "528000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual amount", "actual result", "actual total"],
+    },
+    flexibleBudgetAmount: {
+        label: "Flexible Budget Amount",
+        placeholder: "510000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["flexible budget amount", "flex budget amount", "allowed budget amount"],
+    },
+    staticBudgetAmount: {
+        label: "Static Budget Amount",
+        placeholder: "495000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["static budget amount", "planned budget amount", "original budget amount"],
+    },
+    spendingVariance: {
+        label: "Spending Variance",
+        placeholder: "18000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["spending variance", "rate variance", "price variance at flexible budget"],
+    },
+    activityVariance: {
+        label: "Activity Variance",
+        placeholder: "15000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["activity variance", "volume variance", "activity-level variance"],
+    },
+    totalBudgetVariance: {
+        label: "Total Budget Variance",
+        placeholder: "33000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total budget variance", "total variance", "overall budget variance"],
+    },
     taxableSalesAmount: {
         label: "Taxable Sales",
         placeholder: "850000",
@@ -1316,6 +1581,70 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         group: "accounting",
         visibleInManualInputs: false,
         aliases: ["tax withheld", "withholding tax", "amount withheld"],
+    },
+    period1Demand: {
+        label: "Oldest Period Demand",
+        placeholder: "920",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["period 1 demand", "oldest demand", "first period demand"],
+    },
+    period2Demand: {
+        label: "Middle Period Demand",
+        placeholder: "980",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["period 2 demand", "middle demand", "second period demand"],
+    },
+    period3Demand: {
+        label: "Latest Period Demand",
+        placeholder: "1040",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["period 3 demand", "latest demand", "most recent demand"],
+    },
+    weight1Percent: {
+        label: "Oldest Weight (%)",
+        placeholder: "20",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["weight 1", "oldest weight", "first weight percent"],
+    },
+    weight2Percent: {
+        label: "Middle Weight (%)",
+        placeholder: "30",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["weight 2", "middle weight", "second weight percent"],
+    },
+    weight3Percent: {
+        label: "Latest Weight (%)",
+        placeholder: "50",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["weight 3", "latest weight", "third weight percent"],
+    },
+    simpleMovingAverageForecast: {
+        label: "Simple Moving Average Forecast",
+        placeholder: "980",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["simple moving average forecast", "simple moving average", "sma forecast"],
+    },
+    weightedMovingAverageForecast: {
+        label: "Weighted Moving Average Forecast",
+        placeholder: "1004",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["weighted moving average forecast", "weighted forecast", "wma forecast"],
     },
     accountsReceivable: {
         label: "Accounts Receivable",
@@ -2596,6 +2925,61 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         optional: ["interestExpense", "ratePercent", "grossProfit", "incomeBeforeTax", "netIncome"],
         aliases: ["budgeted income statement", "pro forma income statement", "budget income statement"],
         keywords: [/budgeted income statement/i, /pro forma income statement/i, /budgeted net income/i, /profit before tax/i],
+    },
+    {
+        id: "special-order-analysis",
+        name: "Special Order Decision",
+        route: "/business/special-order-analysis",
+        description:
+        "Best when the user wants incremental profit or a break-even price for a one-time special order.",
+        required: ["specialOrderUnits", "specialOrderPricePerUnit", "variableCostPerUnit"],
+        optional: ["incrementalFixedCosts", "incrementalRevenue", "incrementalCost", "incrementalProfit", "minimumAcceptablePricePerUnit"],
+        aliases: ["special order", "special order decision", "incremental order analysis"],
+        keywords: [/special order/i, /incremental profit/i, /special order price/i, /relevant cost/i],
+    },
+    {
+        id: "make-or-buy-analysis",
+        name: "Make or Buy Decision",
+        route: "/business/make-or-buy-analysis",
+        description:
+        "Best when the user wants relevant make cost, relevant buy cost, or the indifference purchase price.",
+        required: ["unitsNeeded", "variableManufacturingCostPerUnit", "purchasePricePerUnit"],
+        optional: ["avoidableFixedCosts", "relevantMakeCost", "relevantBuyCost", "costAdvantageAmount", "maximumAcceptablePurchasePricePerUnit"],
+        aliases: ["make or buy", "outsourcing decision", "buy versus make"],
+        keywords: [/make or buy/i, /outsourcing decision/i, /purchase price/i, /avoidable fixed cost/i],
+    },
+    {
+        id: "sell-or-process-further",
+        name: "Sell or Process Further",
+        route: "/business/sell-or-process-further",
+        description:
+        "Best when the user compares split-off value against additional processing revenue and separable cost.",
+        required: ["units", "salesValueAtSplitoffPerUnit", "salesValueAfterProcessingPerUnit", "separableProcessingCostPerUnit"],
+        optional: ["incrementalRevenueFromProcessing", "incrementalProfitFromProcessing", "minimumFurtherProcessingPricePerUnit"],
+        aliases: ["sell or process further", "split off decision", "joint product decision"],
+        keywords: [/sell or process further/i, /split[- ]off/i, /separable processing cost/i, /joint product/i],
+    },
+    {
+        id: "constrained-resource-product-mix",
+        name: "Constrained Resource Product Mix",
+        route: "/business/constrained-resource-product-mix",
+        description:
+        "Best when the user ranks a product by contribution margin per scarce-resource unit.",
+        required: ["sellingPricePerUnit", "variableCostPerUnit", "constrainedResourceUnitsPerProduct", "constrainedResourceAvailableUnits"],
+        optional: ["contributionMarginPerConstraintUnit", "maximumUnitsFromConstraint", "totalContributionMarginAtConstraint"],
+        aliases: ["product mix", "bottleneck product mix", "constraint analysis"],
+        keywords: [/product mix/i, /bottleneck/i, /constraint/i, /machine hours per unit/i],
+    },
+    {
+        id: "budget-variance-analysis",
+        name: "Budget Variance Analysis",
+        route: "/business/budget-variance-analysis",
+        description:
+        "Best when the user wants spending variance, activity variance, or the total budget gap.",
+        required: ["actualResultAmount", "flexibleBudgetAmount", "staticBudgetAmount"],
+        optional: ["spendingVariance", "activityVariance", "totalBudgetVariance"],
+        aliases: ["budget variance", "spending variance", "activity variance", "performance report"],
+        keywords: [/budget variance/i, /spending variance/i, /activity variance/i, /performance report/i],
     },
     {
         id: "flexible-budget",
@@ -4073,6 +4457,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/\beoq\b/i, /economic order quantity/i, /reorder point/i, /safety stock/i, /lead time/i],
     },
     {
+        id: "moving-average-forecast",
+        name: "Moving Average Forecast",
+        route: "/operations/moving-average-forecast",
+        description:
+            "Forecast short-term demand using simple and weighted moving averages.",
+        required: ["period1Demand", "period2Demand", "period3Demand", "weight1Percent", "weight2Percent", "weight3Percent"],
+        optional: ["simpleMovingAverageForecast", "weightedMovingAverageForecast"],
+        aliases: ["moving average forecast", "weighted moving average", "demand forecast"],
+        keywords: [/moving average/i, /weighted moving average/i, /forecast/i, /demand planning/i],
+    },
+    {
         id: "lease-measurement-workspace",
         name: "Lease Measurement Workspace",
         route: "/far/lease-measurement-workspace",
@@ -5080,6 +5475,9 @@ export function normalizeText(text: string = ""): string {
         allowCurrency: false,
     });
     const purchase2Cost = extractNumberByAliases(text, FIELD_META.purchase2Cost.aliases ?? []);
+    const units = extractNumberByAliases(text, FIELD_META.units.aliases ?? [], {
+        allowCurrency: false,
+    });
     const unitsSold = extractNumberByAliases(text, FIELD_META.unitsSold.aliases ?? [], {
         allowCurrency: false,
     });
@@ -5289,6 +5687,139 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.budgetedSalesAmount.aliases ?? []
     );
+    const specialOrderUnits = extractNumberByAliases(
+        text,
+        FIELD_META.specialOrderUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const specialOrderPricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.specialOrderPricePerUnit.aliases ?? []
+    );
+    const incrementalFixedCosts = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalFixedCosts.aliases ?? []
+    );
+    const incrementalRevenue = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalRevenue.aliases ?? []
+    );
+    const incrementalCost = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalCost.aliases ?? []
+    );
+    const incrementalProfit = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalProfit.aliases ?? []
+    );
+    const minimumAcceptablePricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.minimumAcceptablePricePerUnit.aliases ?? []
+    );
+    const unitsNeeded = extractNumberByAliases(
+        text,
+        FIELD_META.unitsNeeded.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const variableManufacturingCostPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.variableManufacturingCostPerUnit.aliases ?? []
+    );
+    const avoidableFixedCosts = extractNumberByAliases(
+        text,
+        FIELD_META.avoidableFixedCosts.aliases ?? []
+    );
+    const purchasePricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.purchasePricePerUnit.aliases ?? []
+    );
+    const relevantMakeCost = extractNumberByAliases(
+        text,
+        FIELD_META.relevantMakeCost.aliases ?? []
+    );
+    const relevantBuyCost = extractNumberByAliases(
+        text,
+        FIELD_META.relevantBuyCost.aliases ?? []
+    );
+    const costAdvantageAmount = extractNumberByAliases(
+        text,
+        FIELD_META.costAdvantageAmount.aliases ?? []
+    );
+    const maximumAcceptablePurchasePricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.maximumAcceptablePurchasePricePerUnit.aliases ?? []
+    );
+    const salesValueAtSplitoffPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.salesValueAtSplitoffPerUnit.aliases ?? []
+    );
+    const salesValueAfterProcessingPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.salesValueAfterProcessingPerUnit.aliases ?? []
+    );
+    const separableProcessingCostPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.separableProcessingCostPerUnit.aliases ?? []
+    );
+    const incrementalRevenueFromProcessing = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalRevenueFromProcessing.aliases ?? []
+    );
+    const incrementalProfitFromProcessing = extractNumberByAliases(
+        text,
+        FIELD_META.incrementalProfitFromProcessing.aliases ?? []
+    );
+    const minimumFurtherProcessingPricePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.minimumFurtherProcessingPricePerUnit.aliases ?? []
+    );
+    const constrainedResourceUnitsPerProduct = extractNumberByAliases(
+        text,
+        FIELD_META.constrainedResourceUnitsPerProduct.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const constrainedResourceAvailableUnits = extractNumberByAliases(
+        text,
+        FIELD_META.constrainedResourceAvailableUnits.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const contributionMarginPerConstraintUnit = extractNumberByAliases(
+        text,
+        FIELD_META.contributionMarginPerConstraintUnit.aliases ?? []
+    );
+    const maximumUnitsFromConstraint = extractNumberByAliases(
+        text,
+        FIELD_META.maximumUnitsFromConstraint.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const totalContributionMarginAtConstraint = extractNumberByAliases(
+        text,
+        FIELD_META.totalContributionMarginAtConstraint.aliases ?? []
+    );
+    const actualResultAmount = extractNumberByAliases(
+        text,
+        FIELD_META.actualResultAmount.aliases ?? []
+    );
+    const flexibleBudgetAmount = extractNumberByAliases(
+        text,
+        FIELD_META.flexibleBudgetAmount.aliases ?? []
+    );
+    const staticBudgetAmount = extractNumberByAliases(
+        text,
+        FIELD_META.staticBudgetAmount.aliases ?? []
+    );
+    const spendingVariance = extractNumberByAliases(
+        text,
+        FIELD_META.spendingVariance.aliases ?? []
+    );
+    const activityVariance = extractNumberByAliases(
+        text,
+        FIELD_META.activityVariance.aliases ?? []
+    );
+    const totalBudgetVariance = extractNumberByAliases(
+        text,
+        FIELD_META.totalBudgetVariance.aliases ?? []
+    );
     const taxableSalesAmount = extractNumberByAliases(
         text,
         FIELD_META.taxableSalesAmount.aliases ?? []
@@ -5385,6 +5916,40 @@ export function normalizeText(text: string = ""): string {
         percent: true,
     });
     const taxWithheld = extractNumberByAliases(text, FIELD_META.taxWithheld.aliases ?? []);
+    const period1Demand = extractNumberByAliases(
+        text,
+        FIELD_META.period1Demand.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const period2Demand = extractNumberByAliases(
+        text,
+        FIELD_META.period2Demand.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const period3Demand = extractNumberByAliases(
+        text,
+        FIELD_META.period3Demand.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const weight1Percent = extractNumberByAliases(text, FIELD_META.weight1Percent.aliases ?? [], {
+        percent: true,
+    });
+    const weight2Percent = extractNumberByAliases(text, FIELD_META.weight2Percent.aliases ?? [], {
+        percent: true,
+    });
+    const weight3Percent = extractNumberByAliases(text, FIELD_META.weight3Percent.aliases ?? [], {
+        percent: true,
+    });
+    const simpleMovingAverageForecast = extractNumberByAliases(
+        text,
+        FIELD_META.simpleMovingAverageForecast.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const weightedMovingAverageForecast = extractNumberByAliases(
+        text,
+        FIELD_META.weightedMovingAverageForecast.aliases ?? [],
+        { allowCurrency: false }
+    );
 
     const creditTerms = extractCreditTerms(text);
     const partnershipRatios = extractPartnershipRatios(text);
@@ -5434,6 +5999,7 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "purchase1Cost", purchase1Cost);
     setFact(facts, "purchase2Units", purchase2Units);
     setFact(facts, "purchase2Cost", purchase2Cost);
+    setFact(facts, "units", units);
     setFact(facts, "unitsSold", unitsSold);
     setFact(facts, "inventoryCost", inventoryCost);
     setFact(facts, "netRealizableValue", netRealizableValue);
@@ -5503,6 +6069,38 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "beginningInventoryCost", beginningInventoryCost);
     setFact(facts, "purchasesRequiredCost", purchasesRequiredCost);
     setFact(facts, "budgetedSalesAmount", budgetedSalesAmount);
+    setFact(facts, "specialOrderUnits", specialOrderUnits);
+    setFact(facts, "specialOrderPricePerUnit", specialOrderPricePerUnit);
+    setFact(facts, "incrementalFixedCosts", incrementalFixedCosts);
+    setFact(facts, "incrementalRevenue", incrementalRevenue);
+    setFact(facts, "incrementalCost", incrementalCost);
+    setFact(facts, "incrementalProfit", incrementalProfit);
+    setFact(facts, "minimumAcceptablePricePerUnit", minimumAcceptablePricePerUnit);
+    setFact(facts, "unitsNeeded", unitsNeeded);
+    setFact(facts, "variableManufacturingCostPerUnit", variableManufacturingCostPerUnit);
+    setFact(facts, "avoidableFixedCosts", avoidableFixedCosts);
+    setFact(facts, "purchasePricePerUnit", purchasePricePerUnit);
+    setFact(facts, "relevantMakeCost", relevantMakeCost);
+    setFact(facts, "relevantBuyCost", relevantBuyCost);
+    setFact(facts, "costAdvantageAmount", costAdvantageAmount);
+    setFact(facts, "maximumAcceptablePurchasePricePerUnit", maximumAcceptablePurchasePricePerUnit);
+    setFact(facts, "salesValueAtSplitoffPerUnit", salesValueAtSplitoffPerUnit);
+    setFact(facts, "salesValueAfterProcessingPerUnit", salesValueAfterProcessingPerUnit);
+    setFact(facts, "separableProcessingCostPerUnit", separableProcessingCostPerUnit);
+    setFact(facts, "incrementalRevenueFromProcessing", incrementalRevenueFromProcessing);
+    setFact(facts, "incrementalProfitFromProcessing", incrementalProfitFromProcessing);
+    setFact(facts, "minimumFurtherProcessingPricePerUnit", minimumFurtherProcessingPricePerUnit);
+    setFact(facts, "constrainedResourceUnitsPerProduct", constrainedResourceUnitsPerProduct);
+    setFact(facts, "constrainedResourceAvailableUnits", constrainedResourceAvailableUnits);
+    setFact(facts, "contributionMarginPerConstraintUnit", contributionMarginPerConstraintUnit);
+    setFact(facts, "maximumUnitsFromConstraint", maximumUnitsFromConstraint);
+    setFact(facts, "totalContributionMarginAtConstraint", totalContributionMarginAtConstraint);
+    setFact(facts, "actualResultAmount", actualResultAmount);
+    setFact(facts, "flexibleBudgetAmount", flexibleBudgetAmount);
+    setFact(facts, "staticBudgetAmount", staticBudgetAmount);
+    setFact(facts, "spendingVariance", spendingVariance);
+    setFact(facts, "activityVariance", activityVariance);
+    setFact(facts, "totalBudgetVariance", totalBudgetVariance);
     setFact(facts, "taxableSalesAmount", taxableSalesAmount);
     setFact(facts, "vatablePurchasesAmount", vatablePurchasesAmount);
     setFact(facts, "vatRatePercent", vatRatePercent);
@@ -5530,6 +6128,14 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "taxBase", taxBase);
     setFact(facts, "ratePercent", ratePercent);
     setFact(facts, "taxWithheld", taxWithheld);
+    setFact(facts, "period1Demand", period1Demand);
+    setFact(facts, "period2Demand", period2Demand);
+    setFact(facts, "period3Demand", period3Demand);
+    setFact(facts, "weight1Percent", weight1Percent);
+    setFact(facts, "weight2Percent", weight2Percent);
+    setFact(facts, "weight3Percent", weight3Percent);
+    setFact(facts, "simpleMovingAverageForecast", simpleMovingAverageForecast);
+    setFact(facts, "weightedMovingAverageForecast", weightedMovingAverageForecast);
 
     setFact(facts, "accountsReceivable", accountsReceivable);
     setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);

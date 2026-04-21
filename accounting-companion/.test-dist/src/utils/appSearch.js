@@ -66,7 +66,18 @@ function candidateTexts(route) {
         return [normalized, compactText(item), initialism(item)];
     }))).filter(Boolean);
 }
-function scoreRoute(route, rawQuery) {
+const SEARCH_INDEX = APP_ROUTE_META.map((route) => ({
+    route,
+    label: normalizeText(route.label),
+    compactLabel: compactText(route.label),
+    aliasTexts: route.aliases.map(normalizeText),
+    tagTexts: route.tags.map(normalizeText),
+    keywordTexts: route.keywords.map(normalizeText),
+    candidates: candidateTexts(route),
+    categoryText: normalizeText(route.category),
+    labelInitialism: initialism(route.label),
+}));
+function scoreIndexedRoute(indexed, rawQuery) {
     const query = normalizeText(rawQuery);
     const compactQuery = compactText(rawQuery);
     const queryTokens = tokenize(rawQuery);
@@ -75,16 +86,11 @@ function scoreRoute(route, rawQuery) {
     }
     let score = 0;
     let matchLabel = "metadata";
-    const label = normalizeText(route.label);
-    const compactLabel = compactText(route.label);
-    const aliasTexts = route.aliases.map(normalizeText);
-    const tagTexts = route.tags.map(normalizeText);
-    const keywordTexts = route.keywords.map(normalizeText);
-    const candidates = candidateTexts(route);
+    const { route, label, compactLabel, aliasTexts, tagTexts, keywordTexts, candidates, categoryText, labelInitialism, } = indexed;
     if (label === query) {
         return { score: 1000, matchLabel: "exact title" };
     }
-    if (compactLabel === compactQuery || initialism(route.label) === compactQuery) {
+    if (compactLabel === compactQuery || labelInitialism === compactQuery) {
         return { score: 960, matchLabel: "abbreviation" };
     }
     if (label.startsWith(query)) {
@@ -105,7 +111,7 @@ function scoreRoute(route, rawQuery) {
     if (tagTexts.some((tag) => tag === query) || keywordTexts.some((keyword) => keyword === query)) {
         return { score: 940, matchLabel: "tag" };
     }
-    if (normalizeText(route.category) === query) {
+    if (categoryText === query) {
         score += 60;
         matchLabel = "category";
     }
@@ -140,9 +146,9 @@ export function searchAppRoutes(query, limit = 8) {
     const normalizedQuery = normalizeText(query);
     if (!normalizedQuery)
         return [];
-    return APP_ROUTE_META.map((route) => {
-        const { score, matchLabel } = scoreRoute(route, normalizedQuery);
-        return { ...route, score, matchLabel };
+    return SEARCH_INDEX.map((entry) => {
+        const { score, matchLabel } = scoreIndexedRoute(entry, normalizedQuery);
+        return { ...entry.route, score, matchLabel };
     })
         .filter((route) => route.score > 0)
         .sort((left, right) => right.score - left.score || left.label.localeCompare(right.label))

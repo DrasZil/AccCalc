@@ -987,4 +987,100 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         relatedCalculatorPaths: ["/afar/intercompany-ppe-transfer", "/afar/intercompany-inventory-profit"],
         relatedTopicIds: ["afar-intercompany-inventory-and-profit-elimination", "afar-business-combinations-and-consolidation"],
     }),
+    makeTopic({
+        id: "managerial-relevant-costing-short-term-decisions",
+        title: "Managerial: Relevant Costing for Special Orders, Make-or-Buy, and Process-Further Decisions",
+        shortTitle: "Relevant Costing Decisions",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Study how incremental revenue, avoidable cost, and separable cost drive short-term managerial decisions.",
+        intro:
+            "Short-term decision problems become much safer when the answer starts by separating relevant from irrelevant costs before any arithmetic begins.",
+        focus: "incremental revenue, avoidable cost, and short-term decision logic",
+        workedScenario:
+            "A company can accept a special order, outsource production, or process a joint product further and the case asks which choice adds profit.",
+        workedResult:
+            "The strongest answer identifies the revenue and cost items that actually change, computes the incremental effect, and then states the decision cleanly.",
+        checkpointScenario:
+            "A student includes sunk joint cost or unavoidable fixed overhead in a process-further or make-or-buy comparison.",
+        checkpointResult:
+            "Decision quality improves when sunk and unchanged costs are removed before the alternatives are compared.",
+        keywords: ["relevant costing", "special order", "make or buy", "sell or process further"],
+        scanSignals: ["special order", "avoidable fixed costs", "split-off", "separable processing cost"],
+        relatedCalculatorPaths: [
+            "/business/special-order-analysis",
+            "/business/make-or-buy-analysis",
+            "/business/sell-or-process-further",
+        ],
+        relatedTopicIds: ["managerial-master-budget-completion", "strategic-business-analysis-and-cost-management"],
+    }),
+    makeTopic({
+        id: "management-services-product-mix-and-bottlenecks",
+        title: "Management Services: Product Mix, Bottlenecks, and Constraint-Based Ranking",
+        shortTitle: "Product Mix and Bottlenecks",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Review contribution margin per scarce-resource unit, bottleneck ranking, and short capacity-allocation logic.",
+        intro:
+            "Bottleneck problems are easier when students stop ranking by unit contribution alone and shift to contribution per scarce-resource unit.",
+        focus: "constraint-based ranking and bottleneck-aware output decisions",
+        workedScenario:
+            "A factory has limited machine hours and must decide which product deserves the constrained resource first.",
+        workedResult:
+            "The best answer converts unit contribution into contribution per machine hour or other scarce input before recommending output priority.",
+        checkpointScenario:
+            "A student chooses the product with the highest unit margin even though it consumes more of the bottleneck resource.",
+        checkpointResult:
+            "Management-services answers improve when the bottleneck becomes the core ranking lens instead of a side note.",
+        keywords: ["product mix", "bottleneck", "constraint analysis", "management services"],
+        scanSignals: ["machine hours per unit", "scarce resource", "product mix", "bottleneck"],
+        relatedCalculatorPaths: ["/business/constrained-resource-product-mix", "/business/cvp-analysis"],
+        relatedTopicIds: ["managerial-relevant-costing-short-term-decisions"],
+    }),
+    makeTopic({
+        id: "managerial-performance-reports-and-budget-variance",
+        title: "Managerial: Performance Reports, Flexible Budgets, and Budget Variance Reading",
+        shortTitle: "Performance Reports",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Study spending variance, activity variance, and total plan variance so performance reports are easier to explain.",
+        intro:
+            "Performance-report questions get cleaner when students know which comparison belongs to actual-versus-flexible and which belongs to flexible-versus-static.",
+        focus: "flexible-budget benchmarking and performance-report interpretation",
+        workedScenario:
+            "A manager compares actual cost against flexible and static budget amounts and must explain what part of the gap is execution versus activity change.",
+        workedResult:
+            "The best answer separates spending variance, activity variance, and the total variance from plan before drawing conclusions.",
+        checkpointScenario:
+            "A student mixes the flexible and static benchmarks and labels the same gap twice.",
+        checkpointResult:
+            "Variance interpretation is stronger when each benchmark comparison has a clear purpose.",
+        keywords: ["budget variance", "performance report", "flexible budget", "activity variance"],
+        scanSignals: ["spending variance", "activity variance", "performance report", "static budget"],
+        relatedCalculatorPaths: ["/business/budget-variance-analysis", "/business/flexible-budget"],
+        relatedTopicIds: ["managerial-master-budget-completion"],
+    }),
+    makeTopic({
+        id: "operations-forecasting-moving-averages-and-replenishment",
+        title: "Operations: Moving-Average Forecasting and Replenishment Planning",
+        shortTitle: "Forecasting and Replenishment",
+        category: "Operations / Supply Chain",
+        summary:
+            "Connect moving-average forecasting with EOQ, reorder points, and replenishment timing decisions.",
+        intro:
+            "Replenishment decisions become more realistic when the demand estimate behind the order policy is visible and easy to defend.",
+        focus: "short-term demand forecasting and its connection to replenishment policy",
+        workedScenario:
+            "A business needs a short-term demand forecast before setting a new reorder trigger and reviewing safety-stock logic.",
+        workedResult:
+            "The strongest answer explains why a weighted forecast may fit the current demand pattern better than an equal-weight average, then links the forecast to replenishment planning.",
+        checkpointScenario:
+            "A student changes the forecast weights arbitrarily without explaining why the recent periods should matter more.",
+        checkpointResult:
+            "Operations analysis is stronger when the weighting logic is explicit rather than decorative.",
+        keywords: ["moving average", "forecasting", "reorder point", "replenishment"],
+        scanSignals: ["weighted moving average", "forecast next period", "demand planning", "lead time"],
+        relatedCalculatorPaths: ["/operations/moving-average-forecast", "/operations/eoq-and-reorder-point"],
+        relatedTopicIds: ["operations-forecasting-inventory-and-quality"],
+    }),
 ];

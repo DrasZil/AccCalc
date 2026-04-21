@@ -60,6 +60,9 @@ const FEATURED_PATHS = [
     "/study",
     "/study/practice",
     "/business/cvp-analysis",
+    "/business/special-order-analysis",
+    "/business/make-or-buy-analysis",
+    "/business/constrained-resource-product-mix",
     "/business/additional-funds-needed",
     "/accounting/partnership-dissolution",
     "/accounting/process-costing-workspace",
@@ -75,6 +78,7 @@ const FEATURED_PATHS = [
     "/tax/percentage-tax",
     "/tax/tax-compliance-review",
     "/operations/eoq-and-reorder-point",
+    "/operations/moving-average-forecast",
     "/far/lease-measurement-workspace",
     "/far/retained-earnings-rollforward",
     "/far/cash-flow-statement-builder",
@@ -148,6 +152,16 @@ const WORKFLOW_COLLECTIONS = [
         ],
     },
     {
+        title: "Relevant costing decisions",
+        description: "Move through special orders, sourcing choices, further-processing decisions, and bottleneck-based product ranking.",
+        paths: [
+            "/business/special-order-analysis",
+            "/business/make-or-buy-analysis",
+            "/business/sell-or-process-further",
+            "/business/constrained-resource-product-mix",
+        ],
+    },
+    {
         title: "Partnership accounting",
         description: "Move from allocation into retirement, dissolution, and capital rollforward work without leaving the app.",
         paths: [
@@ -217,8 +231,9 @@ const WORKFLOW_COLLECTIONS = [
     },
     {
         title: "Operations and supply chain",
-        description: "Move from EOQ and reorder point into capacity and inventory-control follow-through.",
+        description: "Move from short-term forecasting into EOQ, reorder points, capacity, and inventory-control follow-through.",
         paths: [
+            "/operations/moving-average-forecast",
             "/operations/eoq-and-reorder-point",
             "/business/capacity-utilization",
             "/accounting/inventory-control-workspace",
