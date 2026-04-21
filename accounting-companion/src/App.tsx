@@ -99,6 +99,9 @@ const MaterialsQuantityVariancePage = lazy(
     () => import("./features/accounting/MaterialsQuantityVariancePage")
 );
 const NoteInterestPage = lazy(() => import("./features/accounting/NoteInterestPage"));
+const NotesReceivableDiscountingPage = lazy(
+    () => import("./features/accounting/NotesReceivableDiscountingPage")
+);
 const BondAmortizationSchedulePage = lazy(
     () => import("./features/accounting/BondAmortizationSchedulePage")
 );
@@ -318,11 +321,20 @@ const ProductionBudgetPage = lazy(
 const DirectMaterialsPurchasesBudgetPage = lazy(
     () => import("./features/business/DirectMaterialsPurchasesBudgetPage")
 );
+const DirectLaborBudgetPage = lazy(
+    () => import("./features/business/DirectLaborBudgetPage")
+);
+const FactoryOverheadBudgetPage = lazy(
+    () => import("./features/business/FactoryOverheadBudgetPage")
+);
 const InventoryBudgetPage = lazy(
     () => import("./features/business/InventoryBudgetPage")
 );
 const OperatingExpenseBudgetPage = lazy(
     () => import("./features/business/OperatingExpenseBudgetPage")
+);
+const BudgetedIncomeStatementPage = lazy(
+    () => import("./features/business/BudgetedIncomeStatementPage")
 );
 const SalesBudgetPage = lazy(
     () => import("./features/business/SalesBudgetPage")
@@ -382,6 +394,9 @@ const VatReconciliationPage = lazy(
 const BusinessCombinationAnalysisPage = lazy(
     () => import("./features/afar/BusinessCombinationAnalysisPage")
 );
+const EquityMethodInvestmentPage = lazy(
+    () => import("./features/afar/EquityMethodInvestmentPage")
+);
 const ForeignCurrencyTranslationPage = lazy(
     () => import("./features/afar/ForeignCurrencyTranslationPage")
 );
@@ -390,6 +405,9 @@ const ConstructionRevenuePage = lazy(
 );
 const IntercompanyInventoryProfitPage = lazy(
     () => import("./features/afar/IntercompanyInventoryProfitPage")
+);
+const IntercompanyPpeTransferPage = lazy(
+    () => import("./features/afar/IntercompanyPpeTransferPage")
 );
 const ItControlMatrixPage = lazy(() => import("./features/ais/ItControlMatrixPage"));
 const AisLifecycleAndRecoveryPage = lazy(
@@ -542,9 +560,12 @@ export default function App() {
                         <Route path="business/high-low-cost-estimation" element={renderRoute("/business/high-low-cost-estimation", <HighLowCostEstimationPage />)} />
                         <Route path="business/production-budget" element={renderRoute("/business/production-budget", <ProductionBudgetPage />)} />
                         <Route path="business/direct-materials-purchases-budget" element={renderRoute("/business/direct-materials-purchases-budget", <DirectMaterialsPurchasesBudgetPage />)} />
+                        <Route path="business/direct-labor-budget" element={renderRoute("/business/direct-labor-budget", <DirectLaborBudgetPage />)} />
+                        <Route path="business/factory-overhead-budget" element={renderRoute("/business/factory-overhead-budget", <FactoryOverheadBudgetPage />)} />
                         <Route path="business/sales-budget" element={renderRoute("/business/sales-budget", <SalesBudgetPage />)} />
                         <Route path="business/inventory-budget" element={renderRoute("/business/inventory-budget", <InventoryBudgetPage />)} />
                         <Route path="business/operating-expense-budget" element={renderRoute("/business/operating-expense-budget", <OperatingExpenseBudgetPage />)} />
+                        <Route path="business/budgeted-income-statement" element={renderRoute("/business/budgeted-income-statement", <BudgetedIncomeStatementPage />)} />
                         <Route path="business/roi-ri-eva" element={renderRoute("/business/roi-ri-eva", <RoiRiEvaPage />)} />
                         <Route path="business-math/weighted-mean" element={renderRoute("/business-math/weighted-mean", <WeightedMeanPage />)} />
 
@@ -576,7 +597,9 @@ export default function App() {
                         <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
                         <Route path="tax/tax-compliance-review" element={renderRoute("/tax/tax-compliance-review", <TaxComplianceReviewPage />)} />
                         <Route path="afar/business-combination-analysis" element={renderRoute("/afar/business-combination-analysis", <BusinessCombinationAnalysisPage />)} />
+                        <Route path="afar/equity-method-investment" element={renderRoute("/afar/equity-method-investment", <EquityMethodInvestmentPage />)} />
                         <Route path="afar/intercompany-inventory-profit" element={renderRoute("/afar/intercompany-inventory-profit", <IntercompanyInventoryProfitPage />)} />
+                        <Route path="afar/intercompany-ppe-transfer" element={renderRoute("/afar/intercompany-ppe-transfer", <IntercompanyPpeTransferPage />)} />
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
                         <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
                         <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />
@@ -590,6 +613,7 @@ export default function App() {
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
                         <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />
                         <Route path="accounting/notes-interest" element={renderRoute("/accounting/notes-interest", <NoteInterestPage />)} />
+                        <Route path="accounting/notes-receivable-discounting" element={renderRoute("/accounting/notes-receivable-discounting", <NotesReceivableDiscountingPage />)} />
                         <Route path="accounting/straight-line-depreciation" element={renderRoute("/accounting/straight-line-depreciation", <StraightLineDepreciationPage />)} />
                         <Route path="accounting/declining-balance-depreciation" element={renderRoute("/accounting/declining-balance-depreciation", <DecliningBalanceDepreciationPage />)} />
                         <Route path="accounting/units-of-production-depreciation" element={renderRoute("/accounting/units-of-production-depreciation", <UnitsOfProductionDepreciationPage />)} />

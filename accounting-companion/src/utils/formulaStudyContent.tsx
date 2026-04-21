@@ -652,6 +652,123 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             { path: "/far/cash-flow-statement-builder", label: "Statement of Cash Flows Builder" },
         ],
     },
+    "direct-labor-budget-solve": {
+        topicId: "formula-direct-labor-budget",
+        topicTitle: "Direct Labor Budget",
+        intro: "The direct labor budget bridges production plans into hours, wages, and staffing pressure.",
+        sections: [
+            {
+                key: "flow",
+                label: "Budget flow",
+                summary: "Direct labor usually comes after production and before overhead or cash-planning schedules.",
+                content: bullets([
+                    "Start with the production budget because labor demand follows planned output.",
+                    "Separate labor hours from labor cost so rate changes and efficiency assumptions stay visible.",
+                    "Carry the result forward into cash planning and the budgeted income statement.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/production-budget", label: "Production Budget" },
+            { path: "/business/factory-overhead-budget", label: "Factory Overhead Budget" },
+        ],
+    },
+    "factory-overhead-budget-solve": {
+        topicId: "formula-factory-overhead-budget",
+        topicTitle: "Factory Overhead Budget",
+        intro: "Factory overhead budgeting is clearer when the variable and fixed pieces are kept separate.",
+        sections: [
+            {
+                key: "reading",
+                label: "Read the components",
+                summary: "Variable and fixed overhead do different jobs in the budget.",
+                content: bullets([
+                    "Variable overhead changes with activity volume.",
+                    "Fixed overhead stays in the period budget even when activity moves.",
+                    "The split matters later for cash budgeting, standard costing, and performance reports.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/direct-labor-budget", label: "Direct Labor Budget" },
+            { path: "/accounting/factory-overhead-variance", label: "Factory Overhead Variances" },
+        ],
+    },
+    "budgeted-income-statement-solve": {
+        topicId: "formula-budgeted-income-statement",
+        topicTitle: "Budgeted Income Statement",
+        intro: "This is where separate master-budget schedules become one statement-level story.",
+        sections: [
+            {
+                key: "connections",
+                label: "Connect the schedules",
+                summary: "A budgeted income statement should tie back to earlier budgets.",
+                content: bullets([
+                    "Sales drives revenue.",
+                    "Production, materials, labor, and overhead drive cost of goods sold support.",
+                    "Operating budgets and financing assumptions complete the income-statement view.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/sales-budget", label: "Sales Budget" },
+            { path: "/business/operating-expense-budget", label: "Operating Expense Budget" },
+        ],
+    },
+    "notes-receivable-discounting-solve": {
+        topicId: "formula-notes-receivable-discounting",
+        topicTitle: "Notes Receivable Discounting",
+        intro: "Discounting problems become easier when maturity value and bank discount are separated cleanly.",
+        sections: [
+            {
+                key: "sequence",
+                label: "Solve in sequence",
+                summary: "Do not jump straight to proceeds.",
+                content: bullets([
+                    "Find note interest first.",
+                    "Build the maturity value next.",
+                    "Apply the bank discount to the maturity value for the remaining term before reading proceeds.",
+                ]),
+            },
+        ],
+        relatedTools: [{ path: "/accounting/notes-interest", label: "Notes Interest" }],
+    },
+    "equity-method-investment-solve": {
+        topicId: "formula-equity-method-investment",
+        topicTitle: "Equity Method Investment",
+        intro: "Equity-method questions are usually rollforwards of the investment carrying amount, not cash-flow questions only.",
+        sections: [
+            {
+                key: "logic",
+                label: "Core logic",
+                summary: "Income increases the investment; dividends reduce it.",
+                content: bullets([
+                    "Recognize the investor's share of investee income.",
+                    "Reduce the investment for dividends received.",
+                    "Keep acquisition-date adjustments separate from the basic rollforward if the case adds them.",
+                ]),
+            },
+        ],
+        relatedTools: [{ path: "/afar/business-combination-analysis", label: "Business Combination Analysis" }],
+    },
+    "intercompany-ppe-transfer-solve": {
+        topicId: "formula-intercompany-ppe-transfer",
+        topicTitle: "Intercompany PPE Transfer",
+        intro: "AFAR PPE-transfer cases usually require both the unrealized gain reversal and the excess-depreciation adjustment.",
+        sections: [
+            {
+                key: "elimination",
+                label: "What changes each year",
+                summary: "The initial gain does not stay fully unrealized forever.",
+                content: bullets([
+                    "The gain on transfer is unrealized at group level on day one.",
+                    "Each year, excess depreciation gradually realizes part of that profit.",
+                    "Later periods focus on the remaining unamortized balance and the current year's depreciation adjustment.",
+                ]),
+            },
+        ],
+        relatedTools: [{ path: "/afar/intercompany-inventory-profit", label: "Intercompany Inventory Profit" }],
+    },
 };
 
 export function getFormulaStudySupport(definitionId: string) {

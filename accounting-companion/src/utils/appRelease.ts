@@ -1,30 +1,37 @@
-export const APP_VERSION = "5.7.0";
-export const APP_RELEASE_DATE = "2026-04-20";
+export const APP_VERSION = "6.0.0";
+export const APP_RELEASE_DATE = "2026-04-21";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 5.7.0 stabilizes Workpapers and expands core accounting coverage",
-        body: "This release removes intrusive sticky Workpaper input behavior, hardens narrow-screen sheet rendering, and adds new calculator and builder coverage for sales budgeting, VAT reconciliation, intercompany inventory-profit elimination, and statement-of-changes-in-equity preparation.",
+        title: "AccCalc 6.0.0 completes more of the accounting curriculum and strengthens long-term survivability",
+        body: "This release broadens master-budget coverage, fills FAR and AFAR gaps with new note-discounting, equity-method, and intercompany-PPE support, and makes the app feel more complete as a self-sustaining accounting companion.",
     },
     {
-        title: "Notifications and runtime handling are calmer and more reliable",
-        body: "Shared in-app notifications now filter noisy browser-runtime failures more intelligently, surface deployment mismatch and offline limitations more clearly, and avoid false error-thread style messaging that was especially disruptive on static deployments.",
+        title: "Budgeting now flows further from operational schedules into statement-level outputs",
+        body: "Direct labor, factory overhead, and budgeted income statement coverage now connect the earlier production and materials pages into a more realistic master-budget chain for coursework and review sessions.",
     },
     {
-        title: "Study support now reaches deeper into budget, tax, AFAR, and equity workflows",
-        body: "Layered educational guidance now links more directly to sales-budget, VAT, consolidation-elimination, and equity-statement tasks with clearer concept framing, common-mistake warnings, and result-linked follow-up study prompts.",
+        title: "Discovery, workpapers, and study support were expanded together",
+        body: "New calculators now ship with aliases, OCR routing hints, Smart Solver targets, study topics, and practical workpaper templates so the added breadth is usable instead of buried.",
     },
     {
-        title: "Charts now teach more clearly on statement-style pages",
-        body: "Result visuals now do more than decorate: key pages surface composition, direction, and checkpoint-aware interpretation so students can see what the output means and not only what number was computed.",
+        title: "Time-sensitive tax assumptions are centralized and visible",
+        body: "VAT, percentage-tax, and withholding guidance now point to one editable assumptions source so future tax maintenance is easier and the UI no longer hides time-sensitive defaults.",
     },
     {
-        title: "Shared reliability improved across math helpers, routing, OCR hints, and workbook templates",
-        body: "The shared calculation layer, route metadata, Smart Solver extraction, OCR route suggestions, offline-status handling, and workpaper templates were expanded together so new tools stay discoverable, academically trustworthy, and usable across mobile and desktop layouts.",
+        title: "Release documentation and handoff material now match the real system",
+        body: "The 6.0.0 release includes a rewritten README, detailed system documentation, a maintenance playbook, release notes, and a generated PDF package for low-context handoff.",
     },
 ];
 
 export const APP_RELEASE_NOTES = [
+    "6.0.0: Added direct labor budgeting, factory-overhead budgeting, and a budgeted income statement so AccCalc now carries the master-budget flow further from operations into statement-level planning.",
+    "6.0.0: Added notes-receivable discounting support so maturity value, bank discount, and proceeds can be solved cleanly for FAR receivables and cash-management problems.",
+    "6.0.0: Added AFAR coverage for equity-method investment rollforwards and intercompany PPE-transfer eliminations, including excess-depreciation support for multi-period consolidation review.",
+    "6.0.0: Expanded Smart Solver, OCR routing, route metadata, workpaper templates, and study content together for the new 6.0.0 budgeting, FAR, and AFAR tools so breadth improvements remain discoverable.",
+    "6.0.0: Centralized Philippine tax assumptions in one editable config and surfaced visible assumption notes on tax calculators where rules are time-sensitive.",
+    "6.0.0: Expanded workpaper templates with new direct-labor, factory-overhead, budgeted-income-statement, note-discounting, equity-method, and intercompany-PPE support sheets.",
+    "6.0.0: Replaced the template README with a full production-ready project guide and generated a broader handoff documentation set, including release notes and a PDF documentation package.",
     "5.7.0: Fixed Workpaper Studio so the formula-input bar no longer stays annoyingly sticky on narrow layouts, while selected-cell editing again stays the primary interaction and frozen-cell layering behaves more predictably.",
     "5.7.0: Hardened Workpaper grid sizing and overflow handling to stop cell-content overlap on mobile and narrow screens, then tightened compact row-height and cell-width behavior for touch use.",
     "5.7.0: Added new curriculum-aligned tools for Sales Budget, VAT Reconciliation, Intercompany Inventory Profit Elimination, and Statement of Changes in Equity preparation, extending budgeting, taxation, AFAR, and FAR statement coverage together.",

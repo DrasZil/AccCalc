@@ -4,17 +4,23 @@ import {
     computeAccruedExpenseAdjustment,
     computeAccruedRevenueAdjustment,
     computeAssetDisposal,
+    computeBudgetedIncomeStatement,
     computeBreakEven,
     computeCompoundInterest,
     computeCurrentRatio,
     computeDirectMaterialsPurchasesBudget,
+    computeDirectLaborBudget,
     computeEquivalentAnnualAnnuity,
+    computeEquityMethodInvestment,
+    computeFactoryOverheadBudget,
     computeFutureValue,
     computeGrossProfitRate,
     computeImpairmentLoss,
     computeInventoryBudget,
     computeIntercompanyInventoryProfit,
+    computeIntercompanyPpeTransfer,
     computeMarkupMargin,
+    computeNotesReceivableDiscounting,
     computeOperatingExpenseBudget,
     computePettyCashReconciliation,
     computePercentageTax,
@@ -32,6 +38,10 @@ import {
     computeWithholdingTax,
 } from "./calculatorMath.js";
 import type { FormulaCalculatorDefinition } from "./formulaIntelligence.js";
+import {
+    buildTaxAssumptionNotes,
+    PHILIPPINE_TAX_ASSUMPTIONS,
+} from "./taxConfig.js";
 
 function formatPercent(value: number, digits = 2) {
     return `${value.toFixed(digits)}%`;
@@ -1922,7 +1932,7 @@ export const percentageTaxSolveDefinition: FormulaCalculatorDefinition = {
         ratePercent: {
             key: "ratePercent",
             label: "Rate (%)",
-            placeholder: "3",
+            placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.percentageTax.defaultRatePercent),
             kind: "percent",
             helperText: "Use the rate applicable to the percentage-tax scenario being reviewed.",
         },
@@ -1994,9 +2004,10 @@ export const percentageTaxSolveDefinition: FormulaCalculatorDefinition = {
                 `Percentage tax due = ${formatPHP(taxableSales)} × ${computed.rateDecimal.toFixed(4)} = ${formatPHP(computed.taxDue)}.`,
             ],
             interpretation: `The selected values imply percentage tax of ${formatPHP(computed.taxDue)} on taxable sales of ${formatPHP(taxableSales)}.`,
-            assumptions: [
-                "This tool is for percentage-tax drills and assumes the tax base is already identified correctly for the scenario.",
-            ],
+            assumptions: buildTaxAssumptionNotes(
+                PHILIPPINE_TAX_ASSUMPTIONS.percentageTax,
+                ["This tool is for percentage-tax drills and assumes the tax base is already identified correctly for the scenario."]
+            ),
             warnings: [
                 "Check whether the case should use VAT, percentage tax, or a special tax regime before relying on this result.",
             ],
@@ -3364,6 +3375,240 @@ export const operatingExpenseBudgetSolveDefinition: FormulaCalculatorDefinition 
     },
 };
 
+export const directLaborBudgetSolveDefinition: FormulaCalculatorDefinition = {
+    id: "direct-labor-budget-solve",
+    defaultTarget: "totalDirectLaborCost",
+    fields: {
+        budgetedProductionUnits: { key: "budgetedProductionUnits", label: "Budgeted Production Units", placeholder: "12300", kind: "number" },
+        directLaborHoursPerUnit: { key: "directLaborHoursPerUnit", label: "Direct Labor Hours / Unit", placeholder: "1.5", kind: "number" },
+        directLaborRatePerHour: { key: "directLaborRatePerHour", label: "Labor Rate / Hour", placeholder: "110", kind: "money" },
+        totalDirectLaborHours: { key: "totalDirectLaborHours", label: "Total Direct Labor Hours", placeholder: "18450", kind: "number" },
+        totalDirectLaborCost: { key: "totalDirectLaborCost", label: "Total Direct Labor Cost", placeholder: "2029500", kind: "money" },
+    },
+    targets: [
+        { key: "totalDirectLaborCost", label: "Labor Cost", summary: "Compute the direct labor budget in currency from planned production, hours, and rate." },
+        { key: "totalDirectLaborHours", label: "Labor Hours", summary: "Compute the total labor hours required by the production plan." },
+        { key: "directLaborRatePerHour", label: "Labor Rate / Hour", summary: "Back-solve the hourly rate implied by total labor cost and required hours." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "directLaborRatePerHour") {
+            return ["budgetedProductionUnits", "directLaborHoursPerUnit", "totalDirectLaborCost"];
+        }
+        return ["budgetedProductionUnits", "directLaborHoursPerUnit", "directLaborRatePerHour"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Direct labor budget",
+            body: `Enter the visible labor-budget inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const budgetedProductionUnits = values.budgetedProductionUnits;
+        const directLaborHoursPerUnit = values.directLaborHoursPerUnit;
+        let directLaborRatePerHour = values.directLaborRatePerHour;
+        let totalDirectLaborCost = values.totalDirectLaborCost;
+
+        if (budgetedProductionUnits < 0 || directLaborHoursPerUnit < 0) {
+            return { error: "Production units and hours per unit must stay non-negative." };
+        }
+
+        const totalDirectLaborHours = budgetedProductionUnits * directLaborHoursPerUnit;
+        if (targetKey === "directLaborRatePerHour") {
+            if (totalDirectLaborHours <= 0) {
+                return { error: "Required labor hours must be greater than zero when solving for the hourly labor rate." };
+            }
+            directLaborRatePerHour = totalDirectLaborCost / totalDirectLaborHours;
+        } else {
+            totalDirectLaborCost = computeDirectLaborBudget({
+                budgetedProductionUnits,
+                directLaborHoursPerUnit,
+                directLaborRatePerHour,
+            }).totalDirectLaborCost;
+        }
+
+        const computed = computeDirectLaborBudget({
+            budgetedProductionUnits,
+            directLaborHoursPerUnit,
+            directLaborRatePerHour,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "totalDirectLaborHours" ? "Total Labor Hours" : targetKey === "directLaborRatePerHour" ? "Labor Rate / Hour" : "Total Direct Labor Cost",
+                value: targetKey === "totalDirectLaborHours" ? formatPlain(computed.totalDirectLaborHours) : targetKey === "directLaborRatePerHour" ? formatPHP(directLaborRatePerHour) : formatPHP(computed.totalDirectLaborCost),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Budgeted Production Units", value: formatPlain(budgetedProductionUnits) },
+                { title: "Hours per Unit", value: formatPlain(directLaborHoursPerUnit) },
+                { title: "Total Labor Hours", value: formatPlain(computed.totalDirectLaborHours) },
+            ],
+            formula: "Direct labor budget = Budgeted production units × Direct labor hours per unit × Labor rate per hour",
+            steps: [
+                `Required labor hours = ${formatPlain(budgetedProductionUnits)} × ${formatPlain(directLaborHoursPerUnit)} = ${formatPlain(computed.totalDirectLaborHours)} hours.`,
+                `Direct labor cost = ${formatPlain(computed.totalDirectLaborHours)} × ${formatPHP(directLaborRatePerHour)} = ${formatPHP(computed.totalDirectLaborCost)}.`,
+            ],
+            interpretation: `The direct labor budget supports ${formatPlain(computed.totalDirectLaborHours)} labor hours and ${formatPHP(computed.totalDirectLaborCost)} of planned direct labor for the selected production volume.`,
+            notes: [
+                "Use this page after the production budget and before the overhead, cash, and budgeted-income-statement schedules so the master-budget flow stays connected.",
+            ],
+        };
+    },
+};
+
+export const factoryOverheadBudgetSolveDefinition: FormulaCalculatorDefinition = {
+    id: "factory-overhead-budget-solve",
+    defaultTarget: "totalFactoryOverheadBudget",
+    fields: {
+        budgetedProductionUnits: { key: "budgetedProductionUnits", label: "Budgeted Activity Units", placeholder: "12300", kind: "number" },
+        variableOverheadRatePerUnit: { key: "variableOverheadRatePerUnit", label: "Variable OH Rate / Unit", placeholder: "18", kind: "money" },
+        fixedOverheadBudget: { key: "fixedOverheadBudget", label: "Fixed OH Budget", placeholder: "220000", kind: "money" },
+        variableFactoryOverheadBudget: { key: "variableFactoryOverheadBudget", label: "Variable OH Budget", placeholder: "221400", kind: "money" },
+        totalFactoryOverheadBudget: { key: "totalFactoryOverheadBudget", label: "Total Factory OH Budget", placeholder: "441400", kind: "money" },
+    },
+    targets: [
+        { key: "totalFactoryOverheadBudget", label: "Total OH Budget", summary: "Compute total budgeted factory overhead from variable and fixed components." },
+        { key: "variableFactoryOverheadBudget", label: "Variable OH Budget", summary: "Compute only the variable overhead portion of the factory overhead budget." },
+        { key: "variableOverheadRatePerUnit", label: "Variable OH Rate / Unit", summary: "Back-solve the rate per unit when the variable overhead budget is known." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "variableOverheadRatePerUnit") {
+            return ["budgetedProductionUnits", "variableFactoryOverheadBudget"];
+        }
+        return ["budgetedProductionUnits", "variableOverheadRatePerUnit", "fixedOverheadBudget"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Factory overhead budget",
+            body: `Enter the visible overhead-budget inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const budgetedProductionUnits = values.budgetedProductionUnits;
+        let variableOverheadRatePerUnit = values.variableOverheadRatePerUnit;
+        const fixedOverheadBudget = values.fixedOverheadBudget ?? 0;
+        const variableFactoryOverheadBudgetInput = values.variableFactoryOverheadBudget;
+
+        if (budgetedProductionUnits < 0 || fixedOverheadBudget < 0) {
+            return { error: "Budgeted activity and fixed overhead must stay non-negative." };
+        }
+
+        if (targetKey === "variableOverheadRatePerUnit") {
+            if (budgetedProductionUnits <= 0) {
+                return { error: "Budgeted activity units must be greater than zero when solving for the variable overhead rate." };
+            }
+            variableOverheadRatePerUnit = variableFactoryOverheadBudgetInput / budgetedProductionUnits;
+        }
+
+        const computed = computeFactoryOverheadBudget({
+            budgetedProductionUnits,
+            variableOverheadRatePerUnit,
+            fixedOverheadBudget,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "variableFactoryOverheadBudget" ? "Variable OH Budget" : targetKey === "variableOverheadRatePerUnit" ? "Variable OH Rate / Unit" : "Total Factory OH Budget",
+                value: targetKey === "variableOverheadRatePerUnit" ? formatPHP(variableOverheadRatePerUnit) : targetKey === "variableFactoryOverheadBudget" ? formatPHP(computed.variableFactoryOverheadBudget) : formatPHP(computed.totalFactoryOverheadBudget),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Variable OH Budget", value: formatPHP(computed.variableFactoryOverheadBudget) },
+                { title: "Fixed OH Budget", value: formatPHP(fixedOverheadBudget) },
+                { title: "Total Factory OH", value: formatPHP(computed.totalFactoryOverheadBudget) },
+            ],
+            formula: "Factory overhead budget = (Budgeted activity × Variable OH rate) + Fixed OH budget",
+            steps: [
+                `Variable overhead = ${formatPlain(budgetedProductionUnits)} × ${formatPHP(variableOverheadRatePerUnit)} = ${formatPHP(computed.variableFactoryOverheadBudget)}.`,
+                `Total factory overhead = ${formatPHP(computed.variableFactoryOverheadBudget)} + ${formatPHP(fixedOverheadBudget)} = ${formatPHP(computed.totalFactoryOverheadBudget)}.`,
+            ],
+            interpretation: `The factory overhead budget sets aside ${formatPHP(computed.totalFactoryOverheadBudget)} in total overhead support for the planned activity, including ${formatPHP(computed.variableFactoryOverheadBudget)} that changes with volume.`,
+        };
+    },
+};
+
+export const budgetedIncomeStatementSolveDefinition: FormulaCalculatorDefinition = {
+    id: "budgeted-income-statement-solve",
+    defaultTarget: "netIncome",
+    fields: {
+        budgetedSalesAmount: { key: "budgetedSalesAmount", label: "Budgeted Sales", placeholder: "1450000", kind: "money" },
+        budgetedCostOfGoodsSold: { key: "budgetedCostOfGoodsSold", label: "Budgeted Cost of Goods Sold", placeholder: "910000", kind: "money" },
+        totalOperatingExpenses: { key: "totalOperatingExpenses", label: "Total Operating Expenses", placeholder: "206750", kind: "money" },
+        interestExpense: { key: "interestExpense", label: "Interest Expense", placeholder: "28000", kind: "money" },
+        ratePercent: { key: "ratePercent", label: "Income Tax Rate (%)", placeholder: "25", kind: "percent" },
+        grossProfit: { key: "grossProfit", label: "Gross Profit", placeholder: "540000", kind: "money" },
+        incomeBeforeTax: { key: "incomeBeforeTax", label: "Income Before Tax", placeholder: "305250", kind: "money" },
+        netIncome: { key: "netIncome", label: "Net Income", placeholder: "228937.50", kind: "money" },
+    },
+    targets: [
+        { key: "netIncome", label: "Net Income", summary: "Complete the budgeted income statement through income tax and net income." },
+        { key: "grossProfit", label: "Gross Profit", summary: "Back up to the gross-profit layer from budgeted sales and COGS." },
+        { key: "incomeBeforeTax", label: "Income Before Tax", summary: "Review operating income after interest but before tax." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "grossProfit") return ["budgetedSalesAmount", "budgetedCostOfGoodsSold"];
+        return ["budgetedSalesAmount", "budgetedCostOfGoodsSold", "totalOperatingExpenses", "interestExpense", "ratePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Budgeted income statement",
+            body: `Enter the visible master-budget amounts to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const budgetedSalesAmount = values.budgetedSalesAmount;
+        const budgetedCostOfGoodsSold = values.budgetedCostOfGoodsSold;
+        const totalOperatingExpenses = values.totalOperatingExpenses ?? 0;
+        const interestExpense = values.interestExpense ?? 0;
+        const ratePercent = values.ratePercent ?? 0;
+
+        if ([budgetedSalesAmount, budgetedCostOfGoodsSold, totalOperatingExpenses, interestExpense].some((value) => value < 0)) {
+            return { error: "Budgeted statement amounts must stay non-negative." };
+        }
+
+        const computed = computeBudgetedIncomeStatement({
+            budgetedSalesAmount,
+            budgetedCostOfGoodsSold,
+            totalOperatingExpenses,
+            interestExpense,
+            incomeTaxRatePercent: ratePercent,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "grossProfit" ? "Gross Profit" : targetKey === "incomeBeforeTax" ? "Income Before Tax" : "Net Income",
+                value: targetKey === "grossProfit" ? formatPHP(computed.grossProfit) : targetKey === "incomeBeforeTax" ? formatPHP(computed.incomeBeforeTax) : formatPHP(computed.netIncome),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Gross Profit", value: formatPHP(computed.grossProfit) },
+                { title: "Income Tax Expense", value: formatPHP(computed.incomeTaxExpense) },
+                { title: "Net Income", value: formatPHP(computed.netIncome) },
+            ],
+            formula: "Net income = (Budgeted sales - Budgeted COGS - Operating expenses - Interest expense) - Income tax",
+            steps: [
+                `Gross profit = ${formatPHP(budgetedSalesAmount)} - ${formatPHP(budgetedCostOfGoodsSold)} = ${formatPHP(computed.grossProfit)}.`,
+                `Income before tax = ${formatPHP(computed.grossProfit)} - ${formatPHP(totalOperatingExpenses)} - ${formatPHP(interestExpense)} = ${formatPHP(computed.incomeBeforeTax)}.`,
+                `Income tax expense = ${formatPHP(computed.incomeBeforeTax)} × ${computed.incomeTaxRateDecimal.toFixed(4)} = ${formatPHP(computed.incomeTaxExpense)}.`,
+                `Net income = ${formatPHP(computed.incomeBeforeTax)} - ${formatPHP(computed.incomeTaxExpense)} = ${formatPHP(computed.netIncome)}.`,
+            ],
+            interpretation: computed.incomeBeforeTax < 0 ? `The draft budget points to a pre-tax loss of ${formatPHP(Math.abs(computed.incomeBeforeTax))}, so no current tax expense is recognized in this simplified classroom view.` : `The budgeted income statement ends with projected net income of ${formatPHP(computed.netIncome)} after covering cost of goods sold, operating expenses, interest, and the selected tax rate.`,
+            assumptions: [
+                "This first-pass builder assumes no other income or unusual items outside the lines shown on the page.",
+            ],
+            notes: [
+                "Use the production, materials, labor, overhead, and operating-expense budgets first so the budgeted income statement is tied to the rest of the master-budget flow.",
+            ],
+        };
+    },
+};
+
 export const intercompanyInventoryProfitSolveDefinition: FormulaCalculatorDefinition = {
     id: "intercompany-inventory-profit-solve",
     defaultTarget: "unrealizedProfitInEndingInventory",
@@ -3510,6 +3755,224 @@ export const intercompanyInventoryProfitSolveDefinition: FormulaCalculatorDefini
     },
 };
 
+export const notesReceivableDiscountingSolveDefinition: FormulaCalculatorDefinition = {
+    id: "notes-receivable-discounting-solve",
+    defaultTarget: "proceedsFromDiscounting",
+    fields: {
+        faceValue: { key: "faceValue", label: "Face Value", placeholder: "250000", kind: "money" },
+        statedRate: { key: "statedRate", label: "Note Rate (%)", placeholder: "10", kind: "percent" },
+        marketRate: { key: "marketRate", label: "Bank Discount Rate (%)", placeholder: "12", kind: "percent" },
+        time: { key: "time", label: "Remaining Term (years)", placeholder: "0.5", kind: "time" },
+        maturityValue: { key: "maturityValue", label: "Maturity Value", placeholder: "262500", kind: "money" },
+        bankDiscountAmount: { key: "bankDiscountAmount", label: "Bank Discount", placeholder: "15750", kind: "money" },
+        proceedsFromDiscounting: { key: "proceedsFromDiscounting", label: "Proceeds", placeholder: "246750", kind: "money" },
+    },
+    targets: [
+        { key: "proceedsFromDiscounting", label: "Discounting Proceeds", summary: "Compute the cash proceeds when a note receivable is discounted before maturity." },
+        { key: "maturityValue", label: "Maturity Value", summary: "Review the maturity amount of the note before the bank discount is deducted." },
+        { key: "bankDiscountAmount", label: "Bank Discount", summary: "Compute the amount kept by the bank when the note is discounted." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "maturityValue") return ["faceValue", "statedRate", "time"];
+        return ["faceValue", "statedRate", "marketRate", "time"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Notes receivable discounting",
+            body: `Enter the visible note and bank-discount values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const faceValue = values.faceValue;
+        const statedRatePercent = values.statedRate;
+        const bankDiscountRatePercent = values.marketRate ?? 0;
+        const timeYears = values.time;
+
+        if ([faceValue, statedRatePercent, bankDiscountRatePercent, timeYears].some((value) => value < 0)) {
+            return { error: "Face value, rates, and remaining term must stay non-negative." };
+        }
+
+        const computed = computeNotesReceivableDiscounting({
+            faceValue,
+            statedRatePercent,
+            bankDiscountRatePercent,
+            timeYears,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "maturityValue" ? "Maturity Value" : targetKey === "bankDiscountAmount" ? "Bank Discount" : "Discounting Proceeds",
+                value: targetKey === "maturityValue" ? formatPHP(computed.maturityValue) : targetKey === "bankDiscountAmount" ? formatPHP(computed.bankDiscountAmount) : formatPHP(computed.proceedsFromDiscounting),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Note Interest", value: formatPHP(computed.noteInterest) },
+                { title: "Maturity Value", value: formatPHP(computed.maturityValue) },
+                { title: "Bank Discount", value: formatPHP(computed.bankDiscountAmount) },
+            ],
+            formula: "Proceeds = Maturity value - Bank discount, where Maturity value = Face value + (Face value × Note rate × Remaining term)",
+            steps: [
+                `Note interest = ${formatPHP(faceValue)} × ${computed.statedRateDecimal.toFixed(4)} × ${formatPlain(timeYears)} = ${formatPHP(computed.noteInterest)}.`,
+                `Maturity value = ${formatPHP(faceValue)} + ${formatPHP(computed.noteInterest)} = ${formatPHP(computed.maturityValue)}.`,
+                `Bank discount = ${formatPHP(computed.maturityValue)} × ${computed.bankDiscountRateDecimal.toFixed(4)} × ${formatPlain(timeYears)} = ${formatPHP(computed.bankDiscountAmount)}.`,
+                `Proceeds = ${formatPHP(computed.maturityValue)} - ${formatPHP(computed.bankDiscountAmount)} = ${formatPHP(computed.proceedsFromDiscounting)}.`,
+            ],
+            interpretation: `Discounting the note would bring in ${formatPHP(computed.proceedsFromDiscounting)} in cash, after the bank keeps ${formatPHP(computed.bankDiscountAmount)} from the note's maturity value.`,
+            warnings: [
+                "This helper treats the remaining term as one simple-interest period. If the case uses exact days or a different discount basis, adjust the time basis before relying on the result.",
+            ],
+        };
+    },
+};
+
+export const equityMethodInvestmentSolveDefinition: FormulaCalculatorDefinition = {
+    id: "equity-method-investment-solve",
+    defaultTarget: "endingInvestmentBalance",
+    fields: {
+        initialInvestment: { key: "initialInvestment", label: "Beginning Investment Balance", placeholder: "1800000", kind: "money" },
+        ownershipPercentage: { key: "ownershipPercentage", label: "Ownership (%)", placeholder: "30", kind: "percent" },
+        netIncome: { key: "netIncome", label: "Investee Net Income", placeholder: "420000", kind: "money" },
+        dividendsDeclared: { key: "dividendsDeclared", label: "Investee Dividends Declared", placeholder: "90000", kind: "money" },
+        investorShareInIncome: { key: "investorShareInIncome", label: "Investor Share in Income", placeholder: "126000", kind: "money" },
+        dividendsReceived: { key: "dividendsReceived", label: "Dividends Received", placeholder: "27000", kind: "money" },
+        endingInvestmentBalance: { key: "endingInvestmentBalance", label: "Ending Investment Balance", placeholder: "1899000", kind: "money" },
+    },
+    targets: [
+        { key: "endingInvestmentBalance", label: "Ending Investment", summary: "Roll the investment balance forward under the equity method." },
+        { key: "investorShareInIncome", label: "Share in Income", summary: "Compute the investor's income share from ownership percentage and investee earnings." },
+        { key: "dividendsReceived", label: "Dividends Received", summary: "Compute the investor's share of investee dividends." },
+    ],
+    getInputKeys(targetKey) {
+        if (targetKey === "endingInvestmentBalance") {
+            return ["initialInvestment", "ownershipPercentage", "netIncome", "dividendsDeclared"];
+        }
+        return ["ownershipPercentage", targetKey === "investorShareInIncome" ? "netIncome" : "dividendsDeclared"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Equity method investment support",
+            body: `Enter the visible equity-method inputs to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const initialInvestment = values.initialInvestment ?? 0;
+        const ownershipPercentage = values.ownershipPercentage;
+        const investeeNetIncome = values.netIncome ?? 0;
+        const investeeDividendsDeclared = values.dividendsDeclared ?? 0;
+
+        if (ownershipPercentage < 0 || ownershipPercentage > 100) {
+            return { error: "Ownership percentage must stay between 0 and 100." };
+        }
+
+        const computed = computeEquityMethodInvestment({
+            initialInvestment,
+            ownershipPercentage,
+            investeeNetIncome,
+            investeeDividendsDeclared,
+        });
+
+        return {
+            primaryResult: {
+                title: targetKey === "investorShareInIncome" ? "Investor Share in Income" : targetKey === "dividendsReceived" ? "Dividends Received" : "Ending Investment Balance",
+                value: targetKey === "investorShareInIncome" ? formatPHP(computed.investorShareInIncome) : targetKey === "dividendsReceived" ? formatPHP(computed.dividendsReceived) : formatPHP(computed.endingInvestmentBalance),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Ownership Decimal", value: computed.ownershipDecimal.toFixed(4) },
+                { title: "Share in Income", value: formatPHP(computed.investorShareInIncome) },
+                { title: "Dividends Received", value: formatPHP(computed.dividendsReceived) },
+            ],
+            formula: "Ending investment = Beginning investment + Investor share in income - Dividends received",
+            steps: [
+                `Investor share in income = ${formatPHP(investeeNetIncome)} × ${computed.ownershipDecimal.toFixed(4)} = ${formatPHP(computed.investorShareInIncome)}.`,
+                `Dividends received = ${formatPHP(investeeDividendsDeclared)} × ${computed.ownershipDecimal.toFixed(4)} = ${formatPHP(computed.dividendsReceived)}.`,
+                `Ending investment = ${formatPHP(initialInvestment)} + ${formatPHP(computed.investorShareInIncome)} - ${formatPHP(computed.dividendsReceived)} = ${formatPHP(computed.endingInvestmentBalance)}.`,
+            ],
+            interpretation: `Under this simplified equity-method view, the investor ends the period with an investment balance of ${formatPHP(computed.endingInvestmentBalance)} after recognizing its share of investee income and reducing the carrying amount for dividends.`,
+            assumptions: [
+                "This helper focuses on the core equity-method rollforward only. It does not add fair-value differentials, amortization of acquisition-date excess, or impairment testing.",
+            ],
+        };
+    },
+};
+
+export const intercompanyPpeTransferSolveDefinition: FormulaCalculatorDefinition = {
+    id: "intercompany-ppe-transfer-solve",
+    defaultTarget: "unamortizedIntercompanyProfit",
+    fields: {
+        transferPrice: { key: "transferPrice", label: "Transfer Price", placeholder: "540000", kind: "money" },
+        carryingAmount: { key: "carryingAmount", label: "Seller Carrying Amount", placeholder: "480000", kind: "money" },
+        usefulLife: { key: "usefulLife", label: "Remaining Useful Life (years)", placeholder: "5", kind: "time" },
+        year: { key: "year", label: "Years Since Transfer", placeholder: "1", kind: "time" },
+        annualExcessDepreciation: { key: "annualExcessDepreciation", label: "Annual Excess Depreciation", placeholder: "12000", kind: "money" },
+        unamortizedIntercompanyProfit: { key: "unamortizedIntercompanyProfit", label: "Unamortized Intercompany Profit", placeholder: "48000", kind: "money" },
+    },
+    targets: [
+        { key: "unamortizedIntercompanyProfit", label: "Unamortized Profit", summary: "Compute the intercompany profit still embedded in the transferred PPE after excess depreciation." },
+        { key: "annualExcessDepreciation", label: "Annual Excess Depreciation", summary: "Compute the yearly excess depreciation created by the transfer gain." },
+    ],
+    getInputKeys(_targetKey) {
+        return ["transferPrice", "carryingAmount", "usefulLife", "year"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Intercompany PPE transfer elimination",
+            body: `Enter the visible transfer values to solve for ${targetKey}.`,
+        };
+    },
+    solve(_targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value))) return invalidNumberError();
+
+        const transferPrice = values.transferPrice;
+        const carryingAmount = values.carryingAmount;
+        const remainingUsefulLifeYears = values.usefulLife;
+        const yearsSinceTransfer = values.year;
+
+        if (remainingUsefulLifeYears <= 0 || yearsSinceTransfer < 0) {
+            return { error: "Remaining useful life must be greater than zero and elapsed years cannot be negative." };
+        }
+
+        const computed = computeIntercompanyPpeTransfer({
+            transferPrice,
+            carryingAmount,
+            remainingUsefulLifeYears,
+            yearsSinceTransfer,
+        });
+
+        if (!Number.isFinite(computed.annualExcessDepreciation)) {
+            return { error: "The selected intercompany-PPE values do not produce a valid excess-depreciation schedule." };
+        }
+
+        return {
+            primaryResult: {
+                title: "Unamortized Intercompany Profit",
+                value: formatPHP(computed.unamortizedIntercompanyProfit),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Unrealized Gain on Transfer", value: formatPHP(computed.unrealizedGainOnTransfer) },
+                { title: "Annual Excess Depreciation", value: formatPHP(computed.annualExcessDepreciation) },
+                { title: "Recognized to Date", value: formatPHP(computed.depreciationAdjustmentRecognizedToDate) },
+            ],
+            formula: "Unamortized profit = (Transfer price - Seller carrying amount) - Annual excess depreciation recognized to date",
+            steps: [
+                `Unrealized gain on transfer = ${formatPHP(transferPrice)} - ${formatPHP(carryingAmount)} = ${formatPHP(computed.unrealizedGainOnTransfer)}.`,
+                `Annual excess depreciation = ${formatPHP(computed.unrealizedGainOnTransfer)} / ${formatPlain(remainingUsefulLifeYears)} = ${formatPHP(computed.annualExcessDepreciation)}.`,
+                `Recognized to date = ${formatPHP(computed.annualExcessDepreciation)} × ${formatPlain(yearsSinceTransfer)} = ${formatPHP(computed.depreciationAdjustmentRecognizedToDate)}.`,
+                `Unamortized profit = ${formatPHP(computed.unrealizedGainOnTransfer)} - ${formatPHP(computed.depreciationAdjustmentRecognizedToDate)} = ${formatPHP(computed.unamortizedIntercompanyProfit)}.`,
+            ],
+            interpretation: `The group still carries ${formatPHP(computed.unamortizedIntercompanyProfit)} of intercompany profit in the transferred PPE, while ${formatPHP(computed.annualExcessDepreciation)} becomes the recurring consolidation depreciation adjustment per year.`,
+            assumptions: [
+                "This helper assumes straight-line depreciation over the remaining life and focuses on the core elimination logic for classroom AFAR cases.",
+            ],
+        };
+    },
+};
+
 export const vatReconciliationSolveDefinition: FormulaCalculatorDefinition = {
     id: "vat-reconciliation-solve",
     defaultTarget: "netVatPayable",
@@ -3529,7 +3992,7 @@ export const vatReconciliationSolveDefinition: FormulaCalculatorDefinition = {
         vatRatePercent: {
             key: "vatRatePercent",
             label: "VAT Rate (%)",
-            placeholder: "12",
+            placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.vat.ratePercent),
             kind: "percent",
         },
         netVatPayable: {
@@ -3633,9 +4096,10 @@ export const vatReconciliationSolveDefinition: FormulaCalculatorDefinition = {
                     : computed.remittancePosition === "balanced"
                       ? "Output VAT and input VAT offset each other exactly in this simplified setup."
                       : `Input VAT exceeds output VAT by ${formatPHP(Math.abs(computed.netVatPayable))}, so the setup points to excess input VAT rather than an immediate net payable.`,
-            assumptions: [
-                "This classroom helper assumes one VAT rate across the entered taxable sales and vatable purchases and does not replace full legal classification of zero-rated, exempt, or specially treated items.",
-            ],
+            assumptions: buildTaxAssumptionNotes(
+                PHILIPPINE_TAX_ASSUMPTIONS.vat,
+                ["This classroom helper assumes one VAT rate across the entered taxable sales and vatable purchases and does not replace full legal classification of zero-rated, exempt, or specially treated items."]
+            ),
             warnings: [
                 "Always confirm that the sales and purchases you entered are actually VATable and belong to the same reporting period before treating the result as a filing answer.",
             ],
@@ -3718,9 +4182,10 @@ export const withholdingTaxSolveDefinition: FormulaCalculatorDefinition = {
                 `Net after withholding = ${formatPHP(taxBase)} - ${formatPHP(computed.taxWithheld)} = ${formatPHP(computed.netAfterWithholding)}.`,
             ],
             interpretation: `The withholding amount is ${formatPHP(computed.taxWithheld)}, leaving ${formatPHP(computed.netAfterWithholding)} after withholding from the stated base.`,
-            assumptions: [
-                "This calculator assumes the correct withholding regime and applicable rate have already been identified from the problem or tax reference.",
-            ],
+            assumptions: buildTaxAssumptionNotes(
+                PHILIPPINE_TAX_ASSUMPTIONS.withholding,
+                ["This calculator assumes the correct withholding regime and applicable rate have already been identified from the problem or tax reference."]
+            ),
             warnings: [
                 "Check whether the case involves final withholding, creditable withholding, or a different tax treatment before relying on the result.",
             ],

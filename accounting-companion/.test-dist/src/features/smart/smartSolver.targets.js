@@ -126,6 +126,16 @@ const SOLVE_TARGET_RULES = {
         { target: "purchasesCost", patterns: [/purchase cost/i, /budgeted purchase cost/i] },
         { target: "budgetedProductionUnits", patterns: [/budgeted production units/i, /planned production units/i] },
     ],
+    "direct-labor-budget": [
+        { target: "totalDirectLaborCost", patterns: [/direct labor budget/i, /labor cost budget/i, /total direct labor cost/i] },
+        { target: "totalDirectLaborHours", patterns: [/required labor hours/i, /total direct labor hours/i, /labor hours required/i] },
+        { target: "directLaborRatePerHour", patterns: [/hourly labor rate/i, /labor rate per hour/i, /wage rate/i] },
+    ],
+    "factory-overhead-budget": [
+        { target: "totalFactoryOverheadBudget", patterns: [/factory overhead budget/i, /manufacturing overhead budget/i, /total overhead budget/i] },
+        { target: "variableFactoryOverheadBudget", patterns: [/variable overhead budget/i, /variable factory overhead/i] },
+        { target: "variableOverheadRatePerUnit", patterns: [/variable overhead rate/i, /overhead rate per unit/i] },
+    ],
     "inventory-budget": [
         { target: "purchasesRequiredCost", patterns: [/required purchases/i, /merchandise purchases/i, /inventory budget/i] },
         { target: "budgetedCostOfGoodsSold", patterns: [/budgeted cogs/i, /budgeted cost of goods sold/i] },
@@ -141,6 +151,16 @@ const SOLVE_TARGET_RULES = {
         { target: "cashOperatingExpenses", patterns: [/cash operating expenses/i, /cash opex/i] },
         { target: "budgetedSalesAmount", patterns: [/budgeted sales/i, /sales budget/i] },
     ],
+    "budgeted-income-statement": [
+        { target: "netIncome", patterns: [/budgeted net income/i, /pro forma net income/i, /net income/i] },
+        { target: "grossProfit", patterns: [/gross profit/i, /gross margin amount/i] },
+        { target: "incomeBeforeTax", patterns: [/income before tax/i, /pretax income/i, /profit before tax/i] },
+    ],
+    "notes-receivable-discounting": [
+        { target: "proceedsFromDiscounting", patterns: [/discounting proceeds/i, /cash proceeds from note/i, /proceeds from discounting/i] },
+        { target: "maturityValue", patterns: [/maturity value/i, /note maturity value/i] },
+        { target: "bankDiscountAmount", patterns: [/bank discount/i, /discount amount/i] },
+    ],
     "vat-reconciliation": [
         { target: "netVatPayable", patterns: [/net vat payable/i, /vat payable/i, /output vat less input vat/i] },
         { target: "taxableSalesAmount", patterns: [/taxable sales/i, /vatable sales/i, /sales subject to vat/i] },
@@ -155,6 +175,15 @@ const SOLVE_TARGET_RULES = {
         { target: "unrealizedProfitInEndingInventory", patterns: [/unrealized profit/i, /inventory profit elimination/i, /profit in ending inventory/i] },
         { target: "transferPrice", patterns: [/transfer price/i, /intercompany selling price/i] },
         { target: "percentUnsoldAtPeriodEnd", patterns: [/percent unsold/i, /ending inventory unsold/i, /remaining unsold/i] },
+    ],
+    "equity-method-investment": [
+        { target: "endingInvestmentBalance", patterns: [/ending investment balance/i, /investment carrying amount/i, /equity method/i] },
+        { target: "investorShareInIncome", patterns: [/share in income/i, /equity in investee income/i] },
+        { target: "dividendsReceived", patterns: [/dividends received/i, /share of dividends/i] },
+    ],
+    "intercompany-ppe-transfer": [
+        { target: "unamortizedIntercompanyProfit", patterns: [/unamortized intercompany profit/i, /remaining unrealized gain/i] },
+        { target: "annualExcessDepreciation", patterns: [/annual excess depreciation/i, /excess depreciation/i] },
     ],
 };
 export function suggestSolveTarget(calculatorId, query) {

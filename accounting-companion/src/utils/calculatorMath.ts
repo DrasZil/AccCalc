@@ -265,9 +265,29 @@ type OperatingExpenseBudgetParams = {
     nonCashOperatingExpenses?: number;
 };
 
+type DirectLaborBudgetParams = {
+    budgetedProductionUnits: number;
+    directLaborHoursPerUnit: number;
+    directLaborRatePerHour: number;
+};
+
+type FactoryOverheadBudgetParams = {
+    budgetedProductionUnits: number;
+    variableOverheadRatePerUnit: number;
+    fixedOverheadBudget: number;
+};
+
 type SalesBudgetParams = {
     budgetedUnitSales: number;
     sellingPricePerUnit: number;
+};
+
+type BudgetedIncomeStatementParams = {
+    budgetedSalesAmount: number;
+    budgetedCostOfGoodsSold: number;
+    totalOperatingExpenses: number;
+    interestExpense?: number;
+    incomeTaxRatePercent?: number;
 };
 
 type VatReconciliationParams = {
@@ -280,6 +300,27 @@ type IntercompanyInventoryProfitParams = {
     transferPrice: number;
     markupRateOnCostPercent: number;
     percentUnsoldAtPeriodEnd: number;
+};
+
+type NotesReceivableDiscountingParams = {
+    faceValue: number;
+    statedRatePercent: number;
+    bankDiscountRatePercent: number;
+    timeYears: number;
+};
+
+type EquityMethodInvestmentParams = {
+    initialInvestment: number;
+    ownershipPercentage: number;
+    investeeNetIncome: number;
+    investeeDividendsDeclared: number;
+};
+
+type IntercompanyPpeTransferParams = {
+    transferPrice: number;
+    carryingAmount: number;
+    remainingUsefulLifeYears: number;
+    yearsSinceTransfer: number;
 };
 
 type CapacityUtilizationParams = {
@@ -2143,6 +2184,46 @@ export function computeOperatingExpenseBudget({
     };
 }
 
+export function computeDirectLaborBudget({
+    budgetedProductionUnits,
+    directLaborHoursPerUnit,
+    directLaborRatePerHour,
+}: DirectLaborBudgetParams) {
+    const totalDirectLaborHours = safeMultiply(
+        budgetedProductionUnits,
+        directLaborHoursPerUnit
+    );
+    const totalDirectLaborCost = safeMultiply(
+        totalDirectLaborHours,
+        directLaborRatePerHour
+    );
+
+    return {
+        totalDirectLaborHours,
+        totalDirectLaborCost,
+    };
+}
+
+export function computeFactoryOverheadBudget({
+    budgetedProductionUnits,
+    variableOverheadRatePerUnit,
+    fixedOverheadBudget,
+}: FactoryOverheadBudgetParams) {
+    const variableFactoryOverheadBudget = safeMultiply(
+        budgetedProductionUnits,
+        variableOverheadRatePerUnit
+    );
+    const totalFactoryOverheadBudget = safeAdd(
+        variableFactoryOverheadBudget,
+        fixedOverheadBudget
+    );
+
+    return {
+        variableFactoryOverheadBudget,
+        totalFactoryOverheadBudget,
+    };
+}
+
 export function computeSalesBudget({
     budgetedUnitSales,
     sellingPricePerUnit,
@@ -2152,6 +2233,37 @@ export function computeSalesBudget({
             budgetedUnitSales,
             sellingPricePerUnit
         ),
+    };
+}
+
+export function computeBudgetedIncomeStatement({
+    budgetedSalesAmount,
+    budgetedCostOfGoodsSold,
+    totalOperatingExpenses,
+    interestExpense = 0,
+    incomeTaxRatePercent = 0,
+}: BudgetedIncomeStatementParams) {
+    const grossProfit = safeSubtract(
+        budgetedSalesAmount,
+        budgetedCostOfGoodsSold
+    );
+    const incomeBeforeTax = safeSubtract(
+        safeSubtract(grossProfit, totalOperatingExpenses),
+        interestExpense
+    );
+    const incomeTaxRateDecimal = incomeTaxRatePercent / 100;
+    const incomeTaxExpense =
+        incomeBeforeTax > 0
+            ? safeMultiply(incomeBeforeTax, incomeTaxRateDecimal)
+            : 0;
+    const netIncome = safeSubtract(incomeBeforeTax, incomeTaxExpense);
+
+    return {
+        grossProfit,
+        incomeBeforeTax,
+        incomeTaxRateDecimal,
+        incomeTaxExpense,
+        netIncome,
     };
 }
 
@@ -3729,6 +3841,102 @@ export function computeIntercompanyInventoryProfit({
             intercompanyGrossProfit,
             unrealizedProfitInEndingInventory
         ),
+    };
+}
+
+export function computeNotesReceivableDiscounting({
+    faceValue,
+    statedRatePercent,
+    bankDiscountRatePercent,
+    timeYears,
+}: NotesReceivableDiscountingParams) {
+    const statedRateDecimal = statedRatePercent / 100;
+    const bankDiscountRateDecimal = bankDiscountRatePercent / 100;
+    const noteInterest = safeMultiply(
+        safeMultiply(faceValue, statedRateDecimal),
+        timeYears
+    );
+    const maturityValue = safeAdd(faceValue, noteInterest);
+    const bankDiscountAmount = safeMultiply(
+        safeMultiply(maturityValue, bankDiscountRateDecimal),
+        timeYears
+    );
+    const proceedsFromDiscounting = safeSubtract(
+        maturityValue,
+        bankDiscountAmount
+    );
+
+    return {
+        statedRateDecimal,
+        bankDiscountRateDecimal,
+        noteInterest,
+        maturityValue,
+        bankDiscountAmount,
+        proceedsFromDiscounting,
+    };
+}
+
+export function computeEquityMethodInvestment({
+    initialInvestment,
+    ownershipPercentage,
+    investeeNetIncome,
+    investeeDividendsDeclared,
+}: EquityMethodInvestmentParams) {
+    const ownershipDecimal = ownershipPercentage / 100;
+    const investorShareInIncome = safeMultiply(
+        investeeNetIncome,
+        ownershipDecimal
+    );
+    const dividendsReceived = safeMultiply(
+        investeeDividendsDeclared,
+        ownershipDecimal
+    );
+    const endingInvestmentBalance = safeAdd(
+        safeAdd(initialInvestment, investorShareInIncome),
+        -dividendsReceived
+    );
+
+    return {
+        ownershipDecimal,
+        investorShareInIncome,
+        dividendsReceived,
+        endingInvestmentBalance,
+    };
+}
+
+export function computeIntercompanyPpeTransfer({
+    transferPrice,
+    carryingAmount,
+    remainingUsefulLifeYears,
+    yearsSinceTransfer,
+}: IntercompanyPpeTransferParams) {
+    const unrealizedGainOnTransfer = safeSubtract(
+        transferPrice,
+        carryingAmount
+    );
+    const annualExcessDepreciation =
+        remainingUsefulLifeYears === 0
+            ? Number.NaN
+            : safeDivide(unrealizedGainOnTransfer, remainingUsefulLifeYears);
+    const depreciationAdjustmentRecognizedToDate = Number.isFinite(
+        annualExcessDepreciation
+    )
+        ? safeMultiply(annualExcessDepreciation, yearsSinceTransfer)
+        : Number.NaN;
+    const unamortizedIntercompanyProfit = Number.isFinite(
+        depreciationAdjustmentRecognizedToDate
+    )
+        ? safeSubtract(
+              unrealizedGainOnTransfer,
+              depreciationAdjustmentRecognizedToDate
+          )
+        : Number.NaN;
+
+    return {
+        unrealizedGainOnTransfer,
+        annualExcessDepreciation,
+        depreciationAdjustmentRecognizedToDate,
+        unamortizedIntercompanyProfit,
     };
 }
 

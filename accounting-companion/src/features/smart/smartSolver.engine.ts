@@ -997,6 +997,70 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["purchases cost", "budgeted purchase cost", "direct materials purchases cost"],
     },
+    directLaborHoursPerUnit: {
+        label: "Direct Labor Hours / Unit",
+        placeholder: "1.5",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["direct labor hours per unit", "labor hours per unit", "hours per unit"],
+    },
+    directLaborRatePerHour: {
+        label: "Direct Labor Rate / Hour",
+        placeholder: "110",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["direct labor rate per hour", "labor rate per hour", "hourly labor rate", "wage rate"],
+    },
+    totalDirectLaborHours: {
+        label: "Total Direct Labor Hours",
+        placeholder: "18450",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total direct labor hours", "required labor hours", "budgeted labor hours"],
+    },
+    totalDirectLaborCost: {
+        label: "Total Direct Labor Cost",
+        placeholder: "2029500",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total direct labor cost", "direct labor budget", "labor cost budget"],
+    },
+    variableOverheadRatePerUnit: {
+        label: "Variable OH Rate / Unit",
+        placeholder: "18",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable overhead rate per unit", "variable overhead rate", "variable oh rate"],
+    },
+    fixedOverheadBudget: {
+        label: "Fixed OH Budget",
+        placeholder: "220000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["fixed overhead budget", "fixed factory overhead", "budgeted fixed overhead"],
+    },
+    variableFactoryOverheadBudget: {
+        label: "Variable Factory OH Budget",
+        placeholder: "221400",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["variable factory overhead budget", "variable overhead budget", "budgeted variable overhead"],
+    },
+    totalFactoryOverheadBudget: {
+        label: "Total Factory OH Budget",
+        placeholder: "441400",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["total factory overhead budget", "factory overhead budget", "manufacturing overhead budget"],
+    },
     budgetedCostOfGoodsSold: {
         label: "Budgeted Cost of Goods Sold",
         placeholder: "420000",
@@ -1109,6 +1173,78 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["cash operating expenses", "cash selling and administrative expenses", "cash opex"],
     },
+    grossProfit: {
+        label: "Gross Profit",
+        placeholder: "540000",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["gross profit", "gross margin amount"],
+    },
+    incomeBeforeTax: {
+        label: "Income Before Tax",
+        placeholder: "305250",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["income before tax", "pretax income", "profit before tax"],
+    },
+    dividendsDeclared: {
+        label: "Dividends Declared",
+        placeholder: "90000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["dividends declared", "investee dividends", "dividends declared by investee"],
+    },
+    investorShareInIncome: {
+        label: "Investor Share in Income",
+        placeholder: "126000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["share in income", "investor share in income", "equity in investee income"],
+    },
+    dividendsReceived: {
+        label: "Dividends Received",
+        placeholder: "27000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["dividends received", "share of dividends", "cash dividends received"],
+    },
+    endingInvestmentBalance: {
+        label: "Ending Investment Balance",
+        placeholder: "1899000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["ending investment balance", "ending carrying amount", "investment carrying amount"],
+    },
+    maturityValue: {
+        label: "Maturity Value",
+        placeholder: "262500",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["maturity value", "note maturity value"],
+    },
+    bankDiscountAmount: {
+        label: "Bank Discount",
+        placeholder: "15750",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["bank discount", "discount on note", "discount amount"],
+    },
+    proceedsFromDiscounting: {
+        label: "Discounting Proceeds",
+        placeholder: "246750",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["proceeds from discounting", "discounting proceeds", "cash proceeds from note"],
+    },
     transferPrice: {
         label: "Transfer Price",
         placeholder: "240000",
@@ -1140,6 +1276,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         group: "accounting",
         visibleInManualInputs: false,
         aliases: ["unrealized profit", "unrealized profit in ending inventory", "inventory profit elimination"],
+    },
+    annualExcessDepreciation: {
+        label: "Annual Excess Depreciation",
+        placeholder: "12000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["annual excess depreciation", "excess depreciation", "depreciation adjustment per year"],
+    },
+    unamortizedIntercompanyProfit: {
+        label: "Unamortized Intercompany Profit",
+        placeholder: "48000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["unamortized intercompany profit", "remaining unrealized gain", "remaining intercompany profit"],
     },
     taxBase: {
         label: "Tax Base",
@@ -2354,6 +2506,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "direct-labor-budget",
+        name: "Direct Labor Budget",
+        route: "/business/direct-labor-budget",
+        description:
+        "Best when the user needs required labor hours or total labor cost from planned production volume and wage assumptions.",
+        required: ["budgetedProductionUnits", "directLaborHoursPerUnit", "directLaborRatePerHour"],
+        optional: ["totalDirectLaborHours", "totalDirectLaborCost"],
+        aliases: ["direct labor budget", "labor budget", "direct labor schedule"],
+        keywords: [/direct labor budget/i, /labor budget/i, /labor hours per unit/i, /hourly labor rate/i, /required labor hours/i],
+    },
+    {
+        id: "factory-overhead-budget",
+        name: "Factory Overhead Budget",
+        route: "/business/factory-overhead-budget",
+        description:
+        "Best when the user needs a manufacturing-overhead budget split into variable and fixed components.",
+        required: ["budgetedProductionUnits", "variableOverheadRatePerUnit", "fixedOverheadBudget"],
+        optional: ["variableFactoryOverheadBudget", "totalFactoryOverheadBudget"],
+        aliases: ["factory overhead budget", "manufacturing overhead budget", "overhead budget"],
+        keywords: [/factory overhead budget/i, /manufacturing overhead budget/i, /variable overhead budget/i, /fixed overhead budget/i],
+    },
+    {
         id: "inventory-budget",
         name: "Inventory Budget",
         route: "/business/inventory-budget",
@@ -2411,6 +2585,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /cash operating expenses/i,
         /operating expenses/i,
         ],
+    },
+    {
+        id: "budgeted-income-statement",
+        name: "Budgeted Income Statement",
+        route: "/business/budgeted-income-statement",
+        description:
+        "Best when the user wants a pro forma income statement from budgeted sales, COGS, operating expenses, interest, and tax.",
+        required: ["budgetedSalesAmount", "budgetedCostOfGoodsSold", "totalOperatingExpenses"],
+        optional: ["interestExpense", "ratePercent", "grossProfit", "incomeBeforeTax", "netIncome"],
+        aliases: ["budgeted income statement", "pro forma income statement", "budget income statement"],
+        keywords: [/budgeted income statement/i, /pro forma income statement/i, /budgeted net income/i, /profit before tax/i],
     },
     {
         id: "flexible-budget",
@@ -2567,6 +2752,22 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         /ordinary interest/i,
         /exact interest/i,
         /promissory note/i,
+        ],
+    },
+    {
+        id: "notes-receivable-discounting",
+        name: "Notes Receivable Discounting",
+        route: "/accounting/notes-receivable-discounting",
+        description:
+        "Best when the user needs maturity value, bank discount, or proceeds from discounting a note before maturity.",
+        required: ["faceValue", "statedRate", "marketRate", "time"],
+        optional: ["maturityValue", "bankDiscountAmount", "proceedsFromDiscounting"],
+        aliases: ["discounting of note receivable", "discounted note", "bank discount on note"],
+        keywords: [
+        /discounted note/i,
+        /discounting of note/i,
+        /bank discount/i,
+        /proceeds from discounting/i,
         ],
     },
     {
@@ -4023,6 +4224,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         ],
     },
     {
+        id: "equity-method-investment",
+        name: "Equity Method Investment",
+        route: "/afar/equity-method-investment",
+        description:
+            "Best when the user wants the carrying amount of an associate investment after share in income and dividends.",
+        required: ["initialInvestment", "ownershipPercentage"],
+        optional: ["netIncome", "dividendsDeclared", "investorShareInIncome", "dividendsReceived", "endingInvestmentBalance"],
+        aliases: ["equity method", "investment in associate", "associate accounting"],
+        keywords: [/equity method/i, /investment in associate/i, /share in income/i, /associate accounting/i],
+    },
+    {
+        id: "intercompany-ppe-transfer",
+        name: "Intercompany PPE Transfer",
+        route: "/afar/intercompany-ppe-transfer",
+        description:
+            "Best when the user needs remaining unrealized gain or excess depreciation on an intercompany PPE transfer.",
+        required: ["transferPrice", "carryingAmount", "usefulLife", "year"],
+        optional: ["annualExcessDepreciation", "unamortizedIntercompanyProfit"],
+        aliases: ["intercompany ppe transfer", "intercompany equipment transfer", "excess depreciation"],
+        keywords: [/intercompany ppe/i, /excess depreciation/i, /equipment transfer/i, /unamortized intercompany profit/i],
+    },
+    {
         id: "foreign-currency-translation",
         name: "Foreign Currency Translation Workspace",
         route: "/afar/foreign-currency-translation",
@@ -5012,6 +5235,40 @@ export function normalizeText(text: string = ""): string {
         { allowCurrency: false }
     );
     const purchasesCost = extractNumberByAliases(text, FIELD_META.purchasesCost.aliases ?? []);
+    const directLaborHoursPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.directLaborHoursPerUnit.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const directLaborRatePerHour = extractNumberByAliases(
+        text,
+        FIELD_META.directLaborRatePerHour.aliases ?? []
+    );
+    const totalDirectLaborHours = extractNumberByAliases(
+        text,
+        FIELD_META.totalDirectLaborHours.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const totalDirectLaborCost = extractNumberByAliases(
+        text,
+        FIELD_META.totalDirectLaborCost.aliases ?? []
+    );
+    const variableOverheadRatePerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.variableOverheadRatePerUnit.aliases ?? []
+    );
+    const fixedOverheadBudget = extractNumberByAliases(
+        text,
+        FIELD_META.fixedOverheadBudget.aliases ?? []
+    );
+    const variableFactoryOverheadBudget = extractNumberByAliases(
+        text,
+        FIELD_META.variableFactoryOverheadBudget.aliases ?? []
+    );
+    const totalFactoryOverheadBudget = extractNumberByAliases(
+        text,
+        FIELD_META.totalFactoryOverheadBudget.aliases ?? []
+    );
     const budgetedCostOfGoodsSold = extractNumberByAliases(
         text,
         FIELD_META.budgetedCostOfGoodsSold.aliases ?? []
@@ -5070,6 +5327,36 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.cashOperatingExpenses.aliases ?? []
     );
+    const grossProfit = extractNumberByAliases(text, FIELD_META.grossProfit.aliases ?? []);
+    const incomeBeforeTax = extractNumberByAliases(
+        text,
+        FIELD_META.incomeBeforeTax.aliases ?? []
+    );
+    const dividendsDeclared = extractNumberByAliases(
+        text,
+        FIELD_META.dividendsDeclared.aliases ?? []
+    );
+    const investorShareInIncome = extractNumberByAliases(
+        text,
+        FIELD_META.investorShareInIncome.aliases ?? []
+    );
+    const dividendsReceived = extractNumberByAliases(
+        text,
+        FIELD_META.dividendsReceived.aliases ?? []
+    );
+    const endingInvestmentBalance = extractNumberByAliases(
+        text,
+        FIELD_META.endingInvestmentBalance.aliases ?? []
+    );
+    const maturityValue = extractNumberByAliases(text, FIELD_META.maturityValue.aliases ?? []);
+    const bankDiscountAmount = extractNumberByAliases(
+        text,
+        FIELD_META.bankDiscountAmount.aliases ?? []
+    );
+    const proceedsFromDiscounting = extractNumberByAliases(
+        text,
+        FIELD_META.proceedsFromDiscounting.aliases ?? []
+    );
     const transferPrice = extractNumberByAliases(text, FIELD_META.transferPrice.aliases ?? []);
     const markupRateOnCostPercent = extractNumberByAliases(
         text,
@@ -5084,6 +5371,14 @@ export function normalizeText(text: string = ""): string {
     const unrealizedProfitInEndingInventory = extractNumberByAliases(
         text,
         FIELD_META.unrealizedProfitInEndingInventory.aliases ?? []
+    );
+    const annualExcessDepreciation = extractNumberByAliases(
+        text,
+        FIELD_META.annualExcessDepreciation.aliases ?? []
+    );
+    const unamortizedIntercompanyProfit = extractNumberByAliases(
+        text,
+        FIELD_META.unamortizedIntercompanyProfit.aliases ?? []
     );
     const taxBase = extractNumberByAliases(text, FIELD_META.taxBase.aliases ?? []);
     const ratePercent = extractNumberByAliases(text, FIELD_META.ratePercent.aliases ?? [], {
@@ -5195,6 +5490,14 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "materialCostPerUnit", materialCostPerUnit);
     setFact(facts, "materialsToPurchaseUnits", materialsToPurchaseUnits);
     setFact(facts, "purchasesCost", purchasesCost);
+    setFact(facts, "directLaborHoursPerUnit", directLaborHoursPerUnit);
+    setFact(facts, "directLaborRatePerHour", directLaborRatePerHour);
+    setFact(facts, "totalDirectLaborHours", totalDirectLaborHours);
+    setFact(facts, "totalDirectLaborCost", totalDirectLaborCost);
+    setFact(facts, "variableOverheadRatePerUnit", variableOverheadRatePerUnit);
+    setFact(facts, "fixedOverheadBudget", fixedOverheadBudget);
+    setFact(facts, "variableFactoryOverheadBudget", variableFactoryOverheadBudget);
+    setFact(facts, "totalFactoryOverheadBudget", totalFactoryOverheadBudget);
     setFact(facts, "budgetedCostOfGoodsSold", budgetedCostOfGoodsSold);
     setFact(facts, "desiredEndingInventoryCost", desiredEndingInventoryCost);
     setFact(facts, "beginningInventoryCost", beginningInventoryCost);
@@ -5209,10 +5512,21 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "nonCashOperatingExpenses", nonCashOperatingExpenses);
     setFact(facts, "totalOperatingExpenses", totalOperatingExpenses);
     setFact(facts, "cashOperatingExpenses", cashOperatingExpenses);
+    setFact(facts, "grossProfit", grossProfit);
+    setFact(facts, "incomeBeforeTax", incomeBeforeTax);
+    setFact(facts, "dividendsDeclared", dividendsDeclared);
+    setFact(facts, "investorShareInIncome", investorShareInIncome);
+    setFact(facts, "dividendsReceived", dividendsReceived);
+    setFact(facts, "endingInvestmentBalance", endingInvestmentBalance);
+    setFact(facts, "maturityValue", maturityValue);
+    setFact(facts, "bankDiscountAmount", bankDiscountAmount);
+    setFact(facts, "proceedsFromDiscounting", proceedsFromDiscounting);
     setFact(facts, "transferPrice", transferPrice);
     setFact(facts, "markupRateOnCostPercent", markupRateOnCostPercent);
     setFact(facts, "percentUnsoldAtPeriodEnd", percentUnsoldAtPeriodEnd);
     setFact(facts, "unrealizedProfitInEndingInventory", unrealizedProfitInEndingInventory);
+    setFact(facts, "annualExcessDepreciation", annualExcessDepreciation);
+    setFact(facts, "unamortizedIntercompanyProfit", unamortizedIntercompanyProfit);
     setFact(facts, "taxBase", taxBase);
     setFact(facts, "ratePercent", ratePercent);
     setFact(facts, "taxWithheld", taxWithheld);

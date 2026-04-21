@@ -1164,9 +1164,41 @@ export function computeOperatingExpenseBudget({ budgetedSalesAmount, variableExp
         cashOperatingExpenses,
     };
 }
+export function computeDirectLaborBudget({ budgetedProductionUnits, directLaborHoursPerUnit, directLaborRatePerHour, }) {
+    const totalDirectLaborHours = safeMultiply(budgetedProductionUnits, directLaborHoursPerUnit);
+    const totalDirectLaborCost = safeMultiply(totalDirectLaborHours, directLaborRatePerHour);
+    return {
+        totalDirectLaborHours,
+        totalDirectLaborCost,
+    };
+}
+export function computeFactoryOverheadBudget({ budgetedProductionUnits, variableOverheadRatePerUnit, fixedOverheadBudget, }) {
+    const variableFactoryOverheadBudget = safeMultiply(budgetedProductionUnits, variableOverheadRatePerUnit);
+    const totalFactoryOverheadBudget = safeAdd(variableFactoryOverheadBudget, fixedOverheadBudget);
+    return {
+        variableFactoryOverheadBudget,
+        totalFactoryOverheadBudget,
+    };
+}
 export function computeSalesBudget({ budgetedUnitSales, sellingPricePerUnit, }) {
     return {
         budgetedSalesRevenue: safeMultiply(budgetedUnitSales, sellingPricePerUnit),
+    };
+}
+export function computeBudgetedIncomeStatement({ budgetedSalesAmount, budgetedCostOfGoodsSold, totalOperatingExpenses, interestExpense = 0, incomeTaxRatePercent = 0, }) {
+    const grossProfit = safeSubtract(budgetedSalesAmount, budgetedCostOfGoodsSold);
+    const incomeBeforeTax = safeSubtract(safeSubtract(grossProfit, totalOperatingExpenses), interestExpense);
+    const incomeTaxRateDecimal = incomeTaxRatePercent / 100;
+    const incomeTaxExpense = incomeBeforeTax > 0
+        ? safeMultiply(incomeBeforeTax, incomeTaxRateDecimal)
+        : 0;
+    const netIncome = safeSubtract(incomeBeforeTax, incomeTaxExpense);
+    return {
+        grossProfit,
+        incomeBeforeTax,
+        incomeTaxRateDecimal,
+        incomeTaxExpense,
+        netIncome,
     };
 }
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
@@ -1893,6 +1925,52 @@ export function computeIntercompanyInventoryProfit({ transferPrice, markupRateOn
         intercompanyGrossProfit,
         unrealizedProfitInEndingInventory,
         realizedProfitPortion: safeSubtract(intercompanyGrossProfit, unrealizedProfitInEndingInventory),
+    };
+}
+export function computeNotesReceivableDiscounting({ faceValue, statedRatePercent, bankDiscountRatePercent, timeYears, }) {
+    const statedRateDecimal = statedRatePercent / 100;
+    const bankDiscountRateDecimal = bankDiscountRatePercent / 100;
+    const noteInterest = safeMultiply(safeMultiply(faceValue, statedRateDecimal), timeYears);
+    const maturityValue = safeAdd(faceValue, noteInterest);
+    const bankDiscountAmount = safeMultiply(safeMultiply(maturityValue, bankDiscountRateDecimal), timeYears);
+    const proceedsFromDiscounting = safeSubtract(maturityValue, bankDiscountAmount);
+    return {
+        statedRateDecimal,
+        bankDiscountRateDecimal,
+        noteInterest,
+        maturityValue,
+        bankDiscountAmount,
+        proceedsFromDiscounting,
+    };
+}
+export function computeEquityMethodInvestment({ initialInvestment, ownershipPercentage, investeeNetIncome, investeeDividendsDeclared, }) {
+    const ownershipDecimal = ownershipPercentage / 100;
+    const investorShareInIncome = safeMultiply(investeeNetIncome, ownershipDecimal);
+    const dividendsReceived = safeMultiply(investeeDividendsDeclared, ownershipDecimal);
+    const endingInvestmentBalance = safeAdd(safeAdd(initialInvestment, investorShareInIncome), -dividendsReceived);
+    return {
+        ownershipDecimal,
+        investorShareInIncome,
+        dividendsReceived,
+        endingInvestmentBalance,
+    };
+}
+export function computeIntercompanyPpeTransfer({ transferPrice, carryingAmount, remainingUsefulLifeYears, yearsSinceTransfer, }) {
+    const unrealizedGainOnTransfer = safeSubtract(transferPrice, carryingAmount);
+    const annualExcessDepreciation = remainingUsefulLifeYears === 0
+        ? Number.NaN
+        : safeDivide(unrealizedGainOnTransfer, remainingUsefulLifeYears);
+    const depreciationAdjustmentRecognizedToDate = Number.isFinite(annualExcessDepreciation)
+        ? safeMultiply(annualExcessDepreciation, yearsSinceTransfer)
+        : Number.NaN;
+    const unamortizedIntercompanyProfit = Number.isFinite(depreciationAdjustmentRecognizedToDate)
+        ? safeSubtract(unrealizedGainOnTransfer, depreciationAdjustmentRecognizedToDate)
+        : Number.NaN;
+    return {
+        unrealizedGainOnTransfer,
+        annualExcessDepreciation,
+        depreciationAdjustmentRecognizedToDate,
+        unamortizedIntercompanyProfit,
     };
 }
 export function computeAccountingRateOfReturn({ averageAnnualAccountingIncome, initialInvestment, salvageValue = 0, }) {

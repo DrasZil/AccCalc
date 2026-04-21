@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AccCalc v6.0.0 Documentation</title>
+  <style>
+    :root {
+      --ink: #16302b;
+      --muted: #4b635d;
+      --accent: #0f766e;
+      --paper: #f7f6f1;
+      --panel: #ffffff;
+      --line: #d8ddd8;
+    }
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 40px 72px;
+    }
+    h1, h2, h3 { color: #0f2f3d; }
+    h1 { font-size: 2.3rem; margin-bottom: 0.2rem; }
+    h2 {
+      margin-top: 2rem;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 0.35rem;
+    }
+    .lede, .meta { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      break-inside: avoid;
+    }
+    code { font-family: "Consolas", "Courier New", monospace; font-size: 0.95em; }
+    ul, ol { padding-left: 1.3rem; }
+    .pill {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: #dff5ef;
+      color: var(--accent);
+      font-size: 0.85rem;
+      margin-right: 0.4rem;
+    }
+    @media print {
+      body { background: white; }
+      main { max-width: none; padding: 24px; }
+      .card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AccCalc v6.0.0 Documentation</h1>
+    <p class="meta">Release date: 2026-04-21</p>
+    <p class="lede">
+      This documentation package is written for future maintainers, instructors, and student developers
+      who may need to understand AccCalc with low prior context. It focuses on architecture, responsibilities,
+      extension points, and the 6.0.0 release changes.
+    </p>
+
+    <h2>Project Overview</h2>
+    <p>
+      AccCalc is an accounting-learning and problem-solving web app built with React, TypeScript, and Vite.
+      The product combines formula calculators, study content, OCR-assisted route suggestions, and workbook-style
+      workpapers. The design goal is not only computation, but guided understanding and long-term maintainability.
+    </p>
+
+    <h2>6.0.0 Release Summary</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Curriculum Expansion</h3>
+        <ul>
+          <li>Direct Labor Budget</li>
+          <li>Factory Overhead Budget</li>
+          <li>Budgeted Income Statement</li>
+          <li>Notes Receivable Discounting</li>
+          <li>Equity Method Investment</li>
+          <li>Intercompany PPE Transfer</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Shared-System Improvements</h3>
+        <ul>
+          <li>Centralized tax assumptions</li>
+          <li>Expanded Smart Solver fields and route configs</li>
+          <li>Expanded OCR route rules</li>
+          <li>Expanded workpaper templates</li>
+          <li>Expanded formula-linked study support</li>
+          <li>Expanded regression coverage</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Architecture</h2>
+    <p>
+      AccCalc is organized around a route shell, shared UI primitives, shared calculation logic, feature pages,
+      and regression tests. The most important maintainability decision in the app is that calculation rules,
+      reverse-solve logic, learning content, and route discovery are shared rather than page-local.
+    </p>
+    <div class="card">
+      <p><strong>Route shell:</strong> <code>src/App.tsx</code></p>
+      <p><strong>Catalog and search:</strong> <code>src/utils/appCatalog.ts</code>, <code>src/utils/appSearch.ts</code></p>
+      <p><strong>Math and solve logic:</strong> <code>src/utils/calculatorMath.ts</code>, <code>src/utils/formulaSolveDefinitions.ts</code></p>
+      <p><strong>Study support:</strong> <code>src/utils/formulaStudyContent.tsx</code>, <code>src/features/study/*</code></p>
+      <p><strong>Smart Solver and OCR:</strong> <code>src/features/smart/*</code>, <code>src/features/scan-check/*</code></p>
+      <p><strong>Workpapers:</strong> <code>src/features/workpapers/*</code></p>
+    </div>
+
+    <h2>Important Folders</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><code>src/components</code></h3>
+        <p>Shared shells, cards, grids, formula panels, interpretation blocks, and page layout primitives.</p>
+      </div>
+      <div class="card">
+        <h3><code>src/features/accounting</code></h3>
+        <p>FAR and foundational accounting calculators such as reconciliation, receivables, inventory, and adjustment pages.</p>
+      </div>
+      <div class="card">
+        <h3><code>src/features/business</code></h3>
+        <p>Managerial and cost pages including CVP, budgeting, performance, and planning tools.</p>
+      </div>
+      <div class="card">
+        <h3><code>src/features/afar</code></h3>
+        <p>AFAR and consolidation helpers for combinations, intercompany profit, FX translation, construction, and new equity-method and PPE-transfer coverage.</p>
+      </div>
+      <div class="card">
+        <h3><code>src/features/smart</code></h3>
+        <p>Natural-language routing and extracted-input logic for Smart Solver.</p>
+      </div>
+      <div class="card">
+        <h3><code>src/features/workpapers</code></h3>
+        <p>Workbook state, spreadsheet formulas, templates, import/export, and studio UI.</p>
+      </div>
+    </div>
+
+    <h2>Shared File Responsibilities</h2>
+    <div class="card">
+      <p><strong><code>calculatorMath.ts</code>:</strong> shared pure computations. This is the first place to look when a numeric answer is wrong.</p>
+      <p><strong><code>formulaSolveDefinitions.ts</code>:</strong> solve targets, validation, reverse solving, interpretation, warnings, and explanation steps.</p>
+      <p><strong><code>formulaStudyContent.tsx</code>:</strong> calculator-linked learning panels and concept reinforcement.</p>
+      <p><strong><code>taxConfig.ts</code>:</strong> editable Philippine tax defaults and visible assumption notes for time-sensitive rules.</p>
+      <p><strong><code>appCatalog.ts</code>:</strong> labels, aliases, tags, grouping, offline notes, and route discoverability.</p>
+      <p><strong><code>workpaperTemplates.ts</code>:</strong> aligned starter schedules for classroom workflows.</p>
+    </div>
+
+    <h2>How Modules Connect</h2>
+    <ol>
+      <li>A route in <code>App.tsx</code> loads a page.</li>
+      <li>The page usually wraps <code>FormulaSolveWorkspace</code> or another shared shell.</li>
+      <li>The solve definition chooses the visible inputs and target.</li>
+      <li>The definition calls shared helper math.</li>
+      <li>The result is rendered as cards, steps, and notes.</li>
+      <li>Study support, Smart Solver, OCR routing, and workpaper templates point back to the same route.</li>
+    </ol>
+
+    <h2>Smart Solver Flow</h2>
+    <p>
+      The Smart Solver reads natural-language prompts, extracts numbers by alias, ranks calculators,
+      and can suggest a solve target. This lets a user type something like “find the required labor hours”
+      and land on the correct calculator with the correct target preselected.
+    </p>
+
+    <h2>OCR Routing Flow</h2>
+    <p>
+      OCR route suggestions do not compute answers directly. They classify scanned wording and recommend
+      the best tool. The 6.0.0 release adds route hints for labor budgets, overhead budgets, budgeted income
+      statements, note discounting, equity method, and intercompany PPE transfers.
+    </p>
+
+    <h2>Workpaper System</h2>
+    <p>
+      Workpaper Studio is the workbook layer of AccCalc. It supports multi-sheet workbooks, local autosave,
+      formulas, formatting, import/export, and subject-aligned templates. The 6.0.0 templates were added
+      specifically so new curricular breadth is usable in real assignments.
+    </p>
+
+    <h2>Testing</h2>
+    <p>
+      Shared regression coverage lives primarily in <code>tests/calculatorMath.test.ts</code>. This file checks
+      calculations, search results, solve targets, workpaper helpers, and 6.0.0 additions. Always run
+      <code>npm test</code> and <code>npm run build</code> before closing work.
+    </p>
+
+    <h2>How To Extend Safely</h2>
+    <ul>
+      <li>Add shared math first.</li>
+      <li>Add solve definitions next.</li>
+      <li>Then add the page, route, and catalog metadata.</li>
+      <li>Add Smart Solver and OCR coverage when discoverability matters.</li>
+      <li>Add a workpaper template if the workflow benefits from structured schedules.</li>
+      <li>Finish with tests and docs.</li>
+    </ul>
+
+    <h2>Known Limitations</h2>
+    <ul>
+      <li>Large production chunks remain in some areas, especially Workpaper Studio and the main app shell.</li>
+      <li>Tax pages are educational aids and still require human review when rules change.</li>
+      <li>Some advanced accounting areas remain intentionally simplified to keep the app stable and teachable.</li>
+    </ul>
+  </main>
+</body>
+</html>

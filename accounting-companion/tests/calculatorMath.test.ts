@@ -83,6 +83,7 @@ import {
     computeStartupCostPlan,
     computeStraightLineDepreciation,
     computeDirectMaterialsPurchasesBudget,
+    computeDirectLaborBudget,
     computeUnearnedRevenueAdjustment,
     computeTargetProfit,
     computeTradeDiscount,
@@ -90,7 +91,12 @@ import {
     computeTurnoverWithDayBasis,
     computeUnitEconomics,
     computeAssetDisposal,
+    computeBudgetedIncomeStatement,
+    computeEquityMethodInvestment,
+    computeFactoryOverheadBudget,
     computeIntercompanyInventoryProfit,
+    computeIntercompanyPpeTransfer,
+    computeNotesReceivableDiscounting,
     computeStatementOfChangesInEquity,
     computeVatReconciliation,
     computeWithholdingTax,
@@ -103,7 +109,9 @@ import {
 } from "../src/utils/calculatorMath.js";
 import {
     breakEvenSolveDefinition,
+    budgetedIncomeStatementSolveDefinition,
     currentRatioSolveDefinition,
+    directLaborBudgetSolveDefinition,
     priceCostMarginSolveDefinition,
     simpleInterestSolveDefinition,
     timeValueSolveDefinition,
@@ -1597,6 +1605,106 @@ runTest("smart solver target intent prefers explicit reverse-solve wording", () 
         ),
         "unrealizedProfitInEndingInventory"
     );
+    assert.equal(
+        suggestSolveTarget("direct-labor-budget", "find the required labor hours"),
+        "totalDirectLaborHours"
+    );
+    assert.equal(
+        suggestSolveTarget("budgeted-income-statement", "compute net income"),
+        "netIncome"
+    );
+    assert.equal(
+        suggestSolveTarget("equity-method-investment", "find the ending investment balance"),
+        "endingInvestmentBalance"
+    );
+});
+
+runTest("new 6.0.0 shared budgeting and AFAR helpers compute expected rollforwards", () => {
+    const labor = computeDirectLaborBudget({
+        budgetedProductionUnits: 12000,
+        directLaborHoursPerUnit: 1.5,
+        directLaborRatePerHour: 110,
+    });
+    const overhead = computeFactoryOverheadBudget({
+        budgetedProductionUnits: 12000,
+        variableOverheadRatePerUnit: 18,
+        fixedOverheadBudget: 220000,
+    });
+    const incomeStatement = computeBudgetedIncomeStatement({
+        budgetedSalesAmount: 1450000,
+        budgetedCostOfGoodsSold: 910000,
+        totalOperatingExpenses: 206750,
+        interestExpense: 28000,
+        incomeTaxRatePercent: 25,
+    });
+    const equityMethod = computeEquityMethodInvestment({
+        initialInvestment: 1800000,
+        ownershipPercentage: 30,
+        investeeNetIncome: 420000,
+        investeeDividendsDeclared: 90000,
+    });
+    const ppe = computeIntercompanyPpeTransfer({
+        transferPrice: 540000,
+        carryingAmount: 480000,
+        remainingUsefulLifeYears: 5,
+        yearsSinceTransfer: 1,
+    });
+
+    assertClose(labor.totalDirectLaborHours, 18000);
+    assertClose(labor.totalDirectLaborCost, 1980000);
+    assertClose(overhead.variableFactoryOverheadBudget, 216000);
+    assertClose(overhead.totalFactoryOverheadBudget, 436000);
+    assertClose(incomeStatement.grossProfit, 540000);
+    assertClose(incomeStatement.netIncome, 228937.5);
+    assertClose(equityMethod.endingInvestmentBalance, 1899000);
+    assertClose(ppe.annualExcessDepreciation, 12000);
+    assertClose(ppe.unamortizedIntercompanyProfit, 48000);
+});
+
+runTest("notes discounting helper separates maturity value and bank discount", () => {
+    const result = computeNotesReceivableDiscounting({
+        faceValue: 250000,
+        statedRatePercent: 10,
+        bankDiscountRatePercent: 12,
+        timeYears: 0.5,
+    });
+
+    assertClose(result.noteInterest, 12500);
+    assertClose(result.maturityValue, 262500);
+    assertClose(result.bankDiscountAmount, 15750);
+    assertClose(result.proceedsFromDiscounting, 246750);
+});
+
+runTest("new formula solve definitions stay mathematically aligned", () => {
+    const laborSolve = directLaborBudgetSolveDefinition.solve("totalDirectLaborCost", {
+        budgetedProductionUnits: 12000,
+        directLaborHoursPerUnit: 1.5,
+        directLaborRatePerHour: 110,
+    });
+    const incomeSolve = budgetedIncomeStatementSolveDefinition.solve("netIncome", {
+        budgetedSalesAmount: 1450000,
+        budgetedCostOfGoodsSold: 910000,
+        totalOperatingExpenses: 206750,
+        interestExpense: 28000,
+        ratePercent: 25,
+    });
+
+    assert.equal("error" in laborSolve, false);
+    assert.equal("error" in incomeSolve, false);
+    if (!("error" in laborSolve)) {
+        assert.equal(laborSolve.primaryResult.value, "₱1,980,000.00");
+    }
+    if (!("error" in incomeSolve)) {
+        assert.equal(incomeSolve.primaryResult.value, "₱228,937.50");
+    }
+});
+
+runTest("search routes surfaces new 6.0.0 budgeting and AFAR tools", () => {
+    assert.equal(searchAppRoutes("direct labor budget")[0]?.path, "/business/direct-labor-budget");
+    assert.equal(searchAppRoutes("pro forma income statement")[0]?.path, "/business/budgeted-income-statement");
+    assert.equal(searchAppRoutes("bank discount on note")[0]?.path, "/accounting/notes-receivable-discounting");
+    assert.equal(searchAppRoutes("equity method investment")[0]?.path, "/afar/equity-method-investment");
+    assert.equal(searchAppRoutes("intercompany equipment transfer")[0]?.path, "/afar/intercompany-ppe-transfer");
 });
 
 runTest("account reference search finds aliases and abbreviations", () => {
