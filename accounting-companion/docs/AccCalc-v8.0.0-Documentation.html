@@ -1,0 +1,68 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AccCalc v8.0.0 Documentation</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 40px; color: #18212b; line-height: 1.55; }
+    h1, h2, h3 { color: #0f2d46; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { margin-top: 28px; font-size: 20px; border-bottom: 1px solid #d7e0ea; padding-bottom: 6px; }
+    h3 { margin-top: 18px; font-size: 16px; }
+    p, li { font-size: 13px; }
+    ul { padding-left: 20px; }
+    code { background: #eef4f8; padding: 1px 4px; border-radius: 4px; }
+    .lead { color: #4a5f73; max-width: 900px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .card { border: 1px solid #d7e0ea; border-radius: 12px; padding: 14px 16px; background: #fbfdff; }
+  </style>
+</head>
+<body>
+  <h1>AccCalc v8.0.0 Documentation</h1>
+  <p class="lead">This handoff package documents the final v8.0.0 system state after the academic-expansion, theme-personalization, and discovery-integration release.</p>
+
+  <h2>Release Summary</h2>
+  <p>v8.0.0 adds nine new academic routes across managerial accounting, FAR, AFAR, taxation, and operations, then wires them through search, Smart Solver, OCR routing, study support, and workpaper templates. The release also adds a persistent multi-family theme system with pre-paint restoration.</p>
+
+  <h2>Major Academic Additions</h2>
+  <div class="grid">
+    <div class="card"><h3>Managerial</h3><p>Sales Volume Variance and Sales Mix Variance extend variance support beyond budget execution and into sales-side interpretation.</p></div>
+    <div class="card"><h3>Operations</h3><p>Safety Stock Planner links forecasting and EOQ workflows to reorder-point buffer policy.</p></div>
+    <div class="card"><h3>FAR</h3><p>Dividend Allocation supports preferred-share priority, dividend arrears, and common dividend per share.</p></div>
+    <div class="card"><h3>Taxation</h3><p>Estate Tax Helper, Donor's Tax Helper, and Documentary Stamp Tax Helper broaden classroom tax support with visible assumptions.</p></div>
+    <div class="card"><h3>AFAR</h3><p>Consignment Settlement and Branch Inventory Loading broaden special-topic support for consignments and branch-home-office review.</p></div>
+    <div class="card"><h3>Personalization</h3><p>Classic, Ocean, Slate, Rose, Blossom, Lavender, Sunset, and Emerald theme families now persist across relaunches.</p></div>
+  </div>
+
+  <h2>Architecture</h2>
+  <ul>
+    <li><code>src/App.tsx</code> registers routes and page entry points.</li>
+    <li><code>src/utils/calculatorMath.ts</code> is the shared math source of truth.</li>
+    <li><code>src/utils/formulaSolveDefinitions.ts</code> defines solve targets, notes, warnings, and formatted results.</li>
+    <li><code>src/utils/appCatalog.ts</code> centralizes route metadata, aliases, and category surfacing.</li>
+    <li><code>src/features/smart/*</code> powers Smart Solver routing, field extraction, and solve-target hints.</li>
+    <li><code>src/features/scan-check/services/ocr/ocrRouting.ts</code> handles OCR-based route suggestion patterns.</li>
+    <li><code>src/utils/formulaStudyContent.tsx</code> and <code>src/features/study/studyExpansion450.ts</code> supply calculator-linked and reviewer-level learning content.</li>
+    <li><code>src/features/workpapers/workpaperTemplates.ts</code> registers workbook starter templates.</li>
+  </ul>
+
+  <h2>Theme System</h2>
+  <p>The theme system now includes a mode and a family. Settings are stored in <code>src/utils/appSettings.ts</code>, family metadata lives in <code>src/utils/themePreferences.ts</code>, CSS token overrides live in <code>src/index.css</code>, and <code>index.html</code> restores the last saved theme before paint.</p>
+
+  <h2>Maintenance Guidance</h2>
+  <ul>
+    <li>Add shared math before route UI.</li>
+    <li>Keep tax assumptions centralized in <code>src/utils/taxConfig.ts</code>.</li>
+    <li>When adding routes, update catalog, Smart Solver, OCR, study support, workpapers, and tests together.</li>
+    <li>Validate with <code>npm test</code> and <code>npm run build</code>.</li>
+  </ul>
+
+  <h2>Known Remaining Limits</h2>
+  <ul>
+    <li>Some production chunks remain large, especially <code>WorkpaperStudioPage</code>, <code>appCatalog</code>, <code>main</code>, and <code>formulaSolveDefinitions</code>.</li>
+    <li>Tax helpers remain classroom support tools, not legal or filing systems.</li>
+    <li>The catalog is much broader, but future category-hub refinement would still improve large-scale browsing.</li>
+  </ul>
+</body>
+</html>

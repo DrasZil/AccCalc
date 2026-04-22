@@ -179,10 +179,25 @@ const SOLVE_TARGET_RULES: Record<
         { target: "maximumUnitsFromConstraint", patterns: [/maximum units from constraint/i, /units supported by bottleneck/i] },
         { target: "totalContributionMarginAtConstraint", patterns: [/total contribution margin/i, /total cm at constraint/i] },
     ],
+    "transfer-pricing-support": [
+        { target: "minimumTransferPrice", patterns: [/minimum transfer price/i, /lowest transfer price/i] },
+        { target: "marketBasedCeiling", patterns: [/market[- ]based ceiling/i, /external market price/i, /outside market price/i] },
+        { target: "transferPricingRangeWidth", patterns: [/transfer pricing range/i, /negotiation range/i, /pricing band/i] },
+    ],
     "budget-variance-analysis": [
         { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },
         { target: "spendingVariance", patterns: [/spending variance/i, /flexible budget variance/i] },
         { target: "activityVariance", patterns: [/activity variance/i, /volume variance/i] },
+    ],
+    "sales-volume-variance": [
+        { target: "salesVolumeVariance", patterns: [/sales volume variance/i, /sales quantity variance/i, /volume variance/i] },
+        { target: "actualUnitsSold", patterns: [/actual units sold/i, /actual sales units/i] },
+        { target: "budgetedUnitsSold", patterns: [/budgeted units sold/i, /planned sales units/i] },
+    ],
+    "sales-mix-variance": [
+        { target: "salesMixVariance", patterns: [/sales mix variance/i, /mix variance/i] },
+        { target: "actualMixPercent", patterns: [/actual mix/i, /actual mix percent/i] },
+        { target: "budgetedMixPercent", patterns: [/budgeted mix/i, /planned mix/i] },
     ],
     "notes-receivable-discounting": [
         { target: "proceedsFromDiscounting", patterns: [/discounting proceeds/i, /cash proceeds from note/i, /proceeds from discounting/i] },
@@ -199,6 +214,21 @@ const SOLVE_TARGET_RULES: Record<
         { target: "taxBase", patterns: [/tax base/i, /gross amount/i, /payment subject to withholding/i] },
         { target: "ratePercent", patterns: [/withholding rate/i, /rate percent/i, /ewt rate/i] },
     ],
+    "estate-tax-helper": [
+        { target: "estateTaxDue", patterns: [/estate tax due/i, /estate tax/i] },
+        { target: "netEstate", patterns: [/net estate/i, /taxable estate/i] },
+        { target: "grossEstate", patterns: [/gross estate/i] },
+    ],
+    "donors-tax-helper": [
+        { target: "donorsTaxDue", patterns: [/donor'?s tax/i, /donors tax/i, /gift tax/i] },
+        { target: "taxableGift", patterns: [/taxable gift/i, /net gift/i] },
+        { target: "grossGift", patterns: [/gross gift/i, /gift amount/i] },
+    ],
+    "documentary-stamp-tax-helper": [
+        { target: "documentaryStampTaxDue", patterns: [/documentary stamp tax/i, /\bdst\b/i, /stamp tax/i] },
+        { target: "taxableUnits", patterns: [/taxable units/i, /number of units/i] },
+        { target: "ratePerUnit", patterns: [/rate per unit/i, /tax per unit/i] },
+    ],
     "intercompany-inventory-profit": [
         { target: "unrealizedProfitInEndingInventory", patterns: [/unrealized profit/i, /inventory profit elimination/i, /profit in ending inventory/i] },
         { target: "transferPrice", patterns: [/transfer price/i, /intercompany selling price/i] },
@@ -209,6 +239,16 @@ const SOLVE_TARGET_RULES: Record<
         { target: "investorShareInIncome", patterns: [/share in income/i, /equity in investee income/i] },
         { target: "dividendsReceived", patterns: [/dividends received/i, /share of dividends/i] },
     ],
+    "consignment-settlement": [
+        { target: "cashStillDueToConsignor", patterns: [/cash still due/i, /balance due consignor/i, /cash due to consignor/i] },
+        { target: "commissionAmount", patterns: [/commission amount/i, /consignee commission/i] },
+        { target: "commissionRatePercent", patterns: [/commission rate/i, /commission percent/i] },
+    ],
+    "branch-inventory-loading": [
+        { target: "inventoryAtCost", patterns: [/inventory at cost/i, /inventory net of loading/i] },
+        { target: "inventoryLoadingAllowance", patterns: [/loading allowance/i, /allowance for overvaluation/i] },
+        { target: "loadingRateOnBilledPrice", patterns: [/loading rate on billed price/i, /loading on billed price/i] },
+    ],
     "intercompany-ppe-transfer": [
         { target: "unamortizedIntercompanyProfit", patterns: [/unamortized intercompany profit/i, /remaining unrealized gain/i] },
         { target: "annualExcessDepreciation", patterns: [/annual excess depreciation/i, /excess depreciation/i] },
@@ -216,6 +256,16 @@ const SOLVE_TARGET_RULES: Record<
     "moving-average-forecast": [
         { target: "weightedMovingAverageForecast", patterns: [/weighted moving average/i, /weighted forecast/i] },
         { target: "simpleMovingAverageForecast", patterns: [/simple moving average/i, /moving average forecast/i] },
+    ],
+    "safety-stock-planner": [
+        { target: "safetyStock", patterns: [/safety stock/i, /buffer stock/i] },
+        { target: "reorderPoint", patterns: [/reorder point/i, /reorder level/i] },
+        { target: "maxLeadTimeDays", patterns: [/maximum lead time/i, /worst case lead time/i] },
+    ],
+    "dividend-allocation": [
+        { target: "preferredDividendAllocated", patterns: [/preferred dividend allocation/i, /preferred dividends?/i] },
+        { target: "commonDividendAllocated", patterns: [/common dividend allocation/i, /common dividends?/i] },
+        { target: "commonDividendPerShare", patterns: [/common dividend per share/i, /dividend per share/i] },
     ],
 };
 

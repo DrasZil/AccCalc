@@ -13,6 +13,59 @@
     <link rel="icon" type="image/png" href="%BASE_URL%icon-192.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
     <link rel="manifest" href="%BASE_URL%manifest.webmanifest">
+    <script>
+      (function () {
+        const storageKey = "accalc-app-settings";
+        const fallback = {
+          themePreference: "system",
+          themeFamily: "classic",
+          highContrastMode: false,
+        };
+        const metaColors = {
+          classic: { light: "#f4f4f6", dark: "#0c1016" },
+          ocean: { light: "#eef8fb", dark: "#09151b" },
+          slate: { light: "#f2f4f7", dark: "#0f1721" },
+          rose: { light: "#fff1f5", dark: "#1a0f16" },
+          blossom: { light: "#fff4f8", dark: "#1a1015" },
+          lavender: { light: "#f6f3ff", dark: "#120f1d" },
+          sunset: { light: "#fff4ec", dark: "#1b120e" },
+          emerald: { light: "#effcf6", dark: "#0b1713" },
+        };
+
+        try {
+          const raw = window.localStorage.getItem(storageKey);
+          const parsed = raw ? JSON.parse(raw) : fallback;
+          const themePreference =
+            parsed && (parsed.themePreference === "dark" || parsed.themePreference === "light" || parsed.themePreference === "system")
+              ? parsed.themePreference
+              : fallback.themePreference;
+          const themeFamily =
+            parsed && typeof parsed.themeFamily === "string" && metaColors[parsed.themeFamily]
+              ? parsed.themeFamily
+              : fallback.themeFamily;
+          const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const resolvedTheme =
+            themePreference === "system"
+              ? systemPrefersDark
+                ? "dark"
+                : "light"
+              : themePreference;
+          const contrast =
+            parsed && parsed.highContrastMode === true ? "high" : "normal";
+
+          document.documentElement.dataset.theme = resolvedTheme;
+          document.documentElement.dataset.themeFamily = themeFamily;
+          document.documentElement.dataset.contrast = contrast;
+          const metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) {
+            metaTheme.setAttribute("content", metaColors[themeFamily][resolvedTheme]);
+          }
+        } catch (error) {
+          document.documentElement.dataset.theme = fallback.themePreference === "dark" ? "dark" : "light";
+          document.documentElement.dataset.themeFamily = fallback.themeFamily;
+        }
+      })();
+    </script>
     <title>AccCalc</title>
   </head>
   <body>

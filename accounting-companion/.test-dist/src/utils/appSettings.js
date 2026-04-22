@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { isThemeFamily } from "./themePreferences.js";
 const STORAGE_KEY = "accalc-app-settings";
 const SETTINGS_UPDATED_EVENT = "accalc-settings-updated";
 let cachedSettingsRaw;
@@ -26,6 +27,7 @@ export const DEFAULT_APP_SETTINGS = {
     reminderTone: "soft",
     reminderFrequency: "rare",
     themePreference: "system",
+    themeFamily: "classic",
 };
 cachedSettingsSnapshot = DEFAULT_APP_SETTINGS;
 function sanitizeThemePreference(value) {
@@ -37,6 +39,9 @@ function sanitizeSmartSolverMode(value) {
     return value === "compute" || value === "professional" || value === "beginner"
         ? value
         : DEFAULT_APP_SETTINGS.smartSolverDefaultMode;
+}
+function sanitizeThemeFamily(value) {
+    return isThemeFamily(value) ? value : DEFAULT_APP_SETTINGS.themeFamily;
 }
 function sanitizeSettings(value) {
     return {
@@ -87,6 +92,7 @@ function sanitizeSettings(value) {
             ? value.reminderFrequency
             : DEFAULT_APP_SETTINGS.reminderFrequency,
         themePreference: sanitizeThemePreference(value?.themePreference),
+        themeFamily: sanitizeThemeFamily(value?.themeFamily),
     };
 }
 export function readAppSettings() {

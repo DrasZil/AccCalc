@@ -1309,6 +1309,133 @@ export function computeMovingAverageForecast({ period1Demand, period2Demand, per
         latestTrendChange: safeSubtract(period3Demand, period2Demand),
     };
 }
+export function computeSalesVolumeVariance({ actualUnitsSold, budgetedUnitsSold, budgetedContributionMarginPerUnit, }) {
+    const unitDifference = safeSubtract(actualUnitsSold, budgetedUnitsSold);
+    const salesVolumeVariance = safeMultiply(unitDifference, budgetedContributionMarginPerUnit);
+    return {
+        unitDifference,
+        salesVolumeVariance,
+        salesVolumeVarianceLabel: salesVolumeVariance > 0
+            ? "Favorable"
+            : salesVolumeVariance < 0
+                ? "Unfavorable"
+                : "On target",
+    };
+}
+export function computeSalesMixVariance({ actualTotalUnitsSold, actualProductUnitsSold, budgetedMixPercent, budgetedContributionMarginPerUnit, }) {
+    const actualMixPercent = actualTotalUnitsSold <= 0
+        ? Number.NaN
+        : safeMultiply(safeDivide(actualProductUnitsSold, actualTotalUnitsSold), 100);
+    const mixPercentagePointDifference = safeSubtract(actualMixPercent, budgetedMixPercent);
+    const equivalentUnitDifference = safeMultiply(actualTotalUnitsSold, percentToDecimal(mixPercentagePointDifference));
+    const salesMixVariance = safeMultiply(equivalentUnitDifference, budgetedContributionMarginPerUnit);
+    return {
+        actualMixPercent,
+        mixPercentagePointDifference,
+        equivalentUnitDifference,
+        salesMixVariance,
+        salesMixVarianceLabel: salesMixVariance > 0
+            ? "Favorable"
+            : salesMixVariance < 0
+                ? "Unfavorable"
+                : "On target",
+    };
+}
+export function computeTransferPricingSupport({ variableCostPerUnit, opportunityCostPerUnit = 0, externalMarketPricePerUnit = 0, }) {
+    const minimumTransferPrice = safeAdd(variableCostPerUnit, opportunityCostPerUnit);
+    const marketBasedCeiling = externalMarketPricePerUnit > 0
+        ? externalMarketPricePerUnit
+        : minimumTransferPrice;
+    return {
+        minimumTransferPrice,
+        marketBasedCeiling,
+        opportunityCostPerUnit,
+        transferPricingRangeWidth: safeSubtract(marketBasedCeiling, minimumTransferPrice),
+    };
+}
+export function computeSafetyStockPlanner({ averageDailyUsage, maxDailyUsage, averageLeadTimeDays, maxLeadTimeDays, }) {
+    const maximumUsageDuringLeadTime = safeMultiply(maxDailyUsage, maxLeadTimeDays);
+    const averageUsageDuringLeadTime = safeMultiply(averageDailyUsage, averageLeadTimeDays);
+    const safetyStock = safeSubtract(maximumUsageDuringLeadTime, averageUsageDuringLeadTime);
+    const reorderPoint = safeAdd(averageUsageDuringLeadTime, safetyStock);
+    return {
+        maximumUsageDuringLeadTime,
+        averageUsageDuringLeadTime,
+        safetyStock,
+        reorderPoint,
+    };
+}
+export function computeEstateTax({ grossEstate, allowableDeductions = 0, taxRatePercent = 6, }) {
+    const netEstate = Math.max(0, safeSubtract(grossEstate, allowableDeductions));
+    const estateTaxDue = safeMultiply(netEstate, percentToDecimal(taxRatePercent));
+    return {
+        netEstate,
+        estateTaxDue,
+        taxRatePercent,
+    };
+}
+export function computeDonorsTax({ grossGift, allowableDeductions = 0, taxRatePercent = 6, }) {
+    const taxableGift = Math.max(0, safeSubtract(grossGift, allowableDeductions));
+    const donorsTaxDue = safeMultiply(taxableGift, percentToDecimal(taxRatePercent));
+    return {
+        taxableGift,
+        donorsTaxDue,
+        taxRatePercent,
+    };
+}
+export function computeDocumentaryStampTax({ taxableBaseAmount, taxableUnitSize, ratePerUnit, }) {
+    const taxableUnits = taxableBaseAmount <= 0 || taxableUnitSize <= 0
+        ? Number.NaN
+        : Math.ceil(safeDivide(taxableBaseAmount, taxableUnitSize));
+    const documentaryStampTaxDue = Number.isFinite(taxableUnits)
+        ? safeMultiply(taxableUnits, ratePerUnit)
+        : Number.NaN;
+    return {
+        taxableUnits,
+        documentaryStampTaxDue,
+    };
+}
+export function computeConsignmentSettlement({ grossSales, commissionRatePercent, freightAndOtherExpenses = 0, advancesRemitted = 0, }) {
+    const commissionAmount = safeMultiply(grossSales, percentToDecimal(commissionRatePercent));
+    const totalCharges = safeAdd(commissionAmount, freightAndOtherExpenses);
+    const cashStillDueToConsignor = safeSubtract(safeSubtract(grossSales, totalCharges), advancesRemitted);
+    return {
+        commissionAmount,
+        totalCharges,
+        cashStillDueToConsignor,
+    };
+}
+export function computeBranchInventoryLoading({ billedPriceInventory, loadingPercentOnCost, }) {
+    const loadingRateOnBilledPrice = loadingPercentOnCost <= -100
+        ? Number.NaN
+        : safeMultiply(safeDivide(loadingPercentOnCost, safeAdd(100, loadingPercentOnCost)), 100);
+    const inventoryLoadingAllowance = safeMultiply(billedPriceInventory, percentToDecimal(loadingRateOnBilledPrice));
+    const inventoryAtCost = safeSubtract(billedPriceInventory, inventoryLoadingAllowance);
+    return {
+        loadingRateOnBilledPrice,
+        inventoryLoadingAllowance,
+        inventoryAtCost,
+    };
+}
+export function computeDividendAllocation({ totalDividendsDeclared, preferredShares, preferredParValue, preferredDividendRatePercent, yearsInArrears = 0, commonSharesOutstanding = 0, }) {
+    const annualPreferredDividend = safeMultiply(safeMultiply(preferredShares, preferredParValue), percentToDecimal(preferredDividendRatePercent));
+    const preferredArrearsDividend = safeMultiply(annualPreferredDividend, yearsInArrears);
+    const totalPreferredRequirement = safeAdd(preferredArrearsDividend, annualPreferredDividend);
+    const preferredDividendAllocated = Math.min(totalDividendsDeclared, totalPreferredRequirement);
+    const commonDividendAllocated = Math.max(0, safeSubtract(totalDividendsDeclared, preferredDividendAllocated));
+    const commonDividendPerShare = commonSharesOutstanding > 0
+        ? safeDivide(commonDividendAllocated, commonSharesOutstanding)
+        : Number.NaN;
+    return {
+        annualPreferredDividend,
+        preferredArrearsDividend,
+        totalPreferredRequirement,
+        preferredDividendAllocated,
+        commonDividendAllocated,
+        commonDividendPerShare,
+        unpaidPreferredBalance: safeSubtract(totalPreferredRequirement, preferredDividendAllocated),
+    };
+}
 export function computeFlexibleBudget({ budgetedUnits, actualUnits, fixedCosts, variableCostPerUnit, actualCost, }) {
     const staticBudget = fixedCosts + variableCostPerUnit * budgetedUnits;
     const flexibleBudget = fixedCosts + variableCostPerUnit * actualUnits;

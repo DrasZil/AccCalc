@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AccCalc v8.1.0 Documentation</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f5f1ea;
+            --paper: #fffdf9;
+            --ink: #1f2937;
+            --muted: #5b6472;
+            --line: #dfd7cb;
+            --accent: #b45309;
+            --soft: #fff1d6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(180deg, #f8f3eb 0%, #f1ece3 100%);
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 40px 24px 64px;
+        }
+
+        .hero, section {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 24px 28px;
+            box-shadow: 0 14px 40px rgba(31, 41, 55, 0.06);
+        }
+
+        section { margin-top: 20px; }
+
+        .kicker {
+            margin: 0 0 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        h1, h2, h3 { margin: 0 0 12px; line-height: 1.2; }
+        h1 { font-size: 34px; }
+        h2 { font-size: 22px; margin-top: 0; }
+        h3 { font-size: 17px; }
+        p { margin: 0 0 12px; }
+        ul, ol { margin: 12px 0 0 20px; padding: 0; }
+        li { margin: 6px 0; }
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            background: #f5efe6;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .tile {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            background: #fffaf3;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: var(--soft);
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="hero">
+            <p class="kicker">AccCalc Documentation</p>
+            <h1>AccCalc v8.1.0</h1>
+            <p>
+                This handoff package documents the final <code>8.1.0</code> state of
+                AccCalc after the focused follow-up release that fixed Windows local
+                development, cleaned up the theme settings experience, and added
+                transfer-pricing support to the managerial-accounting catalog.
+            </p>
+        </section>
+
+        <section>
+            <h2>Release Summary</h2>
+            <ul>
+                <li>Fixed the Vite config startup regression affecting <code>npm run dev</code> on Windows.</li>
+                <li>Moved runtime Vite loading to <code>vite.config.mjs</code> with native loading.</li>
+                <li>Made package metadata parsing BOM-safe inside the config path.</li>
+                <li>Fixed theme-family picker wrapping and stale appearance summary behavior.</li>
+                <li>Added <code>Transfer Pricing Support</code> with route, discovery, study, and workpaper wiring.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Architecture Overview</h2>
+            <div class="grid">
+                <div class="tile">
+                    <h3>Routes</h3>
+                    <p>Route registration lives in <code>src/App.tsx</code> and points to feature pages in <code>src/features/...</code>.</p>
+                </div>
+                <div class="tile">
+                    <h3>Shared Math</h3>
+                    <p><code>src/utils/calculatorMath.ts</code> is the formula source of truth for reusable business and accounting logic.</p>
+                </div>
+                <div class="tile">
+                    <h3>Solve Definitions</h3>
+                    <p><code>src/utils/formulaSolveDefinitions.ts</code> turns shared math into user-facing calculators with targets, warnings, and explanations.</p>
+                </div>
+                <div class="tile">
+                    <h3>Discovery</h3>
+                    <p><code>appCatalog</code>, <code>appSearch</code>, Smart Solver, and OCR routing work together so users can actually find the right tool.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Important Files</h2>
+            <ul>
+                <li><code>src/utils/appCatalog.ts</code>: route metadata, aliases, categories, and release surfacing</li>
+                <li><code>src/features/smart/smartSolver.engine.ts</code>: Smart Solver field metadata and route scoring</li>
+                <li><code>src/features/smart/smartSolver.targets.ts</code>: explicit solve-target intent mapping</li>
+                <li><code>src/features/scan-check/services/ocr/ocrRouting.ts</code>: OCR route suggestion rules</li>
+                <li><code>src/utils/formulaStudyContent.tsx</code>: calculator-linked study panels</li>
+                <li><code>src/features/study/studyExpansion450.ts</code>: broader reviewer-topic expansion</li>
+                <li><code>src/features/workpapers/workpaperTemplates.ts</code>: workbook-template registry</li>
+                <li><code>src/utils/appSettings.ts</code> and <code>src/utils/themePreferences.ts</code>: persistent theme and preference state</li>
+                <li><code>src/utils/appRelease.ts</code>: current runtime release notes shown inside the app</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Vite And Local Development Fix</h2>
+            <p>
+                The highest-priority <code>8.1.0</code> fix was restoring local development on Windows.
+            </p>
+            <div class="callout">
+                Root cause: the previous startup path allowed Vite config loading to go through a fragile bundled path that choked on Tailwind's native Windows dependency. The fix was to move runtime loading to <code>vite.config.mjs</code> and run it with <code>--configLoader native</code>.
+            </div>
+            <p>
+                The config now reads <code>package.json</code> with BOM-safe parsing before injecting
+                the runtime version string. <code>vite.config.d.ts</code> is only a TypeScript-side stub
+                to keep config tooling explicit without reintroducing the old runtime problem.
+            </p>
+        </section>
+
+        <section>
+            <h2>Theme System And Settings Cleanup</h2>
+            <p>
+                Theme state has two axes: mode (<code>system</code>, <code>light</code>, <code>dark</code>)
+                and family (<code>classic</code>, <code>ocean</code>, <code>slate</code>, <code>rose</code>,
+                <code>blossom</code>, <code>lavender</code>, <code>sunset</code>, <code>emerald</code>).
+            </p>
+            <ul>
+                <li>Theme state is restored before paint through <code>index.html</code>.</li>
+                <li>The shell applies <code>data-theme</code> and <code>data-theme-family</code> for CSS-token theming.</li>
+                <li><code>8.1.0</code> fixes the larger-screen theme-card overlap by using a more forgiving grid and wrapped swatches.</li>
+                <li>The quick appearance summary now updates when the theme family changes.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>New Academic Addition</h2>
+            <h3>Transfer Pricing Support</h3>
+            <p>
+                The new managerial route helps students and reviewers read minimum transfer price,
+                outside-market ceiling, and negotiation-range width without hiding the underlying
+                relevant-costing logic.
+            </p>
+            <ul>
+                <li>Route page: <code>src/features/business/TransferPricingSupportPage.tsx</code></li>
+                <li>Shared math: <code>computeTransferPricingSupport</code> in <code>calculatorMath.ts</code></li>
+                <li>Solve definition: <code>transferPricingSupportSolveDefinition</code></li>
+                <li>Study topic and formula support wired through the study system</li>
+                <li>Workpaper template: <code>transfer-pricing-support</code></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Testing And Validation</h2>
+            <p>The final <code>8.1.0</code> state was validated with:</p>
+            <pre><code>npm test
+npm run build</code></pre>
+            <p>
+                The regression suite now includes transfer-pricing math, solve-definition alignment,
+                route search coverage, Smart Solver target intent, and workpaper template registration.
+            </p>
+        </section>
+
+        <section>
+            <h2>Next Safe Improvement Targets</h2>
+            <ul>
+                <li>Reduce the chunk sizes for <code>WorkpaperStudioPage</code>, <code>appCatalog</code>, <code>formulaSolveDefinitions</code>, and <code>main</code>.</li>
+                <li>Continue grouping and surfacing the larger catalog with more guided category hubs.</li>
+                <li>Keep new curriculum additions attached to shared math, study content, discovery, and workpapers together.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

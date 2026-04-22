@@ -1,92 +1,49 @@
 # AccCalc
 
-AccCalc is a production-minded accounting companion for students, reviewees, instructors, and future maintainers who need a broad and dependable workspace for solving, checking, studying, and documenting accounting problems.
+AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `8.1.0` is a focused follow-up release that restores local Vite development on Windows, cleans up the theme settings experience, and adds another managerial-accounting tool without regressing the broader `8.0.0` curriculum expansion.
 
-Version: `7.0.0`  
-Release date: `2026-04-21`
+## Who It Is For
 
-## What Changed In 7.0.0
+- Accounting students who need calculators plus linked explanations
+- Reviewees covering FAR, AFAR, cost and managerial accounting, taxation, audit, AIS, RFBT, and related business topics
+- Tutors and instructors who want assignment-friendly workpaper support
+- Future maintainers who may come back with limited context and still need to extend the app safely
 
-AccCalc `7.0.0` is a deeper academic-expansion release built on top of the earlier `6.0.0` breadth pass. This update focuses especially on managerial accounting, management services, and operations support while also improving search performance, discovery, workpaper continuity, and release survivability.
+## What's New In 8.1.0
 
-Major additions in this release:
+- Fixed the Windows Vite startup regression so `npm run dev` no longer crashes while loading config
+- Moved runtime Vite loading to `vite.config.mjs` with native loading and BOM-safe package metadata parsing
+- Fixed the theme family picker so cards and swatches wrap cleanly on laptop and larger screens
+- Fixed the appearance quick-stats memo so theme-family changes update immediately
+- Added `Transfer Pricing Support` with route, catalog, Smart Solver, OCR, study, and workpaper wiring
+- Simplified runtime release metadata so the app ships only the current release summary instead of duplicated history
 
-- `Special Order Analysis`
-- `Make-or-Buy Analysis`
-- `Sell-or-Process-Further`
-- `Constrained Resource Product Mix`
-- `Budget Variance Analysis`
-- `Moving Average Forecast`
+## Major Product Areas
 
-The release also broadens:
+- Smart Tools: Smart Solver, Scan & Check, OCR-assisted routing, natural-language route suggestions
+- Study System: Study Hub, reviewer topics, formula-linked study panels, related-topic navigation
+- Workpapers: workbook-style templates, workbook utilities, calculator-to-workpaper transfer flows
+- FAR / AFAR: statement support, equity, impairments, leases, share-based payments, intercompany tools, consignment, branch support
+- Cost / Managerial: CVP, budgets, variances, decision tools, forecasting, process costing, performance workspaces
+- Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
+- Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected curriculum support
 
-- relevant-cost decision support
-- bottleneck and contribution-margin analysis
-- performance-reporting and budget-variance interpretation
-- operations forecasting discovery and workpaper support
-- Smart Solver, OCR, Study Hub, and related-route continuity
-- route-search performance for the larger app catalog
+## Theme System
 
-## Who The App Is For
+Theme preferences are persisted through `src/utils/appSettings.ts` and `src/utils/themePreferences.ts`.
 
-- Accounting students working across FAR, AFAR, cost and managerial, audit, tax, AIS, RFBT, and operations-adjacent courses
-- Reviewees preparing for board-style mixed-topic problems
-- Instructors who want fast classroom support tools and reusable schedules
-- Future developers who may need to maintain or extend the app with limited context later
+The active theme has two axes:
 
-## Core Product Areas
+- `themePreference`: `system`, `light`, or `dark`
+- `themeFamily`: `classic`, `ocean`, `slate`, `rose`, `blossom`, `lavender`, `sunset`, or `emerald`
 
-- `FAR`: cash control, receivables, inventory, PPE, impairment, leases, share-based payments, equity, and statements
-- `AFAR`: business combinations, NCI-oriented support, equity method, intercompany inventory/PPE, foreign currency, and construction revenue
-- `Cost / Managerial / Management Services`: CVP, budgeting, job order costing, variances, relevant costing, bottleneck analysis, and performance reporting
-- `Taxation`: VAT, withholding tax, book-tax difference support, compliance review, and centralized assumptions
-- `Audit / Assurance`: planning, cycles, completion, opinions, and audit-review workspaces
-- `AIS / Governance / Internal Control`: IT controls, lifecycle and recovery, control matrices, and governance-linked reviewer support
-- `RFBT / Strategic / Integrative`: business law review, integrative case mapping, and strategic analysis support
-- `Operations / Supply Chain`: EOQ, reorder point, forecasting, capacity, and operations-linked study flows
-- `Workpapers`: spreadsheet-style workbook support with reusable templates and import-export tools
-- `Study Hub`: progressive-disclosure lessons, quizzes, and calculator-linked review paths
+Theme state is restored before the main UI paints from `index.html`, then the shell applies `data-theme` and `data-theme-family` so cards, borders, text, inputs, and supporting surfaces inherit the right design tokens with less startup flicker.
 
-## Key Features
-
-- Curriculum-organized route metadata in [src/utils/appCatalog.ts](/E:/AccCalc/accounting-companion/src/utils/appCatalog.ts:1)
-- Shared calculation helpers in [src/utils/calculatorMath.ts](/E:/AccCalc/accounting-companion/src/utils/calculatorMath.ts:1)
-- Reusable solve-for-target logic in [src/utils/formulaSolveDefinitions.ts](/E:/AccCalc/accounting-companion/src/utils/formulaSolveDefinitions.ts:1)
-- Linked learning support in [src/utils/formulaStudyContent.tsx](/E:/AccCalc/accounting-companion/src/utils/formulaStudyContent.tsx:1)
-- Smart Solver extraction and route matching in [src/features/smart/smartSolver.engine.ts](/E:/AccCalc/accounting-companion/src/features/smart/smartSolver.engine.ts:1)
-- OCR route suggestion logic in [src/features/scan-check/services/ocr/ocrRouting.ts](/E:/AccCalc/accounting-companion/src/features/scan-check/services/ocr/ocrRouting.ts:1)
-- Template-driven workbook support in [src/features/workpapers/workpaperTemplates.ts](/E:/AccCalc/accounting-companion/src/features/workpapers/workpaperTemplates.ts:1)
-- Release/version metadata in [src/utils/appRelease.ts](/E:/AccCalc/accounting-companion/src/utils/appRelease.ts:1)
-
-## Screenshots / Placeholders
-
-Suggested screenshot set for future asset capture:
-
-1. Home page with curriculum-aligned tracks
-2. Smart Solver prompt routing
-3. Workpaper Studio with a budgeting or decision-analysis template open
-4. A FormulaSolveWorkspace page in reverse-solve mode
-5. A Study Hub lesson with progressive disclosure expanded
-6. Scan & Check with OCR review and route suggestions
-
-The repository does not currently store a maintained screenshot set, so this section is intentionally ready for future image drops.
-
-## Tech Stack
-
-- React 19
-- TypeScript
-- Vite
-- React Router
-- Tailwind CSS
-- KaTeX and MathJax-backed formula rendering support
-- Tesseract.js for OCR
-- Workbox for service worker and offline behavior
-- XLSX for workbook import and export
-
-## Install
+## Installation And Setup
 
 ```bash
 npm install
+npm run dev
 ```
 
 ## Development Commands
@@ -95,118 +52,132 @@ npm install
 npm run dev
 npm test
 npm run build
-npm run preview
+npm run lint
 ```
+
+## Build And Validation Status For 8.1.0
+
+The final `8.1.0` implementation was validated with:
+
+```bash
+npm test
+npm run build
+```
+
+Both commands passed after the release changes. `npm run dev` was also fixed by moving runtime config loading to `vite.config.mjs` with `--configLoader native`.
 
 ## Project Structure
 
 ```text
 accounting-companion/
-|-- public/                        Static assets, manifest, and install surfaces
-|-- src/
-|   |-- components/                Shared UI primitives and calculator shells
-|   |-- features/
-|   |   |-- accounting/            Foundational accounting and FAR-oriented tools
-|   |   |-- afar/                  AFAR and consolidation-oriented tools
-|   |   |-- audit/                 Audit and assurance workspaces
-|   |   |-- business/              Cost, budgeting, relevant costing, and management tools
-|   |   |-- operations/            Forecasting and operations support pages
-|   |   |-- scan-check/            OCR review pipeline
-|   |   |-- smart/                 Natural-language solver analysis and routing
-|   |   |-- study/                 Lessons, quizzes, study maps, and learning support
-|   |   '-- workpapers/            Workbook model, templates, and studio page
-|   |-- utils/                     Shared math, metadata, release, offline, and study helpers
-|   '-- App.tsx                    Route registration and lazy loading
-|-- tests/                         Shared regression coverage
-|-- docs/                          Release notes, architecture docs, and generated handoff docs
- '-- README.md
+  src/
+    components/               Reusable UI blocks, result cards, charts, math display
+    features/                 Route-level pages and domain modules
+      accounting/
+      afar/
+      audit/
+      business/
+      far/
+      layout/
+      meta/
+      operations/
+      scan-check/
+      smart/
+      study/
+      tax/
+      workpapers/
+    utils/                    Shared math, catalog metadata, settings, assumptions, release metadata
+  tests/                      Shared math, solve-definition, search, and workpaper regression tests
+  docs/                       Release notes, system overview, maintenance notes, HTML and PDF handoff docs
+  vite.config.mjs             Runtime Vite config used by dev and build
+  vite.config.d.ts            TypeScript stub so config-project metadata stays explicit without runtime coupling
 ```
 
 ## How Calculators Are Organized
 
-- Routes are lazy-registered in [src/App.tsx](/E:/AccCalc/accounting-companion/src/App.tsx:1)
-- Route metadata, aliases, tags, and curriculum grouping live in [src/utils/appCatalog.ts](/E:/AccCalc/accounting-companion/src/utils/appCatalog.ts:1)
-- Many calculators are thin wrappers around [src/components/FormulaSolveWorkspace.tsx](/E:/AccCalc/accounting-companion/src/components/FormulaSolveWorkspace.tsx:1)
-- Shared computations live in [src/utils/calculatorMath.ts](/E:/AccCalc/accounting-companion/src/utils/calculatorMath.ts:1)
-- Shared solve-target behavior and explanations live in [src/utils/formulaSolveDefinitions.ts](/E:/AccCalc/accounting-companion/src/utils/formulaSolveDefinitions.ts:1)
+Routes are registered in `src/App.tsx`, then described centrally in `src/utils/appCatalog.ts`.
 
-## How Shared Formula Logic Works
+Most meaningful calculator flows include:
 
-High-level flow:
+1. A route page in `src/features/...`
+2. Shared math in `src/utils/calculatorMath.ts`
+3. Optional solve-for definitions in `src/utils/formulaSolveDefinitions.ts`
+4. Study support in `src/utils/formulaStudyContent.tsx`
+5. Broader reviewer coverage in `src/features/study/studyExpansion450.ts`
+6. Search aliases and route metadata in `src/utils/appCatalog.ts`
+7. Smart Solver and OCR wiring in `src/features/smart/*` and `src/features/scan-check/services/ocr/ocrRouting.ts`
+8. Optional workpaper templates in `src/features/workpapers/workpaperTemplates.ts`
 
-1. A route renders a page component, often a thin wrapper around `FormulaSolveWorkspace`
-2. The page provides a solve definition from `formulaSolveDefinitions.ts`
-3. `FormulaSolveWorkspace` renders target-specific inputs and result sections
-4. The solve definition calls shared helpers in `calculatorMath.ts`
-5. The page returns formatted result cards, steps, interpretation, assumptions, warnings, and linked study support
+## Shared Formula Logic At A High Level
 
-This lets AccCalc broaden reverse-solve coverage without duplicating algebra, result formatting, or learning logic in every page component.
+`src/utils/calculatorMath.ts` is the math source of truth. Route pages and solve-definition systems should call those helpers instead of re-implementing formulas inside page components.
 
-## How Smart Solver, OCR, Workpapers, and Study Content Connect
+`src/utils/formulaSolveDefinitions.ts` wraps shared math with:
 
-- `Smart Solver` ranks likely calculators from natural-language prompts
-- `OCR routing` reads extracted text and maps worksheet or problem wording to likely routes
-- `appCatalog.ts` keeps aliases, tags, and descriptions consistent across search, routing, and discovery
-- `formulaStudyContent.tsx` and the Study Hub topic bank connect calculators back into reviewer-style learning paths
-- `workpaperTemplates.ts` provides assignment-ready support sheets aligned to calculators and workflow families
-- Homepage collections surface related calculators as guided families instead of isolated links
+- field metadata
+- solve targets
+- result cards
+- assumptions
+- warnings
+- explanation text
 
-## How To Add a New Calculator
+This is where reverse-solve behavior belongs when the math is safe and not misleading.
 
-1. Add or extend the shared helper in [src/utils/calculatorMath.ts](/E:/AccCalc/accounting-companion/src/utils/calculatorMath.ts:1)
-2. Add a solve definition in [src/utils/formulaSolveDefinitions.ts](/E:/AccCalc/accounting-companion/src/utils/formulaSolveDefinitions.ts:1) if the calculator fits the shared workspace pattern
-3. Add study support in [src/utils/formulaStudyContent.tsx](/E:/AccCalc/accounting-companion/src/utils/formulaStudyContent.tsx:1)
-4. Create the route page in the appropriate `src/features/*` folder
-5. Register the lazy route in [src/App.tsx](/E:/AccCalc/accounting-companion/src/App.tsx:1)
-6. Add aliases, keywords, tags, category links, and descriptions in [src/utils/appCatalog.ts](/E:/AccCalc/accounting-companion/src/utils/appCatalog.ts:1)
-7. Add Smart Solver support in [src/features/smart/smartSolver.engine.ts](/E:/AccCalc/accounting-companion/src/features/smart/smartSolver.engine.ts:1)
-8. Add solve-target hints in [src/features/smart/smartSolver.targets.ts](/E:/AccCalc/accounting-companion/src/features/smart/smartSolver.targets.ts:1) when reverse-solving matters
-9. Add OCR wording in [src/features/scan-check/services/ocr/ocrRouting.ts](/E:/AccCalc/accounting-companion/src/features/scan-check/services/ocr/ocrRouting.ts:1) when scanned prompts are likely
-10. Add workpaper support in [src/features/workpapers/workpaperTemplates.ts](/E:/AccCalc/accounting-companion/src/features/workpapers/workpaperTemplates.ts:1) when a schedule or worksheet adds real value
-11. Add regression coverage in [tests/calculatorMath.test.ts](/E:/AccCalc/accounting-companion/tests/calculatorMath.test.ts:1)
+## How Smart Solver, OCR, Workpapers, And Study Connect
 
-## How To Update Formula Logic Safely
+- `appCatalog.ts` defines route metadata, aliases, categories, and new-feature surfacing
+- `appSearch.ts` powers route search using a precomputed index
+- `smartSolver.engine.ts` scores routes and field matches from natural-language prompts
+- `smartSolver.targets.ts` maps explicit wording to solve targets
+- `ocrRouting.ts` suggests likely routes from scanned worksheet vocabulary
+- `workpaperTemplates.ts` registers assignment-ready starter sheets
+- `formulaStudyContent.tsx` and `studyExpansion450.ts` connect solving routes back into learning and review
 
-- Prefer editing shared helpers before page-level code
-- Keep formula text, steps, interpretation, and assumptions aligned with the actual computation
-- Add reverse-solve targets only when the algebra is valid and the result is not misleading
-- Surface assumption notes when tax, rates, or costing logic depends on time-sensitive or classroom-specific rules
-- Extend tests whenever shared math, route search, or solve-target behavior changes
+## Adding A New Calculator
 
-## How To Update Study Content
+1. Add or extend shared math in `src/utils/calculatorMath.ts`
+2. Add a solve definition in `src/utils/formulaSolveDefinitions.ts` if the route uses the shared formula workspace pattern
+3. Create the route page in the correct `src/features/...` folder
+4. Register the route in `src/App.tsx`
+5. Add route metadata, aliases, keywords, and category placement in `src/utils/appCatalog.ts`
+6. Update Smart Solver in `src/features/smart/smartSolver.engine.ts`
+7. Add solve-target hints in `src/features/smart/smartSolver.targets.ts` when needed
+8. Add OCR route patterns in `src/features/scan-check/services/ocr/ocrRouting.ts`
+9. Add study content and reviewer coverage where useful
+10. Add a workpaper template if the route benefits from assignment support
+11. Add or extend tests in `tests/calculatorMath.test.ts`
 
-- Add or extend topic-bank coverage in [src/features/study/studyExpansion450.ts](/E:/AccCalc/accounting-companion/src/features/study/studyExpansion450.ts:1)
-- Add calculator-linked support in [src/utils/formulaStudyContent.tsx](/E:/AccCalc/accounting-companion/src/utils/formulaStudyContent.tsx:1)
-- Keep related calculators and study-next flows current so the learning graph remains navigable
+## Updating Formula Logic
+
+- Keep the source of truth inside shared math helpers
+- Keep result labels and interpretation text aligned with computed values
+- Surface assumptions visibly, especially for tax logic and classroom-specific conventions
+- Add reverse-solve behavior only when the target is mathematically safe
+
+## Updating Themes
+
+- Add new families in `src/utils/themePreferences.ts`
+- Add corresponding CSS token overrides in `src/index.css`
+- Keep both light and dark variants readable
+- Surface the new family in `src/features/meta/SettingsContent.tsx`
+- Check swatch wrapping and selected-state clarity at laptop and desktop widths
+
+## Updating Workpaper Templates
+
+- Register templates in `src/features/workpapers/workpaperTemplates.ts`
+- Prefer assignment-friendly starter sheets with traceable labels and formulas
+- Link templates back to related calculator paths so discovery stays connected
 
 ## Troubleshooting
 
-- `npm test` fails:
-  Check shared helper changes in `calculatorMath.ts`, route-search expectations, or solve-definition outputs.
-- `npm run build` fails:
-  Check route imports in `App.tsx`, metadata additions in `appCatalog.ts`, and type coverage in Smart Solver field maps.
-- Search cannot find a new page:
-  Add aliases, tags, and keywords in `appCatalog.ts`.
-- Smart Solver misses a route:
-  Add field metadata, calculator config, extraction aliases, and solve-target rules in the `smart` feature.
-- OCR suggests the wrong page:
-  Expand `ocrRouting.ts` with stronger wording, patterns, and route bonuses.
-- Tax assumptions need updating:
-  Edit [src/utils/taxConfig.ts](/E:/AccCalc/accounting-companion/src/utils/taxConfig.ts:1) so the defaults and notes remain centralized.
+- If `npm run dev` fails while loading Vite config on Windows, confirm the scripts still point to `vite.config.mjs` with `--configLoader native`
+- If package metadata needs to be read in config time, keep the read path BOM-safe like the current `vite.config.mjs` implementation
+- If a route exists but is hard to find, check `appCatalog.ts`, Smart Solver aliases, and OCR routing patterns together
+- If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
+- If a theme surface looks wrong, verify both `data-theme` and `data-theme-family` selectors in `src/index.css`
 
-## Documentation Set
+## Handoff Notes
 
-- [7.0.0 release notes](/E:/AccCalc/accounting-companion/docs/release-7.0.0.md:1)
-- [7.0.0 system overview](/E:/AccCalc/accounting-companion/docs/system-overview-v7.0.0.md:1)
-- [7.0.0 maintenance playbook](/E:/AccCalc/accounting-companion/docs/maintenance-playbook-v7.0.0.md:1)
-- [7.0.0 printable HTML documentation](/E:/AccCalc/accounting-companion/docs/AccCalc-v7.0.0-Documentation.html:1)
-- PDF package: `docs/AccCalc-v7.0.0-Documentation.pdf`
+The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
 
-## Contribution and Handoff Notes
-
-- Prefer broad, coherent improvements over scattered one-off additions
-- Keep route metadata, Smart Solver, OCR, workpapers, and study support aligned when adding features
-- Preserve mobile readability and Workpaper Studio stability
-- Keep tax assumptions centralized and visible
-- Favor explainable improvements over risky rewrites
-- When future context is low, start with the docs in `docs/`, then trace the route through `App.tsx` -> page -> shared math -> study support -> tests
+The `docs/` folder contains the `8.1.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.

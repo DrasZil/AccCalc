@@ -253,6 +253,46 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["variable cost per unit", "variable cost each", "cost per unit"],
     },
+    opportunityCostPerUnit: {
+        label: "Opportunity Cost / Unit",
+        placeholder: "12",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["opportunity cost per unit", "opportunity cost each", "foregone contribution per unit"],
+    },
+    externalMarketPricePerUnit: {
+        label: "External Market Price / Unit",
+        placeholder: "85",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["external market price", "outside market price", "market price per unit"],
+    },
+    minimumTransferPrice: {
+        label: "Minimum Transfer Price",
+        placeholder: "70",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["minimum transfer price", "lowest transfer price", "transfer price floor"],
+    },
+    marketBasedCeiling: {
+        label: "Market-Based Ceiling",
+        placeholder: "85",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["market based ceiling", "external market ceiling", "outside market ceiling"],
+    },
+    transferPricingRangeWidth: {
+        label: "Transfer Pricing Range Width",
+        placeholder: "15",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["transfer pricing range", "negotiation range", "pricing band"],
+    },
 
     sales: {
         label: "Sales",
@@ -1646,6 +1686,386 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         visibleInManualInputs: false,
         aliases: ["weighted moving average forecast", "weighted forecast", "wma forecast"],
     },
+    actualUnitsSold: {
+        label: "Actual Units Sold",
+        placeholder: "9200",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual units sold", "actual sales units", "actual quantity sold"],
+    },
+    budgetedUnitsSold: {
+        label: "Budgeted Units Sold",
+        placeholder: "10000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted units sold", "planned sales units", "budgeted quantity sold"],
+    },
+    budgetedContributionMarginPerUnit: {
+        label: "Budgeted CM / Unit",
+        placeholder: "18",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: [
+            "budgeted contribution margin per unit",
+            "budgeted cm per unit",
+            "standard contribution margin per unit",
+        ],
+    },
+    salesVolumeVariance: {
+        label: "Sales Volume Variance",
+        placeholder: "-14400",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["sales volume variance", "sales quantity variance", "volume variance"],
+    },
+    actualTotalUnitsSold: {
+        label: "Actual Total Units Sold",
+        placeholder: "10000",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual total units sold", "total actual units sold", "actual total sales units"],
+    },
+    actualProductUnitsSold: {
+        label: "Actual Product Units Sold",
+        placeholder: "4200",
+        kind: "number",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual product units sold", "actual units of product", "actual units sold for product"],
+    },
+    budgetedMixPercent: {
+        label: "Budgeted Mix (%)",
+        placeholder: "40",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["budgeted mix percent", "planned sales mix", "budgeted product mix"],
+    },
+    actualMixPercent: {
+        label: "Actual Mix (%)",
+        placeholder: "42",
+        kind: "percent",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["actual mix percent", "actual sales mix", "actual product mix"],
+    },
+    salesMixVariance: {
+        label: "Sales Mix Variance",
+        placeholder: "3600",
+        kind: "money",
+        group: "business",
+        visibleInManualInputs: false,
+        aliases: ["sales mix variance", "mix variance", "sales mix effect"],
+    },
+    averageDailyUsage: {
+        label: "Average Daily Usage",
+        placeholder: "35",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["average daily usage", "average daily demand", "average usage per day"],
+    },
+    maxDailyUsage: {
+        label: "Maximum Daily Usage",
+        placeholder: "48",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["maximum daily usage", "maximum daily demand", "peak daily usage"],
+    },
+    averageLeadTimeDays: {
+        label: "Average Lead Time (days)",
+        placeholder: "6",
+        kind: "time",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["average lead time", "average lead time days", "normal lead time"],
+    },
+    maxLeadTimeDays: {
+        label: "Maximum Lead Time (days)",
+        placeholder: "8",
+        kind: "time",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["maximum lead time", "maximum lead time days", "worst case lead time"],
+    },
+    safetyStock: {
+        label: "Safety Stock",
+        placeholder: "174",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["safety stock", "buffer stock", "reserve inventory"],
+    },
+    reorderPoint: {
+        label: "Reorder Point",
+        placeholder: "384",
+        kind: "number",
+        group: "inventory",
+        visibleInManualInputs: false,
+        aliases: ["reorder point", "reorder level", "when to reorder"],
+    },
+    grossEstate: {
+        label: "Gross Estate",
+        placeholder: "8500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["gross estate", "estate gross value", "decedent gross estate"],
+    },
+    allowableDeductions: {
+        label: "Allowable Deductions",
+        placeholder: "1500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["allowable deductions", "estate deductions", "deductible estate items"],
+    },
+    taxRatePercent: {
+        label: "Tax Rate (%)",
+        placeholder: "6",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["tax rate", "estate tax rate", "donor tax rate", "rate percent"],
+    },
+    netEstate: {
+        label: "Net Estate",
+        placeholder: "7000000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["net estate", "taxable estate", "estate after deductions"],
+    },
+    estateTaxDue: {
+        label: "Estate Tax Due",
+        placeholder: "420000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["estate tax due", "estate tax payable", "estate tax"],
+    },
+    grossGift: {
+        label: "Gross Gift",
+        placeholder: "1500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["gross gift", "gift amount", "property donated"],
+    },
+    taxableGift: {
+        label: "Taxable Gift",
+        placeholder: "1250000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["taxable gift", "gift net of exemption", "net gift"],
+    },
+    donorsTaxDue: {
+        label: "Donor's Tax Due",
+        placeholder: "75000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["donors tax due", "donor's tax due", "gift tax due"],
+    },
+    taxableBaseAmount: {
+        label: "Taxable Base Amount",
+        placeholder: "250000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["taxable base amount", "documentary stamp base", "tax base amount"],
+    },
+    taxableUnitSize: {
+        label: "Taxable Unit Size",
+        placeholder: "200",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["taxable unit size", "tax unit size", "dst unit size"],
+    },
+    ratePerUnit: {
+        label: "Rate / Unit",
+        placeholder: "1.5",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["rate per unit", "dst rate per unit", "tax per unit"],
+    },
+    taxableUnits: {
+        label: "Taxable Units",
+        placeholder: "1250",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["taxable units", "number of taxable units", "stamp tax units"],
+    },
+    documentaryStampTaxDue: {
+        label: "Documentary Stamp Tax Due",
+        placeholder: "1875",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["documentary stamp tax due", "dst due", "documentary stamp tax"],
+    },
+    commissionRatePercent: {
+        label: "Commission Rate (%)",
+        placeholder: "10",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["commission rate", "consignee commission rate", "commission percent"],
+    },
+    freightAndOtherExpenses: {
+        label: "Freight and Other Expenses",
+        placeholder: "15000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["freight and other expenses", "consignee expenses", "freight charges and expenses"],
+    },
+    advancesRemitted: {
+        label: "Advances Remitted",
+        placeholder: "50000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["advances remitted", "cash advances from consignee", "advance remittance"],
+    },
+    commissionAmount: {
+        label: "Commission Amount",
+        placeholder: "25000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["commission amount", "consignee commission", "commission earned"],
+    },
+    cashStillDueToConsignor: {
+        label: "Cash Still Due to Consignor",
+        placeholder: "160000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["cash still due to consignor", "balance due consignor", "cash due to consignor"],
+    },
+    billedPriceInventory: {
+        label: "Billed Price Inventory",
+        placeholder: "480000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["billed price inventory", "branch inventory at billed price", "inventory at invoice price"],
+    },
+    loadingPercentOnCost: {
+        label: "Loading on Cost (%)",
+        placeholder: "25",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["loading percent on cost", "markup on cost", "loading on cost"],
+    },
+    loadingRateOnBilledPrice: {
+        label: "Loading Rate on Billed Price (%)",
+        placeholder: "20",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["loading rate on billed price", "loading rate on invoice price", "loading percent on billed price"],
+    },
+    inventoryLoadingAllowance: {
+        label: "Inventory Loading Allowance",
+        placeholder: "96000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["inventory loading allowance", "allowance for loading", "branch loading allowance"],
+    },
+    inventoryAtCost: {
+        label: "Inventory at Cost",
+        placeholder: "384000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["inventory at cost", "branch inventory at cost", "inventory net of loading"],
+    },
+    totalDividendsDeclared: {
+        label: "Total Dividends Declared",
+        placeholder: "500000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["total dividends declared", "dividends declared", "cash dividends declared"],
+    },
+    preferredShares: {
+        label: "Preferred Shares",
+        placeholder: "10000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["preferred shares", "preferred shares outstanding", "preferred stock shares"],
+    },
+    preferredParValue: {
+        label: "Preferred Par Value",
+        placeholder: "100",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["preferred par value", "par value per preferred share", "preferred stock par"],
+    },
+    preferredDividendRatePercent: {
+        label: "Preferred Dividend Rate (%)",
+        placeholder: "8",
+        kind: "percent",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["preferred dividend rate", "preferred rate percent", "dividend rate on preferred shares"],
+    },
+    yearsInArrears: {
+        label: "Years in Arrears",
+        placeholder: "2",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["years in arrears", "dividend arrears years", "unpaid preferred dividend years"],
+    },
+    commonSharesOutstanding: {
+        label: "Common Shares Outstanding",
+        placeholder: "50000",
+        kind: "number",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["common shares outstanding", "common shares", "ordinary shares outstanding"],
+    },
+    preferredDividendAllocated: {
+        label: "Preferred Dividend Allocated",
+        placeholder: "240000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["preferred dividend allocated", "preferred dividend distribution", "allocation to preferred"],
+    },
+    commonDividendAllocated: {
+        label: "Common Dividend Allocated",
+        placeholder: "260000",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["common dividend allocated", "common dividend distribution", "allocation to common"],
+    },
+    commonDividendPerShare: {
+        label: "Common Dividend / Share",
+        placeholder: "5.2",
+        kind: "money",
+        group: "accounting",
+        visibleInManualInputs: false,
+        aliases: ["common dividend per share", "dividend per common share", "common dps"],
+    },
     accountsReceivable: {
         label: "Accounts Receivable",
         placeholder: "50000",
@@ -2971,6 +3391,23 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/product mix/i, /bottleneck/i, /constraint/i, /machine hours per unit/i],
     },
     {
+        id: "transfer-pricing-support",
+        name: "Transfer Pricing Support",
+        route: "/business/transfer-pricing-support",
+        description:
+        "Best when the user needs a minimum transfer price, an outside-market ceiling, or a negotiation range for divisional transfer pricing.",
+        required: ["variableCostPerUnit"],
+        optional: [
+            "opportunityCostPerUnit",
+            "externalMarketPricePerUnit",
+            "minimumTransferPrice",
+            "marketBasedCeiling",
+            "transferPricingRangeWidth",
+        ],
+        aliases: ["transfer pricing", "minimum transfer price", "divisional transfer price"],
+        keywords: [/transfer pricing/i, /minimum transfer price/i, /opportunity cost/i, /external market price/i],
+    },
+    {
         id: "budget-variance-analysis",
         name: "Budget Variance Analysis",
         route: "/business/budget-variance-analysis",
@@ -2980,6 +3417,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         optional: ["spendingVariance", "activityVariance", "totalBudgetVariance"],
         aliases: ["budget variance", "spending variance", "activity variance", "performance report"],
         keywords: [/budget variance/i, /spending variance/i, /activity variance/i, /performance report/i],
+    },
+    {
+        id: "sales-volume-variance",
+        name: "Sales Volume Variance",
+        route: "/business/sales-volume-variance",
+        description:
+        "Best when the user compares actual sales volume with budgeted sales volume using a budgeted contribution margin per unit.",
+        required: ["actualUnitsSold", "budgetedUnitsSold", "budgetedContributionMarginPerUnit"],
+        optional: ["salesVolumeVariance"],
+        aliases: ["sales volume variance", "sales quantity variance", "sales volume effect"],
+        keywords: [/sales volume variance/i, /sales quantity variance/i, /budgeted contribution margin/i],
+    },
+    {
+        id: "sales-mix-variance",
+        name: "Sales Mix Variance",
+        route: "/business/sales-mix-variance",
+        description:
+        "Best when the user needs the effect of actual product mix versus budgeted sales mix.",
+        required: ["actualTotalUnitsSold", "actualProductUnitsSold", "budgetedMixPercent", "budgetedContributionMarginPerUnit"],
+        optional: ["actualMixPercent", "salesMixVariance"],
+        aliases: ["sales mix variance", "mix variance", "sales mix effect"],
+        keywords: [/sales mix variance/i, /sales mix/i, /budgeted mix/i, /actual mix/i],
     },
     {
         id: "flexible-budget",
@@ -4457,6 +4916,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/\beoq\b/i, /economic order quantity/i, /reorder point/i, /safety stock/i, /lead time/i],
     },
     {
+        id: "safety-stock-planner",
+        name: "Safety Stock Planner",
+        route: "/operations/safety-stock-planner",
+        description:
+            "Best when the user wants safety stock and reorder point from average and maximum usage plus lead time assumptions.",
+        required: ["averageDailyUsage", "maxDailyUsage", "averageLeadTimeDays", "maxLeadTimeDays"],
+        optional: ["safetyStock", "reorderPoint"],
+        aliases: ["safety stock", "buffer stock", "reorder level planner"],
+        keywords: [/safety stock/i, /buffer stock/i, /reorder point/i, /lead time/i, /daily usage/i],
+    },
+    {
         id: "moving-average-forecast",
         name: "Moving Average Forecast",
         route: "/operations/moving-average-forecast",
@@ -4466,6 +4936,17 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         optional: ["simpleMovingAverageForecast", "weightedMovingAverageForecast"],
         aliases: ["moving average forecast", "weighted moving average", "demand forecast"],
         keywords: [/moving average/i, /weighted moving average/i, /forecast/i, /demand planning/i],
+    },
+    {
+        id: "dividend-allocation",
+        name: "Dividend Allocation",
+        route: "/far/dividend-allocation",
+        description:
+            "Best when the user allocates total dividends between preferred and common shareholders, including preferred arrears when present.",
+        required: ["totalDividendsDeclared", "preferredShares", "preferredParValue", "preferredDividendRatePercent", "commonSharesOutstanding"],
+        optional: ["yearsInArrears", "preferredDividendAllocated", "commonDividendAllocated", "commonDividendPerShare"],
+        aliases: ["dividend allocation", "preferred and common dividends", "dividends in arrears"],
+        keywords: [/dividend allocation/i, /preferred dividends/i, /dividends in arrears/i, /common dividend per share/i],
     },
     {
         id: "lease-measurement-workspace",
@@ -4582,6 +5063,39 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         keywords: [/withholding tax/i, /tax withheld/i, /expanded withholding/i, /creditable withholding/i, /withholding rate/i],
     },
     {
+        id: "estate-tax-helper",
+        name: "Estate Tax Helper",
+        route: "/tax/estate-tax-helper",
+        description:
+            "Best when the user wants net estate and estate tax due from gross estate, deductions, and a visible tax rate assumption.",
+        required: ["grossEstate", "allowableDeductions", "taxRatePercent"],
+        optional: ["netEstate", "estateTaxDue"],
+        aliases: ["estate tax", "net estate", "estate tax due"],
+        keywords: [/estate tax/i, /gross estate/i, /net estate/i, /allowable deductions/i],
+    },
+    {
+        id: "donors-tax-helper",
+        name: "Donor's Tax Helper",
+        route: "/tax/donors-tax-helper",
+        description:
+            "Best when the user needs taxable gift or donor's tax due using visible classroom assumptions.",
+        required: ["grossGift", "taxRatePercent"],
+        optional: ["taxableGift", "donorsTaxDue"],
+        aliases: ["donor's tax", "donors tax", "gift tax"],
+        keywords: [/donor'?s tax/i, /donors tax/i, /gift tax/i, /gross gift/i, /taxable gift/i],
+    },
+    {
+        id: "documentary-stamp-tax-helper",
+        name: "Documentary Stamp Tax Helper",
+        route: "/tax/documentary-stamp-tax-helper",
+        description:
+            "Best when the user needs DST due from a taxable base amount, unit size, and rate per taxable unit.",
+        required: ["taxableBaseAmount", "taxableUnitSize", "ratePerUnit"],
+        optional: ["taxableUnits", "documentaryStampTaxDue"],
+        aliases: ["documentary stamp tax", "dst", "stamp tax"],
+        keywords: [/documentary stamp tax/i, /\bdst\b/i, /stamp tax/i, /rate per unit/i],
+    },
+    {
         id: "tax-compliance-review",
         name: "Tax Compliance and Incentive Review",
         route: "/tax/tax-compliance-review",
@@ -4628,6 +5142,28 @@ import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/curren
         optional: ["netIncome", "dividendsDeclared", "investorShareInIncome", "dividendsReceived", "endingInvestmentBalance"],
         aliases: ["equity method", "investment in associate", "associate accounting"],
         keywords: [/equity method/i, /investment in associate/i, /share in income/i, /associate accounting/i],
+    },
+    {
+        id: "consignment-settlement",
+        name: "Consignment Settlement",
+        route: "/afar/consignment-settlement",
+        description:
+            "Best when the user needs consignee commission, related charges, and the balance still due to the consignor.",
+        required: ["sales", "commissionRatePercent"],
+        optional: ["freightAndOtherExpenses", "advancesRemitted", "commissionAmount", "cashStillDueToConsignor"],
+        aliases: ["consignment settlement", "consignee settlement", "cash due consignor"],
+        keywords: [/consignment/i, /consignee/i, /commission rate/i, /cash due to consignor/i],
+    },
+    {
+        id: "branch-inventory-loading",
+        name: "Branch Inventory Loading",
+        route: "/afar/branch-inventory-loading",
+        description:
+            "Best when the user converts branch inventory at billed price into loading allowance and inventory at cost.",
+        required: ["billedPriceInventory", "loadingPercentOnCost"],
+        optional: ["loadingRateOnBilledPrice", "inventoryLoadingAllowance", "inventoryAtCost"],
+        aliases: ["branch inventory loading", "branch loading", "allowance for overvaluation"],
+        keywords: [/branch inventory/i, /loading on cost/i, /allowance for overvaluation/i, /inventory at billed price/i],
     },
     {
         id: "intercompany-ppe-transfer",
@@ -5950,6 +6486,185 @@ export function normalizeText(text: string = ""): string {
         FIELD_META.weightedMovingAverageForecast.aliases ?? [],
         { allowCurrency: false }
     );
+    const actualUnitsSold = extractNumberByAliases(
+        text,
+        FIELD_META.actualUnitsSold.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const budgetedUnitsSold = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedUnitsSold.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const budgetedContributionMarginPerUnit = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedContributionMarginPerUnit.aliases ?? []
+    );
+    const salesVolumeVariance = extractNumberByAliases(
+        text,
+        FIELD_META.salesVolumeVariance.aliases ?? []
+    );
+    const actualTotalUnitsSold = extractNumberByAliases(
+        text,
+        FIELD_META.actualTotalUnitsSold.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const actualProductUnitsSold = extractNumberByAliases(
+        text,
+        FIELD_META.actualProductUnitsSold.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const budgetedMixPercent = extractNumberByAliases(
+        text,
+        FIELD_META.budgetedMixPercent.aliases ?? [],
+        { percent: true }
+    );
+    const actualMixPercent = extractNumberByAliases(
+        text,
+        FIELD_META.actualMixPercent.aliases ?? [],
+        { percent: true }
+    );
+    const salesMixVariance = extractNumberByAliases(
+        text,
+        FIELD_META.salesMixVariance.aliases ?? []
+    );
+    const averageDailyUsage = extractNumberByAliases(
+        text,
+        FIELD_META.averageDailyUsage.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const maxDailyUsage = extractNumberByAliases(
+        text,
+        FIELD_META.maxDailyUsage.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const averageLeadTimeDays = extractNumberByAliases(
+        text,
+        FIELD_META.averageLeadTimeDays.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const maxLeadTimeDays = extractNumberByAliases(
+        text,
+        FIELD_META.maxLeadTimeDays.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const safetyStock = extractNumberByAliases(text, FIELD_META.safetyStock.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const reorderPoint = extractNumberByAliases(text, FIELD_META.reorderPoint.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const grossEstate = extractNumberByAliases(text, FIELD_META.grossEstate.aliases ?? []);
+    const allowableDeductions = extractNumberByAliases(
+        text,
+        FIELD_META.allowableDeductions.aliases ?? []
+    );
+    const taxRatePercent = extractNumberByAliases(
+        text,
+        FIELD_META.taxRatePercent.aliases ?? [],
+        { percent: true }
+    );
+    const netEstate = extractNumberByAliases(text, FIELD_META.netEstate.aliases ?? []);
+    const estateTaxDue = extractNumberByAliases(text, FIELD_META.estateTaxDue.aliases ?? []);
+    const grossGift = extractNumberByAliases(text, FIELD_META.grossGift.aliases ?? []);
+    const taxableGift = extractNumberByAliases(text, FIELD_META.taxableGift.aliases ?? []);
+    const donorsTaxDue = extractNumberByAliases(text, FIELD_META.donorsTaxDue.aliases ?? []);
+    const taxableBaseAmount = extractNumberByAliases(
+        text,
+        FIELD_META.taxableBaseAmount.aliases ?? []
+    );
+    const taxableUnitSize = extractNumberByAliases(
+        text,
+        FIELD_META.taxableUnitSize.aliases ?? []
+    );
+    const ratePerUnit = extractNumberByAliases(text, FIELD_META.ratePerUnit.aliases ?? []);
+    const taxableUnits = extractNumberByAliases(text, FIELD_META.taxableUnits.aliases ?? [], {
+        allowCurrency: false,
+    });
+    const documentaryStampTaxDue = extractNumberByAliases(
+        text,
+        FIELD_META.documentaryStampTaxDue.aliases ?? []
+    );
+    const commissionRatePercent = extractNumberByAliases(
+        text,
+        FIELD_META.commissionRatePercent.aliases ?? [],
+        { percent: true }
+    );
+    const freightAndOtherExpenses = extractNumberByAliases(
+        text,
+        FIELD_META.freightAndOtherExpenses.aliases ?? []
+    );
+    const advancesRemitted = extractNumberByAliases(
+        text,
+        FIELD_META.advancesRemitted.aliases ?? []
+    );
+    const commissionAmount = extractNumberByAliases(
+        text,
+        FIELD_META.commissionAmount.aliases ?? []
+    );
+    const cashStillDueToConsignor = extractNumberByAliases(
+        text,
+        FIELD_META.cashStillDueToConsignor.aliases ?? []
+    );
+    const billedPriceInventory = extractNumberByAliases(
+        text,
+        FIELD_META.billedPriceInventory.aliases ?? []
+    );
+    const loadingPercentOnCost = extractNumberByAliases(
+        text,
+        FIELD_META.loadingPercentOnCost.aliases ?? [],
+        { percent: true }
+    );
+    const loadingRateOnBilledPrice = extractNumberByAliases(
+        text,
+        FIELD_META.loadingRateOnBilledPrice.aliases ?? [],
+        { percent: true }
+    );
+    const inventoryLoadingAllowance = extractNumberByAliases(
+        text,
+        FIELD_META.inventoryLoadingAllowance.aliases ?? []
+    );
+    const inventoryAtCost = extractNumberByAliases(text, FIELD_META.inventoryAtCost.aliases ?? []);
+    const totalDividendsDeclared = extractNumberByAliases(
+        text,
+        FIELD_META.totalDividendsDeclared.aliases ?? []
+    );
+    const preferredShares = extractNumberByAliases(
+        text,
+        FIELD_META.preferredShares.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const preferredParValue = extractNumberByAliases(
+        text,
+        FIELD_META.preferredParValue.aliases ?? []
+    );
+    const preferredDividendRatePercent = extractNumberByAliases(
+        text,
+        FIELD_META.preferredDividendRatePercent.aliases ?? [],
+        { percent: true }
+    );
+    const yearsInArrears = extractNumberByAliases(
+        text,
+        FIELD_META.yearsInArrears.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const commonSharesOutstanding = extractNumberByAliases(
+        text,
+        FIELD_META.commonSharesOutstanding.aliases ?? [],
+        { allowCurrency: false }
+    );
+    const preferredDividendAllocated = extractNumberByAliases(
+        text,
+        FIELD_META.preferredDividendAllocated.aliases ?? []
+    );
+    const commonDividendAllocated = extractNumberByAliases(
+        text,
+        FIELD_META.commonDividendAllocated.aliases ?? []
+    );
+    const commonDividendPerShare = extractNumberByAliases(
+        text,
+        FIELD_META.commonDividendPerShare.aliases ?? []
+    );
 
     const creditTerms = extractCreditTerms(text);
     const partnershipRatios = extractPartnershipRatios(text);
@@ -6136,6 +6851,57 @@ export function normalizeText(text: string = ""): string {
     setFact(facts, "weight3Percent", weight3Percent);
     setFact(facts, "simpleMovingAverageForecast", simpleMovingAverageForecast);
     setFact(facts, "weightedMovingAverageForecast", weightedMovingAverageForecast);
+    setFact(facts, "actualUnitsSold", actualUnitsSold);
+    setFact(facts, "budgetedUnitsSold", budgetedUnitsSold);
+    setFact(
+        facts,
+        "budgetedContributionMarginPerUnit",
+        budgetedContributionMarginPerUnit
+    );
+    setFact(facts, "salesVolumeVariance", salesVolumeVariance);
+    setFact(facts, "actualTotalUnitsSold", actualTotalUnitsSold);
+    setFact(facts, "actualProductUnitsSold", actualProductUnitsSold);
+    setFact(facts, "budgetedMixPercent", budgetedMixPercent);
+    setFact(facts, "actualMixPercent", actualMixPercent);
+    setFact(facts, "salesMixVariance", salesMixVariance);
+    setFact(facts, "averageDailyUsage", averageDailyUsage);
+    setFact(facts, "maxDailyUsage", maxDailyUsage);
+    setFact(facts, "averageLeadTimeDays", averageLeadTimeDays);
+    setFact(facts, "maxLeadTimeDays", maxLeadTimeDays);
+    setFact(facts, "safetyStock", safetyStock);
+    setFact(facts, "reorderPoint", reorderPoint);
+    setFact(facts, "grossEstate", grossEstate);
+    setFact(facts, "allowableDeductions", allowableDeductions);
+    setFact(facts, "taxRatePercent", taxRatePercent);
+    setFact(facts, "netEstate", netEstate);
+    setFact(facts, "estateTaxDue", estateTaxDue);
+    setFact(facts, "grossGift", grossGift);
+    setFact(facts, "taxableGift", taxableGift);
+    setFact(facts, "donorsTaxDue", donorsTaxDue);
+    setFact(facts, "taxableBaseAmount", taxableBaseAmount);
+    setFact(facts, "taxableUnitSize", taxableUnitSize);
+    setFact(facts, "ratePerUnit", ratePerUnit);
+    setFact(facts, "taxableUnits", taxableUnits);
+    setFact(facts, "documentaryStampTaxDue", documentaryStampTaxDue);
+    setFact(facts, "commissionRatePercent", commissionRatePercent);
+    setFact(facts, "freightAndOtherExpenses", freightAndOtherExpenses);
+    setFact(facts, "advancesRemitted", advancesRemitted);
+    setFact(facts, "commissionAmount", commissionAmount);
+    setFact(facts, "cashStillDueToConsignor", cashStillDueToConsignor);
+    setFact(facts, "billedPriceInventory", billedPriceInventory);
+    setFact(facts, "loadingPercentOnCost", loadingPercentOnCost);
+    setFact(facts, "loadingRateOnBilledPrice", loadingRateOnBilledPrice);
+    setFact(facts, "inventoryLoadingAllowance", inventoryLoadingAllowance);
+    setFact(facts, "inventoryAtCost", inventoryAtCost);
+    setFact(facts, "totalDividendsDeclared", totalDividendsDeclared);
+    setFact(facts, "preferredShares", preferredShares);
+    setFact(facts, "preferredParValue", preferredParValue);
+    setFact(facts, "preferredDividendRatePercent", preferredDividendRatePercent);
+    setFact(facts, "yearsInArrears", yearsInArrears);
+    setFact(facts, "commonSharesOutstanding", commonSharesOutstanding);
+    setFact(facts, "preferredDividendAllocated", preferredDividendAllocated);
+    setFact(facts, "commonDividendAllocated", commonDividendAllocated);
+    setFact(facts, "commonDividendPerShare", commonDividendPerShare);
 
     setFact(facts, "accountsReceivable", accountsReceivable);
     setFact(facts, "estimatedUncollectibleRate", estimatedUncollectibleRate);

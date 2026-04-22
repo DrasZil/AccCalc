@@ -1,5 +1,5 @@
 import formatPHP from "./formatPHP.js";
-import { computeAccountingRateOfReturn, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeAssetDisposal, computeBudgetVarianceAnalysis, computeBudgetedIncomeStatement, computeBreakEven, computeCompoundInterest, computeConstrainedResourceProductMix, computeCurrentRatio, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeEquivalentAnnualAnnuity, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeFutureValue, computeGrossProfitRate, computeImpairmentLoss, computeInventoryBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeMakeOrBuyDecision, computeMovingAverageForecast, computeMarkupMargin, computeNotesReceivableDiscounting, computeOperatingExpenseBudget, computePettyCashReconciliation, computePercentageTax, computePresentValue, computePrepaidExpenseAdjustment, computeProductionBudget, computeQuickRatio, computeRetainedEarningsRollforward, computeSalesBudget, computeSellProcessFurther, computeSimpleInterest, computeSpecialOrderDecision, computeStraightLineDepreciation, computeTurnoverWithDayBasis, computeUnearnedRevenueAdjustment, computeVatReconciliation, computeWithholdingTax, } from "./calculatorMath.js";
+import { computeAccountingRateOfReturn, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeAssetDisposal, computeBudgetVarianceAnalysis, computeBudgetedIncomeStatement, computeBreakEven, computeCompoundInterest, computeConstrainedResourceProductMix, computeCurrentRatio, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeDividendAllocation, computeDocumentaryStampTax, computeDonorsTax, computeEquivalentAnnualAnnuity, computeEstateTax, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeFutureValue, computeGrossProfitRate, computeImpairmentLoss, computeInventoryBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeMakeOrBuyDecision, computeMovingAverageForecast, computeMarkupMargin, computeNotesReceivableDiscounting, computeOperatingExpenseBudget, computePettyCashReconciliation, computePercentageTax, computePresentValue, computePrepaidExpenseAdjustment, computeProductionBudget, computeQuickRatio, computeRetainedEarningsRollforward, computeSalesBudget, computeSalesMixVariance, computeSalesVolumeVariance, computeSafetyStockPlanner, computeSellProcessFurther, computeSimpleInterest, computeSpecialOrderDecision, computeStraightLineDepreciation, computeTransferPricingSupport, computeTurnoverWithDayBasis, computeUnearnedRevenueAdjustment, computeVatReconciliation, computeWithholdingTax, computeConsignmentSettlement, computeBranchInventoryLoading, } from "./calculatorMath.js";
 import { buildTaxAssumptionNotes, PHILIPPINE_TAX_ASSUMPTIONS, } from "./taxConfig.js";
 function formatPercent(value, digits = 2) {
     return `${value.toFixed(digits)}%`;
@@ -3630,6 +3630,139 @@ export const constrainedResourceProductMixSolveDefinition = {
         };
     },
 };
+export const transferPricingSupportSolveDefinition = {
+    id: "transfer-pricing-support-solve",
+    defaultTarget: "minimumTransferPrice",
+    fields: {
+        variableCostPerUnit: {
+            key: "variableCostPerUnit",
+            label: "Variable Cost / Unit",
+            placeholder: "58",
+            kind: "money",
+        },
+        opportunityCostPerUnit: {
+            key: "opportunityCostPerUnit",
+            label: "Opportunity Cost / Unit",
+            placeholder: "12",
+            kind: "money",
+        },
+        externalMarketPricePerUnit: {
+            key: "externalMarketPricePerUnit",
+            label: "External Market Price / Unit",
+            placeholder: "85",
+            kind: "money",
+        },
+        minimumTransferPrice: {
+            key: "minimumTransferPrice",
+            label: "Minimum Transfer Price",
+            placeholder: "70",
+            kind: "money",
+        },
+        marketBasedCeiling: {
+            key: "marketBasedCeiling",
+            label: "Market-based Ceiling",
+            placeholder: "85",
+            kind: "money",
+        },
+        transferPricingRangeWidth: {
+            key: "transferPricingRangeWidth",
+            label: "Negotiation Range Width",
+            placeholder: "15",
+            kind: "money",
+        },
+    },
+    targets: [
+        {
+            key: "minimumTransferPrice",
+            label: "Minimum Transfer Price",
+            summary: "Compute the lowest transfer price the selling division can usually accept without giving up contribution.",
+        },
+        {
+            key: "marketBasedCeiling",
+            label: "Market-based Ceiling",
+            summary: "Use the outside market price as the upper negotiation reference when an external price exists.",
+        },
+        {
+            key: "transferPricingRangeWidth",
+            label: "Negotiation Range Width",
+            summary: "Measure whether there is practical room for an internal transfer-pricing agreement.",
+        },
+    ],
+    getInputKeys() {
+        return [
+            "variableCostPerUnit",
+            "opportunityCostPerUnit",
+            "externalMarketPricePerUnit",
+        ];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Transfer pricing support",
+            body: `Enter the variable cost, opportunity cost, and market benchmark to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (values.variableCostPerUnit < 0 || values.opportunityCostPerUnit < 0) {
+            return { error: "Variable cost and opportunity cost cannot be negative." };
+        }
+        if (values.externalMarketPricePerUnit < 0) {
+            return { error: "External market price cannot be negative." };
+        }
+        const computed = computeTransferPricingSupport({
+            variableCostPerUnit: values.variableCostPerUnit,
+            opportunityCostPerUnit: values.opportunityCostPerUnit,
+            externalMarketPricePerUnit: values.externalMarketPricePerUnit,
+        });
+        const targetValue = targetKey === "marketBasedCeiling"
+            ? computed.marketBasedCeiling
+            : targetKey === "transferPricingRangeWidth"
+                ? computed.transferPricingRangeWidth
+                : computed.minimumTransferPrice;
+        const hasExternalBenchmark = values.externalMarketPricePerUnit > 0;
+        const noNegotiationBand = hasExternalBenchmark &&
+            computed.marketBasedCeiling < computed.minimumTransferPrice;
+        return {
+            primaryResult: {
+                title: targetKey === "marketBasedCeiling"
+                    ? "Market-based Ceiling"
+                    : targetKey === "transferPricingRangeWidth"
+                        ? "Negotiation Range Width"
+                        : "Minimum Transfer Price",
+                value: formatPHP(targetValue),
+                tone: noNegotiationBand && targetKey === "transferPricingRangeWidth" ? "warning" : "accent",
+            },
+            supportingResults: [
+                { title: "Minimum Transfer Price", value: formatPHP(computed.minimumTransferPrice) },
+                { title: "Market-based Ceiling", value: formatPHP(computed.marketBasedCeiling) },
+                { title: "Opportunity Cost / Unit", value: formatPHP(values.opportunityCostPerUnit ?? 0) },
+            ],
+            formula: "Minimum transfer price = Variable cost per unit + Opportunity cost per unit; Negotiation range = Market-based ceiling - Minimum transfer price",
+            steps: [
+                `Minimum transfer price = ${formatPHP(values.variableCostPerUnit)} + ${formatPHP(values.opportunityCostPerUnit ?? 0)} = ${formatPHP(computed.minimumTransferPrice)}.`,
+                hasExternalBenchmark
+                    ? `Market-based ceiling = outside market price = ${formatPHP(computed.marketBasedCeiling)}.`
+                    : `No outside market price was entered, so the ceiling falls back to the minimum transfer price of ${formatPHP(computed.marketBasedCeiling)}.`,
+                `Negotiation range width = ${formatPHP(computed.marketBasedCeiling)} - ${formatPHP(computed.minimumTransferPrice)} = ${formatPHP(computed.transferPricingRangeWidth)}.`,
+            ],
+            interpretation: noNegotiationBand
+                ? "The outside market benchmark is below the selling division's minimum acceptable price, so the case suggests a negotiation gap instead of a normal internal pricing range."
+                : computed.transferPricingRangeWidth === 0
+                    ? "The internal transfer price has no practical negotiation band here because the minimum acceptable price and the benchmark ceiling are the same."
+                    : "A positive range width suggests there is room to negotiate an internal transfer price between the selling division's minimum and the outside benchmark.",
+            warnings: noNegotiationBand
+                ? [
+                    "This scenario shows no positive overlap between the selling division's minimum and the market benchmark. Recheck the opportunity cost and whether internal transfer is still realistic.",
+                ]
+                : undefined,
+            assumptions: [
+                "The minimum transfer price here follows the common classroom rule of variable cost plus opportunity cost.",
+                "The market-based ceiling assumes the external market price is still the relevant upper benchmark for the buying division.",
+            ],
+        };
+    },
+};
 export const budgetVarianceAnalysisSolveDefinition = {
     id: "budget-variance-analysis-solve",
     defaultTarget: "totalBudgetVariance",
@@ -4299,6 +4432,503 @@ export const withholdingTaxSolveDefinition = {
             assumptions: buildTaxAssumptionNotes(PHILIPPINE_TAX_ASSUMPTIONS.withholding, ["This calculator assumes the correct withholding regime and applicable rate have already been identified from the problem or tax reference."]),
             warnings: [
                 "Check whether the case involves final withholding, creditable withholding, or a different tax treatment before relying on the result.",
+            ],
+        };
+    },
+};
+export const salesVolumeVarianceSolveDefinition = {
+    id: "sales-volume-variance-solve",
+    defaultTarget: "salesVolumeVariance",
+    fields: {
+        actualUnitsSold: { key: "actualUnitsSold", label: "Actual Units Sold", placeholder: "10800", kind: "number" },
+        budgetedUnitsSold: { key: "budgetedUnitsSold", label: "Budgeted Units Sold", placeholder: "10000", kind: "number" },
+        budgetedContributionMarginPerUnit: { key: "budgetedContributionMarginPerUnit", label: "Budgeted CM / Unit", placeholder: "18", kind: "money" },
+        salesVolumeVariance: { key: "salesVolumeVariance", label: "Sales Volume Variance", placeholder: "14400", kind: "money" },
+    },
+    targets: [
+        { key: "salesVolumeVariance", label: "Sales Volume Variance", summary: "Measure the profit effect of selling more or fewer units than planned." },
+    ],
+    getInputKeys() {
+        return ["actualUnitsSold", "budgetedUnitsSold", "budgetedContributionMarginPerUnit"];
+    },
+    getEmptyState() {
+        return {
+            title: "Sales volume variance",
+            body: "Enter actual units, budgeted units, and the budgeted contribution margin per unit.",
+        };
+    },
+    solve(_targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeSalesVolumeVariance({
+            actualUnitsSold: values.actualUnitsSold,
+            budgetedUnitsSold: values.budgetedUnitsSold,
+            budgetedContributionMarginPerUnit: values.budgetedContributionMarginPerUnit,
+        });
+        return {
+            primaryResult: {
+                title: "Sales Volume Variance",
+                value: formatPHP(computed.salesVolumeVariance),
+                tone: computed.salesVolumeVariance >= 0 ? "accent" : "warning",
+            },
+            supportingResults: [
+                { title: "Unit Difference", value: formatPlain(computed.unitDifference) },
+                { title: "Variance Label", value: computed.salesVolumeVarianceLabel },
+            ],
+            formula: "Sales volume variance = (Actual units sold - Budgeted units sold) x Budgeted contribution margin per unit",
+            steps: [
+                `Unit difference = ${formatPlain(values.actualUnitsSold)} - ${formatPlain(values.budgetedUnitsSold)} = ${formatPlain(computed.unitDifference)}.`,
+                `Sales volume variance = ${formatPlain(computed.unitDifference)} x ${formatPHP(values.budgetedContributionMarginPerUnit)} = ${formatPHP(computed.salesVolumeVariance)}.`,
+            ],
+            interpretation: `The variance is ${computed.salesVolumeVarianceLabel.toLowerCase()} because actual volume ${computed.unitDifference >= 0 ? "exceeded" : "fell below"} plan under the budgeted contribution margin assumption.`,
+        };
+    },
+};
+export const salesMixVarianceSolveDefinition = {
+    id: "sales-mix-variance-solve",
+    defaultTarget: "salesMixVariance",
+    fields: {
+        actualTotalUnitsSold: { key: "actualTotalUnitsSold", label: "Actual Total Units", placeholder: "12000", kind: "number" },
+        actualProductUnitsSold: { key: "actualProductUnitsSold", label: "Actual Units for This Product", placeholder: "6900", kind: "number" },
+        budgetedMixPercent: { key: "budgetedMixPercent", label: "Budgeted Mix (%)", placeholder: "50", kind: "percent" },
+        budgetedContributionMarginPerUnit: { key: "budgetedContributionMarginPerUnit", label: "Budgeted CM / Unit", placeholder: "14", kind: "money" },
+        actualMixPercent: { key: "actualMixPercent", label: "Actual Mix (%)", placeholder: "57.5", kind: "percent" },
+        salesMixVariance: { key: "salesMixVariance", label: "Sales Mix Variance", placeholder: "12600", kind: "money" },
+    },
+    targets: [
+        { key: "salesMixVariance", label: "Sales Mix Variance", summary: "Measure the profit effect of the actual product mix versus the budgeted mix." },
+        { key: "actualMixPercent", label: "Actual Mix", summary: "Read the actual product mix implied by actual product units and total units sold." },
+    ],
+    getInputKeys() {
+        return ["actualTotalUnitsSold", "actualProductUnitsSold", "budgetedMixPercent", "budgetedContributionMarginPerUnit"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Sales mix variance",
+            body: `Enter the actual mix facts to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (values.actualTotalUnitsSold <= 0) {
+            return { error: "Actual total units must be greater than zero." };
+        }
+        const computed = computeSalesMixVariance({
+            actualTotalUnitsSold: values.actualTotalUnitsSold,
+            actualProductUnitsSold: values.actualProductUnitsSold,
+            budgetedMixPercent: values.budgetedMixPercent,
+            budgetedContributionMarginPerUnit: values.budgetedContributionMarginPerUnit,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "actualMixPercent" ? "Actual Mix" : "Sales Mix Variance",
+                value: targetKey === "actualMixPercent"
+                    ? formatPercent(computed.actualMixPercent)
+                    : formatPHP(computed.salesMixVariance),
+                tone: targetKey === "salesMixVariance" && computed.salesMixVariance < 0 ? "warning" : "accent",
+            },
+            supportingResults: [
+                { title: "Actual Mix", value: formatPercent(computed.actualMixPercent) },
+                { title: "Mix Point Difference", value: formatPercent(computed.mixPercentagePointDifference) },
+                { title: "Variance Label", value: computed.salesMixVarianceLabel },
+            ],
+            formula: "Sales mix variance = Actual total units x (Actual mix % - Budgeted mix %) x Budgeted contribution margin per unit",
+            steps: [
+                `Actual mix = ${formatPlain(values.actualProductUnitsSold)} / ${formatPlain(values.actualTotalUnitsSold)} = ${formatPercent(computed.actualMixPercent)}.`,
+                `Mix point difference = ${formatPercent(computed.actualMixPercent)} - ${formatPercent(values.budgetedMixPercent)} = ${formatPercent(computed.mixPercentagePointDifference)}.`,
+                `Sales mix variance = ${formatPlain(values.actualTotalUnitsSold)} x ${formatPercent(computed.mixPercentagePointDifference)} x ${formatPHP(values.budgetedContributionMarginPerUnit)} = ${formatPHP(computed.salesMixVariance)}.`,
+            ],
+            interpretation: `The actual mix is ${formatPercent(computed.actualMixPercent)}, creating a ${computed.salesMixVarianceLabel.toLowerCase()} mix effect for this product under the budgeted unit contribution margin.`,
+        };
+    },
+};
+export const safetyStockPlannerSolveDefinition = {
+    id: "safety-stock-planner-solve",
+    defaultTarget: "reorderPoint",
+    fields: {
+        averageDailyUsage: { key: "averageDailyUsage", label: "Average Daily Usage", placeholder: "75", kind: "number" },
+        maxDailyUsage: { key: "maxDailyUsage", label: "Maximum Daily Usage", placeholder: "110", kind: "number" },
+        averageLeadTimeDays: { key: "averageLeadTimeDays", label: "Average Lead Time (days)", placeholder: "6", kind: "time" },
+        maxLeadTimeDays: { key: "maxLeadTimeDays", label: "Maximum Lead Time (days)", placeholder: "8", kind: "time" },
+        safetyStock: { key: "safetyStock", label: "Safety Stock", placeholder: "430", kind: "number" },
+        reorderPoint: { key: "reorderPoint", label: "Reorder Point", placeholder: "880", kind: "number" },
+    },
+    targets: [
+        { key: "reorderPoint", label: "Reorder Point", summary: "Compute the stock position where a new order should be released." },
+        { key: "safetyStock", label: "Safety Stock", summary: "Compute the inventory buffer needed to cover demand and lead-time uncertainty." },
+    ],
+    getInputKeys() {
+        return ["averageDailyUsage", "maxDailyUsage", "averageLeadTimeDays", "maxLeadTimeDays"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Safety stock and reorder planning",
+            body: `Enter demand and lead-time assumptions to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeSafetyStockPlanner({
+            averageDailyUsage: values.averageDailyUsage,
+            maxDailyUsage: values.maxDailyUsage,
+            averageLeadTimeDays: values.averageLeadTimeDays,
+            maxLeadTimeDays: values.maxLeadTimeDays,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "safetyStock" ? "Safety Stock" : "Reorder Point",
+                value: formatPlain(targetKey === "safetyStock" ? computed.safetyStock : computed.reorderPoint),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Maximum Usage in Lead Time", value: formatPlain(computed.maximumUsageDuringLeadTime) },
+                { title: "Average Usage in Lead Time", value: formatPlain(computed.averageUsageDuringLeadTime) },
+                { title: "Safety Stock", value: formatPlain(computed.safetyStock) },
+            ],
+            formula: "Safety stock = (Maximum daily usage x Maximum lead time) - (Average daily usage x Average lead time); Reorder point = Average usage during lead time + Safety stock",
+            steps: [
+                `Maximum usage during lead time = ${formatPlain(values.maxDailyUsage)} x ${formatPlain(values.maxLeadTimeDays)} = ${formatPlain(computed.maximumUsageDuringLeadTime)}.`,
+                `Average usage during lead time = ${formatPlain(values.averageDailyUsage)} x ${formatPlain(values.averageLeadTimeDays)} = ${formatPlain(computed.averageUsageDuringLeadTime)}.`,
+                `Safety stock = ${formatPlain(computed.maximumUsageDuringLeadTime)} - ${formatPlain(computed.averageUsageDuringLeadTime)} = ${formatPlain(computed.safetyStock)}.`,
+                `Reorder point = ${formatPlain(computed.averageUsageDuringLeadTime)} + ${formatPlain(computed.safetyStock)} = ${formatPlain(computed.reorderPoint)}.`,
+            ],
+            interpretation: "Use the reorder point to trigger replenishment earlier, and use safety stock as the protective buffer for uncertainty in demand or lead time.",
+        };
+    },
+};
+export const estateTaxSolveDefinition = {
+    id: "estate-tax-solve",
+    defaultTarget: "estateTaxDue",
+    fields: {
+        grossEstate: { key: "grossEstate", label: "Gross Estate", placeholder: "18000000", kind: "money" },
+        allowableDeductions: { key: "allowableDeductions", label: "Allowable Deductions", placeholder: "2500000", kind: "money" },
+        taxRatePercent: { key: "taxRatePercent", label: "Estate Tax Rate (%)", placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.estateTax.ratePercent), kind: "percent" },
+        netEstate: { key: "netEstate", label: "Net Estate", placeholder: "15500000", kind: "money" },
+        estateTaxDue: { key: "estateTaxDue", label: "Estate Tax Due", placeholder: "930000", kind: "money" },
+    },
+    targets: [
+        { key: "estateTaxDue", label: "Estate Tax Due", summary: "Compute estate tax from the net estate and the applicable rate." },
+        { key: "netEstate", label: "Net Estate", summary: "Compute the net estate after allowable deductions." },
+    ],
+    getInputKeys() {
+        return ["grossEstate", "allowableDeductions", "taxRatePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Estate tax helper",
+            body: `Enter the gross-estate and deduction values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeEstateTax({
+            grossEstate: values.grossEstate,
+            allowableDeductions: values.allowableDeductions,
+            taxRatePercent: values.taxRatePercent,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "netEstate" ? "Net Estate" : "Estate Tax Due",
+                value: targetKey === "netEstate" ? formatPHP(computed.netEstate) : formatPHP(computed.estateTaxDue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Gross Estate", value: formatPHP(values.grossEstate) },
+                { title: "Allowable Deductions", value: formatPHP(values.allowableDeductions ?? 0) },
+                { title: "Tax Rate", value: formatPercent(values.taxRatePercent) },
+            ],
+            formula: "Net estate = Gross estate - Allowable deductions; Estate tax due = Net estate x Tax rate",
+            steps: [
+                `Net estate = ${formatPHP(values.grossEstate)} - ${formatPHP(values.allowableDeductions ?? 0)} = ${formatPHP(computed.netEstate)}.`,
+                `Estate tax due = ${formatPHP(computed.netEstate)} x ${formatPercent(values.taxRatePercent)} = ${formatPHP(computed.estateTaxDue)}.`,
+            ],
+            interpretation: "This helper isolates the classroom arithmetic only. Confirm the composition of the gross estate and deductions before relying on the tax amount.",
+            assumptions: buildTaxAssumptionNotes(PHILIPPINE_TAX_ASSUMPTIONS.estateTax, ["This helper assumes the scenario already identified the taxable estate base correctly."]),
+        };
+    },
+};
+export const donorsTaxSolveDefinition = {
+    id: "donors-tax-solve",
+    defaultTarget: "donorsTaxDue",
+    fields: {
+        grossGift: { key: "grossGift", label: "Gross Gift", placeholder: "2500000", kind: "money" },
+        allowableDeductions: { key: "allowableDeductions", label: "Allowable Deductions", placeholder: "500000", kind: "money" },
+        taxRatePercent: { key: "taxRatePercent", label: "Donor's Tax Rate (%)", placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.donorsTax.ratePercent), kind: "percent" },
+        taxableGift: { key: "taxableGift", label: "Taxable Gift", placeholder: "2000000", kind: "money" },
+        donorsTaxDue: { key: "donorsTaxDue", label: "Donor's Tax Due", placeholder: "120000", kind: "money" },
+    },
+    targets: [
+        { key: "donorsTaxDue", label: "Donor's Tax Due", summary: "Compute donor's tax from the taxable gift base." },
+        { key: "taxableGift", label: "Taxable Gift", summary: "Compute the taxable gift after allowable deductions or exclusions." },
+    ],
+    getInputKeys() {
+        return ["grossGift", "allowableDeductions", "taxRatePercent"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Donor's tax helper",
+            body: `Enter the gift base and deductions to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeDonorsTax({
+            grossGift: values.grossGift,
+            allowableDeductions: values.allowableDeductions,
+            taxRatePercent: values.taxRatePercent,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "taxableGift" ? "Taxable Gift" : "Donor's Tax Due",
+                value: targetKey === "taxableGift" ? formatPHP(computed.taxableGift) : formatPHP(computed.donorsTaxDue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Gross Gift", value: formatPHP(values.grossGift) },
+                { title: "Allowable Deductions", value: formatPHP(values.allowableDeductions ?? 0) },
+                { title: "Tax Rate", value: formatPercent(values.taxRatePercent) },
+            ],
+            formula: "Taxable gift = Gross gift - Allowable deductions; Donor's tax due = Taxable gift x Tax rate",
+            steps: [
+                `Taxable gift = ${formatPHP(values.grossGift)} - ${formatPHP(values.allowableDeductions ?? 0)} = ${formatPHP(computed.taxableGift)}.`,
+                `Donor's tax due = ${formatPHP(computed.taxableGift)} x ${formatPercent(values.taxRatePercent)} = ${formatPHP(computed.donorsTaxDue)}.`,
+            ],
+            interpretation: "Use this result only after confirming the transfer is a taxable gift and the proper exclusions or deductions have already been identified.",
+            assumptions: buildTaxAssumptionNotes(PHILIPPINE_TAX_ASSUMPTIONS.donorsTax, ["This helper keeps the arithmetic visible but does not replace legal classification of exemptions or exclusions."]),
+        };
+    },
+};
+export const documentaryStampTaxSolveDefinition = {
+    id: "documentary-stamp-tax-solve",
+    defaultTarget: "documentaryStampTaxDue",
+    fields: {
+        taxableBaseAmount: { key: "taxableBaseAmount", label: "Taxable Base Amount", placeholder: "1500000", kind: "money" },
+        taxableUnitSize: { key: "taxableUnitSize", label: "Taxable Unit Size", placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.documentaryStampTax.defaultTaxableUnitSize), kind: "money" },
+        ratePerUnit: { key: "ratePerUnit", label: "Rate per Unit", placeholder: String(PHILIPPINE_TAX_ASSUMPTIONS.documentaryStampTax.defaultRatePerUnit), kind: "money" },
+        taxableUnits: { key: "taxableUnits", label: "Taxable Units", placeholder: "7500", kind: "number" },
+        documentaryStampTaxDue: { key: "documentaryStampTaxDue", label: "DST Due", placeholder: "11250", kind: "money" },
+    },
+    targets: [
+        { key: "documentaryStampTaxDue", label: "DST Due", summary: "Compute documentary stamp tax from the taxable base, unit size, and per-unit rate." },
+        { key: "taxableUnits", label: "Taxable Units", summary: "Compute the number of taxable units after applying the ceiling rule." },
+    ],
+    getInputKeys() {
+        return ["taxableBaseAmount", "taxableUnitSize", "ratePerUnit"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Documentary stamp tax helper",
+            body: `Enter the taxable base, taxable unit size, and rate to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        if (values.taxableUnitSize <= 0) {
+            return { error: "Taxable unit size must be greater than zero." };
+        }
+        const computed = computeDocumentaryStampTax({
+            taxableBaseAmount: values.taxableBaseAmount,
+            taxableUnitSize: values.taxableUnitSize,
+            ratePerUnit: values.ratePerUnit,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "taxableUnits" ? "Taxable Units" : "DST Due",
+                value: targetKey === "taxableUnits" ? formatPlain(computed.taxableUnits) : formatPHP(computed.documentaryStampTaxDue),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Taxable Base", value: formatPHP(values.taxableBaseAmount) },
+                { title: "Unit Size", value: formatPHP(values.taxableUnitSize) },
+                { title: "Rate per Unit", value: formatPHP(values.ratePerUnit) },
+            ],
+            formula: "Taxable units = Ceiling(Taxable base / Taxable unit size); DST due = Taxable units x Rate per unit",
+            steps: [
+                `Taxable units = Ceiling(${formatPHP(values.taxableBaseAmount)} / ${formatPHP(values.taxableUnitSize)}) = ${formatPlain(computed.taxableUnits)}.`,
+                `DST due = ${formatPlain(computed.taxableUnits)} x ${formatPHP(values.ratePerUnit)} = ${formatPHP(computed.documentaryStampTaxDue)}.`,
+            ],
+            interpretation: "This keeps the unit-based documentary stamp tax arithmetic explicit, but the correct taxable base and rate still depend on the document or transaction type.",
+            assumptions: buildTaxAssumptionNotes(PHILIPPINE_TAX_ASSUMPTIONS.documentaryStampTax, ["This helper assumes the applicable taxable unit and per-unit rate have already been identified from the scenario or tax reference."]),
+        };
+    },
+};
+export const consignmentSettlementSolveDefinition = {
+    id: "consignment-settlement-solve",
+    defaultTarget: "cashStillDueToConsignor",
+    fields: {
+        grossSales: { key: "grossSales", label: "Gross Sales", placeholder: "420000", kind: "money" },
+        commissionRatePercent: { key: "commissionRatePercent", label: "Commission Rate (%)", placeholder: "12", kind: "percent" },
+        freightAndOtherExpenses: { key: "freightAndOtherExpenses", label: "Freight and Other Expenses", placeholder: "18000", kind: "money" },
+        advancesRemitted: { key: "advancesRemitted", label: "Advances Already Remitted", placeholder: "250000", kind: "money" },
+        commissionAmount: { key: "commissionAmount", label: "Commission", placeholder: "50400", kind: "money" },
+        cashStillDueToConsignor: { key: "cashStillDueToConsignor", label: "Cash Still Due to Consignor", placeholder: "101600", kind: "money" },
+    },
+    targets: [
+        { key: "cashStillDueToConsignor", label: "Cash Still Due", summary: "Compute the remaining amount payable to the consignor after commission, expenses, and any advances." },
+        { key: "commissionAmount", label: "Commission", summary: "Compute the consignee's commission from the gross sales value." },
+    ],
+    getInputKeys() {
+        return ["grossSales", "commissionRatePercent", "freightAndOtherExpenses", "advancesRemitted"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Consignment settlement",
+            body: `Enter the consignment settlement values to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeConsignmentSettlement({
+            grossSales: values.grossSales,
+            commissionRatePercent: values.commissionRatePercent,
+            freightAndOtherExpenses: values.freightAndOtherExpenses,
+            advancesRemitted: values.advancesRemitted,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "commissionAmount" ? "Commission" : "Cash Still Due to Consignor",
+                value: targetKey === "commissionAmount" ? formatPHP(computed.commissionAmount) : formatPHP(computed.cashStillDueToConsignor),
+                tone: targetKey === "cashStillDueToConsignor" && computed.cashStillDueToConsignor < 0 ? "warning" : "accent",
+            },
+            supportingResults: [
+                { title: "Commission", value: formatPHP(computed.commissionAmount) },
+                { title: "Total Charges Before Advances", value: formatPHP(computed.totalCharges) },
+                { title: "Advances Remitted", value: formatPHP(values.advancesRemitted ?? 0) },
+            ],
+            formula: "Cash still due = Gross sales - Commission - Freight and other expenses - Advances remitted",
+            steps: [
+                `Commission = ${formatPHP(values.grossSales)} x ${formatPercent(values.commissionRatePercent)} = ${formatPHP(computed.commissionAmount)}.`,
+                `Total charges before advances = ${formatPHP(computed.commissionAmount)} + ${formatPHP(values.freightAndOtherExpenses ?? 0)} = ${formatPHP(computed.totalCharges)}.`,
+                `Cash still due = ${formatPHP(values.grossSales)} - ${formatPHP(computed.totalCharges)} - ${formatPHP(values.advancesRemitted ?? 0)} = ${formatPHP(computed.cashStillDueToConsignor)}.`,
+            ],
+            interpretation: "Use this result to separate the consignee's commission and reimbursable charges from the cash still payable to the consignor.",
+        };
+    },
+};
+export const branchInventoryLoadingSolveDefinition = {
+    id: "branch-inventory-loading-solve",
+    defaultTarget: "inventoryLoadingAllowance",
+    fields: {
+        billedPriceInventory: { key: "billedPriceInventory", label: "Inventory at Billed Price", placeholder: "540000", kind: "money" },
+        loadingPercentOnCost: { key: "loadingPercentOnCost", label: "Loading on Cost (%)", placeholder: "25", kind: "percent" },
+        loadingRateOnBilledPrice: { key: "loadingRateOnBilledPrice", label: "Loading on Billed Price (%)", placeholder: "20", kind: "percent" },
+        inventoryLoadingAllowance: { key: "inventoryLoadingAllowance", label: "Inventory Loading Allowance", placeholder: "108000", kind: "money" },
+        inventoryAtCost: { key: "inventoryAtCost", label: "Inventory at Cost", placeholder: "432000", kind: "money" },
+    },
+    targets: [
+        { key: "inventoryLoadingAllowance", label: "Loading Allowance", summary: "Compute the branch inventory reserve needed to eliminate home-office loading." },
+        { key: "inventoryAtCost", label: "Inventory at Cost", summary: "Compute the branch inventory after removing the billed-price loading." },
+    ],
+    getInputKeys() {
+        return ["billedPriceInventory", "loadingPercentOnCost"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Branch inventory loading",
+            body: `Enter the billed-price inventory and loading rate to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeBranchInventoryLoading({
+            billedPriceInventory: values.billedPriceInventory,
+            loadingPercentOnCost: values.loadingPercentOnCost,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "inventoryAtCost" ? "Inventory at Cost" : "Loading Allowance",
+                value: targetKey === "inventoryAtCost" ? formatPHP(computed.inventoryAtCost) : formatPHP(computed.inventoryLoadingAllowance),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Loading Rate on Billed Price", value: formatPercent(computed.loadingRateOnBilledPrice) },
+                { title: "Inventory at Cost", value: formatPHP(computed.inventoryAtCost) },
+            ],
+            formula: "Loading rate on billed price = Loading on cost / (100 + Loading on cost); Allowance = Inventory at billed price x Loading rate on billed price",
+            steps: [
+                `Loading rate on billed price = ${formatPercent(values.loadingPercentOnCost)} / (100% + ${formatPercent(values.loadingPercentOnCost)}) = ${formatPercent(computed.loadingRateOnBilledPrice)}.`,
+                `Loading allowance = ${formatPHP(values.billedPriceInventory)} x ${formatPercent(computed.loadingRateOnBilledPrice)} = ${formatPHP(computed.inventoryLoadingAllowance)}.`,
+                `Inventory at cost = ${formatPHP(values.billedPriceInventory)} - ${formatPHP(computed.inventoryLoadingAllowance)} = ${formatPHP(computed.inventoryAtCost)}.`,
+            ],
+            interpretation: "This helper removes the branch inventory loading so the ending balance can be restated at cost for home-office and branch reporting drills.",
+        };
+    },
+};
+export const dividendAllocationSolveDefinition = {
+    id: "dividend-allocation-solve",
+    defaultTarget: "commonDividendAllocated",
+    fields: {
+        totalDividendsDeclared: { key: "totalDividendsDeclared", label: "Total Dividends Declared", placeholder: "600000", kind: "money" },
+        preferredShares: { key: "preferredShares", label: "Preferred Shares", placeholder: "20000", kind: "number" },
+        preferredParValue: { key: "preferredParValue", label: "Preferred Par Value", placeholder: "100", kind: "money" },
+        preferredDividendRatePercent: { key: "preferredDividendRatePercent", label: "Preferred Dividend Rate (%)", placeholder: "8", kind: "percent" },
+        yearsInArrears: { key: "yearsInArrears", label: "Years in Arrears", placeholder: "1", kind: "number" },
+        commonSharesOutstanding: { key: "commonSharesOutstanding", label: "Common Shares Outstanding", placeholder: "100000", kind: "number" },
+        preferredDividendAllocated: { key: "preferredDividendAllocated", label: "Preferred Allocation", placeholder: "320000", kind: "money" },
+        commonDividendAllocated: { key: "commonDividendAllocated", label: "Common Allocation", placeholder: "280000", kind: "money" },
+        commonDividendPerShare: { key: "commonDividendPerShare", label: "Common Dividend / Share", placeholder: "2.8", kind: "money" },
+    },
+    targets: [
+        { key: "commonDividendAllocated", label: "Common Allocation", summary: "Compute the dividends available for common shareholders after preferred requirements." },
+        { key: "preferredDividendAllocated", label: "Preferred Allocation", summary: "Compute the dividends allocated to preferred shareholders, including arrears if applicable." },
+        { key: "commonDividendPerShare", label: "Common Dividend / Share", summary: "Compute the common dividend per share from the common allocation." },
+    ],
+    getInputKeys() {
+        return ["totalDividendsDeclared", "preferredShares", "preferredParValue", "preferredDividendRatePercent", "yearsInArrears", "commonSharesOutstanding"];
+    },
+    getEmptyState(targetKey) {
+        return {
+            title: "Dividend allocation between preferred and common",
+            body: `Enter the dividend declaration and share data to solve for ${targetKey}.`,
+        };
+    },
+    solve(targetKey, values) {
+        if (Object.values(values).some((value) => Number.isNaN(value)))
+            return invalidNumberError();
+        const computed = computeDividendAllocation({
+            totalDividendsDeclared: values.totalDividendsDeclared,
+            preferredShares: values.preferredShares,
+            preferredParValue: values.preferredParValue,
+            preferredDividendRatePercent: values.preferredDividendRatePercent,
+            yearsInArrears: values.yearsInArrears,
+            commonSharesOutstanding: values.commonSharesOutstanding,
+        });
+        return {
+            primaryResult: {
+                title: targetKey === "preferredDividendAllocated"
+                    ? "Preferred Allocation"
+                    : targetKey === "commonDividendPerShare"
+                        ? "Common Dividend / Share"
+                        : "Common Allocation",
+                value: targetKey === "preferredDividendAllocated"
+                    ? formatPHP(computed.preferredDividendAllocated)
+                    : targetKey === "commonDividendPerShare"
+                        ? formatPHP(computed.commonDividendPerShare)
+                        : formatPHP(computed.commonDividendAllocated),
+                tone: "accent",
+            },
+            supportingResults: [
+                { title: "Annual Preferred Dividend", value: formatPHP(computed.annualPreferredDividend) },
+                { title: "Preferred Arrears", value: formatPHP(computed.preferredArrearsDividend) },
+                { title: "Unpaid Preferred Balance", value: formatPHP(computed.unpaidPreferredBalance) },
+            ],
+            formula: "Annual preferred dividend = Preferred shares x Par value x Dividend rate; Common allocation = Total dividends declared - Preferred allocation",
+            steps: [
+                `Annual preferred dividend = ${formatPlain(values.preferredShares)} x ${formatPHP(values.preferredParValue)} x ${formatPercent(values.preferredDividendRatePercent)} = ${formatPHP(computed.annualPreferredDividend)}.`,
+                `Preferred arrears = ${formatPHP(computed.annualPreferredDividend)} x ${formatPlain(values.yearsInArrears ?? 0)} = ${formatPHP(computed.preferredArrearsDividend)}.`,
+                `Preferred allocation = minimum of ${formatPHP(values.totalDividendsDeclared)} and ${formatPHP(computed.totalPreferredRequirement)} = ${formatPHP(computed.preferredDividendAllocated)}.`,
+                `Common allocation = ${formatPHP(values.totalDividendsDeclared)} - ${formatPHP(computed.preferredDividendAllocated)} = ${formatPHP(computed.commonDividendAllocated)}.`,
+            ],
+            interpretation: "Use this page for cumulative preferred-dividend classroom drills where arrears must be covered before common shareholders participate.",
+            warnings: [
+                "This helper assumes cumulative preferred shares when years in arrears are entered. Non-cumulative shares should use zero years in arrears unless the case states otherwise.",
             ],
         };
     },

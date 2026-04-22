@@ -1,14 +1,17 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { defineConfig, type Plugin } from "vite";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const packageJson = JSON.parse(
-    readFileSync(resolve(__dirname, "package.json"), "utf8")
-) as { version: string };
+    readFileSync(resolve(__dirname, "package.json"), "utf8").replace(/^\uFEFF/, "")
+);
 
-function acccalcAssetManifestPlugin(): Plugin {
+function acccalcAssetManifestPlugin() {
     return {
         name: "acccalc-asset-manifest",
         generateBundle(_, bundle) {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBudgetVarianceAnalysis, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryBudget, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computeOperatingExpenseBudget, computeSalesBudget, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeBudgetedIncomeStatement, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeNotesReceivableDiscounting, computeStatementOfChangesInEquity, computeVatReconciliation, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeMakeOrBuyDecision, computeMovingAverageForecast, computeSurplusAtEquilibrium, computeSellProcessFurther, computeSpecialOrderDecision, computeCashRunway, computeConstrainedResourceProductMix, } from "../src/utils/calculatorMath.js";
-import { budgetVarianceAnalysisSolveDefinition, breakEvenSolveDefinition, budgetedIncomeStatementSolveDefinition, constrainedResourceProductMixSolveDefinition, currentRatioSolveDefinition, directLaborBudgetSolveDefinition, makeOrBuyDecisionSolveDefinition, movingAverageForecastSolveDefinition, priceCostMarginSolveDefinition, sellProcessFurtherSolveDefinition, simpleInterestSolveDefinition, specialOrderDecisionSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
+import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBudgetVarianceAnalysis, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryBudget, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computeOperatingExpenseBudget, computeSalesBudget, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTransferPricingSupport, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeBudgetedIncomeStatement, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeNotesReceivableDiscounting, computeStatementOfChangesInEquity, computeVatReconciliation, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeMakeOrBuyDecision, computeMovingAverageForecast, computeSurplusAtEquilibrium, computeSellProcessFurther, computeSpecialOrderDecision, computeCashRunway, computeConstrainedResourceProductMix, } from "../src/utils/calculatorMath.js";
+import { budgetVarianceAnalysisSolveDefinition, breakEvenSolveDefinition, budgetedIncomeStatementSolveDefinition, constrainedResourceProductMixSolveDefinition, currentRatioSolveDefinition, directLaborBudgetSolveDefinition, makeOrBuyDecisionSolveDefinition, movingAverageForecastSolveDefinition, priceCostMarginSolveDefinition, sellProcessFurtherSolveDefinition, simpleInterestSolveDefinition, specialOrderDecisionSolveDefinition, transferPricingSupportSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
@@ -238,6 +238,7 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     const vatReconciliation = getWorkpaperTemplate("vat-reconciliation-support");
     const intercompanyElimination = getWorkpaperTemplate("intercompany-inventory-elimination-support");
     const equityRollforward = getWorkpaperTemplate("equity-rollforward-support");
+    const transferPricing = getWorkpaperTemplate("transfer-pricing-support");
     assert.ok(pettyCash);
     assert.ok(adjustments);
     assert.ok(production);
@@ -248,6 +249,7 @@ runTest("workpaper templates ship with structured starter workbooks", () => {
     assert.ok(vatReconciliation);
     assert.ok(intercompanyElimination);
     assert.ok(equityRollforward);
+    assert.ok(transferPricing);
 });
 runTest("cash discount and partnership helpers return standard values", () => {
     const cashDiscount = computeCashDiscount({
@@ -1376,6 +1378,16 @@ runTest("new 7.0.0 managerial decision and forecasting helpers stay accurate", (
     assertClose(forecast.totalWeightPercent, 100);
     assertClose(forecast.latestTrendChange, 60);
 });
+runTest("new 8.1.0 transfer-pricing helper stays aligned with relevant-costing logic", () => {
+    const result = computeTransferPricingSupport({
+        variableCostPerUnit: 58,
+        opportunityCostPerUnit: 12,
+        externalMarketPricePerUnit: 85,
+    });
+    assertClose(result.minimumTransferPrice, 70);
+    assertClose(result.marketBasedCeiling, 85);
+    assertClose(result.transferPricingRangeWidth, 15);
+});
 runTest("notes discounting helper separates maturity value and bank discount", () => {
     const result = computeNotesReceivableDiscounting({
         faceValue: 250000,
@@ -1473,6 +1485,17 @@ runTest("new 7.0.0 solve definitions stay aligned with shared decision math", ()
         assert.equal(forecastSolve.primaryResult.value, "998");
     }
 });
+runTest("new 8.1.0 transfer-pricing solve definition stays aligned with shared math", () => {
+    const transferPricingSolve = transferPricingSupportSolveDefinition.solve("transferPricingRangeWidth", {
+        variableCostPerUnit: 58,
+        opportunityCostPerUnit: 12,
+        externalMarketPricePerUnit: 85,
+    });
+    assert.equal("error" in transferPricingSolve, false);
+    if (!("error" in transferPricingSolve)) {
+        assert.equal(transferPricingSolve.primaryResult.value, "₱15.00");
+    }
+});
 runTest("search routes surfaces new 6.0.0 budgeting and AFAR tools", () => {
     assert.equal(searchAppRoutes("direct labor budget")[0]?.path, "/business/direct-labor-budget");
     assert.equal(searchAppRoutes("pro forma income statement")[0]?.path, "/business/budgeted-income-statement");
@@ -1487,6 +1510,13 @@ runTest("search routes surfaces new 7.0.0 managerial and operations tools", () =
     assert.equal(searchAppRoutes("bottleneck contribution margin")[0]?.path, "/business/constrained-resource-product-mix");
     assert.equal(searchAppRoutes("spending variance activity variance")[0]?.path, "/business/budget-variance-analysis");
     assert.equal(searchAppRoutes("weighted moving average demand forecast")[0]?.path, "/operations/moving-average-forecast");
+});
+runTest("search routes surfaces new 8.1.0 transfer-pricing support", () => {
+    assert.equal(searchAppRoutes("minimum transfer price")[0]?.path, "/business/transfer-pricing-support");
+});
+runTest("smart solver target suggestions understand transfer-pricing prompts", () => {
+    assert.equal(suggestSolveTarget("transfer-pricing-support", "find the minimum transfer price"), "minimumTransferPrice");
+    assert.equal(suggestSolveTarget("transfer-pricing-support", "compute the negotiation range"), "transferPricingRangeWidth");
 });
 runTest("account reference search finds aliases and abbreviations", () => {
     const adaResults = searchAccountReferences("ada");

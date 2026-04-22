@@ -39,6 +39,7 @@ import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
 import { useInstallExperience } from "../../utils/installExperience";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import { clearDeploymentMismatch, useOfflineBundleStatus } from "../../utils/offlineStatus";
+import { getThemeMetaColor, resolveThemeMode } from "../../utils/themePreferences";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import { useAppNotifications } from "./AppNotifications";
 import {
@@ -764,12 +765,8 @@ export default function AppLayout() {
     const effectiveDesktopSidebarVisible = settings.rememberDesktopSidebarVisibility
         ? desktopSidebarVisible
         : true;
-    const resolvedTheme =
-        settings.themePreference === "system"
-            ? systemPrefersDark
-                ? "dark"
-                : "light"
-            : settings.themePreference;
+    const resolvedTheme = resolveThemeMode(settings.themePreference, systemPrefersDark);
+    const resolvedThemeFamily = settings.themeFamily;
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
     const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
@@ -990,8 +987,16 @@ export default function AppLayout() {
     useEffect(() => {
         if (typeof document === "undefined") return;
         document.documentElement.dataset.theme = resolvedTheme;
+        document.documentElement.dataset.themeFamily = resolvedThemeFamily;
         document.body.dataset.theme = resolvedTheme;
-    }, [resolvedTheme]);
+        document.body.dataset.themeFamily = resolvedThemeFamily;
+
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        const nextThemeColor = getThemeMetaColor(resolvedTheme, resolvedThemeFamily);
+        if (themeColorMeta) {
+            themeColorMeta.setAttribute("content", nextThemeColor);
+        }
+    }, [resolvedTheme, resolvedThemeFamily]);
 
     useEffect(() => {
         if (typeof document === "undefined" || !headerRef.current) return;

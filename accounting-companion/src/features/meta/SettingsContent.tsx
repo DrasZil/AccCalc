@@ -16,6 +16,10 @@ import {
 } from "../../utils/appSettings";
 import { SUPPORTED_CURRENCIES } from "../../utils/currency";
 import { APP_RELEASE_NOTES, APP_VERSION } from "../../utils/appRelease";
+import {
+    THEME_FAMILY_OPTIONS,
+    type ThemeFamily,
+} from "../../utils/themePreferences";
 import { useLocalNotifications } from "../../hooks/useLocalNotifications";
 import { usePermissionState } from "../../hooks/usePermissionState";
 import { updateScanRetentionConsent } from "../../services/storage/storageConsent";
@@ -36,6 +40,13 @@ type ThemeOption = {
     value: ThemePreference;
     title: string;
     description: string;
+};
+
+type ThemeFamilyOption = {
+    value: ThemeFamily;
+    title: string;
+    description: string;
+    swatches: [string, string, string];
 };
 
 type SolverModeOption = {
@@ -141,6 +152,46 @@ function ThemeCard({
     );
 }
 
+function ThemeFamilyCard({
+    option,
+    active,
+    onSelect,
+}: {
+    option: ThemeFamilyOption;
+    active: boolean;
+    onSelect: (value: ThemeFamily) => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={() => onSelect(option.value)}
+            className={[
+                "h-full rounded-[1rem] border p-4 text-left transition",
+                active
+                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
+            ].join(" ")}
+        >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="app-card-title text-sm">{option.title}</p>
+                    <p className="app-helper mt-1 text-xs">Saved across light and dark mode.</p>
+                </div>
+                <div className="flex max-w-full flex-wrap items-center justify-end gap-1.5">
+                    {option.swatches.map((swatch) => (
+                        <span
+                            key={swatch}
+                            className="h-3.5 w-3.5 rounded-full border border-white/40 shadow-sm"
+                            style={{ backgroundColor: swatch }}
+                        />
+                    ))}
+                </div>
+            </div>
+            <p className="app-body-md mt-2 text-sm">{option.description}</p>
+        </button>
+    );
+}
+
 function SegmentedRow<TValue extends string>({
     title,
     description,
@@ -240,12 +291,13 @@ export default function SettingsContent({
         () => [
             {
                 label: "Theme",
-                value:
+                value: `${THEME_FAMILY_OPTIONS.find((option) => option.value === settings.themeFamily)?.title ?? "Classic"} / ${
                     settings.themePreference === "system"
                         ? "Auto"
                         : settings.themePreference === "dark"
                           ? "Dark"
-                          : "Light",
+                          : "Light"
+                }`,
             },
             {
                 label: "Solver",
@@ -264,6 +316,7 @@ export default function SettingsContent({
         [
             settings.saveOfflineHistory,
             settings.smartSolverDefaultMode,
+            settings.themeFamily,
             settings.themePreference,
         ]
     );
@@ -369,6 +422,30 @@ export default function SettingsContent({
                             />
                         ))}
                     </div>
+                    <div className="space-y-3">
+                        <div>
+                            <h3 className="app-card-title text-sm">Theme family</h3>
+                            <p className="app-body-md mt-1 text-sm">
+                                Pick a saved visual style family. The selected family works in both light and dark mode.
+                            </p>
+                        </div>
+                        <div className="grid auto-rows-fr gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                            {THEME_FAMILY_OPTIONS.map((option) => (
+                                <ThemeFamilyCard
+                                    key={option.value}
+                                    option={option}
+                                    active={settings.themeFamily === option.value}
+                                    onSelect={(value) => setSetting("themeFamily", value)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <ToggleRow
+                        title="High contrast support"
+                        description="Strengthen borders and text contrast for denser study sessions and accessibility-sensitive screens."
+                        value={settings.highContrastMode}
+                        onChange={(value) => setSetting("highContrastMode", value)}
+                    />
                     <ToggleRow
                         title="Premium motion"
                         description="Keep subtle transitions and movement cues active."

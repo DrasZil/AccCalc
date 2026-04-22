@@ -63,6 +63,7 @@ const FEATURED_PATHS = [
     "/business/special-order-analysis",
     "/business/make-or-buy-analysis",
     "/business/constrained-resource-product-mix",
+    "/business/transfer-pricing-support",
     "/business/additional-funds-needed",
     "/accounting/partnership-dissolution",
     "/accounting/process-costing-workspace",
@@ -159,6 +160,7 @@ const WORKFLOW_COLLECTIONS = [
             "/business/make-or-buy-analysis",
             "/business/sell-or-process-further",
             "/business/constrained-resource-product-mix",
+            "/business/transfer-pricing-support",
         ],
     },
     {
@@ -463,7 +465,7 @@ export default function HomePage() {
                             placeholder="Search ratios, inventory, depreciation, Smart Solver..."
                         />
                         <p className="app-helper mt-3 text-xs leading-5">
-                            New to the topic? Search plain-language terms like “break-even,” “journal entry,” “loan payment,” or “partnership dissolution.”
+                            New to the topic? Search plain-language terms like "break-even," "journal entry," "loan payment," or "partnership dissolution."
                         </p>
                     </div>
 

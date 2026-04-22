@@ -799,6 +799,38 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
             { path: "/business/cvp-analysis", label: "CVP Analysis" },
         ],
     },
+    "transfer-pricing-support-solve": {
+        topicId: "formula-transfer-pricing-support",
+        topicTitle: "Transfer Pricing Support",
+        intro: "Transfer-pricing cases become easier when the selling division's minimum and the buying division's outside benchmark are kept separate before discussing a negotiated price.",
+        sections: [
+            {
+                key: "range",
+                label: "Read the pricing band",
+                summary: "Start with the minimum, then compare it with the outside benchmark.",
+                content: bullets([
+                    "Variable cost is usually the floor only when no opportunity cost is sacrificed.",
+                    "Add opportunity cost when internal transfer displaces outside sales or other contribution.",
+                    "Use the outside market price as the normal buying-division ceiling when that benchmark is relevant.",
+                ]),
+            },
+            {
+                key: "warning",
+                label: "When there is no overlap",
+                summary: "A negative range width signals a negotiation problem, not just a calculator result.",
+                emphasis: "support",
+                tone: "warning",
+                content: bullets([
+                    "If the selling division's minimum is above the outside benchmark, an internal transfer may not be workable under the stated assumptions.",
+                    "Recheck whether the opportunity cost is real and whether the external market price is still the correct benchmark.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/make-or-buy-analysis", label: "Make or Buy Decision" },
+            { path: "/business/constrained-resource-product-mix", label: "Constrained Resource Product Mix" },
+        ],
+    },
     "budget-variance-analysis-solve": {
         topicId: "formula-budget-variance-analysis",
         topicTitle: "Budget Variance Analysis",
@@ -818,6 +850,195 @@ export const FORMULA_STUDY_SUPPORT: Record<string, FormulaStudySupport> = {
         relatedTools: [
             { path: "/business/flexible-budget", label: "Flexible Budget" },
             { path: "/business/budgeted-income-statement", label: "Budgeted Income Statement" },
+        ],
+    },
+    "sales-volume-variance-solve": {
+        topicId: "formula-sales-volume-variance",
+        topicTitle: "Sales Volume Variance",
+        intro: "Sales-volume variance isolates the profit effect of selling more or fewer units than planned, using the budgeted contribution margin per unit.",
+        sections: [
+            {
+                key: "logic",
+                label: "Volume first, price later",
+                summary: "This variance asks what changed because of unit volume, not because of selling price or unit cost changes.",
+                content: bullets([
+                    "Start with actual units sold minus budgeted units sold.",
+                    "Multiply that unit difference by the budgeted contribution margin per unit.",
+                    "Interpret a positive result as favorable when the case uses contribution-margin logic.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/sales-mix-variance", label: "Sales Mix Variance" },
+            { path: "/business/cvp-analysis", label: "CVP Analysis" },
+        ],
+    },
+    "sales-mix-variance-solve": {
+        topicId: "formula-sales-mix-variance",
+        topicTitle: "Sales Mix Variance",
+        intro: "Sales-mix variance isolates the effect of selling a different proportion of products than the budget originally expected.",
+        sections: [
+            {
+                key: "mix",
+                label: "Convert mix into equivalent units",
+                summary: "The variance is easier when the actual total volume stays visible while the product share changes.",
+                content: bullets([
+                    "Find the actual mix percentage for the product being analyzed.",
+                    "Compare it with the budgeted mix percentage using actual total units sold as the activity base.",
+                    "Multiply the equivalent unit difference by the budgeted contribution margin per unit.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/business/sales-volume-variance", label: "Sales Volume Variance" },
+            { path: "/business/constrained-resource-product-mix", label: "Constrained Resource Product Mix" },
+        ],
+    },
+    "safety-stock-planner-solve": {
+        topicId: "formula-safety-stock-planner",
+        topicTitle: "Safety Stock Planner",
+        intro: "Safety-stock planning becomes easier when maximum usage and maximum lead time are treated as protection against uncertainty rather than decorative inputs.",
+        sections: [
+            {
+                key: "buffer",
+                label: "Build the buffer deliberately",
+                summary: "Safety stock bridges the gap between expected demand and a worse-than-average replenishment cycle.",
+                content: bullets([
+                    "Compute maximum usage during maximum lead time first.",
+                    "Compute expected usage during average lead time next.",
+                    "Use the difference as safety stock, then add average lead-time demand to read the reorder point.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/operations/eoq-and-reorder-point", label: "EOQ and Reorder Point" },
+            { path: "/operations/moving-average-forecast", label: "Moving Average Forecast" },
+        ],
+    },
+    "estate-tax-solve": {
+        topicId: "formula-estate-tax",
+        topicTitle: "Estate Tax Helper",
+        intro: "Estate-tax classroom problems are easier to explain when the app shows the rate assumption openly and separates gross estate from deductions before computing tax due.",
+        sections: [
+            {
+                key: "sequence",
+                label: "Separate base from rate",
+                summary: "Do not multiply the gross estate immediately.",
+                content: bullets([
+                    "Start with gross estate.",
+                    "Subtract allowable deductions to arrive at net estate.",
+                    "Apply the visible estate-tax rate assumption only after the taxable base is clear.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/tax/donors-tax-helper", label: "Donor's Tax Helper" },
+            { path: "/tax/tax-compliance-review", label: "Tax Compliance and Incentive Review" },
+        ],
+    },
+    "donors-tax-solve": {
+        topicId: "formula-donors-tax",
+        topicTitle: "Donor's Tax Helper",
+        intro: "Donor's-tax review becomes clearer when the gross gift, exemption logic, and visible rate assumption are kept separate.",
+        sections: [
+            {
+                key: "gift",
+                label: "Taxable gift before tax due",
+                summary: "The gift amount and the tax due are not the same number.",
+                content: bullets([
+                    "Begin with the gross gift or transferred property value.",
+                    "Subtract the configured exemption or non-taxable portion to read taxable gift.",
+                    "Apply the visible donor's-tax rate assumption to the taxable gift only.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/tax/estate-tax-helper", label: "Estate Tax Helper" },
+            { path: "/tax/documentary-stamp-tax-helper", label: "Documentary Stamp Tax Helper" },
+        ],
+    },
+    "documentary-stamp-tax-solve": {
+        topicId: "formula-documentary-stamp-tax",
+        topicTitle: "Documentary Stamp Tax Helper",
+        intro: "DST review is easier when the taxable base is converted into taxable units first, then multiplied by the visible rate per unit.",
+        sections: [
+            {
+                key: "units",
+                label: "Round into taxable units",
+                summary: "Many DST questions depend on the number of chargeable units, not only the peso base.",
+                content: bullets([
+                    "Divide the taxable base amount by the configured taxable unit size.",
+                    "Round up to the next whole taxable unit when the rule requires ceiling treatment.",
+                    "Multiply the taxable units by the rate per unit to arrive at DST due.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/tax/estate-tax-helper", label: "Estate Tax Helper" },
+            { path: "/tax/tax-compliance-review", label: "Tax Compliance and Incentive Review" },
+        ],
+    },
+    "consignment-settlement-solve": {
+        topicId: "formula-consignment-settlement",
+        topicTitle: "Consignment Settlement",
+        intro: "Consignment settlements are easier when the consignee's commission, advances, and chargeable expenses are laid out as one clean remittance rollforward.",
+        sections: [
+            {
+                key: "settlement",
+                label: "Read the remittance like a statement",
+                summary: "The consignor cares about the net cash still due after all allowed deductions.",
+                content: bullets([
+                    "Start with total sales made on behalf of the consignor.",
+                    "Compute the consignee commission and add reimbursable expenses.",
+                    "Subtract advances already remitted before reading the cash balance still due.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/afar/branch-inventory-loading", label: "Branch Inventory Loading" },
+            { path: "/afar/construction-revenue-workspace", label: "Construction Revenue Workspace" },
+        ],
+    },
+    "branch-inventory-loading-solve": {
+        topicId: "formula-branch-inventory-loading",
+        topicTitle: "Branch Inventory Loading",
+        intro: "Branch-home-office inventory questions become easier when the loading on billed price is separated from the inventory carried at branch invoice value.",
+        sections: [
+            {
+                key: "loading",
+                label: "Strip out the loading",
+                summary: "Branch inventory at billed price usually includes an internal markup that must be removed for cost-based reporting.",
+                content: bullets([
+                    "Convert the markup on cost into a loading rate on billed price when helpful.",
+                    "Multiply billed-price inventory by that loading rate to find the allowance for overvaluation.",
+                    "Subtract the loading allowance from billed-price inventory to read inventory at cost.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/afar/consignment-settlement", label: "Consignment Settlement" },
+            { path: "/afar/foreign-currency-translation", label: "Foreign Currency Translation Workspace" },
+        ],
+    },
+    "dividend-allocation-solve": {
+        topicId: "formula-dividend-allocation",
+        topicTitle: "Dividend Allocation",
+        intro: "Dividend-allocation problems are easier when preferred requirements are satisfied first before any remaining amount is assigned to common shareholders.",
+        sections: [
+            {
+                key: "priority",
+                label: "Preferred first, common second",
+                summary: "Cumulative preferred shares may require prior-year arrears before common participates.",
+                content: bullets([
+                    "Compute the annual preferred dividend from shares, par value, and stated rate.",
+                    "Add dividends in arrears when the preferred shares are cumulative and unpaid prior years matter.",
+                    "Allocate any remaining declared dividend to common, then divide by common shares for per-share reading.",
+                ]),
+            },
+        ],
+        relatedTools: [
+            { path: "/far/retained-earnings-rollforward", label: "Retained Earnings Rollforward" },
+            { path: "/far/statement-of-changes-in-equity-builder", label: "Statement of Changes in Equity Builder" },
         ],
     },
     "notes-receivable-discounting-solve": {
