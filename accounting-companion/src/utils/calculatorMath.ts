@@ -3327,6 +3327,12 @@ type PricingPlannerParams = {
     contributionPerUnit: number;
 };
 
+type BorrowingCostsCapitalizationParams = {
+    averageAccumulatedExpenditures: number;
+    capitalizationRatePercent: number;
+    capitalizationMonths: number;
+};
+
 type OwnerSplitParams = {
     distributableProfit: number;
     ratioA: number;
@@ -3774,6 +3780,28 @@ export function computePricingPlanner({
         markUpPercent:
             unitCost === 0 ? 0 : ((suggestedSellingPrice - unitCost) / unitCost) * 100,
         unitsNeededForTargetIncome,
+    };
+}
+
+export function computeBorrowingCostsCapitalization({
+    averageAccumulatedExpenditures,
+    capitalizationRatePercent,
+    capitalizationMonths,
+}: BorrowingCostsCapitalizationParams) {
+    const capitalizationFraction = safeDivide(capitalizationMonths, 12);
+    const annualAvoidableInterest = safeMultiply(
+        averageAccumulatedExpenditures,
+        percentToDecimal(capitalizationRatePercent)
+    );
+    const capitalizableBorrowingCost = safeMultiply(
+        annualAvoidableInterest,
+        capitalizationFraction
+    );
+
+    return {
+        capitalizationFraction,
+        annualAvoidableInterest,
+        capitalizableBorrowingCost,
     };
 }
 

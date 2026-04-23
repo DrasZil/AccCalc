@@ -1836,6 +1836,16 @@ export function computePricingPlanner({ unitCost, targetMarginPercent, targetMon
         unitsNeededForTargetIncome,
     };
 }
+export function computeBorrowingCostsCapitalization({ averageAccumulatedExpenditures, capitalizationRatePercent, capitalizationMonths, }) {
+    const capitalizationFraction = safeDivide(capitalizationMonths, 12);
+    const annualAvoidableInterest = safeMultiply(averageAccumulatedExpenditures, percentToDecimal(capitalizationRatePercent));
+    const capitalizableBorrowingCost = safeMultiply(annualAvoidableInterest, capitalizationFraction);
+    return {
+        capitalizationFraction,
+        annualAvoidableInterest,
+        capitalizableBorrowingCost,
+    };
+}
 export function computeOwnerSplit({ distributableProfit, ratioA, ratioB, ratioC = 0, }) {
     const totalRatio = ratioA + ratioB + ratioC;
     return {

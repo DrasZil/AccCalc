@@ -5231,6 +5231,86 @@ import {
         keywords: [/credit transactions/i, /contracts? of security/i, /insider trading/i, /procurement/i, /intellectual property/i, /rehabilitation/i],
     },
     {
+        id: "borrowing-costs-capitalization",
+        name: "Borrowing Costs Capitalization",
+        route: "/far/borrowing-costs-capitalization",
+        description:
+            "Estimate capitalizable borrowing cost for qualifying assets using average accumulated expenditures, a capitalization rate, and the construction period.",
+        required: [],
+        aliases: ["borrowing costs capitalization", "avoidable interest", "capitalized borrowing cost", "qualifying asset borrowing cost"],
+        keywords: [/borrowing costs?/i, /avoidable interest/i, /qualifying asset/i, /capitali[sz]ation rate/i, /average accumulated expenditures/i],
+    },
+    {
+        id: "cost-plus-pricing",
+        name: "Cost-Plus Pricing Planner",
+        route: "/operations/cost-plus-pricing",
+        description:
+            "Bridge costing and pricing by turning cost, target margin language, and target income into a usable selling-price plan.",
+        required: [],
+        aliases: ["cost plus pricing", "target margin pricing", "markup pricing planner", "costing and pricing"],
+        keywords: [/cost[- ]plus/i, /target margin/i, /markup on cost/i, /pricing planner/i, /costing and pricing/i],
+    },
+    {
+        id: "audit-assertion-evidence-planner",
+        name: "Audit Assertion and Evidence Planner",
+        route: "/audit/assertion-evidence-planner",
+        description:
+            "Choose assertion-focused procedures and working-paper direction from the audit cycle, risk, and control-reliance mix in a case.",
+        required: [],
+        aliases: ["audit assertions", "audit evidence planner", "working paper evidence plan", "occurrence completeness valuation"],
+        keywords: [/audit assertions?/i, /audit evidence/i, /working papers?/i, /occurrence|completeness|valuation|rights|presentation/i, /control reliance/i],
+    },
+    {
+        id: "excise-local-and-incentive-review",
+        name: "Excise, Local, and Incentive Tax Review",
+        route: "/tax/excise-local-and-incentive-review",
+        description:
+            "Review excise tax, local taxation, and incentive-regime issues in one route when the problem is more conceptual than purely computational.",
+        required: [],
+        aliases: ["excise tax review", "local taxation review", "peza boi incentives", "preferential taxation review"],
+        keywords: [/excise tax/i, /local taxation/i, /preferential taxation/i, /peza|boi|bcda|bmbe/i, /tax incentives?/i],
+    },
+    {
+        id: "enterprise-systems-control-mapper",
+        name: "Enterprise Systems Control Mapper",
+        route: "/ais/enterprise-systems-control-mapper",
+        description:
+            "Map ERP, SCM, CRM, and data-flow control issues so AIS cases connect systems modules to control design and audit implications.",
+        required: [],
+        aliases: ["enterprise systems control", "erp scm crm controls", "ais systems control map", "enterprise process controls"],
+        keywords: [/enterprise systems?/i, /\berp\b/i, /\bscm\b/i, /\bcrm\b/i, /application controls?/i, /data flow controls?/i],
+    },
+    {
+        id: "ethics-decision-workspace",
+        name: "Ethics Decision Workspace",
+        route: "/governance/ethics-decision-workspace",
+        description:
+            "Frame governance, ethics, risk, and control-environment dilemmas through practical decision prompts instead of leaving them as isolated reviewer notes.",
+        required: [],
+        aliases: ["ethics decision", "governance ethics", "management override ethics", "corporate citizenship review"],
+        keywords: [/business ethics/i, /good governance/i, /management override/i, /corporate citizenship/i, /ethical decision/i],
+    },
+    {
+        id: "securities-and-governance-review",
+        name: "Securities and Governance Review",
+        route: "/rfbt/securities-and-governance-review",
+        description:
+            "Review securities regulation, insider trading, corporate-governance, and disclosure topics inside the RFBT track.",
+        required: [],
+        aliases: ["securities review", "corporate governance review", "insider trading review", "securities regulation"],
+        keywords: [/securities/i, /insider trading/i, /fraud and manipulation/i, /corporate governance/i, /merger and consolidation/i],
+    },
+    {
+        id: "balanced-scorecard-workspace",
+        name: "Balanced Scorecard Workspace",
+        route: "/strategic/balanced-scorecard-workspace",
+        description:
+            "Turn strategic objectives into a four-perspective performance story so integrative cases link planning, controls, and accountability.",
+        required: [],
+        aliases: ["balanced scorecard", "strategy map", "learning and growth perspective", "strategic performance map"],
+        keywords: [/balanced scorecard/i, /strategy map/i, /financial perspective/i, /customer perspective/i, /learning and growth/i],
+    },
+    {
         id: "integrative-case-mapper",
         name: "Integrative Case Mapper",
         route: "/strategic/integrative-case-mapper",

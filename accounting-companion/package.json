@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.mjs --configLoader native",
-    "build": "tsc -b tsconfig.app.json && vite build --config vite.config.mjs --configLoader native",
+    "build": "tsc -p tsconfig.app.json && vite build --config vite.config.mjs --configLoader native",
     "lint": "eslint .",
     "test": "tsc -p tsconfig.tests.json && node .test-dist/tests/calculatorMath.test.js",
     "preview": "vite preview"

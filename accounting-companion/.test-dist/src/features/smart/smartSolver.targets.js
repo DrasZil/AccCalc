@@ -181,6 +181,16 @@ const SOLVE_TARGET_RULES = {
         { target: "marketBasedCeiling", patterns: [/market[- ]based ceiling/i, /external market price/i, /outside market price/i] },
         { target: "transferPricingRangeWidth", patterns: [/transfer pricing range/i, /negotiation range/i, /pricing band/i] },
     ],
+    "borrowing-costs-capitalization": [
+        { target: "capitalizableBorrowingCost", patterns: [/capitalizable borrowing cost/i, /borrow(?:ing)? cost to capitalize/i, /avoidable interest .*capitali[sz]/i, /capitali[sz].*avoidable interest/i] },
+        { target: "annualAvoidableInterest", patterns: [/annual avoidable interest/i, /avoidable interest/i] },
+        { target: "capitalizationFraction", patterns: [/capitalization fraction/i, /months over 12/i, /fraction of the year/i] },
+    ],
+    "cost-plus-pricing": [
+        { target: "suggestedSellingPrice", patterns: [/suggested selling price/i, /cost plus price/i, /price using target margin/i] },
+        { target: "markUpPercent", patterns: [/markup on cost/i, /markup percent/i, /mark up percent/i] },
+        { target: "unitsNeededForTargetIncome", patterns: [/units needed/i, /units for target income/i, /required unit volume/i] },
+    ],
     "budget-variance-analysis": [
         { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },
         { target: "spendingVariance", patterns: [/spending variance/i, /flexible budget variance/i] },
