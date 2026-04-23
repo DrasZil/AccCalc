@@ -1,9 +1,9 @@
 # AccCalc
 
-AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.0.0` is a library-driven curriculum expansion focused on three product pillars:
+AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.1.0` is a coverage-matrix completion release focused on three product pillars:
 
-- broader calculator coverage from accounting, analysis, statistics, cost, retail, and AFAR topic families
-- deeper Study Hub reviewer support connected to the new tools
+- broader calculator coverage across lesson-heavy curriculum tracks
+- deeper Study Hub reviewer support connected to newly balanced tool families
 - stronger discovery through catalog, search, Smart Solver, OCR routing, and workpaper templates
 
 ## Who It Is For
@@ -13,16 +13,19 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Tutors and instructors who want assignment-friendly workpaper support
 - Future maintainers who may return with low context and still need to extend the app safely
 
-## What's New In 10.0.0
+## What's New In 10.1.0
 
-- Added `DuPont ROE Analyzer` and `Earnings Quality and Accruals Analyzer` for stronger financial statement analysis
-- Added `Confidence Interval Helper` for statistics, audit sampling, forecasting, and marketing-research style estimates
-- Added `Retail Markup and Markdown Planner` for retail pricing, maintained margin, markdown, and gross-profit support
-- Added `Capital Rationing Prioritizer` for management-services project selection under a limited capital budget
-- Added `Provision Expected Value Planner` for FAR provisions and contingencies
-- Added `Franchise Revenue Workspace` for AFAR initial-fee revenue and contract-liability timing
+- Added `Segmented Income Statement Analyzer` for contribution margin, segment margin, traceable fixed costs, and responsibility-accounting interpretation
+- Added `Audit Sampling Planner` for sample size, sampling interval, tolerable misstatement, expected misstatement, and confidence-factor classroom assumptions
+- Added `PERT Project Estimate Helper` for operations/project-management expected time, standard deviation, and variance
+- Added `Quasi-Reorganization Deficit Cleanup` and `Corporate Liquidation Recovery Planner` for distressed-entity FAR/AFAR review
+- Added `Obligations and Contracts Issue Flow` for RFBT issue classification and `Access Control Review Workspace` for AIS logical-access evidence review
+- Added `Activity-Based Costing Allocator`, `Financial Asset Amortized Cost Schedule`, `Investment Property Measurement Helper`, `Joint Arrangement Share Analyzer`, and `Quality Control Chart Helper` to close additional calculator-thin curriculum gaps
+- Hardened Workpaper Studio with deferred live formula preview work, clearer narrow-screen editing cues, sturdier frozen-cell offsets, and better grid accessibility labels
+- Upgraded `Confidence Interval Helper` with z-versus-t handling based on whether population standard deviation is known
+- Upgraded `Capital Rationing Prioritizer` with exact project-combination search while preserving profitability-index ranking for classroom comparison
 - Added new Study Hub modules, OCR route patterns, Smart Solver matches, and workpaper templates for every new route
-- Preserved the `9.0.0` textbook-style Study Hub and OCR structured-review model without regression
+- Preserved the `10.0.0` library-driven expansion and the `9.0.0` textbook-style Study Hub/OCR structured-review model without regression
 
 ## Major Product Areas
 
@@ -34,16 +37,16 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
 - Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected study modules
 
-## New Academic Depth In 10.0.0
+## New Academic Depth In 10.1.0
 
-The v10 release uses the visible accounting and business library topic families as inspiration, while keeping all content original. New emphasis areas include:
+The v10.1 release uses the curriculum coverage matrix to balance topics that were still lesson-heavy or calculator-thin. It builds on the v10 library-driven additions while keeping all new explanations and examples original. New emphasis areas include:
 
-- Intermediate accounting: provisions, contingencies, and revenue obligations
-- Advanced accounting: franchise-fee revenue and contract liability
-- Financial statement analysis: DuPont, earnings quality, cash conversion, accrual ratio
-- Statistics and management analytics: confidence intervals and margin of error
-- Costing, pricing, and retail: markup, markdown, maintained margin, gross profit
-- Management services: capital rationing and profitability-index ranking
+- Cost and managerial accounting: segmented income statements, traceable fixed costs, common fixed costs, and responsibility-accounting interpretation
+- Cost and operations analytics: activity-based costing, cost pools, driver rates, assigned overhead, unit product cost, control limits, and out-of-control signals
+- Audit and AIS: audit sampling assumptions, sample-size framing, logical access, privileged access, segregation of duties, and access-review evidence
+- Operations: PERT project estimates, expected time, uncertainty, and scheduling-review language
+- FAR and AFAR: financial asset amortized cost, investment property measurement, quasi-reorganization deficit cleanup, corporate liquidation recovery, joint arrangements, priority claims, and unsecured creditor deficiency
+- RFBT: obligations, contracts, defective contracts, remedies, and issue-flow reviewer support
 
 These are wired into the existing Study Hub search and OCR lesson recommendation flow through `src/features/study/studyExpansion450.ts` and `src/features/study/studyContent.ts`.
 
@@ -128,16 +131,17 @@ npm run build
 npm run lint
 ```
 
-## Validation Status For 10.0.0
+## Validation Status For 10.1.0
 
-The final `10.0.0` implementation was validated with:
+The final `10.1.0` implementation was validated with:
 
 ```bash
 npm test
 npm run build
+npm run dev
 ```
 
-Both commands passed after the release changes. A long-lived `npm run dev` server was not left running in the terminal after validation, but the earlier Windows-native Vite config fix remains in place.
+All three checks passed for the final `10.1.0` state. The dev check used a bounded start-and-stop probe so no long-running server was left in the terminal.
 
 ## Project Structure
 
@@ -230,6 +234,8 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - Register templates in `src/features/workpapers/workpaperTemplates.ts`
 - Prefer assignment-friendly starter sheets with traceable labels and formulas
 - Link templates back to related calculator paths so discovery stays connected
+- For Workpaper Studio UX changes, check thin-screen behavior in `src/index.css` around `.workpaper-grid`, `.workpaper-formula-bar`, and `.workpaper-mobile-edit-dock`
+- Keep live preview responsive by avoiding full-sheet recalculation in the urgent keystroke path
 
 ## Troubleshooting
 
@@ -238,9 +244,11 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - If a lesson breadcrumb returns to the wrong shelf, verify the `track` query-handling logic in `StudyHubPage.tsx`
 - If OCR extracts the wrong number, compare the raw OCR text, cleaned text, and structured field source line before changing the solver mapping
 - If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
+- If confidence intervals differ from a textbook table, check whether the route is using known-population-SD z logic or sample-SD t logic and whether the course requires a specific critical value
+- If capital rationing differs from PI ranking, compare the exact combination panel against the greedy PI selection; the exact panel maximizes NPV inside the budget for independent indivisible projects
 
 ## Handoff Notes
 
 The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
 
-The `docs/` folder contains the `10.0.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.
+The `docs/` folder contains the `10.1.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package, alongside earlier release documentation for traceability.

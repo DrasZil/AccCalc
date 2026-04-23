@@ -1373,18 +1373,54 @@ export function computeCapitalRationingSelection(projects: Array<{
         }))
         .sort((a, b) => b.profitabilityIndex - a.profitabilityIndex);
 
-    let remainingBudget = capitalBudget;
-    const selectedProjects = rankedProjects.filter((project) => {
-        if (project.initialInvestment > remainingBudget) return false;
-        remainingBudget -= project.initialInvestment;
+    let greedyRemainingBudget = capitalBudget;
+    const greedySelectedProjects = rankedProjects.filter((project) => {
+        if (project.initialInvestment > greedyRemainingBudget) return false;
+        greedyRemainingBudget -= project.initialInvestment;
         return true;
     });
 
+    let optimalProjects: typeof rankedProjects = [];
+    let optimalInvestment = 0;
+    let optimalNpv = Number.NEGATIVE_INFINITY;
+    const candidateProjects = rankedProjects.filter((project) => project.netPresentValue > 0);
+    const totalCombinations = 2 ** candidateProjects.length;
+    for (let mask = 1; mask < totalCombinations; mask += 1) {
+        const selected = candidateProjects.filter((_, index) => (mask & (1 << index)) !== 0);
+        const investment = selected.reduce((sum, project) => sum + project.initialInvestment, 0);
+        if (investment > capitalBudget) continue;
+        const npv = selected.reduce((sum, project) => sum + project.netPresentValue, 0);
+        const isBetterNpv = npv > optimalNpv + 0.000001;
+        const isTieWithBetterBudgetUse =
+            Math.abs(npv - optimalNpv) <= 0.000001 && investment > optimalInvestment;
+        if (isBetterNpv || isTieWithBetterBudgetUse) {
+            optimalProjects = selected;
+            optimalInvestment = investment;
+            optimalNpv = npv;
+        }
+    }
+
+    if (optimalProjects.length === 0) {
+        optimalNpv = 0;
+    }
+
+    const selectedProjects = optimalProjects.length > 0 ? optimalProjects : greedySelectedProjects;
     const totalInvestment = selectedProjects.reduce((sum, project) => sum + project.initialInvestment, 0);
     const totalNpv = selectedProjects.reduce((sum, project) => sum + project.netPresentValue, 0);
+    const remainingBudget = safeSubtract(capitalBudget, totalInvestment);
+    const greedyTotalInvestment = greedySelectedProjects.reduce((sum, project) => sum + project.initialInvestment, 0);
+    const greedyTotalNpv = greedySelectedProjects.reduce((sum, project) => sum + project.netPresentValue, 0);
 
     return {
         rankedProjects,
+        greedySelectedProjects,
+        greedyTotalInvestment,
+        greedyTotalNpv,
+        optimalProjects,
+        optimalInvestment,
+        optimalNpv,
+        optimizationImprovement: safeSubtract(totalNpv, greedyTotalNpv),
+        selectionMethod: "exact-combination" as const,
         selectedProjects,
         totalInvestment,
         totalNpv,
@@ -1635,30 +1671,83 @@ export function computeStandardDeviation(values: number[], sample = false) {
     };
 }
 
+const TWO_TAILED_Z_CRITICALS: Record<number, number> = {
+    80: 1.282,
+    90: 1.645,
+    95: 1.96,
+    98: 2.326,
+    99: 2.576,
+};
+
+const TWO_TAILED_T_CRITICALS: Record<number, Record<number, number>> = {
+    90: { 1: 6.314, 2: 2.92, 3: 2.353, 4: 2.132, 5: 2.015, 6: 1.943, 7: 1.895, 8: 1.86, 9: 1.833, 10: 1.812, 12: 1.782, 15: 1.753, 20: 1.725, 25: 1.708, 30: 1.697, 40: 1.684, 60: 1.671, 80: 1.664, 100: 1.66, 120: 1.658 },
+    95: { 1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228, 12: 2.179, 15: 2.131, 20: 2.086, 25: 2.06, 30: 2.042, 40: 2.021, 60: 2, 80: 1.99, 100: 1.984, 120: 1.98 },
+    98: { 1: 31.821, 2: 6.965, 3: 4.541, 4: 3.747, 5: 3.365, 6: 3.143, 7: 2.998, 8: 2.896, 9: 2.821, 10: 2.764, 12: 2.681, 15: 2.602, 20: 2.528, 25: 2.485, 30: 2.457, 40: 2.423, 60: 2.39, 80: 2.374, 100: 2.364, 120: 2.358 },
+    99: { 1: 63.657, 2: 9.925, 3: 5.841, 4: 4.604, 5: 4.032, 6: 3.707, 7: 3.499, 8: 3.355, 9: 3.25, 10: 3.169, 12: 3.055, 15: 2.947, 20: 2.845, 25: 2.787, 30: 2.75, 40: 2.704, 60: 2.66, 80: 2.639, 100: 2.626, 120: 2.617 },
+};
+
+function normalizeSupportedConfidenceLevel(confidenceLevelPercent: number) {
+    const supportedLevels = [80, 90, 95, 98, 99];
+    return supportedLevels.reduce((best, level) =>
+        Math.abs(level - confidenceLevelPercent) < Math.abs(best - confidenceLevelPercent)
+            ? level
+            : best
+    );
+}
+
+function getTwoTailedTCritical(confidenceLevelPercent: number, degreesOfFreedom: number) {
+    const normalizedLevel = normalizeSupportedConfidenceLevel(confidenceLevelPercent);
+    const table = TWO_TAILED_T_CRITICALS[normalizedLevel];
+    if (!table || degreesOfFreedom > 120) {
+        return TWO_TAILED_Z_CRITICALS[normalizedLevel] ?? 1.96;
+    }
+    const bucket = Object.keys(table)
+        .map(Number)
+        .find((df) => degreesOfFreedom <= df);
+    return table[bucket ?? 120];
+}
+
+function getTwoTailedZCritical(confidenceLevelPercent: number) {
+    const normalizedLevel = normalizeSupportedConfidenceLevel(confidenceLevelPercent);
+    return TWO_TAILED_Z_CRITICALS[normalizedLevel] ?? 1.96;
+}
+
 export function computeConfidenceInterval({
     sampleMean,
     sampleStandardDeviation,
     sampleSize,
     confidenceLevelPercent,
+    populationStandardDeviation,
 }: {
     sampleMean: number;
     sampleStandardDeviation: number;
     sampleSize: number;
     confidenceLevelPercent: number;
+    populationStandardDeviation?: number;
 }) {
-    const zCritical =
-        confidenceLevelPercent >= 99
-            ? 2.576
-            : confidenceLevelPercent >= 95
-              ? 1.96
-              : confidenceLevelPercent >= 90
-                ? 1.645
-                : 1.96;
-    const standardError = safeDivide(sampleStandardDeviation, Math.sqrt(sampleSize));
-    const marginOfError = safeMultiply(zCritical, standardError);
+    const usesPopulationStandardDeviation =
+        typeof populationStandardDeviation === "number" &&
+        Number.isFinite(populationStandardDeviation) &&
+        populationStandardDeviation >= 0;
+    const degreesOfFreedom = Math.max(1, Math.round(sampleSize) - 1);
+    const confidenceLevelUsed = normalizeSupportedConfidenceLevel(confidenceLevelPercent);
+    const criticalValue = usesPopulationStandardDeviation
+        ? getTwoTailedZCritical(confidenceLevelPercent)
+        : getTwoTailedTCritical(confidenceLevelPercent, degreesOfFreedom);
+    const standardDeviationUsed = usesPopulationStandardDeviation
+        ? populationStandardDeviation
+        : sampleStandardDeviation;
+    const standardError = safeDivide(standardDeviationUsed, Math.sqrt(sampleSize));
+    const marginOfError = safeMultiply(criticalValue, standardError);
 
     return {
-        zCritical,
+        zCritical: usesPopulationStandardDeviation ? criticalValue : getTwoTailedZCritical(confidenceLevelPercent),
+        tCritical: usesPopulationStandardDeviation ? null : criticalValue,
+        criticalValue,
+        criticalMethod: usesPopulationStandardDeviation ? "z" as const : "t" as const,
+        confidenceLevelUsed,
+        degreesOfFreedom,
+        standardDeviationUsed,
         standardError,
         marginOfError,
         lowerBound: safeSubtract(sampleMean, marginOfError),
@@ -4816,5 +4905,303 @@ export function computeEquivalentAnnualAnnuity({
         rateDecimal,
         annuityFactor,
         equivalentAnnualAnnuity,
+    };
+}
+
+export function computeSegmentMargin({
+    sales,
+    variableCosts,
+    traceableFixedCosts,
+    commonFixedCosts = 0,
+}: {
+    sales: number;
+    variableCosts: number;
+    traceableFixedCosts: number;
+    commonFixedCosts?: number;
+}) {
+    const contributionMargin = safeSubtract(sales, variableCosts);
+    const segmentMargin = safeSubtract(contributionMargin, traceableFixedCosts);
+    const segmentMarginRatio = sales === 0 ? 0 : safeDivide(segmentMargin, sales);
+    const incomeAfterAllocatedCommonCosts = safeSubtract(segmentMargin, commonFixedCosts);
+
+    return {
+        contributionMargin,
+        segmentMargin,
+        segmentMarginRatio,
+        incomeAfterAllocatedCommonCosts,
+        decisionSignal:
+            segmentMargin >= 0
+                ? "Segment covers its traceable fixed costs before common-cost allocation."
+                : "Segment does not cover traceable fixed costs; review avoidability before discontinuing.",
+    };
+}
+
+export function computeAuditSamplingPlan({
+    populationBookValue,
+    tolerableMisstatement,
+    expectedMisstatement,
+    confidenceFactor,
+}: {
+    populationBookValue: number;
+    tolerableMisstatement: number;
+    expectedMisstatement: number;
+    confidenceFactor: number;
+}) {
+    const allowanceForSamplingRisk = safeSubtract(tolerableMisstatement, expectedMisstatement);
+    const sampleSize =
+        allowanceForSamplingRisk <= 0
+            ? Infinity
+            : Math.ceil(safeDivide(safeMultiply(populationBookValue, confidenceFactor), allowanceForSamplingRisk));
+
+    return {
+        allowanceForSamplingRisk,
+        sampleSize,
+        samplingInterval: Number.isFinite(sampleSize) && sampleSize > 0
+            ? safeDivide(populationBookValue, sampleSize)
+            : Infinity,
+        riskSignal:
+            allowanceForSamplingRisk <= 0
+                ? "Expected misstatement already meets or exceeds tolerable misstatement."
+                : "Sampling plan is mathematically workable under the selected classroom confidence factor.",
+    };
+}
+
+export function computePertEstimate({
+    optimistic,
+    mostLikely,
+    pessimistic,
+}: {
+    optimistic: number;
+    mostLikely: number;
+    pessimistic: number;
+}) {
+    const expectedTime = safeDivide(safeAdd(safeAdd(optimistic, safeMultiply(4, mostLikely)), pessimistic), 6);
+    const standardDeviation = safeDivide(safeSubtract(pessimistic, optimistic), 6);
+    const variance = safeMultiply(standardDeviation, standardDeviation);
+
+    return {
+        expectedTime,
+        standardDeviation,
+        variance,
+    };
+}
+
+export function computeQuasiReorganization({
+    deficit,
+    sharePremium,
+    revaluationSurplus,
+    capitalReduction,
+}: {
+    deficit: number;
+    sharePremium: number;
+    revaluationSurplus: number;
+    capitalReduction: number;
+}) {
+    const totalDeficitRelief = safeAdd(safeAdd(sharePremium, revaluationSurplus), capitalReduction);
+    const remainingDeficit = Math.max(safeSubtract(deficit, totalDeficitRelief), 0);
+    const excessRelief = Math.max(safeSubtract(totalDeficitRelief, deficit), 0);
+
+    return {
+        totalDeficitRelief,
+        remainingDeficit,
+        excessRelief,
+        cleanSurplusAchieved: remainingDeficit === 0,
+    };
+}
+
+export function computeCorporateLiquidation({
+    estimatedAssetRealization,
+    liquidationCosts,
+    priorityLiabilities,
+    unsecuredLiabilities,
+}: {
+    estimatedAssetRealization: number;
+    liquidationCosts: number;
+    priorityLiabilities: number;
+    unsecuredLiabilities: number;
+}) {
+    const netEstateAvailable = safeSubtract(estimatedAssetRealization, liquidationCosts);
+    const amountAvailableForUnsecured = Math.max(safeSubtract(netEstateAvailable, priorityLiabilities), 0);
+    const unsecuredRecoveryPercent =
+        unsecuredLiabilities === 0
+            ? 100
+            : safeMultiply(safeDivide(Math.min(amountAvailableForUnsecured, unsecuredLiabilities), unsecuredLiabilities), 100);
+    const unsecuredDeficiency = Math.max(safeSubtract(unsecuredLiabilities, amountAvailableForUnsecured), 0);
+
+    return {
+        netEstateAvailable,
+        amountAvailableForUnsecured,
+        unsecuredRecoveryPercent,
+        unsecuredDeficiency,
+    };
+}
+
+export function computeActivityBasedCosting({
+    directMaterials,
+    directLabor,
+    units,
+    activityOneCost,
+    activityOneTotalDriver,
+    activityOneProductDriver,
+    activityTwoCost,
+    activityTwoTotalDriver,
+    activityTwoProductDriver,
+}: {
+    directMaterials: number;
+    directLabor: number;
+    units: number;
+    activityOneCost: number;
+    activityOneTotalDriver: number;
+    activityOneProductDriver: number;
+    activityTwoCost: number;
+    activityTwoTotalDriver: number;
+    activityTwoProductDriver: number;
+}) {
+    const activityOneRate = activityOneTotalDriver === 0 ? 0 : safeDivide(activityOneCost, activityOneTotalDriver);
+    const activityTwoRate = activityTwoTotalDriver === 0 ? 0 : safeDivide(activityTwoCost, activityTwoTotalDriver);
+    const activityOneAssigned = safeMultiply(activityOneRate, activityOneProductDriver);
+    const activityTwoAssigned = safeMultiply(activityTwoRate, activityTwoProductDriver);
+    const totalOverheadAssigned = safeAdd(activityOneAssigned, activityTwoAssigned);
+    const totalProductCost = safeAdd(safeAdd(directMaterials, directLabor), totalOverheadAssigned);
+    const unitProductCost = units === 0 ? 0 : safeDivide(totalProductCost, units);
+
+    return {
+        activityOneRate,
+        activityTwoRate,
+        activityOneAssigned,
+        activityTwoAssigned,
+        totalOverheadAssigned,
+        totalProductCost,
+        unitProductCost,
+        costSignal:
+            totalOverheadAssigned > directLabor + directMaterials
+                ? "Overhead is a major cost driver; ABC may explain product cost better than a single plantwide rate."
+                : "Direct costs dominate this product cost under the selected activity assumptions.",
+    };
+}
+
+export function computeFinancialAssetAmortizedCost({
+    openingCarryingAmount,
+    faceValue,
+    statedRatePercent,
+    effectiveRatePercent,
+    expectedCreditLoss = 0,
+}: {
+    openingCarryingAmount: number;
+    faceValue: number;
+    statedRatePercent: number;
+    effectiveRatePercent: number;
+    expectedCreditLoss?: number;
+}) {
+    const cashInterest = safeMultiply(faceValue, percentToDecimal(statedRatePercent));
+    const interestRevenue = safeMultiply(openingCarryingAmount, percentToDecimal(effectiveRatePercent));
+    const amortization = safeSubtract(interestRevenue, cashInterest);
+    const endingGrossCarryingAmount = safeAdd(openingCarryingAmount, amortization);
+    const netCarryingAmount = Math.max(safeSubtract(endingGrossCarryingAmount, expectedCreditLoss), 0);
+
+    return {
+        cashInterest,
+        interestRevenue,
+        amortization,
+        endingGrossCarryingAmount,
+        netCarryingAmount,
+        measurementSignal:
+            amortization >= 0
+                ? "The asset is accreting toward face value because the effective yield exceeds the stated coupon."
+                : "The asset is amortizing downward because cash interest exceeds effective-interest revenue.",
+    };
+}
+
+export function computeInvestmentPropertyMeasurement({
+    carryingAmount,
+    fairValue,
+    annualDepreciation = 0,
+    impairmentLoss = 0,
+}: {
+    carryingAmount: number;
+    fairValue: number;
+    annualDepreciation?: number;
+    impairmentLoss?: number;
+}) {
+    const fairValueGainOrLoss = safeSubtract(fairValue, carryingAmount);
+    const costModelEndingCarryingAmount = Math.max(
+        safeSubtract(safeSubtract(carryingAmount, annualDepreciation), impairmentLoss),
+        0
+    );
+
+    return {
+        fairValueGainOrLoss,
+        fairValueEndingCarryingAmount: fairValue,
+        costModelEndingCarryingAmount,
+        measurementSignal:
+            fairValueGainOrLoss >= 0
+                ? "Fair value model produces a gain under the selected classroom facts."
+                : "Fair value model produces a loss under the selected classroom facts.",
+    };
+}
+
+export function computeJointArrangementShare({
+    ownershipPercent,
+    arrangementAssets,
+    arrangementLiabilities,
+    arrangementRevenue,
+    arrangementExpenses,
+}: {
+    ownershipPercent: number;
+    arrangementAssets: number;
+    arrangementLiabilities: number;
+    arrangementRevenue: number;
+    arrangementExpenses: number;
+}) {
+    const share = percentToDecimal(ownershipPercent);
+    const shareOfAssets = safeMultiply(arrangementAssets, share);
+    const shareOfLiabilities = safeMultiply(arrangementLiabilities, share);
+    const shareOfRevenue = safeMultiply(arrangementRevenue, share);
+    const shareOfExpenses = safeMultiply(arrangementExpenses, share);
+    const shareOfProfit = safeSubtract(shareOfRevenue, shareOfExpenses);
+    const netPosition = safeSubtract(shareOfAssets, shareOfLiabilities);
+
+    return {
+        share,
+        shareOfAssets,
+        shareOfLiabilities,
+        shareOfRevenue,
+        shareOfExpenses,
+        shareOfProfit,
+        netPosition,
+        classificationReminder:
+            "Joint operations usually recognize direct rights to assets and obligations for liabilities; joint ventures are commonly accounted for through the investment/equity-method lens.",
+    };
+}
+
+export function computeQualityControlChart({
+    processMean,
+    processStandardDeviation,
+    sampleSize,
+    observations,
+}: {
+    processMean: number;
+    processStandardDeviation: number;
+    sampleSize: number;
+    observations: number[];
+}) {
+    const standardError = sampleSize <= 0 ? 0 : safeDivide(processStandardDeviation, Math.sqrt(sampleSize));
+    const controlSpread = safeMultiply(3, standardError);
+    const upperControlLimit = safeAdd(processMean, controlSpread);
+    const lowerControlLimit = safeSubtract(processMean, controlSpread);
+    const outOfControlObservations = observations.filter(
+        (value) => value > upperControlLimit || value < lowerControlLimit
+    );
+
+    return {
+        standardError,
+        upperControlLimit,
+        lowerControlLimit,
+        outOfControlCount: outOfControlObservations.length,
+        outOfControlObservations,
+        controlSignal:
+            outOfControlObservations.length > 0
+                ? "At least one observation falls outside the three-sigma control limits; investigate assignable causes."
+                : "No entered observation falls outside the three-sigma control limits under the selected assumptions.",
     };
 }

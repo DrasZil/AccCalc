@@ -2205,6 +2205,12 @@ html[data-contrast="high"] .app-sidebar-link {
     padding: 0.5rem 0.62rem;
 }
 
+.workpaper-formula-bar,
+.workpaper-quickbar,
+.workpaper-mobile-edit-dock {
+    scroll-margin-top: 1rem;
+}
+
 .workpaper-formula-bar__cell,
 .workpaper-formula-bar__mode {
     border: 1px solid var(--app-border-subtle);
@@ -2334,6 +2340,17 @@ html[data-contrast="high"] .app-sidebar-link {
 .workpaper-quickbar__actions {
     flex: 1 1 24rem;
     justify-content: flex-end;
+}
+
+.workpaper-mobile-edit-dock {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 0.95rem;
+    background: color-mix(in srgb, var(--app-accent-soft) 45%, var(--app-field-bg));
+    padding: 0.68rem 0.82rem;
 }
 
 .workpaper-helpers-row {
@@ -2627,6 +2644,8 @@ html[data-contrast="high"] .app-sidebar-link {
 }
 
 .workpaper-grid {
+    --workpaper-row-header-width: 3.4rem;
+    --workpaper-column-header-height: 2.65rem;
     overflow: auto;
     border: 1px solid var(--app-border-subtle);
     border-radius: 1rem;
@@ -2637,6 +2656,7 @@ html[data-contrast="high"] .app-sidebar-link {
     overscroll-behavior: contain;
     scrollbar-gutter: stable both-edges;
     touch-action: pan-x pan-y;
+    contain: layout paint;
 }
 
 .workpaper-grid:focus {
@@ -2708,14 +2728,15 @@ html[data-contrast="high"] .app-sidebar-link {
     max-width: var(--workpaper-cell-width, 6.25rem);
     min-width: var(--workpaper-cell-width, 6.25rem);
     padding: 0.72rem 0.5rem;
+    height: var(--workpaper-column-header-height, 2.65rem);
     box-sizing: border-box;
 }
 
 .workpaper-grid__corner,
 .workpaper-grid__rowhead {
-    width: 3.4rem;
-    max-width: 3.4rem;
-    min-width: 3.4rem;
+    width: var(--workpaper-row-header-width, 3.4rem);
+    max-width: var(--workpaper-row-header-width, 3.4rem);
+    min-width: var(--workpaper-row-header-width, 3.4rem);
     box-sizing: border-box;
 }
 
@@ -2782,6 +2803,7 @@ html[data-contrast="high"] .app-sidebar-link {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    touch-action: manipulation;
 }
 
 .workpaper-grid__editor {
@@ -2959,6 +2981,10 @@ html[data-contrast="high"] .app-sidebar-link {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    .workpaper-mobile-edit-dock {
+        display: flex;
+    }
+
     .workpaper-formula-bar__cell,
     .workpaper-formula-bar__mode,
     .workpaper-formula-bar__help {
@@ -3059,6 +3085,8 @@ html[data-contrast="high"] .app-sidebar-link {
     .workpaper-grid {
         --workpaper-cell-width: 6.25rem;
         --workpaper-cell-height: 2.85rem;
+        --workpaper-row-header-width: 3rem;
+        --workpaper-column-header-height: 2.45rem;
     }
 }
 
@@ -3080,6 +3108,8 @@ html[data-contrast="high"] .app-sidebar-link {
     .workpaper-grid {
         --workpaper-cell-width: 5.85rem;
         --workpaper-cell-height: 2.7rem;
+        --workpaper-row-header-width: 2.8rem;
+        --workpaper-column-header-height: 2.35rem;
     }
 
     .workpaper-grid__display,

@@ -37,7 +37,7 @@ export default function CapitalRationingPage() {
         <CalculatorPageLayout
             badge="Finance / MS"
             title="Capital Rationing Prioritizer"
-            description="Rank mutually independent projects by profitability index and build a classroom capital-rationing selection under a limited investment budget."
+            description="Rank mutually independent projects by profitability index, then compare the classroom ranking against an exact combination search within the capital budget."
             inputSection={
                 <div className="space-y-4">
                     <SectionCard>
@@ -74,6 +74,18 @@ export default function CapitalRationingPage() {
                             <ResultCard title="Remaining Budget" value={formatPHP(result.remainingBudget)} />
                         </ResultGrid>
                         <SectionCard>
+                            <p className="app-card-title text-sm">Exact constrained-budget combination</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                Selected by exact combination search:{" "}
+                                <strong>{result.selectedProjects.map((project) => project.label).join(", ") || "no positive-NPV project fits"}</strong>.
+                                {result.optimizationImprovement > 0 ? (
+                                    <> This improves NPV by {formatPHP(result.optimizationImprovement)} over the simple PI ranking pick.</>
+                                ) : (
+                                    <> The PI ranking pick is already tied with the best combination for these inputs.</>
+                                )}
+                            </p>
+                        </SectionCard>
+                        <SectionCard>
                             <p className="app-card-title text-sm">Ranking by profitability index</p>
                             <div className="mt-3 space-y-2">
                                 {result.rankedProjects.map((project) => (
@@ -82,6 +94,9 @@ export default function CapitalRationingPage() {
                                     </div>
                                 ))}
                             </div>
+                            <p className="app-helper mt-3 text-xs">
+                                Greedy PI selection: {result.greedySelectedProjects.map((project) => project.label).join(", ") || "none"} | NPV {formatPHP(result.greedyTotalNpv)}
+                            </p>
                         </SectionCard>
                     </div>
                 ) : null
@@ -91,9 +106,10 @@ export default function CapitalRationingPage() {
                     <FormulaCard
                         formula="Profitability index = present value of inflows / initial investment = (investment + NPV) / investment"
                         steps={result.rankedProjects.map((project) => `${project.label}: PI = (${formatPHP(project.initialInvestment)} + ${formatPHP(project.netPresentValue)}) / ${formatPHP(project.initialInvestment)} = ${project.profitabilityIndex.toFixed(4)}`)}
-                        interpretation={`Selected projects: ${result.selectedProjects.map((project) => project.label).join(", ") || "none within the capital budget"}.`}
+                        interpretation={`Best combination selected: ${result.selectedProjects.map((project) => project.label).join(", ") || "none within the capital budget"}. The PI ranking remains visible for classroom comparison.`}
                         warnings={[
-                            "This helper uses a greedy profitability-index classroom approach. Mutually exclusive projects, indivisible combinations, or strategic constraints may require a full optimization table.",
+                            "Exact combination search assumes projects are independent and indivisible. Mutually exclusive alternatives, dependency constraints, and strategic minimums still require judgment beyond the numeric ranking.",
+                            "Negative-NPV projects are not selected by the exact search unless your assignment states a strategic reason to include them.",
                         ]}
                     />
                 ) : null

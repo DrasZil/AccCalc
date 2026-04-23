@@ -242,8 +242,14 @@ const ConstrainedResourceProductMixPage = lazy(
 const TransferPricingSupportPage = lazy(
     () => import("./features/business/TransferPricingSupportPage")
 );
+const ActivityBasedCostingPage = lazy(
+    () => import("./features/business/ActivityBasedCostingPage")
+);
 const BudgetVarianceAnalysisPage = lazy(
     () => import("./features/business/BudgetVarianceAnalysisPage")
+);
+const SegmentedIncomeStatementPage = lazy(
+    () => import("./features/business/SegmentedIncomeStatementPage")
 );
 const SalesVolumeVariancePage = lazy(
     () => import("./features/business/SalesVolumeVariancePage")
@@ -388,6 +394,15 @@ const BorrowingCostsCapitalizationPage = lazy(
 const ProvisionExpectedValuePage = lazy(
     () => import("./features/far/ProvisionExpectedValuePage")
 );
+const QuasiReorganizationPage = lazy(
+    () => import("./features/far/QuasiReorganizationPage")
+);
+const FinancialAssetAmortizedCostPage = lazy(
+    () => import("./features/far/FinancialAssetAmortizedCostPage")
+);
+const InvestmentPropertyMeasurementPage = lazy(
+    () => import("./features/far/InvestmentPropertyMeasurementPage")
+);
 const ImpairmentLossPage = lazy(
     () => import("./features/far/ImpairmentLossPage")
 );
@@ -421,8 +436,17 @@ const CostPlusPricingPage = lazy(
 const RetailMarkupMarkdownPage = lazy(
     () => import("./features/operations/RetailMarkupMarkdownPage")
 );
+const PertProjectEstimatePage = lazy(
+    () => import("./features/operations/PertProjectEstimatePage")
+);
+const QualityControlChartPage = lazy(
+    () => import("./features/operations/QualityControlChartPage")
+);
 const AuditPlanningWorkspacePage = lazy(
     () => import("./features/audit/AuditPlanningWorkspacePage")
+);
+const AuditSamplingPlannerPage = lazy(
+    () => import("./features/audit/AuditSamplingPlannerPage")
 );
 const AuditAssertionEvidencePlannerPage = lazy(
     () => import("./features/audit/AuditAssertionEvidencePlannerPage")
@@ -471,6 +495,12 @@ const ConstructionRevenuePage = lazy(
 const FranchiseRevenueWorkspacePage = lazy(
     () => import("./features/afar/FranchiseRevenueWorkspacePage")
 );
+const CorporateLiquidationPage = lazy(
+    () => import("./features/afar/CorporateLiquidationPage")
+);
+const JointArrangementAnalyzerPage = lazy(
+    () => import("./features/afar/JointArrangementAnalyzerPage")
+);
 const IntercompanyInventoryProfitPage = lazy(
     () => import("./features/afar/IntercompanyInventoryProfitPage")
 );
@@ -490,6 +520,9 @@ const AisLifecycleAndRecoveryPage = lazy(
 const EnterpriseSystemsControlMapperPage = lazy(
     () => import("./features/ais/EnterpriseSystemsControlMapperPage")
 );
+const AccessControlReviewPage = lazy(
+    () => import("./features/ais/AccessControlReviewPage")
+);
 const RiskControlMatrixPage = lazy(
     () => import("./features/governance/RiskControlMatrixPage")
 );
@@ -498,6 +531,9 @@ const EthicsDecisionWorkspacePage = lazy(
 );
 const BusinessLawReviewPage = lazy(
     () => import("./features/rfbt/BusinessLawReviewPage")
+);
+const ObligationsContractsFlowPage = lazy(
+    () => import("./features/rfbt/ObligationsContractsFlowPage")
 );
 const CommercialTransactionsReviewerPage = lazy(
     () => import("./features/rfbt/CommercialTransactionsReviewerPage")
@@ -646,7 +682,9 @@ export default function App() {
                         <Route path="business/sell-or-process-further" element={renderRoute("/business/sell-or-process-further", <SellProcessFurtherPage />)} />
                         <Route path="business/constrained-resource-product-mix" element={renderRoute("/business/constrained-resource-product-mix", <ConstrainedResourceProductMixPage />)} />
                         <Route path="business/transfer-pricing-support" element={renderRoute("/business/transfer-pricing-support", <TransferPricingSupportPage />)} />
+                        <Route path="business/activity-based-costing" element={renderRoute("/business/activity-based-costing", <ActivityBasedCostingPage />)} />
                         <Route path="business/budget-variance-analysis" element={renderRoute("/business/budget-variance-analysis", <BudgetVarianceAnalysisPage />)} />
+                        <Route path="business/segmented-income-statement" element={renderRoute("/business/segmented-income-statement", <SegmentedIncomeStatementPage />)} />
                         <Route path="business/sales-volume-variance" element={renderRoute("/business/sales-volume-variance", <SalesVolumeVariancePage />)} />
                         <Route path="business/sales-mix-variance" element={renderRoute("/business/sales-mix-variance", <SalesMixVariancePage />)} />
                         <Route path="business/cash-collections-schedule" element={renderRoute("/business/cash-collections-schedule", <CashCollectionsSchedulePage />)} />
@@ -682,6 +720,9 @@ export default function App() {
                         <Route path="far/share-based-payment-workspace" element={renderRoute("/far/share-based-payment-workspace", <ShareBasedPaymentPage />)} />
                         <Route path="far/borrowing-costs-capitalization" element={renderRoute("/far/borrowing-costs-capitalization", <BorrowingCostsCapitalizationPage />)} />
                         <Route path="far/provision-expected-value" element={renderRoute("/far/provision-expected-value", <ProvisionExpectedValuePage />)} />
+                        <Route path="far/quasi-reorganization" element={renderRoute("/far/quasi-reorganization", <QuasiReorganizationPage />)} />
+                        <Route path="far/financial-asset-amortized-cost" element={renderRoute("/far/financial-asset-amortized-cost", <FinancialAssetAmortizedCostPage />)} />
+                        <Route path="far/investment-property-measurement" element={renderRoute("/far/investment-property-measurement", <InvestmentPropertyMeasurementPage />)} />
                         <Route path="far/impairment-loss-workspace" element={renderRoute("/far/impairment-loss-workspace", <ImpairmentLossPage />)} />
                         <Route path="far/asset-disposal-analysis" element={renderRoute("/far/asset-disposal-analysis", <AssetDisposalAnalysisPage />)} />
                         <Route path="far/retained-earnings-rollforward" element={renderRoute("/far/retained-earnings-rollforward", <RetainedEarningsRollforwardPage />)} />
@@ -693,7 +734,10 @@ export default function App() {
                         <Route path="operations/safety-stock-planner" element={renderRoute("/operations/safety-stock-planner", <SafetyStockPlannerPage />)} />
                         <Route path="operations/cost-plus-pricing" element={renderRoute("/operations/cost-plus-pricing", <CostPlusPricingPage />)} />
                         <Route path="operations/retail-markup-markdown" element={renderRoute("/operations/retail-markup-markdown", <RetailMarkupMarkdownPage />)} />
+                        <Route path="operations/pert-project-estimate" element={renderRoute("/operations/pert-project-estimate", <PertProjectEstimatePage />)} />
+                        <Route path="operations/quality-control-chart" element={renderRoute("/operations/quality-control-chart", <QualityControlChartPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
+                        <Route path="audit/audit-sampling-planner" element={renderRoute("/audit/audit-sampling-planner", <AuditSamplingPlannerPage />)} />
                         <Route path="audit/assertion-evidence-planner" element={renderRoute("/audit/assertion-evidence-planner", <AuditAssertionEvidencePlannerPage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
@@ -713,14 +757,18 @@ export default function App() {
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
                         <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
                         <Route path="afar/franchise-revenue-workspace" element={renderRoute("/afar/franchise-revenue-workspace", <FranchiseRevenueWorkspacePage />)} />
+                        <Route path="afar/corporate-liquidation" element={renderRoute("/afar/corporate-liquidation", <CorporateLiquidationPage />)} />
+                        <Route path="afar/joint-arrangement-analyzer" element={renderRoute("/afar/joint-arrangement-analyzer", <JointArrangementAnalyzerPage />)} />
                         <Route path="afar/consignment-settlement" element={renderRoute("/afar/consignment-settlement", <ConsignmentSettlementPage />)} />
                         <Route path="afar/branch-inventory-loading" element={renderRoute("/afar/branch-inventory-loading", <BranchInventoryLoadingPage />)} />
                         <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />
                         <Route path="ais/ais-lifecycle-and-recovery" element={renderRoute("/ais/ais-lifecycle-and-recovery", <AisLifecycleAndRecoveryPage />)} />
                         <Route path="ais/enterprise-systems-control-mapper" element={renderRoute("/ais/enterprise-systems-control-mapper", <EnterpriseSystemsControlMapperPage />)} />
+                        <Route path="ais/access-control-review" element={renderRoute("/ais/access-control-review", <AccessControlReviewPage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
                         <Route path="governance/ethics-decision-workspace" element={renderRoute("/governance/ethics-decision-workspace", <EthicsDecisionWorkspacePage />)} />
                         <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
+                        <Route path="rfbt/obligations-contracts-flow" element={renderRoute("/rfbt/obligations-contracts-flow", <ObligationsContractsFlowPage />)} />
                         <Route path="rfbt/commercial-transactions-reviewer" element={renderRoute("/rfbt/commercial-transactions-reviewer", <CommercialTransactionsReviewerPage />)} />
                         <Route path="rfbt/securities-and-governance-review" element={renderRoute("/rfbt/securities-and-governance-review", <SecuritiesGovernanceReviewPage />)} />
                         <Route path="strategic/integrative-case-mapper" element={renderRoute("/strategic/integrative-case-mapper", <IntegrativeCaseMapperPage />)} />

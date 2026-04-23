@@ -11,37 +11,62 @@ import { computeConfidenceInterval } from "../../utils/calculatorMath";
 export default function ConfidenceIntervalPage() {
     const [sampleMean, setSampleMean] = useState("");
     const [sampleStandardDeviation, setSampleStandardDeviation] = useState("");
+    const [populationStandardDeviation, setPopulationStandardDeviation] = useState("");
     const [sampleSize, setSampleSize] = useState("");
     const [confidenceLevel, setConfidenceLevel] = useState("95");
+    const [standardDeviationSource, setStandardDeviationSource] = useState<"sample" | "population">("sample");
 
     const result = useMemo(() => {
-        if ([sampleMean, sampleStandardDeviation, sampleSize, confidenceLevel].some((value) => value.trim() === "")) return null;
-        const numeric = [sampleMean, sampleStandardDeviation, sampleSize, confidenceLevel].map(Number);
+        const deviationInput = standardDeviationSource === "population" ? populationStandardDeviation : sampleStandardDeviation;
+        if ([sampleMean, deviationInput, sampleSize, confidenceLevel].some((value) => value.trim() === "")) return null;
+        const numeric = [sampleMean, deviationInput, sampleSize, confidenceLevel].map(Number);
         if (numeric.some(Number.isNaN)) return { error: "All confidence interval inputs must be valid numbers." };
-        if (numeric[1] < 0 || numeric[2] <= 1) return { error: "Sample standard deviation must be non-negative and sample size must be greater than 1." };
+        if (numeric[1] < 0 || numeric[2] <= 1) return { error: "Standard deviation must be non-negative and sample size must be greater than 1." };
 
         return computeConfidenceInterval({
             sampleMean: numeric[0],
-            sampleStandardDeviation: numeric[1],
+            sampleStandardDeviation: standardDeviationSource === "sample" ? numeric[1] : 0,
+            populationStandardDeviation: standardDeviationSource === "population" ? numeric[1] : undefined,
             sampleSize: numeric[2],
             confidenceLevelPercent: numeric[3],
         });
-    }, [confidenceLevel, sampleMean, sampleSize, sampleStandardDeviation]);
+    }, [confidenceLevel, populationStandardDeviation, sampleMean, sampleSize, sampleStandardDeviation, standardDeviationSource]);
 
     return (
         <CalculatorPageLayout
             badge="Statistics & Analytics"
             title="Confidence Interval Helper"
-            description="Build a classroom confidence interval for business, audit sampling, forecasting, or marketing-research estimates using a transparent large-sample z approximation."
+            description="Build a classroom confidence interval for business, audit sampling, forecasting, or marketing-research estimates using z logic when population standard deviation is known and t logic when it is estimated from the sample."
             inputSection={
-                <SectionCard>
-                    <InputGrid columns={2}>
-                        <InputCard label="Sample Mean" value={sampleMean} onChange={setSampleMean} placeholder="42.5" />
-                        <InputCard label="Sample Standard Deviation" value={sampleStandardDeviation} onChange={setSampleStandardDeviation} placeholder="6.2" />
-                        <InputCard label="Sample Size" value={sampleSize} onChange={setSampleSize} placeholder="64" />
-                        <InputCard label="Confidence Level (%)" value={confidenceLevel} onChange={setConfidenceLevel} placeholder="95" />
-                    </InputGrid>
-                </SectionCard>
+                <div className="space-y-4">
+                    <SectionCard>
+                        <div className="mb-4 flex flex-wrap gap-2">
+                            {(["sample", "population"] as const).map((source) => (
+                                <button
+                                    key={source}
+                                    type="button"
+                                    onClick={() => setStandardDeviationSource(source)}
+                                    className={[
+                                        "rounded-full px-3 py-1.5 text-xs font-semibold",
+                                        standardDeviationSource === source ? "app-button-primary" : "app-button-ghost",
+                                    ].join(" ")}
+                                >
+                                    {source === "sample" ? "Sample SD unknown population σ (t)" : "Known population σ (z)"}
+                                </button>
+                            ))}
+                        </div>
+                        <InputGrid columns={2}>
+                            <InputCard label="Sample Mean" value={sampleMean} onChange={setSampleMean} placeholder="42.5" />
+                            {standardDeviationSource === "sample" ? (
+                                <InputCard label="Sample Standard Deviation" value={sampleStandardDeviation} onChange={setSampleStandardDeviation} placeholder="6.2" />
+                            ) : (
+                                <InputCard label="Population Standard Deviation" value={populationStandardDeviation} onChange={setPopulationStandardDeviation} placeholder="6.2" />
+                            )}
+                            <InputCard label="Sample Size" value={sampleSize} onChange={setSampleSize} placeholder="64" />
+                            <InputCard label="Confidence Level (%)" value={confidenceLevel} onChange={setConfidenceLevel} placeholder="95" />
+                        </InputGrid>
+                    </SectionCard>
+                </div>
             }
             resultSection={
                 result && "error" in result ? (
@@ -51,7 +76,7 @@ export default function ConfidenceIntervalPage() {
                     </SectionCard>
                 ) : result ? (
                     <ResultGrid columns={4}>
-                        <ResultCard title="z Critical" value={result.zCritical.toFixed(3)} />
+                        <ResultCard title={`${result.criticalMethod.toUpperCase()} Critical`} value={result.criticalValue.toFixed(3)} />
                         <ResultCard title="Standard Error" value={result.standardError.toFixed(4)} />
                         <ResultCard title="Margin of Error" value={result.marginOfError.toFixed(4)} />
                         <ResultCard title="Interval" value={`${result.lowerBound.toFixed(4)} to ${result.upperBound.toFixed(4)}`} tone="accent" />
@@ -61,14 +86,16 @@ export default function ConfidenceIntervalPage() {
             explanationSection={
                 result && !("error" in result) ? (
                     <FormulaCard
-                        formula="Confidence interval = sample mean +/- z critical x standard error"
+                        formula={`Confidence interval = sample mean +/- ${result.criticalMethod} critical x standard error`}
                         steps={[
-                            `Standard error = ${Number(sampleStandardDeviation).toFixed(4)} / sqrt(${Number(sampleSize).toFixed(0)}) = ${result.standardError.toFixed(4)}.`,
-                            `Margin of error = ${result.zCritical.toFixed(3)} x ${result.standardError.toFixed(4)} = ${result.marginOfError.toFixed(4)}.`,
+                            `${result.criticalMethod === "t" ? `Population standard deviation is not known, so t is used with df = ${result.degreesOfFreedom}.` : "Population standard deviation is known, so z is used."}`,
+                            `Standard error = ${result.standardDeviationUsed.toFixed(4)} / sqrt(${Number(sampleSize).toFixed(0)}) = ${result.standardError.toFixed(4)}.`,
+                            `Margin of error = ${result.criticalValue.toFixed(3)} x ${result.standardError.toFixed(4)} = ${result.marginOfError.toFixed(4)}.`,
                         ]}
-                        interpretation={`Using the selected large-sample approximation, the interval is ${result.lowerBound.toFixed(4)} to ${result.upperBound.toFixed(4)}.`}
+                        interpretation={`Using ${result.confidenceLevelUsed}% ${result.criticalMethod}-based logic, the interval is ${result.lowerBound.toFixed(4)} to ${result.upperBound.toFixed(4)}.`}
                         warnings={[
-                            "This route uses common z critical values for 90%, 95%, and 99%. For small-sample t intervals, use the exact t critical value required by your class.",
+                            "The t path uses a classroom critical-value table with nearest supported confidence levels. Use instructor-provided exact critical values when required.",
+                            "A confidence interval communicates estimation uncertainty. It is not a guarantee that a single future observation will fall inside the range.",
                         ]}
                     />
                 ) : null

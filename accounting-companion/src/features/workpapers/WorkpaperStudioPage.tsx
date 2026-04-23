@@ -2,6 +2,7 @@ import {
     type CSSProperties,
     type KeyboardEvent as ReactKeyboardEvent,
     startTransition,
+    useDeferredValue,
     useEffect,
     useMemo,
     useRef,
@@ -335,6 +336,8 @@ export default function WorkpaperStudioPage() {
     const [showFormattingTools, setShowFormattingTools] = useState(false);
     const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
     const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
+    const deferredCellDraft = useDeferredValue(cellDraft);
+    const deferredCellNoteDraft = useDeferredValue(cellNoteDraft);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formulaBarInputRef = useRef<HTMLInputElement | null>(null);
     const selectedCellEditorRef = useRef<HTMLInputElement | null>(null);
@@ -455,10 +458,14 @@ export default function WorkpaperStudioPage() {
         [draftWorkbook, activeSheet]
     );
 
-    const formulaCoverage = activeSheet
-        ? describeSheetFormulaCoverage(activeSheet)
-        : { formulas: 0, values: 0 };
-    const lastUsedRow = activeSheet ? getLastUsedRowIndex(activeSheet) : -1;
+    const formulaCoverage = useMemo(
+        () => activeSheet ? describeSheetFormulaCoverage(activeSheet) : { formulas: 0, values: 0 },
+        [activeSheet]
+    );
+    const lastUsedRow = useMemo(
+        () => activeSheet ? getLastUsedRowIndex(activeSheet) : -1,
+        [activeSheet]
+    );
     const activeTemplate = activeSheet?.templateId
         ? getWorkpaperTemplate(activeSheet.templateId)
         : null;
@@ -999,8 +1006,8 @@ export default function WorkpaperStudioPage() {
             activeSheet,
             selectedCellCoords.rowIndex,
             selectedCellCoords.columnIndex,
-            cellDraft,
-            cellNoteDraft
+            deferredCellDraft,
+            deferredCellNoteDraft
         );
 
         const previewWorkbook = {
@@ -1011,11 +1018,11 @@ export default function WorkpaperStudioPage() {
             },
         };
 
-        return evaluateCellInput(previewWorkbook, activeSheet.id, cellDraft);
+        return evaluateCellInput(previewWorkbook, activeSheet.id, deferredCellDraft);
     }, [
         activeSheet,
-        cellDraft,
-        cellNoteDraft,
+        deferredCellDraft,
+        deferredCellNoteDraft,
         draftWorkbook,
         selectedCellCoords.columnIndex,
         selectedCellCoords.rowIndex,
@@ -1299,6 +1306,7 @@ export default function WorkpaperStudioPage() {
                                     onKeyDown={handleEditorNavigation}
                                     placeholder="Type a value, text, or a formula like =SUM(A1:A5)"
                                     className="workpaper-formula-bar__input"
+                                    aria-label={`Formula bar for ${selectedRangeLabel}`}
                                 />
                                 <span
                                     className={[
@@ -1382,6 +1390,22 @@ export default function WorkpaperStudioPage() {
                                         Paste
                                     </button>
                                 </div>
+                            </section>
+
+                            <section className="workpaper-mobile-edit-dock" aria-label="Selected cell quick edit">
+                                <div>
+                                    <span className="workpaper-format-strip__label">Editing {selectedRangeLabel}</span>
+                                    <p className="app-helper text-xs">
+                                        Use the formula bar above or tap a visible cell. Enter moves down, Tab moves right.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => formulaBarInputRef.current?.focus()}
+                                    className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
+                                >
+                                    Focus formula bar
+                                </button>
                             </section>
 
                             {(showFunctionPicker || showFormattingTools) && (
@@ -1767,6 +1791,8 @@ export default function WorkpaperStudioPage() {
                                     className="workpaper-grid scrollbar-premium"
                                     onKeyDown={handleGridKeydown}
                                     tabIndex={0}
+                                    role="region"
+                                    aria-label={`${activeSheet.title} editable workpaper grid`}
                                 >
                                     <table className="workpaper-grid__table">
                                         <thead>
@@ -1789,7 +1815,7 @@ export default function WorkpaperStudioPage() {
                                                             activeSheet.freezeColumns &&
                                                             columnIndex < activeSheet.freezeColumns
                                                                 ? {
-                                                                      left: `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`,
+                                                                      left: `calc(var(--workpaper-row-header-width, 3.4rem) + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`,
                                                                       zIndex: 3,
                                                                   }
                                                                 : undefined
@@ -1817,7 +1843,7 @@ export default function WorkpaperStudioPage() {
                                                         style={
                                                             activeSheet.freezeRows && rowIndex < activeSheet.freezeRows
                                                                 ? {
-                                                                      top: `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`,
+                                                                      top: `calc(var(--workpaper-column-header-height, 2.65rem) + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`,
                                                                       zIndex: 2,
                                                                   }
                                                                 : undefined
@@ -1866,10 +1892,10 @@ export default function WorkpaperStudioPage() {
                                                                     ].join(" ")}
                                                                     style={{
                                                                         left: isFrozenColumn
-                                                                            ? `calc(3.4rem + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`
+                                                                            ? `calc(var(--workpaper-row-header-width, 3.4rem) + (${columnIndex} * var(--workpaper-cell-width, 6.25rem)))`
                                                                             : undefined,
                                                                         top: isFrozenRow
-                                                                            ? `calc(2.15rem + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`
+                                                                            ? `calc(var(--workpaper-column-header-height, 2.65rem) + (${rowIndex} * var(--workpaper-cell-height, 3rem)))`
                                                                             : undefined,
                                                                         zIndex: isFrozenColumn && isFrozenRow ? 2 : isFrozenColumn || isFrozenRow ? 1 : undefined,
                                                                     }}

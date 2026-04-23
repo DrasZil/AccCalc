@@ -5385,20 +5385,140 @@ import {
         name: "Confidence Interval Helper",
         route: "/statistics/confidence-interval",
         description:
-            "Build a large-sample confidence interval for statistics, audit sampling, forecasting, or marketing-research estimates.",
+            "Build a z or t confidence interval for statistics, audit sampling, forecasting, or marketing-research estimates.",
         required: [],
-        aliases: ["confidence interval", "margin of error", "standard error", "sampling estimate"],
-        keywords: [/confidence interval/i, /margin of error/i, /standard error/i, /sample mean/i],
+        aliases: ["confidence interval", "margin of error", "standard error", "sampling estimate", "t interval", "z interval"],
+        keywords: [/confidence interval/i, /margin of error/i, /standard error/i, /sample mean/i, /t critical|z critical/i],
     },
     {
         id: "capital-rationing-prioritizer",
         name: "Capital Rationing Prioritizer",
         route: "/finance/capital-rationing-prioritizer",
         description:
-            "Rank capital projects by profitability index when a management-services prompt has a limited investment budget.",
+            "Compare profitability-index ranking with exact project-combination selection under a limited capital budget.",
         required: [],
-        aliases: ["capital rationing", "project prioritization", "profitability index ranking"],
-        keywords: [/capital rationing/i, /profitability index/i, /project selection/i, /investment budget/i],
+        aliases: ["capital rationing", "project prioritization", "profitability index ranking", "project combination"],
+        keywords: [/capital rationing/i, /profitability index/i, /project selection/i, /investment budget/i, /project combination/i],
+    },
+    {
+        id: "segmented-income-statement",
+        name: "Segmented Income Statement Analyzer",
+        route: "/business/segmented-income-statement",
+        description:
+            "Compute contribution margin, segment margin, and allocated common-cost effect for responsibility-accounting cases.",
+        required: [],
+        aliases: ["segmented income statement", "segment margin", "traceable fixed costs", "responsibility accounting"],
+        keywords: [/segmented income/i, /segment margin/i, /traceable fixed/i, /common fixed/i],
+    },
+    {
+        id: "audit-sampling-planner",
+        name: "Audit Sampling Planner",
+        route: "/audit/audit-sampling-planner",
+        description:
+            "Estimate sample size, sampling interval, and allowance for sampling risk from population, tolerable misstatement, expected misstatement, and confidence factor.",
+        required: [],
+        aliases: ["audit sampling", "monetary unit sampling", "sample size", "tolerable misstatement"],
+        keywords: [/audit sampling/i, /sample size/i, /tolerable misstatement/i, /expected misstatement/i, /monetary unit/i],
+    },
+    {
+        id: "pert-project-estimate",
+        name: "PERT Project Estimate Helper",
+        route: "/operations/pert-project-estimate",
+        description:
+            "Use optimistic, most-likely, and pessimistic estimates to compute expected project time and uncertainty.",
+        required: [],
+        aliases: ["pert estimate", "project management estimate", "optimistic most likely pessimistic"],
+        keywords: [/\bpert\b/i, /optimistic/i, /most likely/i, /pessimistic/i, /project estimate/i],
+    },
+    {
+        id: "quasi-reorganization",
+        name: "Quasi-Reorganization Deficit Cleanup",
+        route: "/far/quasi-reorganization",
+        description:
+            "Review whether share premium, revaluation surplus, and capital reduction can remove a deficit under classroom assumptions.",
+        required: [],
+        aliases: ["quasi reorganization", "deficit cleanup", "capital reduction", "clean surplus"],
+        keywords: [/quasi[- ]reorganization/i, /deficit/i, /capital reduction/i, /share premium/i],
+    },
+    {
+        id: "corporate-liquidation",
+        name: "Corporate Liquidation Recovery Planner",
+        route: "/afar/corporate-liquidation",
+        description:
+            "Estimate net estate available, unsecured creditor recovery, and deficiency for corporate liquidation review.",
+        required: [],
+        aliases: ["corporate liquidation", "statement of affairs", "unsecured recovery", "liquidation"],
+        keywords: [/corporate liquidation/i, /statement of affairs/i, /unsecured creditors?/i, /liquidation costs?/i],
+    },
+    {
+        id: "obligations-contracts-flow",
+        name: "Obligations and Contracts Issue Flow",
+        route: "/rfbt/obligations-contracts-flow",
+        description:
+            "Classify obligations, defective contracts, remedies, and next review steps for RFBT prompts.",
+        required: [],
+        aliases: ["obligations", "contracts", "defective contracts", "voidable unenforceable void"],
+        keywords: [/obligations?/i, /defective contracts?/i, /voidable/i, /unenforceable/i, /void contract/i],
+    },
+    {
+        id: "access-control-review",
+        name: "Access Control Review Workspace",
+        route: "/ais/access-control-review",
+        description:
+            "Review logical access, privileged access, change risk, monitoring, and evidence needs in AIS and IT-audit cases.",
+        required: [],
+        aliases: ["logical access", "privileged access", "segregation of duties", "access control"],
+        keywords: [/logical access/i, /privileged access/i, /segregation of duties/i, /access controls?/i],
+    },
+    {
+        id: "activity-based-costing",
+        name: "Activity-Based Costing Allocator",
+        route: "/business/activity-based-costing",
+        description:
+            "Allocate activity cost pools with driver rates and compute product overhead, total cost, and unit product cost.",
+        required: [],
+        aliases: ["activity based costing", "abc costing", "cost pool", "cost driver", "activity rate"],
+        keywords: [/activity[- ]based costing/i, /\babc\b/i, /cost pools?/i, /cost drivers?/i, /activity rate/i],
+    },
+    {
+        id: "financial-asset-amortized-cost",
+        name: "Financial Asset Amortized Cost Schedule",
+        route: "/far/financial-asset-amortized-cost",
+        description:
+            "Compute effective-interest revenue, cash interest, amortization, and ECL-adjusted carrying amount for financial assets.",
+        required: [],
+        aliases: ["financial asset", "amortized cost", "effective interest asset", "expected credit loss"],
+        keywords: [/financial asset/i, /amortized cost/i, /effective interest/i, /expected credit loss|ecl/i],
+    },
+    {
+        id: "investment-property-measurement",
+        name: "Investment Property Measurement Helper",
+        route: "/far/investment-property-measurement",
+        description:
+            "Compare fair value model gain or loss with cost-model carrying amount for investment property cases.",
+        required: [],
+        aliases: ["investment property", "fair value model", "cost model"],
+        keywords: [/investment property/i, /fair value model/i, /cost model/i],
+    },
+    {
+        id: "joint-arrangement-analyzer",
+        name: "Joint Arrangement Share Analyzer",
+        route: "/afar/joint-arrangement-analyzer",
+        description:
+            "Estimate a venturer's share of assets, liabilities, revenue, expenses, and profit with joint-operation classification reminders.",
+        required: [],
+        aliases: ["joint arrangement", "joint operation", "joint venture"],
+        keywords: [/joint arrangement/i, /joint operation/i, /joint venture/i, /rights to assets/i],
+    },
+    {
+        id: "quality-control-chart",
+        name: "Quality Control Chart Helper",
+        route: "/operations/quality-control-chart",
+        description:
+            "Build three-sigma control limits and flag out-of-control observations for operations quality-control cases.",
+        required: [],
+        aliases: ["quality control chart", "control limits", "statistical quality control", "three sigma"],
+        keywords: [/quality control/i, /control chart/i, /\bucl\b|\blcl\b/i, /three sigma/i, /statistical quality/i],
     },
     {
         id: "workpaper-studio",

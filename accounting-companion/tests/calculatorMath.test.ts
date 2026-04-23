@@ -121,6 +121,16 @@ import {
     computeSpecialOrderDecision,
     computeCashRunway,
     computeConstrainedResourceProductMix,
+    computeSegmentMargin,
+    computeAuditSamplingPlan,
+    computePertEstimate,
+    computeQuasiReorganization,
+    computeCorporateLiquidation,
+    computeActivityBasedCosting,
+    computeFinancialAssetAmortizedCost,
+    computeInvestmentPropertyMeasurement,
+    computeJointArrangementShare,
+    computeQualityControlChart,
 } from "../src/utils/calculatorMath.js";
 import {
     budgetVarianceAnalysisSolveDefinition,
@@ -2059,7 +2069,18 @@ runTest("v10 provisions, franchise revenue, retail pricing, and intervals comput
         sampleSize: 64,
         confidenceLevelPercent: 95,
     });
-    assert.equal(Number(interval.marginOfError.toFixed(4)), 1.5190);
+    assert.equal(interval.criticalMethod, "t");
+    assert.equal(Number(interval.marginOfError.toFixed(4)), 1.5422);
+
+    const knownSigmaInterval = computeConfidenceInterval({
+        sampleMean: 42.5,
+        sampleStandardDeviation: 0,
+        populationStandardDeviation: 6.2,
+        sampleSize: 64,
+        confidenceLevelPercent: 95,
+    });
+    assert.equal(knownSigmaInterval.criticalMethod, "z");
+    assert.equal(Number(knownSigmaInterval.marginOfError.toFixed(4)), 1.519);
 });
 
 runTest("v10 capital rationing ranks by profitability index within a budget", () => {
@@ -2072,6 +2093,20 @@ runTest("v10 capital rationing ranks by profitability index within a budget", ()
     assert.deepEqual(result.selectedProjects.map((project) => project.label), ["C", "A"]);
     assert.equal(result.totalInvestment, 700_000);
     assert.equal(result.totalNpv, 174_000);
+    assert.deepEqual(result.greedySelectedProjects.map((project) => project.label), ["C", "A"]);
+});
+
+runTest("capital rationing exact combination can beat greedy PI ranking", () => {
+    const result = computeCapitalRationingSelection([
+        { label: "High PI Small", initialInvestment: 400_000, netPresentValue: 160_000 },
+        { label: "Pair One", initialInvestment: 500_000, netPresentValue: 175_000 },
+        { label: "Pair Two", initialInvestment: 500_000, netPresentValue: 175_000 },
+    ], 1_000_000);
+
+    assert.deepEqual(result.greedySelectedProjects.map((project) => project.label), ["High PI Small", "Pair One"]);
+    assert.deepEqual(result.selectedProjects.map((project) => project.label), ["Pair One", "Pair Two"]);
+    assert.equal(result.totalNpv, 350_000);
+    assert.equal(result.optimizationImprovement, 15_000);
 });
 
 runTest("v10 discovery reaches book-inspired expansion routes", () => {
@@ -2083,6 +2118,143 @@ runTest("v10 discovery reaches book-inspired expansion routes", () => {
     assert.ok(getWorkpaperTemplate("retail-pricing-and-rationing-support"));
     assert.ok(getWorkpaperTemplate("provision-franchise-revenue-support"));
     assert.ok(getWorkpaperTemplate("confidence-interval-support"));
+});
+
+runTest("v10.1 completion-pass calculators compute expected classroom values", () => {
+    const segment = computeSegmentMargin({
+        sales: 950_000,
+        variableCosts: 570_000,
+        traceableFixedCosts: 180_000,
+        commonFixedCosts: 60_000,
+    });
+    assert.equal(segment.contributionMargin, 380_000);
+    assert.equal(segment.segmentMargin, 200_000);
+    assert.equal(segment.incomeAfterAllocatedCommonCosts, 140_000);
+
+    const sampling = computeAuditSamplingPlan({
+        populationBookValue: 12_000_000,
+        tolerableMisstatement: 600_000,
+        expectedMisstatement: 120_000,
+        confidenceFactor: 3,
+    });
+    assert.equal(sampling.allowanceForSamplingRisk, 480_000);
+    assert.equal(sampling.sampleSize, 75);
+    assert.equal(sampling.samplingInterval, 160_000);
+
+    const pert = computePertEstimate({ optimistic: 4, mostLikely: 7, pessimistic: 13 });
+    assert.equal(pert.expectedTime, 7.5);
+    assert.equal(pert.standardDeviation, 1.5);
+    assert.equal(pert.variance, 2.25);
+});
+
+runTest("v10.1 FAR and AFAR completion helpers keep deficit and recovery logic visible", () => {
+    const quasi = computeQuasiReorganization({
+        deficit: 1_800_000,
+        sharePremium: 450_000,
+        revaluationSurplus: 350_000,
+        capitalReduction: 1_000_000,
+    });
+    assert.equal(quasi.totalDeficitRelief, 1_800_000);
+    assert.equal(quasi.remainingDeficit, 0);
+    assert.equal(quasi.cleanSurplusAchieved, true);
+
+    const liquidation = computeCorporateLiquidation({
+        estimatedAssetRealization: 5_200_000,
+        liquidationCosts: 250_000,
+        priorityLiabilities: 2_100_000,
+        unsecuredLiabilities: 3_600_000,
+    });
+    assert.equal(liquidation.netEstateAvailable, 4_950_000);
+    assert.equal(liquidation.amountAvailableForUnsecured, 2_850_000);
+    assert.equal(liquidation.unsecuredDeficiency, 750_000);
+    assertClose(liquidation.unsecuredRecoveryPercent, 79.1666666667);
+});
+
+runTest("v10.1 discovery and workpapers reach completion-pass additions", () => {
+    assert.equal(searchAppRoutes("segment margin traceable fixed costs")[0]?.path, "/business/segmented-income-statement");
+    assert.equal(searchAppRoutes("audit sampling tolerable misstatement")[0]?.path, "/audit/audit-sampling-planner");
+    assert.equal(searchAppRoutes("pert optimistic most likely pessimistic")[0]?.path, "/operations/pert-project-estimate");
+    assert.equal(searchAppRoutes("quasi reorganization deficit cleanup")[0]?.path, "/far/quasi-reorganization");
+    assert.equal(searchAppRoutes("corporate liquidation statement of affairs")[0]?.path, "/afar/corporate-liquidation");
+    assert.equal(searchAppRoutes("voidable unenforceable defective contracts")[0]?.path, "/rfbt/obligations-contracts-flow");
+    assert.equal(searchAppRoutes("logical access privileged segregation of duties")[0]?.path, "/ais/access-control-review");
+    assert.ok(getWorkpaperTemplate("segmented-income-statement-support"));
+    assert.ok(getWorkpaperTemplate("audit-sampling-support"));
+    assert.ok(getWorkpaperTemplate("pert-project-support"));
+    assert.ok(getWorkpaperTemplate("liquidation-and-quasi-reorg-support"));
+    assert.ok(getWorkpaperTemplate("rfbt-ais-review-support"));
+});
+
+runTest("v10.1 expanded completion math covers ABC, FAR assets, AFAR joint arrangements, and SQC", () => {
+    const abc = computeActivityBasedCosting({
+        directMaterials: 180_000,
+        directLabor: 120_000,
+        units: 5_000,
+        activityOneCost: 300_000,
+        activityOneTotalDriver: 600,
+        activityOneProductDriver: 120,
+        activityTwoCost: 240_000,
+        activityTwoTotalDriver: 8_000,
+        activityTwoProductDriver: 1_700,
+    });
+    assert.equal(abc.activityOneRate, 500);
+    assert.equal(abc.activityTwoRate, 30);
+    assert.equal(abc.totalOverheadAssigned, 111_000);
+    assert.equal(abc.unitProductCost, 82.2);
+
+    const asset = computeFinancialAssetAmortizedCost({
+        openingCarryingAmount: 960_000,
+        faceValue: 1_000_000,
+        statedRatePercent: 8,
+        effectiveRatePercent: 9,
+        expectedCreditLoss: 12_000,
+    });
+    assert.equal(asset.cashInterest, 80_000);
+    assert.equal(asset.interestRevenue, 86_400);
+    assert.equal(asset.endingGrossCarryingAmount, 966_400);
+    assert.equal(asset.netCarryingAmount, 954_400);
+
+    const investmentProperty = computeInvestmentPropertyMeasurement({
+        carryingAmount: 4_200_000,
+        fairValue: 4_550_000,
+        annualDepreciation: 160_000,
+    });
+    assert.equal(investmentProperty.fairValueGainOrLoss, 350_000);
+    assert.equal(investmentProperty.costModelEndingCarryingAmount, 4_040_000);
+
+    const joint = computeJointArrangementShare({
+        ownershipPercent: 40,
+        arrangementAssets: 3_200_000,
+        arrangementLiabilities: 1_100_000,
+        arrangementRevenue: 1_800_000,
+        arrangementExpenses: 1_250_000,
+    });
+    assert.equal(joint.shareOfAssets, 1_280_000);
+    assert.equal(joint.shareOfLiabilities, 440_000);
+    assert.equal(joint.shareOfProfit, 220_000);
+
+    const quality = computeQualityControlChart({
+        processMean: 50,
+        processStandardDeviation: 4.8,
+        sampleSize: 9,
+        observations: [47.9, 51.2, 55.4],
+    });
+    assert.equal(quality.lowerControlLimit, 45.2);
+    assert.equal(quality.upperControlLimit, 54.8);
+    assert.equal(quality.outOfControlCount, 1);
+});
+
+runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {
+    assert.equal(searchAppRoutes("activity based costing cost pool driver")[0]?.path, "/business/activity-based-costing");
+    assert.equal(searchAppRoutes("financial asset amortized cost effective interest")[0]?.path, "/far/financial-asset-amortized-cost");
+    assert.equal(searchAppRoutes("investment property fair value model")[0]?.path, "/far/investment-property-measurement");
+    assert.equal(searchAppRoutes("joint arrangement joint operation share of profit")[0]?.path, "/afar/joint-arrangement-analyzer");
+    assert.equal(searchAppRoutes("quality control chart ucl lcl")[0]?.path, "/operations/quality-control-chart");
+    assert.ok(getWorkpaperTemplate("abc-and-quality-support"));
+    assert.ok(getWorkpaperTemplate("financial-assets-and-investment-property"));
+    assert.ok(getWorkpaperTemplate("joint-arrangement-support"));
+    assert.equal(suggestSolveTarget("activity-based-costing", "compute unit product cost"), "unitProductCost");
+    assert.equal(suggestSolveTarget("quality-control-chart", "find the UCL and LCL control limits"), "controlLimits");
 });
 
 runTest("smart solver target suggestions understand transfer-pricing prompts", () => {
@@ -2104,6 +2276,18 @@ runTest("smart solver target suggestions understand transfer-pricing prompts", (
     assert.equal(
         suggestSolveTarget("cost-plus-pricing", "find the markup percent on cost"),
         "markUpPercent"
+    );
+    assert.equal(
+        suggestSolveTarget("audit-sampling-planner", "find the sample size"),
+        "sampleSize"
+    );
+    assert.equal(
+        suggestSolveTarget("segmented-income-statement", "compute segment margin"),
+        "segmentMargin"
+    );
+    assert.equal(
+        suggestSolveTarget("pert-project-estimate", "compute expected project time"),
+        "expectedTime"
     );
 });
 

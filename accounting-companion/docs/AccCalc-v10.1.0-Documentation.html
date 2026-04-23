@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AccCalc v10.1.0 Documentation</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; color: #172033; line-height: 1.55; margin: 40px auto; max-width: 920px; padding: 0 24px; }
+    h1, h2 { color: #0f5132; }
+    h1 { border-bottom: 3px solid #a7f3d0; padding-bottom: 12px; }
+    code { background: #eef7f1; padding: 2px 5px; border-radius: 4px; }
+    .callout { border-left: 4px solid #10b981; background: #f0fdf4; padding: 12px 16px; margin: 18px 0; }
+    ul { padding-left: 24px; }
+  </style>
+</head>
+<body>
+  <h1>AccCalc v10.1.0 Documentation</h1>
+  <p>AccCalc v10.1.0 is a coverage-matrix completion release for calculator and education-layer breadth. It focuses on topics that were still partial, lesson-heavy, or weakly connected in the current app.</p>
+
+  <h2>New Curriculum Coverage</h2>
+  <ul>
+    <li>Cost and managerial accounting: Segmented Income Statement Analyzer.</li>
+    <li>Cost and managerial accounting: Activity-Based Costing Allocator for cost pools, cost drivers, assigned overhead, and unit product cost.</li>
+    <li>Audit and assurance: Audit Sampling Planner.</li>
+    <li>Operations: PERT Project Estimate Helper and Quality Control Chart Helper.</li>
+    <li>FAR: Quasi-Reorganization Deficit Cleanup, Financial Asset Amortized Cost Schedule, and Investment Property Measurement Helper.</li>
+    <li>AFAR: Corporate Liquidation Recovery Planner and Joint Arrangement Share Analyzer.</li>
+    <li>RFBT: Obligations and Contracts Issue Flow.</li>
+    <li>AIS: Access Control Review Workspace.</li>
+  </ul>
+
+  <h2>Architecture Map</h2>
+  <p>New pages are registered in <code>src/App.tsx</code>, described in <code>src/utils/appCatalog.ts</code>, supported by shared math in <code>src/utils/calculatorMath.ts</code>, and tested in <code>tests/calculatorMath.test.ts</code>.</p>
+
+  <h2>Study Hub</h2>
+  <p>The v9 textbook-style Study Hub layout remains in place. v10.1 adds completion modules in <code>src/features/study/studyExpansion450.ts</code> so each new tool has reviewer context, common mistakes, worked-case framing, related calculators, scan signals, and next-topic continuity.</p>
+
+  <h2>Smart Solver And OCR</h2>
+  <p>Smart Solver route scoring now recognizes segment-margin, sampling, PERT, ABC, FAR financial-asset and investment-property measurement, quality-control, quasi-reorganization, corporate-liquidation, joint-arrangement, obligations/contracts, and access-control language. OCR route rules identify the same topic-family signals from scanned or pasted text.</p>
+
+  <h2>Workpapers</h2>
+  <p>New templates support segment reporting, audit sampling, PERT, liquidation/quasi-reorganization, combined RFBT/AIS reviewer work, ABC and quality-control support, FAR asset measurement, and joint-arrangement schedules. They are registered in <code>src/features/workpapers/workpaperTemplates.ts</code>.</p>
+  <p>The hardening follow-up improves Workpaper Studio by deferring live preview evaluation, adding a narrow-screen edit dock, labeling the editable grid region, and centralizing frozen-row/column offsets with CSS variables.</p>
+
+  <h2>Computation Hardening</h2>
+  <ul>
+    <li>The confidence interval helper now explains and computes z intervals when population standard deviation is known and t intervals when standard deviation is estimated from the sample.</li>
+    <li>The capital rationing helper now compares classroom profitability-index ranking with exact project-combination search for independent indivisible projects.</li>
+    <li>New shared helpers cover ABC overhead assignment, amortized-cost financial assets, investment-property measurement, joint-arrangement share schedules, and three-sigma quality-control limits.</li>
+  </ul>
+
+  <h2>Maintenance Notes</h2>
+  <div class="callout">When adding a future curriculum topic, wire it through route registration, app catalog, Smart Solver, OCR routing, Study Hub, workpapers where useful, and tests. Avoid hidden one-off pages.</div>
+
+  <h2>Validation</h2>
+  <p>The v10.1 release includes regression tests for shared math, search, workpaper templates, and solve-target suggestions. Final handoff validation uses <code>npm test</code>, <code>npm run build</code>, and a bounded <code>npm run dev</code> probe.</p>
+</body>
+</html>

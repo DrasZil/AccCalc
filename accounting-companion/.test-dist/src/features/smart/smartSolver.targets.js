@@ -224,6 +224,38 @@ const SOLVE_TARGET_RULES = {
         { target: "profitabilityIndex", patterns: [/profitability index/i, /\bpi\b/i] },
         { target: "totalNpv", patterns: [/total npv/i, /selected npv/i] },
     ],
+    "segmented-income-statement": [
+        { target: "segmentMargin", patterns: [/segment margin/i, /traceable segment income/i] },
+        { target: "contributionMargin", patterns: [/contribution margin/i] },
+        { target: "segmentMarginRatio", patterns: [/segment margin ratio/i, /segment return/i] },
+    ],
+    "audit-sampling-planner": [
+        { target: "sampleSize", patterns: [/sample size/i, /how many items/i] },
+        { target: "samplingInterval", patterns: [/sampling interval/i, /selection interval/i] },
+        { target: "allowanceForSamplingRisk", patterns: [/allowance for sampling risk/i, /sampling risk/i] },
+    ],
+    "pert-project-estimate": [
+        { target: "expectedTime", patterns: [/expected time/i, /expected project time/i, /pert estimate/i] },
+        { target: "standardDeviation", patterns: [/standard deviation/i, /\bsd\b/i] },
+        { target: "variance", patterns: [/variance/i] },
+    ],
+    "quasi-reorganization": [
+        { target: "remainingDeficit", patterns: [/remaining deficit/i, /deficit after/i] },
+        { target: "totalDeficitRelief", patterns: [/deficit relief/i, /total relief/i, /capital reduction/i] },
+    ],
+    "corporate-liquidation": [
+        { target: "unsecuredRecoveryPercent", patterns: [/recovery percent/i, /unsecured recovery/i] },
+        { target: "unsecuredDeficiency", patterns: [/deficiency/i, /unsecured deficiency/i] },
+        { target: "amountAvailableForUnsecured", patterns: [/available for unsecured/i, /amount available/i] },
+    ],
+    "obligations-contracts-flow": [
+        { target: "contractClassification", patterns: [/classify/i, /voidable/i, /unenforceable/i, /void contract/i] },
+        { target: "remedyFrame", patterns: [/remedy/i, /damages/i, /rescission/i] },
+    ],
+    "access-control-review": [
+        { target: "accessRiskScore", patterns: [/access risk/i, /logical access/i, /privileged access/i] },
+        { target: "evidenceChecklist", patterns: [/evidence checklist/i, /access review evidence/i] },
+    ],
     "budget-variance-analysis": [
         { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },
         { target: "spendingVariance", patterns: [/spending variance/i, /flexible budget variance/i] },
@@ -306,6 +338,26 @@ const SOLVE_TARGET_RULES = {
         { target: "preferredDividendAllocated", patterns: [/preferred dividend allocation/i, /preferred dividends?/i] },
         { target: "commonDividendAllocated", patterns: [/common dividend allocation/i, /common dividends?/i] },
         { target: "commonDividendPerShare", patterns: [/common dividend per share/i, /dividend per share/i] },
+    ],
+    "activity-based-costing": [
+        { target: "activityRate", patterns: [/activity rate/i, /cost pool/i, /cost driver/i] },
+        { target: "unitProductCost", patterns: [/unit product cost/i, /product cost/i, /assigned overhead/i] },
+    ],
+    "financial-asset-amortized-cost": [
+        { target: "interestRevenue", patterns: [/interest revenue/i, /effective interest/i] },
+        { target: "endingCarryingAmount", patterns: [/carrying amount/i, /amortized cost/i] },
+    ],
+    "investment-property-measurement": [
+        { target: "fairValueGainOrLoss", patterns: [/fair value gain/i, /fair value loss/i] },
+        { target: "costModelCarryingAmount", patterns: [/cost model/i, /carrying amount/i] },
+    ],
+    "joint-arrangement-analyzer": [
+        { target: "shareOfProfit", patterns: [/share of profit/i, /joint arrangement/i] },
+        { target: "shareOfAssets", patterns: [/share of assets/i, /joint operation/i] },
+    ],
+    "quality-control-chart": [
+        { target: "controlLimits", patterns: [/control limits/i, /\bucl\b/i, /\blcl\b/i] },
+        { target: "outOfControlPoints", patterns: [/out of control/i, /three sigma/i] },
     ],
 };
 export function suggestSolveTarget(calculatorId, query) {
