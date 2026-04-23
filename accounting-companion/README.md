@@ -1,32 +1,108 @@
 # AccCalc
 
-AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `8.1.0` is a focused follow-up release that restores local Vite development on Windows, cleans up the theme settings experience, and adds another managerial-accounting tool without regressing the broader `8.0.0` curriculum expansion.
+AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `9.0.0` is a major academic-depth release focused on three product pillars:
+
+- broader curriculum coverage across underrepresented tracks
+- a textbook-style Study Hub lesson experience
+- stronger OCR and Smart Solver parsing for real accounting word problems
 
 ## Who It Is For
 
 - Accounting students who need calculators plus linked explanations
-- Reviewees covering FAR, AFAR, cost and managerial accounting, taxation, audit, AIS, RFBT, and related business topics
+- Reviewees covering FAR, AFAR, cost and managerial accounting, taxation, audit, AIS, RFBT, operations, governance, and strategic integration
 - Tutors and instructors who want assignment-friendly workpaper support
-- Future maintainers who may come back with limited context and still need to extend the app safely
+- Future maintainers who may return with low context and still need to extend the app safely
 
-## What's New In 8.1.0
+## What's New In 9.0.0
 
-- Fixed the Windows Vite startup regression so `npm run dev` no longer crashes while loading config
-- Moved runtime Vite loading to `vite.config.mjs` with native loading and BOM-safe package metadata parsing
-- Fixed the theme family picker so cards and swatches wrap cleanly on laptop and larger screens
-- Fixed the appearance quick-stats memo so theme-family changes update immediately
-- Added `Transfer Pricing Support` with route, catalog, Smart Solver, OCR, study, and workpaper wiring
-- Simplified runtime release metadata so the app ships only the current release summary instead of duplicated history
+- Rebuilt Study Hub lessons around a reusable reader layout with breadcrumbs, section anchors, chapter flow, resume state, and clearer previous/next lesson navigation
+- Expanded reviewer coverage across FAR, AFAR partnership flow, audit, taxation, RFBT, AIS, governance, operations, and strategic integration
+- Added module-shelf browsing in Study Hub so lessons feel like textbook chapters instead of a flat card wall
+- Added shared loose-number parsing for grouped digits, parenthesized negatives, percentages, and currency markers
+- Upgraded OCR cleanup and structured-field extraction to preserve normalized values, source lines, value kinds, and confidence-aware review flags
+- Improved Scan & Check summaries so they use live route metadata and show structured-field review counts
+- Preserved the `8.1.0` Windows Vite dev-start fix and the theme-family personalization system without regression
 
 ## Major Product Areas
 
 - Smart Tools: Smart Solver, Scan & Check, OCR-assisted routing, natural-language route suggestions
-- Study System: Study Hub, reviewer topics, formula-linked study panels, related-topic navigation
-- Workpapers: workbook-style templates, workbook utilities, calculator-to-workpaper transfer flows
-- FAR / AFAR: statement support, equity, impairments, leases, share-based payments, intercompany tools, consignment, branch support
+- Study System: Study Hub, topic lessons, quizzes, related-topic navigation, module progress, lesson notes
+- Workpapers: workbook-style templates, calculator-to-workpaper transfer flows, starter schedules
+- FAR / AFAR: statement support, equity, impairments, leases, share-based payments, partnership flow, intercompany tools, consignment, branch support
 - Cost / Managerial: CVP, budgets, variances, decision tools, forecasting, process costing, performance workspaces
 - Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
-- Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected curriculum support
+- Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected study modules
+
+## New Academic Depth In 9.0.0
+
+Study Hub now includes additional curriculum-aligned reviewer modules such as:
+
+- `FAR Asset and Liability Refinements`
+- `Partnership Life Cycle`
+- `Audit Risk Linkage`
+- `Tax Compliance Depth`
+- `RFBT Contracts Core`
+- `RFBT Corporation Law`
+- `AIS Control Layers`
+- `Governance and Internal Control`
+- `Operations Planning and Quality`
+- `Strategic Performance Integration`
+
+These are wired into the existing Study Hub search and OCR lesson recommendation flow through `src/features/study/studyExpansion450.ts` and `src/features/study/studyContent.ts`.
+
+## Study Hub Architecture
+
+The Study Hub is no longer just a topic-card wall.
+
+`src/features/study/StudyHubPage.tsx` now acts more like a module shelf:
+
+- module cards by curriculum track
+- recent lesson activity
+- progress and bookmark summaries
+- track-aware browsing via `?track=...`
+- lesson discovery grouped by curriculum area
+
+`src/features/study/StudyTopicPage.tsx` now renders each topic inside `src/features/study/components/StudyLessonLayout.tsx`, which provides:
+
+- breadcrumbs
+- lesson header metadata
+- section outline with "You are here"
+- lesson progress bar
+- sticky sidebar on large screens
+- resume-from-last-section behavior
+- related calculators and related lessons
+- previous / next lesson flow
+
+Progress is stored in `src/utils/studyProgress.ts`.
+
+## Smart Solver And OCR
+
+The routing stack is intentionally layered:
+
+- `src/utils/appCatalog.ts` defines route metadata, aliases, curriculum grouping, and descriptions
+- `src/utils/appSearch.ts` powers route search using a precomputed index
+- `src/features/smart/smartSolver.engine.ts` scores calculators and workspaces from natural-language prompts
+- `src/features/smart/smartSolver.targets.ts` maps explicit prompt wording to solve targets
+- `src/features/scan-check/services/ocr/ocrRouting.ts` ranks likely routes from OCR text
+- `src/features/study/studyContent.ts` recommends related lessons from OCR or route context
+
+`9.0.0` adds `src/utils/numberParsing.ts` so Smart Solver and Scan & Check share safer parsing for:
+
+- grouped numbers like `1,250,000`
+- parenthesized negatives like `(4,500)`
+- percentages like `18%`
+- currency-marked values like `₱125,000`
+
+The OCR review flow now keeps richer structured fields in `src/features/scan-check/types.ts`, including:
+
+- raw value
+- normalized value
+- value kind
+- source line
+- confidence
+- review-needed state
+
+This makes the scanner more honest and easier to correct before autofill.
 
 ## Theme System
 
@@ -55,104 +131,94 @@ npm run build
 npm run lint
 ```
 
-## Build And Validation Status For 8.1.0
+## Validation Status For 9.0.0
 
-The final `8.1.0` implementation was validated with:
+The final `9.0.0` implementation was validated with:
 
 ```bash
 npm test
 npm run build
 ```
 
-Both commands passed after the release changes. `npm run dev` was also fixed by moving runtime config loading to `vite.config.mjs` with `--configLoader native`.
+Both commands passed after the release changes. A long-lived `npm run dev` server was not left running in the terminal after validation, but the earlier Windows-native Vite config fix remains in place.
 
 ## Project Structure
 
 ```text
 accounting-companion/
   src/
-    components/               Reusable UI blocks, result cards, charts, math display
+    components/               Reusable UI blocks, cards, charts, math display, reading surfaces
     features/                 Route-level pages and domain modules
       accounting/
       afar/
+      ais/
       audit/
       business/
       far/
+      governance/
       layout/
       meta/
       operations/
+      rfbt/
       scan-check/
       smart/
+      strategic/
       study/
       tax/
       workpapers/
-    utils/                    Shared math, catalog metadata, settings, assumptions, release metadata
+    utils/                    Shared math, search, release metadata, parsing, settings, assumptions
   tests/                      Shared math, solve-definition, search, and workpaper regression tests
   docs/                       Release notes, system overview, maintenance notes, HTML and PDF handoff docs
   vite.config.mjs             Runtime Vite config used by dev and build
-  vite.config.d.ts            TypeScript stub so config-project metadata stays explicit without runtime coupling
 ```
 
-## How Calculators Are Organized
+## How Calculators And Lessons Are Organized
 
 Routes are registered in `src/App.tsx`, then described centrally in `src/utils/appCatalog.ts`.
 
-Most meaningful calculator flows include:
+Most meaningful feature flows include:
 
 1. A route page in `src/features/...`
 2. Shared math in `src/utils/calculatorMath.ts`
 3. Optional solve-for definitions in `src/utils/formulaSolveDefinitions.ts`
-4. Study support in `src/utils/formulaStudyContent.tsx`
+4. Formula-linked study support in `src/utils/formulaStudyContent.tsx`
 5. Broader reviewer coverage in `src/features/study/studyExpansion450.ts`
 6. Search aliases and route metadata in `src/utils/appCatalog.ts`
-7. Smart Solver and OCR wiring in `src/features/smart/*` and `src/features/scan-check/services/ocr/ocrRouting.ts`
+7. Smart Solver and OCR wiring in `src/features/smart/*` and `src/features/scan-check/services/ocr/*`
 8. Optional workpaper templates in `src/features/workpapers/workpaperTemplates.ts`
 
-## Shared Formula Logic At A High Level
-
-`src/utils/calculatorMath.ts` is the math source of truth. Route pages and solve-definition systems should call those helpers instead of re-implementing formulas inside page components.
-
-`src/utils/formulaSolveDefinitions.ts` wraps shared math with:
-
-- field metadata
-- solve targets
-- result cards
-- assumptions
-- warnings
-- explanation text
-
-This is where reverse-solve behavior belongs when the math is safe and not misleading.
-
-## How Smart Solver, OCR, Workpapers, And Study Connect
-
-- `appCatalog.ts` defines route metadata, aliases, categories, and new-feature surfacing
-- `appSearch.ts` powers route search using a precomputed index
-- `smartSolver.engine.ts` scores routes and field matches from natural-language prompts
-- `smartSolver.targets.ts` maps explicit wording to solve targets
-- `ocrRouting.ts` suggests likely routes from scanned worksheet vocabulary
-- `workpaperTemplates.ts` registers assignment-ready starter sheets
-- `formulaStudyContent.tsx` and `studyExpansion450.ts` connect solving routes back into learning and review
-
-## Adding A New Calculator
-
-1. Add or extend shared math in `src/utils/calculatorMath.ts`
-2. Add a solve definition in `src/utils/formulaSolveDefinitions.ts` if the route uses the shared formula workspace pattern
-3. Create the route page in the correct `src/features/...` folder
-4. Register the route in `src/App.tsx`
-5. Add route metadata, aliases, keywords, and category placement in `src/utils/appCatalog.ts`
-6. Update Smart Solver in `src/features/smart/smartSolver.engine.ts`
-7. Add solve-target hints in `src/features/smart/smartSolver.targets.ts` when needed
-8. Add OCR route patterns in `src/features/scan-check/services/ocr/ocrRouting.ts`
-9. Add study content and reviewer coverage where useful
-10. Add a workpaper template if the route benefits from assignment support
-11. Add or extend tests in `tests/calculatorMath.test.ts`
-
-## Updating Formula Logic
+## Updating Shared Formula Logic
 
 - Keep the source of truth inside shared math helpers
 - Keep result labels and interpretation text aligned with computed values
 - Surface assumptions visibly, especially for tax logic and classroom-specific conventions
 - Add reverse-solve behavior only when the target is mathematically safe
+
+## Updating Study Content
+
+Study content lives in two layers:
+
+- `src/features/study/studyContent.ts` for richer hand-authored core topics and Study Hub helpers
+- `src/features/study/studyExpansion450.ts` for broader curriculum-scale reviewer modules built through the `makeTopic(...)` seed pattern
+
+When adding a new lesson:
+
+1. Add the topic content in `studyContent.ts` or `studyExpansion450.ts`
+2. Set `relatedCalculatorPaths` so lessons connect to tools
+3. Set `scanSignals` and `keywords` so OCR and Study Hub search can find it
+4. Add meaningful `relatedTopicIds` so next-step reading feels intentional
+5. Verify the lesson renders cleanly inside `StudyLessonLayout`
+
+## Updating OCR And Smart Solver
+
+- Shared number parsing: `src/utils/numberParsing.ts`
+- OCR cleanup: `src/features/scan-check/services/ocr/ocrMathCleanup.ts`
+- OCR parse-to-structured-fields step: `src/features/scan-check/services/ocr/ocrParser.ts`
+- Accounting worksheet extraction: `src/features/scan-check/services/accounting/accountingFieldExtractor.ts`
+- Smart Solver ranking: `src/features/smart/smartSolver.engine.ts`
+- Target hints: `src/features/smart/smartSolver.targets.ts`
+
+If OCR feels off, prefer improving normalization, source-line review, or confidence labeling before adding blind autofill.
 
 ## Updating Themes
 
@@ -160,7 +226,7 @@ This is where reverse-solve behavior belongs when the math is safe and not misle
 - Add corresponding CSS token overrides in `src/index.css`
 - Keep both light and dark variants readable
 - Surface the new family in `src/features/meta/SettingsContent.tsx`
-- Check swatch wrapping and selected-state clarity at laptop and desktop widths
+- Check wrapping and selected-state clarity across mobile, laptop, and desktop widths
 
 ## Updating Workpaper Templates
 
@@ -170,14 +236,14 @@ This is where reverse-solve behavior belongs when the math is safe and not misle
 
 ## Troubleshooting
 
-- If `npm run dev` fails while loading Vite config on Windows, confirm the scripts still point to `vite.config.mjs` with `--configLoader native`
-- If package metadata needs to be read in config time, keep the read path BOM-safe like the current `vite.config.mjs` implementation
+- If `npm run dev` fails on Windows, confirm the scripts still point to `vite.config.mjs` with `--configLoader native`
 - If a route exists but is hard to find, check `appCatalog.ts`, Smart Solver aliases, and OCR routing patterns together
+- If a lesson breadcrumb returns to the wrong shelf, verify the `track` query-handling logic in `StudyHubPage.tsx`
+- If OCR extracts the wrong number, compare the raw OCR text, cleaned text, and structured field source line before changing the solver mapping
 - If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
-- If a theme surface looks wrong, verify both `data-theme` and `data-theme-family` selectors in `src/index.css`
 
 ## Handoff Notes
 
 The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
 
-The `docs/` folder contains the `8.1.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.
+The `docs/` folder contains the `9.0.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.

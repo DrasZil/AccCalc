@@ -1,4 +1,5 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageHeader from "../../components/PageHeader";
@@ -12,6 +13,7 @@ import {
     buildStudyTopicPath,
     getAllStudyTopics,
     getStudyCategoryTrack,
+    getStudyTopicsByTrack,
     searchStudyTopics,
     type StudyTopic,
 } from "./studyContent";
@@ -22,11 +24,13 @@ function TopicCard({
     reviewedCount,
     bookmarked,
     bestScore,
+    continueLabel,
 }: {
     topic: StudyTopic;
     reviewedCount: number;
     bookmarked: boolean;
     bestScore: number | null;
+    continueLabel?: string;
 }) {
     return (
         <div className="app-link-card min-w-0 rounded-[1.15rem] px-4 py-4">
@@ -53,6 +57,11 @@ function TopicCard({
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="app-helper text-xs">{reviewedCount} sections reviewed</span>
+                {continueLabel ? (
+                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                        {continueLabel}
+                    </span>
+                ) : null}
             </div>
 
             <div className="app-card-grid-readable--compact mt-4">
@@ -73,7 +82,114 @@ function TopicCard({
     );
 }
 
+type ModuleSummary = {
+    track: string;
+    lessonCount: number;
+    startedTopics: number;
+    bookmarkCount: number;
+    reviewedSections: number;
+    linkedCalculatorCount: number;
+    firstTopic: StudyTopic | null;
+    resumeTopic: StudyTopic | null;
+    completionPercent: number;
+    summary: string;
+};
+
+function ModuleCard({
+    summary,
+    active,
+    onActivate,
+}: {
+    summary: ModuleSummary;
+    active: boolean;
+    onActivate: () => void;
+}) {
+    return (
+        <div
+            className={[
+                "app-panel min-w-0 rounded-[1.3rem] p-4 transition",
+                active
+                    ? "border-[color:var(--app-border-strong)] shadow-[var(--app-shadow-md)]"
+                    : "hover:border-[color:var(--app-border-strong)]",
+            ].join(" ")}
+        >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="app-section-kicker text-[0.68rem]">Module</p>
+                    <h3 className="mt-2 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                        {summary.track}
+                    </h3>
+                    <p className="app-helper mt-2 text-xs leading-5">{summary.summary}</p>
+                </div>
+                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                    {summary.lessonCount} lessons
+                </span>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                    <p className="app-metric-label">Started</p>
+                    <p className="app-metric-value mt-2">{summary.startedTopics}</p>
+                </div>
+                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                    <p className="app-metric-label">Progress</p>
+                    <p className="app-metric-value mt-2">{summary.completionPercent}%</p>
+                </div>
+            </div>
+
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[color:var(--app-border)]/60">
+                <div
+                    className="h-full rounded-full bg-[color:var(--app-accent)] transition-all"
+                    style={{ width: `${summary.completionPercent}%` }}
+                />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                    {summary.linkedCalculatorCount} linked tools
+                </span>
+                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                    {summary.reviewedSections} reviewed sections
+                </span>
+                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                    {summary.bookmarkCount} bookmarks
+                </span>
+            </div>
+
+            <div className="mt-4 app-card-grid-readable--compact">
+                <button
+                    type="button"
+                    onClick={onActivate}
+                    className={[
+                        "rounded-xl px-4 py-2.5 text-sm font-semibold",
+                        active ? "app-button-primary" : "app-button-secondary",
+                    ].join(" ")}
+                >
+                    {active ? "Viewing this module" : "Focus this module"}
+                </button>
+                {summary.resumeTopic ? (
+                    <TransitionLink
+                        to={buildStudyTopicPath(summary.resumeTopic.id)}
+                        className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                    >
+                        Resume {summary.resumeTopic.shortTitle}
+                    </TransitionLink>
+                ) : summary.firstTopic ? (
+                    <TransitionLink
+                        to={buildStudyTopicPath(summary.firstTopic.id)}
+                        className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                    >
+                        Start module
+                    </TransitionLink>
+                ) : null}
+            </div>
+        </div>
+    );
+}
+
 export default function StudyHubPage() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [query, setQuery] = useState("");
     const [activeTrack, setActiveTrack] = useState<string>("All");
     const deferredQuery = useDeferredValue(query);
@@ -84,6 +200,38 @@ export default function StudyHubPage() {
         () => ["All", ...Array.from(new Set(allTopics.map((topic) => getStudyCategoryTrack(topic.category))))],
         [allTopics]
     );
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const requestedTrack = params.get("track");
+        if (requestedTrack && studyTracks.includes(requestedTrack)) {
+            setActiveTrack(requestedTrack);
+            return;
+        }
+        if (!requestedTrack) {
+            setActiveTrack((current) => (studyTracks.includes(current) ? current : "All"));
+        }
+    }, [location.search, studyTracks]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (activeTrack === "All") {
+            if (!params.has("track")) return;
+            params.delete("track");
+        } else if (params.get("track") !== activeTrack) {
+            params.set("track", activeTrack);
+        } else {
+            return;
+        }
+
+        navigate(
+            {
+                pathname: location.pathname,
+                search: params.toString() ? `?${params.toString()}` : "",
+            },
+            { replace: true }
+        );
+    }, [activeTrack, location.pathname, location.search, navigate]);
 
     const visibleTopics = useMemo(
         () =>
@@ -115,40 +263,96 @@ export default function StudyHubPage() {
     );
 
     const categoryGroups = useMemo(
-        () =>
-            visibleTopics.reduce<Record<string, StudyTopic[]>>((groups, topic) => {
+        () => {
+            const groups: Record<string, StudyTopic[]> = {};
+            visibleTopics.forEach((topic) => {
                 const track = getStudyCategoryTrack(topic.category);
-                const existing = groups[track] ?? [];
-                return {
-                    ...groups,
-                    [track]: [...existing, topic],
-                };
-            }, {} as Record<string, StudyTopic[]>),
+                (groups[track] ??= []).push(topic);
+            });
+            return groups;
+        },
         [visibleTopics]
     );
     const categoryCoverage = useMemo(
-        () =>
-            allTopics.reduce<
-                Record<string, { topicCount: number; calculatorCount: number; quizCount: number }>
-            >((groups, topic) => {
+        () => {
+            const groups: Record<
+                string,
+                { topicCount: number; calculatorCount: number; quizCount: number }
+            > = {};
+
+            allTopics.forEach((topic) => {
                 const track = getStudyCategoryTrack(topic.category);
-                const current = groups[track] ?? {
+                const current = groups[track] ??= {
                     topicCount: 0,
                     calculatorCount: 0,
                     quizCount: 0,
                 };
 
-                return {
-                    ...groups,
-                    [track]: {
-                        topicCount: current.topicCount + 1,
-                        calculatorCount:
-                            current.calculatorCount + topic.relatedCalculatorPaths.length,
-                        quizCount: current.quizCount + 1,
-                    },
-                };
-            }, {} as Record<string, { topicCount: number; calculatorCount: number; quizCount: number }>),
+                current.topicCount += 1;
+                current.calculatorCount += topic.relatedCalculatorPaths.length;
+                current.quizCount += 1;
+            });
+
+            return groups;
+        },
         [allTopics]
+    );
+    const moduleSummaries = useMemo<ModuleSummary[]>(
+        () =>
+            studyTracks
+                .filter((track) => track !== "All")
+                .map((track) => {
+                    const topics = getStudyTopicsByTrack(track);
+                    const startedTopics = topics.filter((topic) => studyProgress.topics[topic.id]).length;
+                    const bookmarkCount = topics.filter(
+                        (topic) => studyProgress.topics[topic.id]?.bookmarked
+                    ).length;
+                    const reviewedSections = topics.reduce(
+                        (sum, topic) =>
+                            sum + (studyProgress.topics[topic.id]?.completedSections.length ?? 0),
+                        0
+                    );
+                    const linkedCalculatorCount = topics.reduce(
+                        (sum, topic) => sum + topic.relatedCalculatorPaths.length,
+                        0
+                    );
+                    const lastViewedTopic = [...topics]
+                        .filter((topic) => studyProgress.topics[topic.id])
+                        .toSorted(
+                            (left, right) =>
+                                (studyProgress.topics[right.id]?.lastViewedAt ?? 0) -
+                                (studyProgress.topics[left.id]?.lastViewedAt ?? 0)
+                        )[0] ?? null;
+                    const completionPercent =
+                        topics.length === 0
+                            ? 0
+                            : Math.round((startedTopics / topics.length) * 100);
+
+                    return {
+                        track,
+                        lessonCount: topics.length,
+                        startedTopics,
+                        bookmarkCount,
+                        reviewedSections,
+                        linkedCalculatorCount,
+                        firstTopic: topics[0] ?? null,
+                        resumeTopic: lastViewedTopic,
+                        completionPercent,
+                        summary:
+                            topics[0]
+                                ? STUDY_CATEGORY_DETAILS[topics[0].category].description
+                                : "Structured textbook-style lessons, calculator links, and quick checks.",
+                    };
+                })
+                .filter((summary) => summary.lessonCount > 0),
+        [studyProgress.topics, studyTracks]
+    );
+    const activeModuleSummary = useMemo(
+        () =>
+            moduleSummaries.find((summary) => summary.track === activeTrack) ??
+            moduleSummaries[0] ??
+            null,
+        [activeTrack, moduleSummaries]
     );
 
     const quizCount = Object.keys(studyProgress.quizzes).length;
@@ -250,6 +454,21 @@ export default function StudyHubPage() {
                         </div>
                     </div>
                 </div>
+
+                {activeModuleSummary ? (
+                    <div className="app-tone-info mt-4 rounded-[1rem] px-4 py-3.5">
+                        <p className="app-card-title text-sm">
+                            {activeTrack === "All"
+                                ? "Full library open"
+                                : `${activeModuleSummary.track} module focus`}
+                        </p>
+                        <p className="app-body-md mt-2 text-sm">
+                            {activeTrack === "All"
+                                ? "Browse every module when you are still deciding what to review next. Switch to one module when you want the reading flow to feel more like a chapter shelf than a giant mixed list."
+                                : `${activeModuleSummary.track} currently contains ${activeModuleSummary.lessonCount} lessons, ${activeModuleSummary.linkedCalculatorCount} linked tools, and ${activeModuleSummary.reviewedSections} reviewed sections on this device.`}
+                        </p>
+                    </div>
+                ) : null}
             </SectionCard>
 
             <section className="app-study-layout">
@@ -275,6 +494,11 @@ export default function StudyHubPage() {
                                     topic={topic}
                                     reviewedCount={topicRecord?.completedSections.length ?? 0}
                                     bookmarked={topicRecord?.bookmarked ?? false}
+                                    continueLabel={
+                                        topicRecord?.lastSectionKey
+                                            ? `Resume ${topicRecord.lastSectionKey.replaceAll("-", " ")}`
+                                            : undefined
+                                    }
                                     bestScore={
                                         quizRecord
                                             ? (quizRecord.bestScore / quizRecord.totalQuestions) * 100
@@ -322,9 +546,42 @@ export default function StudyHubPage() {
                                 Use calculators and Scan & Check for solving, open the full lesson when you need procedure support, and finish with a short quiz to verify the concept.
                             </p>
                         </div>
+                        {activeModuleSummary ? (
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-card-title text-sm">Focused module</p>
+                                <p className="app-body-md mt-2 text-sm">
+                                    {activeTrack === "All"
+                                        ? "Switch to one module when you want the lesson list to feel like a real chapter run instead of a mixed search table."
+                                        : `${activeModuleSummary.track} is active, so the lesson shelf and category sections stay narrowed to that module while you study.`}
+                                </p>
+                            </div>
+                        ) : null}
                     </div>
                 </SectionCard>
             </section>
+
+            {deferredQuery.trim() === "" ? (
+                <section className="space-y-4">
+                    <div>
+                        <p className="app-section-kicker text-[0.68rem]">Module library</p>
+                        <h2 className="app-section-title mt-2">Textbook-style shelves by track</h2>
+                        <p className="app-helper mt-2 text-xs">
+                            Use module cards when you want the Study Hub to behave more like a chapter shelf: one curriculum track at a time, with progress, next lesson, and linked calculators kept together.
+                        </p>
+                    </div>
+
+                    <div className="app-card-grid-readable">
+                        {moduleSummaries.map((summary) => (
+                            <ModuleCard
+                                key={summary.track}
+                                summary={summary}
+                                active={summary.track === activeTrack}
+                                onActivate={() => setActiveTrack(summary.track)}
+                            />
+                        ))}
+                    </div>
+                </section>
+            ) : null}
 
             <section className="space-y-4">
                 <div>
@@ -340,7 +597,13 @@ export default function StudyHubPage() {
                 </div>
 
                 {Object.entries(categoryGroups).map(([category, topics]) => (
-                    <SectionCard key={category}>
+                    <SectionCard
+                        key={category}
+                        style={{
+                            contentVisibility: "auto",
+                            containIntrinsicSize: "900px",
+                        }}
+                    >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="max-w-3xl">
                                 <p className="app-card-title text-base">{category}</p>
@@ -382,6 +645,11 @@ export default function StudyHubPage() {
                                         topic={topic}
                                         reviewedCount={topicRecord?.completedSections.length ?? 0}
                                         bookmarked={topicRecord?.bookmarked ?? false}
+                                        continueLabel={
+                                            topicRecord?.lastSectionKey
+                                                ? `Resume ${topicRecord.lastSectionKey.replaceAll("-", " ")}`
+                                                : undefined
+                                        }
                                         bestScore={
                                             quizRecord
                                                 ? (quizRecord.bestScore / quizRecord.totalQuestions) * 100

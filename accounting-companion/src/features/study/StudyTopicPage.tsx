@@ -1,87 +1,111 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import DisclosurePanel from "../../components/DisclosurePanel";
-import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageBackButton from "../../components/PageBackButton";
-import PageHeader from "../../components/PageHeader";
-import RelatedLinksPanel from "../../components/RelatedLinksPanel";
-import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
 import FormulaBlock from "../../components/math/FormulaBlock";
 import { getRouteMeta } from "../../utils/appCatalog";
 import {
     buildStudyQuizPath,
     buildStudyTopicPath,
+    getAdjacentStudyTopics,
     getRelatedStudyTopics,
     getStudyCategoryTrack,
     getStudyTopic,
+    getStudyTopicsByTrack,
 } from "./studyContent";
 import {
     markStudySectionComplete,
+    setStudyLastSection,
     setStudyTopicNote,
     toggleStudyBookmark,
     touchStudyTopic,
     useStudyProgress,
 } from "../../utils/studyProgress";
+import StudyLessonLayout, {
+    type StudyLessonOutlineItem,
+    useLessonSectionObserver,
+} from "./components/StudyLessonLayout";
 
-type TopicSectionCardProps = {
-    topicId: string;
-    topicPath: string;
-    topicTitle: string;
-    sectionKey: string;
+type LessonSectionProps = {
+    id: string;
     title: string;
-    summary?: string;
-    defaultOpen?: boolean;
-    children: ReactNode;
+    summary: string;
     reviewed: boolean;
+    onMarkReviewed: () => void;
+    children: ReactNode;
 };
 
-function getDeepDiveToneClass(tone: "default" | "info" | "warning" | "accent" = "default") {
-    if (tone === "info") return "app-tone-info";
-    if (tone === "warning") return "app-tone-warning";
-    if (tone === "accent") return "app-tone-accent";
-    return "app-subtle-surface";
-}
-
-function TopicSectionCard({
-    topicId,
-    topicPath,
-    topicTitle,
-    sectionKey,
+function LessonSection({
+    id,
     title,
     summary,
-    defaultOpen = false,
-    children,
     reviewed,
-}: TopicSectionCardProps) {
+    onMarkReviewed,
+    children,
+}: LessonSectionProps) {
     return (
-        <DisclosurePanel
-            title={title}
-            summary={summary}
-            defaultOpen={defaultOpen}
-            badge={reviewed ? "Reviewed" : "Lesson"}
-            headerActions={
+        <section
+            id={id}
+            className="app-panel scroll-mt-24 rounded-[1.45rem] px-5 py-5 md:px-6 md:py-6"
+        >
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div className="max-w-3xl">
+                    <p className="app-section-kicker text-[0.68rem]">
+                        {reviewed ? "Reviewed section" : "Lesson section"}
+                    </p>
+                    <h2 className="mt-2 text-[1.35rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)] md:text-[1.55rem]">
+                        {title}
+                    </h2>
+                    <p className="app-body-md mt-3 text-sm leading-7">{summary}</p>
+                </div>
+
                 <button
                     type="button"
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        markStudySectionComplete(
-                            { id: topicId, path: topicPath, title: topicTitle },
-                            sectionKey
-                        );
-                    }}
+                    onClick={onMarkReviewed}
                     className={[
-                        "rounded-full px-3 py-1 text-[0.62rem] font-semibold",
+                        "rounded-full px-3.5 py-2 text-xs font-semibold",
                         reviewed ? "app-button-primary" : "app-button-secondary",
                     ].join(" ")}
                 >
                     {reviewed ? "Reviewed" : "Mark reviewed"}
                 </button>
-            }
-        >
-            <div className="app-reading-content space-y-3">{children}</div>
-        </DisclosurePanel>
+            </div>
+
+            <div className="mt-6 space-y-5">{children}</div>
+        </section>
     );
+}
+
+function ReadingCallout({
+    tone = "default",
+    title,
+    children,
+}: {
+    tone?: "default" | "info" | "warning" | "accent";
+    title: string;
+        children: ReactNode;
+}) {
+    const toneClass =
+        tone === "info"
+            ? "app-tone-info"
+            : tone === "warning"
+              ? "app-tone-warning"
+              : tone === "accent"
+                ? "app-tone-accent"
+                : "app-subtle-surface";
+
+    return (
+        <div className={`${toneClass} rounded-[1.15rem] px-4 py-4`}>
+            <p className="text-sm font-semibold text-[color:var(--app-text)]">{title}</p>
+            <div className="mt-3 space-y-3 text-sm leading-7">{children}</div>
+        </div>
+    );
+}
+
+function computeDifficultyLabel(sectionCount: number) {
+    if (sectionCount >= 7) return "Intermediate";
+    if (sectionCount >= 5) return "Core";
+    return "Foundation";
 }
 
 export default function StudyTopicPage() {
@@ -89,6 +113,7 @@ export default function StudyTopicPage() {
     const topic = getStudyTopic(topicId);
     const studyProgress = useStudyProgress();
     const [note, setNote] = useState("");
+    const [activeSectionId, setActiveSectionId] = useState("overview");
 
     useEffect(() => {
         if (!topic) return;
@@ -101,49 +126,146 @@ export default function StudyTopicPage() {
 
     useEffect(() => {
         if (!topic) return;
-        setNote(studyProgress.topics[topic.id]?.note ?? "");
+        const topicRecord = studyProgress.topics[topic.id];
+        setNote(topicRecord?.note ?? "");
+        setActiveSectionId(topicRecord?.lastSectionKey ?? "overview");
     }, [studyProgress.topics, topic]);
 
+    const lessonOutline = useMemo<StudyLessonOutlineItem[]>(
+        () => [
+            {
+                id: "overview",
+                title: "Overview and chapter framing",
+                summary: "What this lesson is about, why it matters, and where it appears.",
+            },
+            {
+                id: "formula",
+                title: "Key formulas and glossary",
+                summary: "The main equations, variables, and key terms for the topic.",
+            },
+            {
+                id: "procedure",
+                title: "Procedure and reviewer logic",
+                summary: "The solving sequence and the deeper distinctions worth remembering.",
+            },
+            {
+                id: "worked-example",
+                title: "Worked example",
+                summary: "A guided example with steps and meaning attached to each move.",
+            },
+            {
+                id: "checkpoint",
+                title: "Checkpoint example",
+                summary: "A shorter variation to check whether the framework still holds.",
+            },
+            {
+                id: "mistakes",
+                title: "Mistakes, traps, and interpretation",
+                summary: "Common wrong turns, exam traps, and what the result actually means.",
+            },
+            {
+                id: "practice",
+                title: "Practice next and connected tools",
+                summary: "What to do next, what to review next, and which tools fit this lesson.",
+            },
+        ],
+        []
+    );
+
+    const sectionIds = lessonOutline.map((section) => section.id);
+    const topicPath = topic ? `/study/topics/${topic.id}` : "";
+    const topicRecord = topic ? studyProgress.topics[topic.id] : undefined;
+    const quizRecord = topic ? studyProgress.quizzes[topic.id] : undefined;
+    const reviewedSections = new Set(topicRecord?.completedSections ?? []);
+    const reviewedCount = lessonOutline.filter((section) =>
+        reviewedSections.has(section.id)
+    ).length;
+    const progressPercent =
+        lessonOutline.length === 0 ? 0 : Math.round((reviewedCount / lessonOutline.length) * 100);
     const relatedTopics = useMemo(
         () => (topic ? getRelatedStudyTopics(topic.id) : []),
         [topic]
     );
+    const moduleTopics = useMemo(
+        () => (topic ? getStudyTopicsByTrack(getStudyCategoryTrack(topic.category)) : []),
+        [topic]
+    );
+    const adjacentTopics = useMemo(
+        () => (topic ? getAdjacentStudyTopics(topic.id) : { previousTopic: null, nextTopic: null }),
+        [topic]
+    );
+
+    const handleSectionVisible = useCallback(
+        (sectionId: string) => {
+            setActiveSectionId(sectionId);
+            if (!topic) return;
+            setStudyLastSection({ id: topic.id, path: topicPath, title: topic.title }, sectionId);
+        },
+        [topic, topicPath]
+    );
+
+    useLessonSectionObserver(sectionIds, handleSectionVisible);
 
     if (!topic) {
         return (
             <div className="app-page-stack">
-                <PageHeader
-                    badge="Study Hub"
-                    title="Topic not found"
-                    description="This lesson does not exist in the current study catalog."
-                    actions={
-                        <Link
-                            to="/study"
-                            className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
-                        >
-                            Return to Study Hub
-                        </Link>
-                    }
-                />
+                <PageBackButton fallbackTo="/study" label="Back to Study Hub" />
+                <div className="app-panel app-hero-panel rounded-[1.5rem] p-6">
+                    <p className="app-kicker text-xs">Study Hub</p>
+                    <h1 className="mt-3 text-3xl font-bold text-[color:var(--app-text)]">
+                        Topic not found
+                    </h1>
+                    <p className="app-body-md mt-3 text-sm">
+                        This lesson does not exist in the current study catalog.
+                    </p>
+                    <TransitionLink
+                        to="/study"
+                        className="app-button-primary mt-5 inline-flex rounded-xl px-4 py-2.5 text-sm font-semibold"
+                    >
+                        Return to Study Hub
+                    </TransitionLink>
+                </div>
             </div>
         );
     }
 
-    const topicPath = `/study/topics/${topic.id}`;
-    const topicRecord = studyProgress.topics[topic.id];
-    const quizRecord = studyProgress.quizzes[topic.id];
-    const reviewedSections = new Set(topicRecord?.completedSections ?? []);
-    const progressLabel = `${reviewedSections.size} reviewed`;
+    const estimatedMinutes = Math.max(
+        12,
+        topic.procedure.length * 2 + (topic.deepDiveSections?.length ?? 0) * 3
+    );
+    const progressLabel = `${reviewedCount}/${lessonOutline.length} sections reviewed`;
+    const completionLabel =
+        progressPercent === 100
+            ? "Module complete on this device"
+            : topicRecord?.lastSectionKey
+              ? `Continue from ${lessonOutline.find((section) => section.id === topicRecord.lastSectionKey)?.title ?? "your last section"}`
+              : "Start with the overview section";
 
     return (
         <div className="app-page-stack">
             <PageBackButton fallbackTo="/study" label="Back to Study Hub" />
 
-            <PageHeader
-                badge={`${getStudyCategoryTrack(topic.category)} | Study Hub`}
+            <StudyLessonLayout
+                badge={`${getStudyCategoryTrack(topic.category)} textbook mode`}
                 title={topic.title}
-                description={topic.summary}
-                actions={
+                summary={topic.summary}
+                breadcrumbs={[
+                    { label: "Study Hub", path: "/study" },
+                    {
+                        label: getStudyCategoryTrack(topic.category),
+                        path: `/study?track=${encodeURIComponent(getStudyCategoryTrack(topic.category))}`,
+                    },
+                    { label: topic.shortTitle },
+                ]}
+                outline={lessonOutline}
+                activeSectionId={activeSectionId}
+                progressPercent={progressPercent}
+                progressLabel={progressLabel}
+                difficultyLabel={computeDifficultyLabel(lessonOutline.length)}
+                estimatedTimeLabel={`${estimatedMinutes} min`}
+                prerequisiteLabel={topic.whenToUse[0]}
+                completionLabel={completionLabel}
+                headerActions={
                     <>
                         <button
                             type="button"
@@ -161,218 +283,173 @@ export default function StudyTopicPage() {
                                     : "app-button-secondary",
                             ].join(" ")}
                         >
-                            {topicRecord?.bookmarked ? "Bookmarked" : "Bookmark topic"}
+                            {topicRecord?.bookmarked ? "Bookmarked" : "Bookmark"}
                         </button>
                         <TransitionLink
                             to={buildStudyQuizPath(topic.id)}
                             className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
-                            Start quiz
+                            Practice quiz
                         </TransitionLink>
                     </>
                 }
-                meta={
-                    <>
-                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                            {progressLabel}
-                        </span>
-                        {quizRecord ? (
-                            <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
-                                Best quiz {Math.round((quizRecord.bestScore / quizRecord.totalQuestions) * 100)}%
-                            </span>
-                        ) : null}
-                    </>
+                sidebarTop={
+                    <div className="app-panel rounded-[1.35rem] p-4">
+                        <p className="app-section-kicker text-[0.68rem]">Current module</p>
+                        <h2 className="app-section-title mt-2">
+                            {getStudyCategoryTrack(topic.category)} chapter flow
+                        </h2>
+                        <div className="mt-4 space-y-2">
+                            {moduleTopics.slice(0, 8).map((moduleTopic) => (
+                                <Link
+                                    key={moduleTopic.id}
+                                    to={buildStudyTopicPath(moduleTopic.id)}
+                                    className={[
+                                        "block rounded-[1rem] border px-3.5 py-3 transition",
+                                        moduleTopic.id === topic.id
+                                            ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                                            : "app-divider hover:border-[color:var(--app-border-strong)]",
+                                    ].join(" ")}
+                                >
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {moduleTopic.shortTitle}
+                                    </p>
+                                    <p className="app-helper mt-1 text-xs leading-5">
+                                        {moduleTopic.summary}
+                                    </p>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
                 }
-            />
+                sidebarBottom={
+                    <div className="space-y-4">
+                        <div className="app-panel rounded-[1.35rem] p-4">
+                            <p className="app-section-kicker text-[0.68rem]">Continue reading</p>
+                            <div className="mt-3 space-y-3">
+                                {topicRecord?.lastSectionKey ? (
+                                    <a
+                                        href={`#${topicRecord.lastSectionKey}`}
+                                        className="app-button-secondary block rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                                    >
+                                        Resume last section
+                                    </a>
+                                ) : null}
+                                {adjacentTopics.previousTopic ? (
+                                    <TransitionLink
+                                        to={buildStudyTopicPath(adjacentTopics.previousTopic.id)}
+                                        className="app-list-link block rounded-xl px-4 py-3"
+                                    >
+                                        <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
+                                            Previous lesson
+                                        </p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {adjacentTopics.previousTopic.title}
+                                        </p>
+                                    </TransitionLink>
+                                ) : null}
+                                {adjacentTopics.nextTopic ? (
+                                    <TransitionLink
+                                        to={buildStudyTopicPath(adjacentTopics.nextTopic.id)}
+                                        className="app-list-link block rounded-xl px-4 py-3"
+                                    >
+                                        <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
+                                            Next lesson
+                                        </p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {adjacentTopics.nextTopic.title}
+                                        </p>
+                                    </TransitionLink>
+                                ) : null}
+                            </div>
+                        </div>
 
-            <GuidedStartPanel
-                badge="Lesson flow"
-                title="Start with the big picture, then open the deeper panels only when needed"
-                summary="This lesson is intentionally layered so beginners do not have to read everything at once. Use the overview first, then move into formulas, procedure, mistakes, and practice only as needed."
-                steps={[
-                    {
-                        title: "Read the overview first",
-                        description:
-                            "Start with what the topic means, why it matters, and where it usually appears in class.",
-                    },
-                    {
-                        title: "Open formulas and procedure next",
-                        description:
-                            "Use the method sections only after the big picture already makes sense in plain language.",
-                    },
-                    {
-                        title: "Finish with mistakes and quiz",
-                        description:
-                            "Use the self-check prompts, common traps, and mini quiz to see whether the topic is actually sticking.",
-                    },
-                ]}
-                compact
-            />
-
-            <section className="app-study-layout">
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="overview"
-                    title="Topic overview"
-                    summary="Keep the big picture visible first, then open the detail panels only when you need them."
-                    defaultOpen
+                        <div className="app-panel rounded-[1.35rem] p-4">
+                            <p className="app-section-kicker text-[0.68rem]">Lesson signals</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {topic.keywords.slice(0, 8).map((keyword) => (
+                                    <span
+                                        key={keyword}
+                                        className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]"
+                                    >
+                                        {keyword}
+                                    </span>
+                                ))}
+                            </div>
+                            {quizRecord ? (
+                                <p className="app-helper mt-3 text-xs">
+                                    Best quiz score:{" "}
+                                    {Math.round((quizRecord.bestScore / quizRecord.totalQuestions) * 100)}%
+                                </p>
+                            ) : null}
+                        </div>
+                    </div>
+                }
+            >
+                <LessonSection
+                    id="overview"
+                    title="Overview and chapter framing"
+                    summary="Start with the big picture first. This section tells you what the topic is, why it matters, and where it usually appears before you dive into formulas or procedures."
                     reviewed={reviewedSections.has("overview")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "overview"
+                        )
+                    }
                 >
-                    <p className="app-body-md text-sm">{topic.intro}</p>
-                    <DisclosurePanel
-                        title="Why it matters"
-                        summary="Use this for the high-value reasons the topic shows up in class, review, and practical interpretation."
-                        defaultOpen
-                        compact
-                    >
-                        <ul className="list-disc space-y-2 pl-5 text-sm">
-                            {topic.whyItMatters.map((item) => (
-                                <li key={item}>{item}</li>
-                            ))}
-                        </ul>
-                    </DisclosurePanel>
-                    <DisclosurePanel
-                        title="Where it appears"
-                        summary="Open this for board-review, class, and case contexts where the topic commonly appears."
-                        compact
-                    >
-                        <ul className="list-disc space-y-2 pl-5 text-sm">
-                            {topic.classContexts.map((item) => (
-                                <li key={item}>{item}</li>
-                            ))}
-                        </ul>
-                    </DisclosurePanel>
-                </TopicSectionCard>
-
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="study-tools"
-                    title="Study tools and next steps"
-                    summary="Use this as the guidance layer: when to open the topic, where to go next, and what local reminders to keep."
-                    defaultOpen
-                    reviewed={reviewedSections.has("study-tools")}
-                >
-                    <DisclosurePanel
-                        title="When to use this topic"
-                        summary="Open this when you need the right route before choosing a calculator or quiz."
-                        defaultOpen
-                        compact
-                    >
-                        <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                            <ul className="list-disc space-y-2 pl-5 text-sm">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+                        <ReadingCallout title="Topic introduction" tone="info">
+                            <p>{topic.intro}</p>
+                        </ReadingCallout>
+                        <ReadingCallout title="When to open this lesson" tone="accent">
+                            <ul className="list-disc space-y-2 pl-5">
                                 {topic.whenToUse.map((item) => (
                                     <li key={item}>{item}</li>
                                 ))}
                             </ul>
-                        </div>
-                    </DisclosurePanel>
+                        </ReadingCallout>
+                    </div>
 
-                    {topic.nextStepPrompts && topic.nextStepPrompts.length > 0 ? (
-                        <DisclosurePanel
-                            title="What to review next"
-                            summary="Use these prompts when the topic is clear but you still need the next review move."
-                            compact
-                        >
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <ul className="list-disc space-y-2 pl-5 text-sm">
-                                    {topic.nextStepPrompts.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </DisclosurePanel>
-                    ) : null}
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <ReadingCallout title="Why it matters">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.whyItMatters.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
+                        <ReadingCallout title="Where this appears in class or review">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.classContexts.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
+                    </div>
+                </LessonSection>
 
-                    <DisclosurePanel
-                        title="Local notes"
-                        summary="Keep short reminders, formula cautions, or mistakes to avoid on this device only."
-                        compact
-                    >
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <textarea
-                                value={note}
-                                onChange={(event) => setNote(event.target.value)}
-                                onBlur={() =>
-                                    setStudyTopicNote(
-                                        { id: topic.id, path: topicPath, title: topic.title },
-                                        note
-                                    )
-                                }
-                                placeholder="Write a quick reminder, formula note, or mistake to avoid."
-                                className="app-input-shell min-h-28 w-full rounded-[1rem] px-4 py-3 text-sm"
-                            />
-                            <p className="app-helper mt-2 text-xs">
-                                Notes are stored only on this device.
-                            </p>
-                        </div>
-                    </DisclosurePanel>
-
-                    <RelatedLinksPanel
-                        title="Study next"
-                        summary="Move from this lesson into practice, a nearby lesson, or the most relevant calculator without losing the study flow."
-                        badge={`${Math.min(1 + relatedTopics.length, 4)} study moves`}
-                        items={[
-                            {
-                                path: buildStudyQuizPath(topic.id),
-                                label: `${topic.shortTitle} practice`,
-                                description: topic.quiz.intro,
-                            },
-                            ...relatedTopics.slice(0, 3).map((relatedTopic) => ({
-                                path: buildStudyTopicPath(relatedTopic.id),
-                                label: relatedTopic.title,
-                                description: relatedTopic.summary,
-                            })),
-                        ]}
-                        compact
-                        showDescriptions
-                    />
-
-                    <RelatedLinksPanel
-                        title="Related calculators"
-                        summary="Keep calculator follow-ups tucked away until you need the exact workspace for this topic."
-                        badge={`${topic.relatedCalculatorPaths.length} tools`}
-                        items={topic.relatedCalculatorPaths.map((path) => {
-                            const routeMeta = getRouteMeta(path);
-                            return {
-                                path,
-                                label:
-                                    routeMeta?.shortLabel ??
-                                    routeMeta?.label ??
-                                    "Open related calculator",
-                                description: routeMeta?.description,
-                            };
-                        })}
-                        compact
-                    />
-                </TopicSectionCard>
-            </section>
-
-            <TopicSectionCard
-                topicId={topic.id}
-                topicPath={topicPath}
-                topicTitle={topic.title}
-                sectionKey="formula"
-                title="Formula overview"
-                summary="Open the key equations, variable meaning, and what each formula is actually measuring."
-                reviewed={reviewedSections.has("formula")}
-            >
-                <DisclosurePanel
-                    title="Key formulas and review structures"
-                    summary="Open the formula cards when you need the exact expression, structure, or measurement focus."
-                    defaultOpen
-                    compact
+                <LessonSection
+                    id="formula"
+                    title="Key formulas and glossary"
+                    summary="Use this chapter when you need the exact expressions, variable meanings, and the terms that anchor the lesson."
+                    reviewed={reviewedSections.has("formula")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "formula"
+                        )
+                    }
                 >
-                    <div className="grid gap-3 xl:grid-cols-2">
+                    <div className="grid gap-4 xl:grid-cols-2">
                         {topic.formulaOverview.map((formula) => (
                             <div
                                 key={formula.label}
-                                className="app-subtle-surface rounded-[1rem] px-4 py-3.5"
+                                className="app-subtle-surface rounded-[1.15rem] px-4 py-4"
                             >
-                                <p className="app-card-title text-sm">{formula.label}</p>
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {formula.label}
+                                </p>
                                 <div className="mt-3">
                                     <FormulaBlock
                                         text={formula.expression}
@@ -386,280 +463,304 @@ export default function StudyTopicPage() {
                             </div>
                         ))}
                     </div>
-                </DisclosurePanel>
 
-                <DisclosurePanel
-                    title="Variable meanings"
-                    summary="Use this when symbols or labels are familiar but their role in the topic is still fuzzy."
-                    compact
-                >
-                    <div className="grid gap-3 xl:grid-cols-2">
-                        {topic.variableDefinitions.map((variable) => (
-                            <div
-                                key={variable.symbol}
-                                className="app-tone-accent rounded-[1rem] px-4 py-3.5"
-                            >
-                                <p className="app-card-title text-sm">{variable.symbol}</p>
-                                <p className="app-body-md mt-2 text-sm">{variable.meaning}</p>
-                            </div>
-                        ))}
-                    </div>
-                </DisclosurePanel>
-            </TopicSectionCard>
-
-            <TopicSectionCard
-                topicId={topic.id}
-                topicPath={topicPath}
-                topicTitle={topic.title}
-                sectionKey="procedure"
-                title="Procedure and solving method"
-                summary="Use this when you need the order of operations, not just the final formula."
-                reviewed={reviewedSections.has("procedure")}
-            >
-                <DisclosurePanel
-                    title="Main procedure"
-                    summary="Open the solving order when you want the cleanest sequence before applying details."
-                    defaultOpen
-                    compact
-                >
-                    <ol className="list-decimal space-y-2 pl-5 text-sm">
-                        {topic.procedure.map((step) => (
-                            <li key={step}>{step}</li>
-                        ))}
-                    </ol>
-                </DisclosurePanel>
-
-                {topic.deepDiveSections && topic.deepDiveSections.length > 0 ? (
-                    <DisclosurePanel
-                        title="Deep-dive reviewer panels"
-                        summary="Use these narrower panels for the detailed rules, exceptions, and board-review distinctions that do not need to stay open all the time."
-                        compact
-                    >
-                        <div className="grid gap-3 xl:grid-cols-2">
-                            {topic.deepDiveSections.map((section) => (
-                                <DisclosurePanel
-                                    key={section.id}
-                                    title={section.title}
-                                    summary={section.summary}
-                                    compact
+                    <ReadingCallout title="Glossary and variable meanings">
+                        <div className="grid gap-3 md:grid-cols-2">
+                            {topic.variableDefinitions.map((variable) => (
+                                <div
+                                    key={variable.symbol}
+                                    className="rounded-[1rem] border app-divider px-3.5 py-3"
                                 >
-                                    <div className={`${getDeepDiveToneClass(section.tone)} rounded-[1rem] px-4 py-3.5`}>
-                                        <ul className="list-disc space-y-2 pl-5 text-sm">
-                                            {section.points.map((point) => (
-                                                <li key={point}>{point}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </DisclosurePanel>
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {variable.symbol}
+                                    </p>
+                                    <p className="app-helper mt-2 text-xs leading-5">
+                                        {variable.meaning}
+                                    </p>
+                                </div>
                             ))}
                         </div>
-                    </DisclosurePanel>
-                ) : null}
-            </TopicSectionCard>
+                    </ReadingCallout>
+                </LessonSection>
 
-            <section className="app-card-grid-readable">
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="worked-example"
-                    title={topic.workedExample.title}
-                    summary="A full worked example for the topic, with the reasoning attached to each step."
-                    reviewed={reviewedSections.has("worked-example")}
+                <LessonSection
+                    id="procedure"
+                    title="Procedure and reviewer logic"
+                    summary="This section acts like the chapter method. It tells you the order of work, then adds the deeper reviewer distinctions that usually trip students up."
+                    reviewed={reviewedSections.has("procedure")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "procedure"
+                        )
+                    }
                 >
-                    <DisclosurePanel
-                        title="Scenario and steps"
-                        summary="Open this to walk through the full fact pattern and the recommended solving sequence."
-                        defaultOpen
-                        compact
-                    >
-                        <p className="text-sm">{topic.workedExample.scenario}</p>
-                        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
+                    <ReadingCallout title="Main procedure" tone="info">
+                        <ol className="list-decimal space-y-2 pl-5">
+                            {topic.procedure.map((step) => (
+                                <li key={step}>{step}</li>
+                            ))}
+                        </ol>
+                    </ReadingCallout>
+
+                    {topic.deepDiveSections && topic.deepDiveSections.length > 0 ? (
+                        <div className="grid gap-4 lg:grid-cols-2">
+                            {topic.deepDiveSections.map((section) => (
+                                <ReadingCallout
+                                    key={section.id}
+                                    title={section.title}
+                                    tone={section.tone}
+                                >
+                                    <p className="app-helper text-xs leading-5">
+                                        {section.summary}
+                                    </p>
+                                    <ul className="list-disc space-y-2 pl-5">
+                                        {section.points.map((point) => (
+                                            <li key={point}>{point}</li>
+                                        ))}
+                                    </ul>
+                                </ReadingCallout>
+                            ))}
+                        </div>
+                    ) : null}
+                </LessonSection>
+
+                <LessonSection
+                    id="worked-example"
+                    title={topic.workedExample.title}
+                    summary="Read this like a guided solution in a textbook. The goal is not only to reach the result, but to see why each step belongs in that order."
+                    reviewed={reviewedSections.has("worked-example")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "worked-example"
+                        )
+                    }
+                >
+                    <ReadingCallout title="Scenario" tone="accent">
+                        <p>{topic.workedExample.scenario}</p>
+                    </ReadingCallout>
+                    <ReadingCallout title="Worked steps">
+                        <ol className="list-decimal space-y-2 pl-5">
                             {topic.workedExample.steps.map((step) => (
                                 <li key={step}>{step}</li>
                             ))}
                         </ol>
-                    </DisclosurePanel>
-                    <DisclosurePanel
-                        title="Worked interpretation"
-                        summary="Keep the result and its meaning tucked away until you want to compare your own reading."
-                        compact
-                    >
-                        <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Result</p>
-                            <p className="app-body-md mt-2 text-sm">{topic.workedExample.result}</p>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                {topic.workedExample.interpretation}
-                            </p>
-                        </div>
-                    </DisclosurePanel>
-                </TopicSectionCard>
+                    </ReadingCallout>
+                    <ReadingCallout title="Result and interpretation" tone="info">
+                        <p>{topic.workedExample.result}</p>
+                        <p className="app-helper text-xs leading-6">
+                            {topic.workedExample.interpretation}
+                        </p>
+                    </ReadingCallout>
+                </LessonSection>
 
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="checkpoint"
+                <LessonSection
+                    id="checkpoint"
                     title={topic.checkpointExample.title}
-                    summary="A shorter checkpoint example to confirm whether the method still holds with different numbers."
+                    summary="Use the checkpoint as a short chapter-end pause. If the method still makes sense here, the lesson is sticking."
                     reviewed={reviewedSections.has("checkpoint")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "checkpoint"
+                        )
+                    }
                 >
-                    <DisclosurePanel
-                        title="Checkpoint setup"
-                        summary="Open this for the shorter variation that tests whether the method still holds."
-                        defaultOpen
-                        compact
-                    >
-                        <p className="text-sm">{topic.checkpointExample.scenario}</p>
-                        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
-                            {topic.checkpointExample.steps.map((step) => (
-                                <li key={step}>{step}</li>
-                            ))}
-                        </ol>
-                    </DisclosurePanel>
-                    <DisclosurePanel
-                        title="Checkpoint meaning"
-                        summary="Use this to compare your checkpoint interpretation after you have tried it yourself."
-                        compact
-                    >
-                        <div className="app-tone-accent rounded-[1rem] px-4 py-3.5">
-                            <p className="app-card-title text-sm">Checkpoint meaning</p>
-                            <p className="app-body-md mt-2 text-sm">{topic.checkpointExample.result}</p>
-                            <p className="app-helper mt-2 text-xs leading-5">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <ReadingCallout title="Checkpoint setup">
+                            <p>{topic.checkpointExample.scenario}</p>
+                            <ol className="mt-3 list-decimal space-y-2 pl-5">
+                                {topic.checkpointExample.steps.map((step) => (
+                                    <li key={step}>{step}</li>
+                                ))}
+                            </ol>
+                        </ReadingCallout>
+                        <ReadingCallout title="Checkpoint reading" tone="accent">
+                            <p>{topic.checkpointExample.result}</p>
+                            <p className="app-helper text-xs leading-6">
                                 {topic.checkpointExample.interpretation}
                             </p>
-                        </div>
-                    </DisclosurePanel>
-                </TopicSectionCard>
-            </section>
-
-            <section className="app-card-grid-readable">
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="mistakes"
-                    title="Common mistakes and exam traps"
-                    summary="Use this before quizzes or answer-checking so recurring errors do not survive into the final result."
-                    reviewed={reviewedSections.has("mistakes")}
-                >
-                    <div className="grid gap-3 lg:grid-cols-2">
-                        <DisclosurePanel
-                            title="Likely mistakes"
-                            summary="Open this before solving if you want the fastest way to avoid the most common wrong turns."
-                            defaultOpen
-                            compact
-                        >
-                            <div className="app-tone-warning rounded-[1rem] px-4 py-3.5">
-                                <ul className="list-disc space-y-2 pl-5 text-sm">
-                                    {topic.commonMistakes.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </DisclosurePanel>
-                        <DisclosurePanel
-                            title="Exam traps"
-                            summary="Use this for the misleading clues or framing tricks that often appear in quizzes and review sets."
-                            compact
-                        >
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <ul className="list-disc space-y-2 pl-5 text-sm">
-                                    {topic.examTraps.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </DisclosurePanel>
+                        </ReadingCallout>
                     </div>
-                </TopicSectionCard>
+                </LessonSection>
 
-                <TopicSectionCard
-                    topicId={topic.id}
-                    topicPath={topicPath}
-                    topicTitle={topic.title}
-                    sectionKey="interpretation"
-                    title="Interpretation, self-check, and practice cues"
-                    summary="Keep the meaning first, then open the self-check and practice prompts when you want active review."
-                    reviewed={reviewedSections.has("interpretation")}
+                <LessonSection
+                    id="mistakes"
+                    title="Mistakes, traps, and interpretation"
+                    summary="This chapter is where you slow down. Use it before quizzes or answer checking so recurring errors do not survive into the final result."
+                    reviewed={reviewedSections.has("mistakes")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "mistakes"
+                        )
+                    }
                 >
-                    <DisclosurePanel
-                        title="How to read the result"
-                        summary="Open this when you want the meaning and consequence before you move into self-check or quiz mode."
-                        defaultOpen
-                        compact
-                    >
-                        <div className="app-tone-info rounded-[1rem] px-4 py-3.5">
-                            <ul className="list-disc space-y-2 pl-5 text-sm">
-                                {topic.interpretation.map((item) => (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <ReadingCallout title="Common mistakes" tone="warning">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.commonMistakes.map((item) => (
                                     <li key={item}>{item}</li>
                                 ))}
                             </ul>
-                        </div>
-                    </DisclosurePanel>
-                    <div className="grid gap-3 lg:grid-cols-2">
-                        <DisclosurePanel
-                            title="Self-check prompts"
-                            summary="Use these questions when you want to actively recall the lesson without opening the quiz yet."
-                            compact
-                        >
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <ul className="list-disc space-y-2 pl-5 text-sm">
-                                    {topic.selfCheck.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </DisclosurePanel>
-                        <DisclosurePanel
-                            title="Practice cues"
-                            summary="Open this when you want a quick prompt for oral review, flashcard use, or written practice."
-                            compact
-                        >
-                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                                <ul className="list-disc space-y-2 pl-5 text-sm">
-                                    {topic.practiceCues.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </DisclosurePanel>
+                        </ReadingCallout>
+                        <ReadingCallout title="Exam traps">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.examTraps.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
                     </div>
-                </TopicSectionCard>
-            </section>
 
-            <section className="app-card-grid-readable">
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Practice next</p>
-                    <h2 className="app-section-title mt-2">Mini quiz for this topic</h2>
-                    <p className="app-body-md mt-2 text-sm">{topic.quiz.intro}</p>
-                    <div className="mt-4 flex flex-wrap gap-3">
+                    <ReadingCallout title="Interpret the lesson like a reviewer" tone="info">
+                        <ul className="list-disc space-y-2 pl-5">
+                            {topic.interpretation.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
+                        </ul>
+                    </ReadingCallout>
+                </LessonSection>
+
+                <LessonSection
+                    id="practice"
+                    title="Practice next and connected tools"
+                    summary="This final chapter separates practice, notes, related lessons, and related calculators so the page still reads like a module instead of a card wall."
+                    reviewed={reviewedSections.has("practice")}
+                    onMarkReviewed={() =>
+                        markStudySectionComplete(
+                            { id: topic.id, path: topicPath, title: topic.title },
+                            "practice"
+                        )
+                    }
+                >
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <ReadingCallout title="Self-check prompts">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.selfCheck.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
+                        <ReadingCallout title="Practice cues" tone="accent">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.practiceCues.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
+                    </div>
+
+                    {topic.nextStepPrompts && topic.nextStepPrompts.length > 0 ? (
+                        <ReadingCallout title="What to review next" tone="info">
+                            <ul className="list-disc space-y-2 pl-5">
+                                {topic.nextStepPrompts.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                        </ReadingCallout>
+                    ) : null}
+
+                    <ReadingCallout title="Local lesson notes">
+                        <textarea
+                            value={note}
+                            onChange={(event) => setNote(event.target.value)}
+                            onBlur={() =>
+                                setStudyTopicNote(
+                                    { id: topic.id, path: topicPath, title: topic.title },
+                                    note
+                                )
+                            }
+                            placeholder="Write a reminder, a trap to avoid, or your own short summary of the topic."
+                            className="app-input-shell min-h-28 w-full rounded-[1rem] px-4 py-3 text-sm"
+                        />
+                        <p className="app-helper text-xs">Notes are saved only on this device.</p>
+                    </ReadingCallout>
+
+                    <div className="grid gap-4 xl:grid-cols-2">
+                        <ReadingCallout title="Related calculators">
+                            <div className="space-y-2">
+                                {topic.relatedCalculatorPaths.map((path) => {
+                                    const routeMeta = getRouteMeta(path);
+                                    return (
+                                        <TransitionLink
+                                            key={path}
+                                            to={path}
+                                            className="app-list-link block rounded-xl px-4 py-3"
+                                        >
+                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {routeMeta?.shortLabel ?? routeMeta?.label ?? "Open tool"}
+                                            </p>
+                                            <p className="app-helper mt-1 text-xs leading-5">
+                                                {routeMeta?.description}
+                                            </p>
+                                        </TransitionLink>
+                                    );
+                                })}
+                            </div>
+                        </ReadingCallout>
+
+                        <ReadingCallout title="Related lessons">
+                            <div className="space-y-2">
+                                {relatedTopics.length > 0 ? (
+                                    relatedTopics.map((relatedTopic) => (
+                                        <TransitionLink
+                                            key={relatedTopic.id}
+                                            to={buildStudyTopicPath(relatedTopic.id)}
+                                            className="app-list-link block rounded-xl px-4 py-3"
+                                        >
+                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {relatedTopic.title}
+                                            </p>
+                                            <p className="app-helper mt-1 text-xs leading-5">
+                                                {relatedTopic.summary}
+                                            </p>
+                                        </TransitionLink>
+                                    ))
+                                ) : (
+                                    <p className="app-helper text-xs leading-5">
+                                        This lesson currently acts as a main anchor topic for its area.
+                                    </p>
+                                )}
+                            </div>
+                        </ReadingCallout>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-3">
                         <TransitionLink
                             to={buildStudyQuizPath(topic.id)}
-                            className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                            className="app-button-primary rounded-xl px-4 py-3 text-sm font-semibold text-center"
                         >
-                            Open {topic.quiz.title}
+                            Start mini quiz
                         </TransitionLink>
-                        {quizRecord ? (
-                            <span className="app-chip rounded-full px-3 py-1 text-xs">
-                                Last score {quizRecord.lastScore}/{quizRecord.totalQuestions}
-                            </span>
-                        ) : null}
+                        {adjacentTopics.previousTopic ? (
+                            <TransitionLink
+                                to={buildStudyTopicPath(adjacentTopics.previousTopic.id)}
+                                className="app-button-secondary rounded-xl px-4 py-3 text-sm font-semibold text-center"
+                            >
+                                Previous lesson
+                            </TransitionLink>
+                        ) : (
+                            <div className="app-panel rounded-xl px-4 py-3 text-center text-sm text-[color:var(--app-text-muted)]">
+                                Start of this module
+                            </div>
+                        )}
+                        {adjacentTopics.nextTopic ? (
+                            <TransitionLink
+                                to={buildStudyTopicPath(adjacentTopics.nextTopic.id)}
+                                className="app-button-secondary rounded-xl px-4 py-3 text-sm font-semibold text-center"
+                            >
+                                Next lesson
+                            </TransitionLink>
+                        ) : (
+                            <div className="app-panel rounded-xl px-4 py-3 text-center text-sm text-[color:var(--app-text-muted)]">
+                                End of current sequence
+                            </div>
+                        )}
                     </div>
-                </SectionCard>
-
-                <RelatedLinksPanel
-                    title="Related topics"
-                    summary="Open connected lessons only when you want the next concept bridge or review path."
-                    badge={`${relatedTopics.length} topics`}
-                    items={relatedTopics.map((relatedTopic) => ({
-                        path: `/study/topics/${relatedTopic.id}`,
-                        label: relatedTopic.title,
-                        description: relatedTopic.summary,
-                    }))}
-                    showDescriptions
-                />
-            </section>
+                </LessonSection>
+            </StudyLessonLayout>
         </div>
     );
 }

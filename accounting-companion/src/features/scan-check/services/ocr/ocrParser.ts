@@ -1,13 +1,18 @@
-import { cleanupMathLikeText } from "./ocrMathCleanup";
-import { classifyScanText } from "./ocrClassifier";
-import type { ParsedScanResult, ScanPageType } from "../../types";
-import { classifyAccountingWorksheet } from "../accounting/accountingWorksheetClassifier";
+import { recommendStudyTopicsFromText } from "../../../study/studyContent";
+import type { ParsedScanResult, ScanPageType, StructuredScanField } from "../../types";
+import {
+    detectStructuredValueKind,
+    FLEXIBLE_NUMBER_CAPTURE_PATTERN,
+    normalizeStructuredFieldValue,
+} from "../../../../utils/numberParsing.js";
 import {
     extractAccountingFields,
     normalizeAccountingWorksheetText,
 } from "../accounting/accountingFieldExtractor";
+import { classifyAccountingWorksheet } from "../accounting/accountingWorksheetClassifier";
+import { classifyScanText } from "./ocrClassifier";
+import { cleanupMathLikeText } from "./ocrMathCleanup";
 import { recommendScanRoutes } from "./ocrRouting";
-import { recommendStudyTopicsFromText } from "../../../study/studyContent";
 
 function extractUnits(text: string) {
     const matches =
@@ -18,18 +23,91 @@ function extractUnits(text: string) {
 }
 
 function extractValues(text: string) {
-    const matches =
-        text.match(
-            /(?:PHP\s*|₱\s*)?-?\d[\d,.]*(?:\.\d+)?%?(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?/g
-        ) ?? [];
+    const lines = text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    const matches: Array<{ label: string; value: string }> = [];
+    const labeledLinePattern = new RegExp(
+        String.raw`^([A-Za-z][A-Za-z0-9 /(),-]{2,42}?)(?:\s*[:=-]\s*|\s{2,})(${FLEXIBLE_NUMBER_CAPTURE_PATTERN}(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?)$`,
+        "i"
+    );
+    const numberPattern = new RegExp(
+        `${FLEXIBLE_NUMBER_CAPTURE_PATTERN}(?:\\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?`,
+        "gi"
+    );
 
-    return matches.slice(0, 8).map((match, index) => ({
-        label: `Value ${index + 1}`,
-        value: match.trim(),
-    }));
+    for (const line of lines) {
+        const labeledMatch = line.match(labeledLinePattern);
+        if (labeledMatch) {
+            matches.push({
+                label: labeledMatch[1].trim(),
+                value: labeledMatch[2].trim(),
+            });
+            continue;
+        }
+
+        const fallbackMatches = line.match(numberPattern) ?? [];
+        fallbackMatches.slice(0, 1).forEach((match) => {
+            matches.push({
+                label: `Value ${matches.length + 1}`,
+                value: match.trim(),
+            });
+        });
+    }
+
+    return matches.slice(0, 8);
 }
 
-function detectLikelyIssues(text: string, flaggedValues: string[]) {
+function extractStructuredCandidates(text: string) {
+    const lines = text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    const pattern = new RegExp(
+        String.raw`^([A-Za-z][A-Za-z0-9 /(),-]{2,42}?)(?:\s*[:=-]\s*|\s{2,})(${FLEXIBLE_NUMBER_CAPTURE_PATTERN}(?:\s*(?:units?|kg|g|cm|mm|m|km|days?|years?|months?|hours?))?)$`,
+        "i"
+    );
+    const seen = new Set<string>();
+    const fields: StructuredScanField[] = [];
+
+    for (const line of lines) {
+        const match = line.match(pattern);
+        if (!match) continue;
+
+        const label = match[1].replace(/\s+/g, " ").trim();
+        const value = match[2].trim();
+        const key = label
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "_")
+            .replace(/^_+|_+$/g, "");
+        const normalizedValue = normalizeStructuredFieldValue(value);
+        const valueKind = detectStructuredValueKind(value);
+        const dedupeKey = `${key}:${value}`;
+
+        if (!key || seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+
+        fields.push({
+            key,
+            label,
+            value,
+            confidence: normalizedValue === value ? 74 : 68,
+            normalizedValue,
+            valueKind,
+            sourceLine: line,
+            needsReview: normalizedValue !== value || valueKind === "text",
+        });
+    }
+
+    return fields.slice(0, 12);
+}
+
+function detectLikelyIssues(
+    text: string,
+    flaggedValues: string[],
+    structuredFields: StructuredScanField[]
+) {
     const issues: string[] = [];
     const suspiciousCompactTokens =
         text.match(/\b\d+[A-Za-z]{1,3}\d*\b|\b[A-Za-z]{1,2}\d+[A-Za-z]*\b/g) ?? [];
@@ -38,7 +116,9 @@ function detectLikelyIssues(text: string, flaggedValues: string[]) {
         issues.push("Check for sign errors around positive and negative terms.");
     }
     if (/[x*]\s*\d/.test(text) || /\d\s*[\/]\s*\d/.test(text)) {
-        issues.push("Verify operators because OCR often confuses multiplication and division symbols.");
+        issues.push(
+            "Verify operators because OCR often confuses multiplication and division symbols."
+        );
     }
     if (/\b(?:kg|cm|days?|years?)\b/i.test(text) && /%/.test(text)) {
         issues.push("Review units and rates so the final answer uses a consistent basis.");
@@ -47,10 +127,14 @@ function detectLikelyIssues(text: string, flaggedValues: string[]) {
         issues.push("Check whether the final answer is consistent with the previous step.");
     }
     if (/fifo/i.test(text) && /weighted average/i.test(text)) {
-        issues.push("FIFO and weighted-average methods both appear. Confirm which method the worksheet expects.");
+        issues.push(
+            "FIFO and weighted-average methods both appear. Confirm which method the worksheet expects."
+        );
     }
     if (/transferred-?in/i.test(text) && !/department\s*2|dept\.?\s*2/i.test(text)) {
-        issues.push("Transferred-in cost appears without a clear later-department label. Review the department carry-forward assumption.");
+        issues.push(
+            "Transferred-in cost appears without a clear later-department label. Review the department carry-forward assumption."
+        );
     }
     if (suspiciousCompactTokens.length > 0) {
         issues.push(
@@ -59,8 +143,15 @@ function detectLikelyIssues(text: string, flaggedValues: string[]) {
                 .join(", ")} because numbers and labels may still be stuck together.`
         );
     }
+    if (structuredFields.some((field) => field.needsReview)) {
+        issues.push(
+            "Some structured values still need review because OCR normalization changed their raw shape or the label-value pairing is only moderately confident."
+        );
+    }
     if (flaggedValues.length > 0) {
-        issues.push("Some numeric values were left close to the raw OCR text because commas, decimals, or handwriting were uncertain.");
+        issues.push(
+            "Some numeric values were left close to the raw OCR text because commas, decimals, or handwriting were uncertain."
+        );
     }
 
     return issues;
@@ -71,6 +162,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
     const cleanedText = cleanup.cleanedText;
     const normalizedAccountingText = normalizeAccountingWorksheetText(cleanedText);
     const accountingFields = extractAccountingFields(normalizedAccountingText);
+    const genericStructuredFields = extractStructuredCandidates(cleanedText);
     const accountingClassification = classifyAccountingWorksheet(normalizedAccountingText);
     const accountingPageType = accountingClassification.pageType as ScanPageType;
     const isAccountingWorksheet =
@@ -80,7 +172,16 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         : classifyScanText(cleanedText);
     const extractedValues = extractValues(cleanedText);
     const detectedUnits = extractUnits(cleanedText);
-    const likelyIssues = detectLikelyIssues(cleanedText, cleanup.flaggedValues);
+    const structuredFields = isAccountingWorksheet
+        ? accountingFields
+        : genericStructuredFields.length > 0
+          ? genericStructuredFields
+          : undefined;
+    const likelyIssues = detectLikelyIssues(
+        cleanedText,
+        cleanup.flaggedValues,
+        structuredFields ?? []
+    );
     const recommendations = recommendScanRoutes(
         isAccountingWorksheet ? normalizedAccountingText : cleanedText,
         kind,
@@ -98,7 +199,8 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
             100,
             ocrConfidence -
                 (kind === "unknown" ? 22 : 0) +
-                Math.min(extractedValues.length * 3, 18) -
+                Math.min(extractedValues.length * 3, 18) +
+                Math.min((structuredFields?.length ?? 0) * 2, 10) -
                 Math.min(cleanup.flaggedValues.length * 5, 18)
         )
     );
@@ -150,6 +252,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         detectedUnits.length > 0
             ? `Detected units: ${detectedUnits.join(", ")}.`
             : "No clear units detected from OCR.",
+        structuredFields?.length
+            ? `Structured review captured ${structuredFields.length} candidate field${structuredFields.length === 1 ? "" : "s"} for manual confirmation.`
+            : "No structured field candidates were strong enough to prefill safely.",
         primaryRecommendation
             ? `Best-fit route: ${primaryRecommendation.label}. ${primaryRecommendation.reason}`
             : "No confident specialized route was found, so Smart Solver remains the safest fallback.",
@@ -179,7 +284,7 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         routeConfidence: primaryRecommendation?.score,
         recommendations,
         studyRecommendations,
-        structuredFields: isAccountingWorksheet ? accountingFields : undefined,
+        structuredFields,
         accounting: isAccountingWorksheet
             ? {
                   topic: "Process costing",

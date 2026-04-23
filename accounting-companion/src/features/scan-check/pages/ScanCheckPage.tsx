@@ -11,6 +11,7 @@ import StudyTipBlock from "../../../components/notes/StudyTipBlock";
 import RelatedLinksPanel from "../../../components/RelatedLinksPanel";
 import { buildChartHighlights } from "../../../utils/charts/chartHighlights";
 import { buildComparisonNarrative } from "../../../utils/charts/chartNarratives";
+import { getRouteMeta } from "../../../utils/appCatalog";
 import { useAppNotifications } from "../../layout/AppNotifications";
 import ScanActionBar from "../components/ScanActionBar";
 import ScanCameraCapture from "../components/ScanCameraCapture";
@@ -53,24 +54,11 @@ const FLOW_STEPS = ["Capture", "Processing", "Review", "Result"] as const;
 const PAGE_STATE_KEY = "acccalc.scan.page-state";
 
 function getRouteLabel(routeHint?: string) {
-    switch (routeHint) {
-        case "/accounting/process-costing-workspace":
-            return "Process Costing Workspace";
-        case "/accounting/department-transferred-in-process-costing":
-            return "Department 2 Process Costing";
-        case "/business/cvp-analysis":
-            return "CVP Analysis";
-        case "/basic":
-            return "Basic Calculator";
-        case "/economics/market-equilibrium":
-            return "Market Equilibrium";
-        case "/business/break-even":
-            return "Break-even";
-        case "/accounting/partnership-dissolution":
-            return "Partnership Dissolution";
-        default:
-            return "Smart Solver";
-    }
+    return (
+        getRouteMeta(routeHint ?? "")?.shortLabel ??
+        getRouteMeta(routeHint ?? "")?.label ??
+        "Smart Solver"
+    );
 }
 
 function getConfidenceChipLabel(score?: number) {
@@ -92,9 +80,15 @@ function getSessionPhase(items: ScanImageItem[]): ScanProcessingPhase {
     return active.processingPhase ?? "queued";
 }
 
-function buildQuickFacts(items: ScanImageItem[], primaryItem: ScanImageItem | null, accountingPageCount: number) {
+function buildQuickFacts(
+    items: ScanImageItem[],
+    primaryItem: ScanImageItem | null,
+    accountingPageCount: number
+) {
     const selectedCount = items.filter((item) => item.selected).length;
     const extractedValues = primaryItem?.parsedResult?.extractedValues ?? [];
+    const structuredFields = primaryItem?.parsedResult?.structuredFields ?? [];
+    const reviewFieldCount = structuredFields.filter((field) => field.needsReview).length;
     return [
         { label: "Images", value: String(items.length) },
         { label: "Selected", value: String(selectedCount) },
@@ -106,6 +100,8 @@ function buildQuickFacts(items: ScanImageItem[], primaryItem: ScanImageItem | nu
                     : primaryItem?.parsedResult?.kind?.replaceAll("-", " ") ?? "unknown",
         },
         { label: "Values", value: String(extractedValues.length) },
+        { label: "Fields", value: String(structuredFields.length) },
+        { label: "Review", value: String(reviewFieldCount) },
     ];
 }
 

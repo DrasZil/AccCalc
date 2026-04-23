@@ -4,18 +4,18 @@ type CleanupResult = {
     flaggedValues: string[];
 };
 
-const COMMON_REPLACEMENTS: Array<[RegExp, string]> = [
-    [/ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â·/g, "/"],
-    [/ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â|Ã—/g, "×"],
-    [/[ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ËœÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â]/g, "-"],
+const COMMON_REPLACEMENTS: Array<[RegExp, string | ((substring: string) => string)]> = [
     [/\bphp\b/gi, "₱"],
     [/\bpeso(?:s)?\b/gi, "₱"],
-    [/[ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â±â‚±]\s*/g, "₱"],
-    [/Ã¢â‚¬Â¢/g, "•"],
+    [/[$€£¥₹₩]\s*/g, (match: string) => `${match.trim()} `],
+    [/[‐‑–—]/g, "-"],
+    [/[×x](?=\s*\d)/g, "×"],
+    [/•/g, "•"],
 ];
 
 const LIST_LINE_PATTERN = /^((?:\d+|[A-Za-z])(?:[.)]|-))\s*/;
 const CURRENCY_PREFIX = /^(?:₱|[$€£¥₹₩])\s*/i;
+const UNIT_SUFFIX = /(%|units?|days?|years?|months?|hours?|kg|g|cm|mm|m|km)$/i;
 
 function isLikelyNumberToken(token: string) {
     return /\d/.test(token) || /(?:₱|[%$€£¥₹₩])/i.test(token);
@@ -57,7 +57,9 @@ function normalizeDecimalStructure(
         }
 
         if (looksDecimal && confidence < 84) {
-            flags.add(`Kept ${value} close to raw because the comma could be decimal or thousands grouping.`);
+            flags.add(
+                `Kept ${value} close to raw because the comma could be decimal or thousands grouping.`
+            );
             return value;
         }
 
@@ -84,15 +86,18 @@ function normalizeNumericToken(
 
     const prefixMatch = next.match(CURRENCY_PREFIX);
     const prefix = prefixMatch?.[0]?.trim() ?? "";
-    if (prefix) {
-        next = next.slice(prefixMatch?.[0].length ?? 0);
+    if (prefixMatch) {
+        next = next.slice(prefixMatch[0].length);
     }
 
-    const suffixMatch = next.match(/(%|units?|days?|years?|months?|hours?)$/i);
+    const suffixMatch = next.match(UNIT_SUFFIX);
     const suffix = suffixMatch?.[0] ?? "";
     if (suffix) {
         next = next.slice(0, -suffix.length);
     }
+
+    const negativeByParens = /^\(.*\)$/.test(next.trim());
+    next = next.replace(/[()]/g, "");
 
     if (/\d/.test(next)) {
         next = next
@@ -103,7 +108,9 @@ function normalizeNumericToken(
             .replace(/(?<=\d)Z(?=\d|[.,%])/g, "2");
 
         if (confidence < 70 && /[OoIl|SBZ]/.test(next)) {
-            flags.add(`Kept ${original} close to raw because letters and digits may still be mixed.`);
+            flags.add(
+                `Kept ${original} close to raw because letters and digits may still be mixed.`
+            );
         }
 
         if (/[A-Za-z]/.test(next)) {
@@ -118,12 +125,21 @@ function normalizeNumericToken(
 
     next = normalizeDecimalStructure(next, confidence, flags);
 
-    const normalizedPrefix = prefix ? prefix : "";
-    const normalizedSuffix = suffix ? (suffix === "%" ? "%" : ` ${suffix}`) : "";
-    const result = `${normalizedPrefix}${next}${normalizedSuffix}`.trim();
+    if (negativeByParens && !next.startsWith("-")) {
+        next = `-${next}`;
+    }
+
+    const normalizedSuffix = suffix
+        ? suffix === "%"
+            ? "%"
+            : ` ${suffix.toLowerCase()}`
+        : "";
+    const result = `${prefix}${next}${normalizedSuffix}`.trim();
 
     if (result !== original && confidence < 62 && /\d/.test(result)) {
-        flags.add(`Numeric cleanup adjusted ${original}. Review it against the raw OCR text if the exact value matters.`);
+        flags.add(
+            `Numeric cleanup adjusted ${original}. Review it against the raw OCR text if the exact value matters.`
+        );
     }
 
     return result;
@@ -136,6 +152,7 @@ function normalizeLineSpacing(line: string) {
         .replace(/(?<=\d)(?=[₱$€£¥₹₩])/g, " ")
         .replace(/(?<=\d)(?=[A-Za-z]{3,}\b)/g, " ")
         .replace(/(?<=[A-Za-z])(?=\d{1,3}(?:[,.]\d{3})*(?:\.\d+)?\b)/g, " ")
+        .replace(/(?<=[A-Za-z])(?=\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b)/g, " ")
         .replace(/\s*([:;])\s*/g, "$1 ")
         .replace(/\s*([=+×÷*/])\s*/g, " $1 ")
         .replace(/\s*-\s*(?=\d)/g, " - ")
@@ -154,7 +171,10 @@ function cleanLine(line: string, confidence: number, flags: Set<string>) {
     let next = line;
 
     for (const [pattern, replacement] of COMMON_REPLACEMENTS) {
-        next = next.replace(pattern, replacement);
+        next =
+            typeof replacement === "string"
+                ? next.replace(pattern, replacement)
+                : next.replace(pattern, replacement);
     }
 
     next = next.replace(LIST_LINE_PATTERN, (_, marker: string) => {
@@ -237,7 +257,7 @@ export function cleanupMathLikeText(input: string, confidence = 70): CleanupResu
 
     if (flaggedValues.size > 0) {
         cleanupNotes.add(
-            "Some numbers were kept close to the raw OCR output because commas, decimals, or mixed letter-digit shapes were uncertain."
+            "Some numbers were kept close to the raw OCR output because commas, decimals, handwriting, or merged tokens were still uncertain."
         );
     }
 

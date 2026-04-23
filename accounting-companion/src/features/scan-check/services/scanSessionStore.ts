@@ -93,6 +93,17 @@ function ensureStructuredFields(value: unknown): StructuredScanField[] {
         .filter((entry) => entry && typeof entry === "object")
         .map((entry) => {
             const field = entry as Record<string, unknown>;
+            let valueKind: StructuredScanField["valueKind"];
+            if (
+                field.valueKind === "money" ||
+                field.valueKind === "percent" ||
+                field.valueKind === "number" ||
+                field.valueKind === "date" ||
+                field.valueKind === "quantity" ||
+                field.valueKind === "text"
+            ) {
+                valueKind = field.valueKind;
+            }
             return {
                 key: typeof field.key === "string" ? field.key : "",
                 label: typeof field.label === "string" ? field.label : "",
@@ -102,6 +113,14 @@ function ensureStructuredFields(value: unknown): StructuredScanField[] {
                         ? field.confidence
                         : 0,
                 inferred: field.inferred === true,
+                normalizedValue:
+                    typeof field.normalizedValue === "string"
+                        ? field.normalizedValue
+                        : undefined,
+                valueKind,
+                sourceLine:
+                    typeof field.sourceLine === "string" ? field.sourceLine : undefined,
+                needsReview: field.needsReview === true,
             };
         })
         .filter((field) => field.key && field.label);

@@ -40,12 +40,29 @@ export default function ScanProblemSessionPanel({
                             key={`${field.key}-${field.value}`}
                             className="app-subtle-surface min-w-0 rounded-[1rem] px-4 py-3"
                         >
-                            <p className="app-helper text-xs uppercase tracking-[0.16em]">
-                                {field.label}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                    {field.label}
+                                </p>
+                                {field.valueKind ? (
+                                    <span className="app-chip rounded-full px-2 py-0.5 text-[0.58rem]">
+                                        {field.valueKind}
+                                    </span>
+                                ) : null}
+                                {field.needsReview ? (
+                                    <span className="app-chip-accent rounded-full px-2 py-0.5 text-[0.58rem]">
+                                        Review
+                                    </span>
+                                ) : null}
+                            </div>
                             <p className="app-wrap-anywhere mt-1 text-sm font-semibold text-[color:var(--app-text)]">
                                 {field.value}
                             </p>
+                            {field.normalizedValue && field.normalizedValue !== field.value ? (
+                                <p className="app-helper mt-1 text-xs">
+                                    Normalized: {field.normalizedValue}
+                                </p>
+                            ) : null}
                         </div>
                     ))}
                 </div>

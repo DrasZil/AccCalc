@@ -49,6 +49,10 @@ export type StructuredScanField = {
     value: string;
     confidence: number;
     inferred?: boolean;
+    normalizedValue?: string;
+    valueKind?: "money" | "percent" | "number" | "date" | "quantity" | "text";
+    sourceLine?: string;
+    needsReview?: boolean;
 };
 
 export type ScanRouteRecommendation = {

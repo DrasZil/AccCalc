@@ -1,4 +1,8 @@
 import type { StructuredScanField } from "../../types";
+import {
+    detectStructuredValueKind,
+    normalizeStructuredFieldValue,
+} from "../../../../utils/numberParsing.js";
 
 const CLEANUPS: Array<[RegExp, string]> = [
     [/\bdept\.?\b/gi, "Department"],
@@ -30,24 +34,60 @@ const FIELD_PATTERNS: Array<{ key: string; label: string; pattern: RegExp }> = [
 ];
 
 export function normalizeAccountingWorksheetText(text: string) {
-    return CLEANUPS.reduce(
-        (current, [pattern, replacement]) => current.replace(pattern, replacement),
-        text.replace(/[|]/g, " ").replace(/\s+/g, " ").trim()
-    );
+    return text
+        .replace(/\r/g, "")
+        .split("\n")
+        .map((line) =>
+            CLEANUPS.reduce(
+                (current, [pattern, replacement]) => current.replace(pattern, replacement),
+                line.replace(/[|]/g, " ").replace(/\s{2,}/g, " ").trim()
+            )
+        )
+        .filter(Boolean)
+        .join("\n");
 }
 
 export function extractAccountingFields(text: string) {
     const normalized = normalizeAccountingWorksheetText(text);
+    const normalizedLines = normalized
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
     const fields: StructuredScanField[] = [];
 
     FIELD_PATTERNS.forEach((field) => {
-        const match = normalized.match(field.pattern);
+        let match: RegExpMatchArray | null = null;
+        let sourceLine: string | undefined;
+
+        for (const line of normalizedLines) {
+            const lineMatch = line.match(field.pattern);
+            if (!lineMatch) continue;
+            match = lineMatch;
+            sourceLine = line;
+            break;
+        }
+
+        if (!match) {
+            match = normalized.match(field.pattern);
+        }
         if (!match) return;
+
+        const rawValue = (match[1] ?? match[0]).trim();
+        const normalizedValue = normalizeStructuredFieldValue(rawValue);
+        const valueKind = detectStructuredValueKind(rawValue);
+
         fields.push({
             key: field.key,
             label: field.label,
-            value: (match[1] ?? match[0]).trim(),
-            confidence: match[1] ? 76 : 60,
+            value: rawValue,
+            confidence: sourceLine ? (match[1] ? 82 : 68) : match[1] ? 74 : 60,
+            normalizedValue,
+            valueKind,
+            sourceLine,
+            needsReview:
+                Boolean(sourceLine && rawValue !== sourceLine) ||
+                normalizedValue !== rawValue ||
+                valueKind === "text",
         });
     });
 

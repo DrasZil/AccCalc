@@ -3693,6 +3693,22 @@ export function getRelatedStudyTopics(topicId) {
         .map((id) => getStudyTopic(id))
         .filter((entry) => Boolean(entry));
 }
+export function getStudyTopicsByTrack(track) {
+    return STUDY_TOPICS.filter((topic) => getStudyCategoryTrack(topic.category) === track);
+}
+export function getAdjacentStudyTopics(topicId) {
+    const index = STUDY_TOPICS.findIndex((topic) => topic.id === topicId);
+    if (index === -1) {
+        return {
+            previousTopic: null,
+            nextTopic: null,
+        };
+    }
+    return {
+        previousTopic: STUDY_TOPICS[index - 1] ?? null,
+        nextTopic: STUDY_TOPICS[index + 1] ?? null,
+    };
+}
 export function searchStudyTopics(query) {
     const normalized = normalizeSearchValue(query);
     if (!normalized)

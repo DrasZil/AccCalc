@@ -1,4 +1,5 @@
 import type { AccountingProblemSession, ScanImageItem, StructuredScanField } from "../../types";
+import { parseLooseNumber } from "../../../../utils/numberParsing.js";
 
 const ROLE_PRIORITY = new Map([
     ["problem-statement", 1],
@@ -21,10 +22,10 @@ function uniqueFields(fields: StructuredScanField[]) {
 }
 
 function parseFieldNumber(fields: StructuredScanField[], key: string) {
-    const value = fields.find((field) => field.key === key)?.value;
+    const field = fields.find((candidate) => candidate.key === key);
+    const value = field?.normalizedValue ?? field?.value;
     if (!value) return null;
-    const parsed = Number(value.replaceAll(",", ""));
-    return Number.isFinite(parsed) ? parsed : null;
+    return parseLooseNumber(value);
 }
 
 export function buildAccountingProblemSession(items: ScanImageItem[]): AccountingProblemSession | null {

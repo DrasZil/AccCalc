@@ -1245,4 +1245,278 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         ],
         relatedTopicIds: ["afar-franchise-consignment-construction-and-subscriptions", "afar-foreign-currency-branch-and-home-office"],
     }),
+    makeTopic({
+        id: "far-financial-assets-provisions-and-unearned-revenue",
+        title: "FAR: Financial Assets, Provisions, and Unearned Revenue",
+        shortTitle: "FAR Asset and Liability Refinements",
+        category: "Financial Accounting",
+        summary:
+            "Review recognition, subsequent measurement, and liability timing questions that often look simple until classification errors distort the answer.",
+        intro:
+            "FAR cases on financial assets, provisions, and unearned revenue become easier when recognition timing is separated from later measurement and disclosure effects.",
+        focus: "recognition timing, measurement basis, and liability-versus-revenue classification",
+        workedScenario:
+            "A case mixes financial-asset measurement, an uncertain obligation, and advance customer collection, then asks how the balances should appear at period-end.",
+        workedResult:
+            "The strongest answer classifies the item first, then explains the measurement basis and whether revenue is earned yet.",
+        checkpointScenario:
+            "A student records advance cash directly as revenue and treats a probable obligation as if nothing should be recognized until settlement.",
+        checkpointResult:
+            "FAR answers improve when recognition criteria and period-end presentation are explained before any adjusting entry is drafted.",
+        keywords: ["financial assets", "provisions", "unearned revenue", "recognition", "measurement"],
+        scanSignals: ["expected credit loss", "probable obligation", "advance collection", "unearned revenue"],
+        relatedCalculatorPaths: [
+            "/accounting/unearned-revenue-adjustment",
+            "/accounting/accrued-expense-adjustment",
+            "/tax/book-tax-difference-workspace",
+        ],
+        relatedTopicIds: ["accounting-foundations-review", "tax-book-tax-vat-and-compliance"],
+    }),
+    makeTopic({
+        id: "afar-partnership-life-cycle-formation-admission-retirement",
+        title: "AFAR: Partnership Formation, Admission, Retirement, and Final Exit",
+        shortTitle: "Partnership Life Cycle",
+        category: "Partnership Accounting",
+        summary:
+            "Study the full partnership life cycle so allocation, admission, retirement, and liquidation feel like one connected chapter instead of separate memorized cases.",
+        intro:
+            "Partnership accounting becomes far more manageable when students see formation, profit sharing, admission, retirement, and dissolution as one capital-flow story.",
+        focus: "capital movement across the full partnership life cycle",
+        workedScenario:
+            "A partnership is formed, a new partner is admitted, one partner later retires, and the student must explain which method fits each stage before any numbers are finalized.",
+        workedResult:
+            "The strongest answer keeps capital logic consistent from admission through retirement instead of treating each step as an unrelated formula.",
+        checkpointScenario:
+            "A student applies bonus logic where goodwill logic was implied and then carries the wrong capital base into retirement.",
+        checkpointResult:
+            "Partnership answers become stronger when every capital change is tied back to the stage of the partnership life cycle.",
+        keywords: ["partnership formation", "admission", "retirement", "goodwill method", "bonus method"],
+        scanSignals: ["new partner admitted", "bonus method", "goodwill method", "retiring partner"],
+        relatedCalculatorPaths: [
+            "/accounting/partnership-profit-sharing",
+            "/accounting/partnership-salary-interest",
+            "/accounting/partnership-admission-bonus",
+            "/accounting/partnership-admission-goodwill",
+            "/accounting/partnership-retirement-bonus",
+            "/accounting/partnership-dissolution",
+        ],
+        relatedTopicIds: ["partnership-dissolution", "afar-business-combinations-and-consolidation"],
+    }),
+    makeTopic({
+        id: "audit-materiality-risk-and-evidence-linkage",
+        title: "Audit: Materiality, Audit Risk, and Evidence Linkage",
+        shortTitle: "Audit Risk Linkage",
+        category: "Audit & Assurance",
+        summary:
+            "Study how planning materiality, risk assessment, assertions, and evidence choices connect before jumping into procedure lists.",
+        intro:
+            "Audit answers become more persuasive when students explain why a risk level changes the evidence response instead of listing procedures mechanically.",
+        focus: "materiality, risk, assertions, and evidence-response linkage",
+        workedScenario:
+            "An audit case gives a materiality base, a risky revenue area, and mixed controls, then asks what evidence approach is appropriate.",
+        workedResult:
+            "The strongest answer connects materiality and assessed risk to the depth, timing, and direction of the evidence gathered.",
+        checkpointScenario:
+            "A student writes many procedures without explaining which assertion or risk they are meant to address.",
+        checkpointResult:
+            "Audit planning improves when procedure choice is tied directly to risk and assertion logic.",
+        keywords: ["materiality", "audit risk model", "audit evidence", "assertions", "detection risk"],
+        scanSignals: ["performance materiality", "detection risk", "assertion", "substantive procedure"],
+        relatedCalculatorPaths: [
+            "/audit/audit-planning-workspace",
+            "/audit/audit-cycle-reviewer",
+            "/audit/audit-completion-and-opinion",
+        ],
+        relatedTopicIds: ["audit-planning-evidence-and-reporting", "governance-control-environment-risk-and-monitoring"],
+    }),
+    makeTopic({
+        id: "tax-withholding-local-remedies-and-compliance",
+        title: "Tax: Withholding, Local Taxation, Remedies, and Compliance",
+        shortTitle: "Tax Compliance Depth",
+        category: "Taxation",
+        summary:
+            "Review withholding, local taxation, compliance posture, and tax-remedy framing without blurring classroom assumptions and legal labels.",
+        intro:
+            "Tax questions become safer when students separate rate computation from compliance classification and from the remedies or ethics issue that may follow.",
+        focus: "withholding logic, local tax framing, and compliance-versus-remedy distinction",
+        workedScenario:
+            "A case mixes a withholding computation with local tax exposure and then asks what compliance or remedy direction makes sense.",
+        workedResult:
+            "The strongest answer computes the tax carefully, then explains the compliance posture and the possible remedy framework separately.",
+        checkpointScenario:
+            "A student computes a tax amount correctly but mislabels the compliance issue or treats a remedy concept as if it were part of the rate formula.",
+        checkpointResult:
+            "Tax review becomes stronger when computation, compliance, and remedy framing are kept in separate layers.",
+        keywords: ["withholding tax", "local taxation", "tax remedies", "tax compliance", "tax ethics"],
+        scanSignals: ["withholding tax", "expanded withholding", "local business tax", "tax remedy"],
+        relatedCalculatorPaths: [
+            "/tax/withholding-tax",
+            "/tax/percentage-tax",
+            "/tax/tax-compliance-review",
+        ],
+        relatedTopicIds: ["tax-book-tax-vat-and-compliance", "tax-transfer-taxes-and-stamp-tax-support"],
+    }),
+    makeTopic({
+        id: "rfbt-obligations-contracts-and-defective-agreements",
+        title: "RFBT: Obligations, Contracts, and Defective Agreements",
+        shortTitle: "RFBT Contracts Core",
+        category: "RFBT / Business Law",
+        summary:
+            "Review valid, voidable, rescissible, unenforceable, and void agreements as one issue-spotting map instead of isolated legal terms.",
+        intro:
+            "RFBT cases become easier when the student first classifies what kind of contract issue exists before discussing remedies or enforceability.",
+        focus: "contract classification and legal consequence reading",
+        workedScenario:
+            "A fact pattern raises consent defects, form requirements, and a remedy question, and the student must identify what kind of agreement exists.",
+        workedResult:
+            "The strongest answer identifies the contract defect first, then explains the consequence, remedy, and whether enforcement is still possible.",
+        checkpointScenario:
+            "A student recognizes that something is wrong with the agreement but cannot distinguish voidable from unenforceable or void.",
+        checkpointResult:
+            "Law answers improve when each defect category is tied to its legal effect and practical remedy.",
+        keywords: ["obligations", "contracts", "voidable", "unenforceable", "rescissible"],
+        scanSignals: ["defective contract", "consent", "rescissible", "unenforceable", "void agreement"],
+        relatedCalculatorPaths: [
+            "/rfbt/business-law-review",
+            "/rfbt/commercial-transactions-reviewer",
+        ],
+        relatedTopicIds: ["rfbt-corporation-opc-merger-and-liquidation"],
+    }),
+    makeTopic({
+        id: "rfbt-corporation-opc-merger-and-liquidation",
+        title: "RFBT: Corporation Law, OPC, Merger, and Liquidation",
+        shortTitle: "RFBT Corporation Law",
+        category: "RFBT / Business Law",
+        summary:
+            "Study incorporation, single-person corporations, merger and consolidation, and liquidation as one corporate-law progression.",
+        intro:
+            "Corporate-law review becomes clearer when governance formation, restructuring, and dissolution are treated as stages rather than memorized islands.",
+        focus: "corporate governance structure, restructuring, and liquidation consequence",
+        workedScenario:
+            "A case asks whether an OPC structure is allowed, what happens in a merger, and how liquidation changes rights and obligations.",
+        workedResult:
+            "The strongest answer distinguishes normal corporate governance rules from special OPC, merger, and liquidation consequences.",
+        checkpointScenario:
+            "A student treats merger, consolidation, and liquidation as if they all produce the same legal effect.",
+        checkpointResult:
+            "Corporate-law review improves when the legal consequence of each restructuring path is stated clearly.",
+        keywords: ["corporation law", "opc", "merger", "consolidation", "liquidation"],
+        scanSignals: ["one person corporation", "merger", "consolidation", "corporate liquidation"],
+        relatedCalculatorPaths: [
+            "/rfbt/business-law-review",
+            "/rfbt/commercial-transactions-reviewer",
+            "/governance/risk-control-matrix",
+        ],
+        relatedTopicIds: ["rfbt-obligations-contracts-and-defective-agreements"],
+    }),
+    makeTopic({
+        id: "ais-general-vs-application-controls-and-it-audit",
+        title: "AIS: General Controls, Application Controls, and IT Audit",
+        shortTitle: "AIS Control Layers",
+        category: "AIS / IT Controls",
+        summary:
+            "Review how entity-wide IT governance, general controls, application controls, and IT-audit documentation fit together.",
+        intro:
+            "AIS and IT-audit questions are easier when students separate the control environment from the specific application activity it supports.",
+        focus: "control layering, documentation, and IT-audit consequence",
+        workedScenario:
+            "A case describes weak change management, strong edit checks, and a documentation request, and the student must classify the control gaps correctly.",
+        workedResult:
+            "The strongest answer identifies which controls are general, which are application-level, and how each weakness affects audit reliance.",
+        checkpointScenario:
+            "A student labels every control as ITGC or every control as application-specific without reading the actual objective of the control.",
+        checkpointResult:
+            "AIS answers improve when the control objective is used to classify the control before discussing its audit impact.",
+        keywords: ["itgc", "application controls", "it audit", "change management", "logical access"],
+        scanSignals: ["application control", "general control", "change management", "it audit"],
+        relatedCalculatorPaths: [
+            "/ais/it-control-matrix",
+            "/ais/ais-lifecycle-and-recovery",
+            "/audit/audit-planning-workspace",
+        ],
+        relatedTopicIds: ["governance-control-environment-risk-and-monitoring", "audit-materiality-risk-and-evidence-linkage"],
+    }),
+    makeTopic({
+        id: "governance-control-environment-risk-and-monitoring",
+        title: "Governance: Control Environment, Risk Assessment, Activities, and Monitoring",
+        shortTitle: "Governance and Internal Control",
+        category: "Governance / Ethics / Risk",
+        summary:
+            "Study governance, ethics, COSO-style control design, and monitoring so control evaluation feels like a practical framework instead of a checklist dump.",
+        intro:
+            "Governance and internal-control questions become clearer when the control environment and risk-assessment logic are explained before individual control activities are judged.",
+        focus: "governance structure and end-to-end internal-control evaluation",
+        workedScenario:
+            "A business has tone-at-the-top problems, weak segregation, and little monitoring, and the student must explain both the control environment issue and the residual risk effect.",
+        workedResult:
+            "The strongest answer starts with the control environment, then moves into risk assessment, control activities, information flow, and monitoring consequences.",
+        checkpointScenario:
+            "A student lists control activities without commenting on whether the control environment or monitoring weakness makes those activities unreliable.",
+        checkpointResult:
+            "Internal-control evaluation improves when governance quality is treated as the foundation for later control activities.",
+        keywords: ["governance", "internal control", "control environment", "risk assessment", "monitoring"],
+        scanSignals: ["control environment", "monitoring", "segregation of duties", "residual risk"],
+        relatedCalculatorPaths: [
+            "/governance/risk-control-matrix",
+            "/audit/audit-planning-workspace",
+            "/ais/it-control-matrix",
+        ],
+        relatedTopicIds: ["ais-general-vs-application-controls-and-it-audit", "audit-materiality-risk-and-evidence-linkage"],
+    }),
+    makeTopic({
+        id: "operations-aggregate-planning-scheduling-and-quality-management",
+        title: "Operations: Aggregate Planning, Scheduling, and Quality Management",
+        shortTitle: "Operations Planning and Quality",
+        category: "Operations / Supply Chain",
+        summary:
+            "Review aggregate planning, scheduling tradeoffs, productivity, and quality control so operations cases connect back to cost and service outcomes.",
+        intro:
+            "Operations review is stronger when planning, capacity, scheduling, and quality are treated as one connected operating system instead of separate buzzwords.",
+        focus: "planning and quality tradeoffs in operating execution",
+        workedScenario:
+            "A case requires a production plan, highlights bottlenecks and overtime, and then asks how service level and quality could be affected.",
+        workedResult:
+            "The strongest answer compares capacity and scheduling choices while still commenting on quality and productivity implications.",
+        checkpointScenario:
+            "A student optimizes the schedule on paper but ignores the likely quality or productivity cost of that decision.",
+        checkpointResult:
+            "Operations answers improve when service, quality, and throughput are read together instead of one at a time.",
+        keywords: ["aggregate planning", "scheduling", "quality management", "productivity", "capacity"],
+        scanSignals: ["aggregate planning", "schedule", "quality cost", "capacity plan"],
+        relatedCalculatorPaths: [
+            "/operations/moving-average-forecast",
+            "/operations/eoq-and-reorder-point",
+            "/operations/safety-stock-planner",
+            "/business/capacity-utilization",
+        ],
+        relatedTopicIds: ["operations-forecasting-moving-averages-and-replenishment", "operations-safety-stock-reorder-and-buffer-policy"],
+    }),
+    makeTopic({
+        id: "strategic-planning-budgeting-forecasting-and-performance-integration",
+        title: "Strategic: Planning, Budgeting, Forecasting, and Performance Integration",
+        shortTitle: "Strategic Performance Integration",
+        category: "Strategic / Integrative",
+        summary:
+            "Review how strategy, budgeting, forecasting, variance reading, and governance signals fit together in an integrative answer.",
+        intro:
+            "Integrative accounting review improves when students treat plans, budgets, forecasts, and control signals as one management cycle rather than separate subjects.",
+        focus: "cross-topic integration from strategy to performance review",
+        workedScenario:
+            "A capstone case starts with strategic objectives, moves into a budget and forecast revision, and ends with a governance or control concern that changes the recommendation.",
+        workedResult:
+            "The strongest answer links strategy to the budget, the budget to forecast revision, and the forecast to performance and control implications.",
+        checkpointScenario:
+            "A student gives a correct budgeting comment but ignores how governance or risk concerns could change the final recommendation.",
+        checkpointResult:
+            "Strategic answers improve when planning, performance, and control observations are integrated into one coherent recommendation.",
+        keywords: ["strategic management", "budgeting integration", "forecasting", "performance management", "capstone"],
+        scanSignals: ["strategic objective", "forecast revision", "performance report", "board case"],
+        relatedCalculatorPaths: [
+            "/strategic/integrative-case-mapper",
+            "/strategic/strategic-business-analysis",
+            "/business/budget-variance-analysis",
+            "/business/transfer-pricing-support",
+        ],
+        relatedTopicIds: ["managerial-performance-reports-and-budget-variance", "governance-control-environment-risk-and-monitoring"],
+    }),
 ];

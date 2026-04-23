@@ -5,6 +5,7 @@ import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
 import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
+import { parseLooseNumber } from "../src/utils/numberParsing.js";
 import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
 import { getResultValueTone, isWideResultValue, normalizeResultValue, } from "../src/utils/resultDisplay.js";
 import { evaluateCellInput } from "../src/features/workpapers/workpaperFormula.js";
@@ -1116,6 +1117,13 @@ runTest("number list parser accepts mixed separators and rejects bad entries", (
     assert.deepEqual(parsed.values, [10, 20, 30, 40]);
     assert.equal(parsed.error, null);
     assert.equal(invalid.error !== null, true);
+});
+runTest("loose number parsing handles commas, parentheses, and percents safely", () => {
+    assert.equal(parseLooseNumber("₱1,250.50"), 1250.5);
+    assert.equal(parseLooseNumber("(1,250.50)"), -1250.5);
+    assert.equal(parseLooseNumber("35%"), 35);
+    assert.equal(parseLooseNumber("35%", { percentAsFraction: true }), 0.35);
+    assert.equal(parseLooseNumber("units started 1,250"), 1250);
 });
 runTest("search indexes aliases, abbreviations, and typo-tolerant queries", () => {
     const npvResults = searchAppRoutes("npv");

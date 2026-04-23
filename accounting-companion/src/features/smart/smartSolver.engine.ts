@@ -9,7 +9,11 @@ import type {
     SmartSolverAnalysis,
     } from "./smartSolver.types";
     import { ALL_FIELD_KEYS } from "./smartSolver.types";
-import { detectCurrencyFromText, stripCurrencyMarkers } from "../../utils/currency";
+import { detectCurrencyFromText } from "../../utils/currency";
+import {
+    FLEXIBLE_NUMBER_CAPTURE_PATTERN,
+    parseLooseNumber,
+} from "../../utils/numberParsing.js";
 
     /* -------------------------------------------------------------------------- */
     /* FIELDS */
@@ -5340,17 +5344,7 @@ export function normalizeText(text: string = ""): string {
     }
 
     export function toNumber(value: string | number | null | undefined): number | null {
-    if (value === null || value === undefined) return null;
-
-    let cleaned = String(value).trim();
-    cleaned = stripCurrencyMarkers(cleaned);
-    cleaned = cleaned.replace(/,/g, "");
-    cleaned = cleaned.replace(/[\u20B1$%\s]/g, "");
-
-    if (!cleaned) return null;
-
-    const match = cleaned.match(/-?\d+(?:\.\d+)?/);
-    return match ? Number(match[0]) : null;
+    return parseLooseNumber(value);
     }
 
     export function numberToInput(value: number | null | undefined): string {
@@ -5381,25 +5375,27 @@ export function normalizeText(text: string = ""): string {
     if (!aliases.length) return null;
 
     const joined = buildAliasRegexGroup(aliases);
-    const currencyPrefix = options?.allowCurrency === false ? "" : "[\u20B1$]?";
     const percentSuffix = options?.percent ? "\\s*%?" : "";
     const fillerWords = "(?:\\s+(?:is|are|was|were|=|:|of|for|at|to|worth|totals?|totaling|amounting|came|comes|comes to|stands at))?";
+    const numericCapture = options?.allowCurrency === false
+        ? "(-?(?:\\d[\\d,]*(?:\\.\\d+)?|\\(\\d[\\d,]*(?:\\.\\d+)?\\)))"
+        : `(${FLEXIBLE_NUMBER_CAPTURE_PATTERN})`;
 
     return extractFirstNumber(text, [
         new RegExp(
-        `(?:${joined})${fillerWords}\\s*${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
+        `(?:${joined})${fillerWords}\\s*${numericCapture}${percentSuffix}`,
         "i"
         ),
         new RegExp(
-        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}${fillerWords}\\s*(?:${joined})`,
+        `${numericCapture}${percentSuffix}${fillerWords}\\s*(?:${joined})`,
         "i"
         ),
         new RegExp(
-        `(?:${joined})[^\\d\\n]{0,24}${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}`,
+        `(?:${joined})[^\\d\\n]{0,24}${numericCapture}${percentSuffix}`,
         "i"
         ),
         new RegExp(
-        `${currencyPrefix}(-?\\d+(?:\\.\\d+)?)${percentSuffix}[^\\d\\n]{0,24}(?:${joined})`,
+        `${numericCapture}${percentSuffix}[^\\d\\n]{0,24}(?:${joined})`,
         "i"
         ),
     ]);

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AccCalc v9.0.0 Documentation</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f5f1ea;
+            --paper: #fffdf9;
+            --ink: #1f2937;
+            --muted: #5b6472;
+            --line: #dfd7cb;
+            --accent: #0f766e;
+            --soft: #e8fbf6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(180deg, #f7f4ee 0%, #efe8de 100%);
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 40px 24px 64px;
+        }
+
+        .hero, section {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 24px 28px;
+            box-shadow: 0 14px 40px rgba(31, 41, 55, 0.06);
+        }
+
+        section { margin-top: 20px; }
+
+        .kicker {
+            margin: 0 0 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        h1, h2, h3 { margin: 0 0 12px; line-height: 1.2; }
+        h1 { font-size: 34px; }
+        h2 { font-size: 22px; margin-top: 0; }
+        h3 { font-size: 17px; }
+        p { margin: 0 0 12px; }
+        ul, ol { margin: 12px 0 0 20px; padding: 0; }
+        li { margin: 6px 0; }
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            background: #f2eee8;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .tile {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            background: #fffaf3;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: var(--soft);
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="hero">
+            <p class="kicker">AccCalc Documentation</p>
+            <h1>AccCalc v9.0.0</h1>
+            <p>
+                This handoff package documents the final <code>9.0.0</code> state of
+                AccCalc after the academic-depth release that rebuilt Study Hub
+                into a textbook-style lesson reader and upgraded OCR plus Smart Solver
+                parsing for richer accounting problems.
+            </p>
+        </section>
+
+        <section>
+            <h2>Release Summary</h2>
+            <ul>
+                <li>Rebuilt Study Hub around a reusable lesson reader layout.</li>
+                <li>Expanded reviewer coverage across FAR, AFAR, audit, tax, RFBT, AIS, governance, operations, and strategic integration.</li>
+                <li>Added a shared number-parsing utility for Smart Solver and OCR.</li>
+                <li>Improved OCR cleanup, structured fields, and review-needed guidance.</li>
+                <li>Fixed Study Hub track navigation so breadcrumbs return to the right shelf.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Architecture Overview</h2>
+            <div class="grid">
+                <div class="tile">
+                    <h3>Routes</h3>
+                    <p>Route registration lives in <code>src/App.tsx</code> and points to lazy-loaded feature pages.</p>
+                </div>
+                <div class="tile">
+                    <h3>Catalog</h3>
+                    <p><code>src/utils/appCatalog.ts</code> is the route metadata source of truth for search, navigation, and curriculum grouping.</p>
+                </div>
+                <div class="tile">
+                    <h3>Study</h3>
+                    <p><code>studyContent.ts</code>, <code>studyExpansion450.ts</code>, and the new lesson layout define the learning system.</p>
+                </div>
+                <div class="tile">
+                    <h3>OCR & Smart Solver</h3>
+                    <p><code>ocrParser.ts</code>, <code>ocrMathCleanup.ts</code>, and <code>smartSolver.engine.ts</code> now share safer numeric parsing.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Study Hub Lesson System</h2>
+            <p>
+                The new lesson architecture centers on <code>StudyLessonLayout.tsx</code>.
+                It provides a consistent reader shell with breadcrumbs, outline, active
+                section tracking, progress, resume state, and related-learning panels.
+            </p>
+            <div class="callout">
+                The lesson experience now behaves more like a digital accounting textbook
+                chapter than a stack of independent dashboard cards.
+            </div>
+        </section>
+
+        <section>
+            <h2>Academic Expansion Areas</h2>
+            <ul>
+                <li>FAR refinements for financial assets, provisions, and unearned revenue.</li>
+                <li>AFAR partnership life-cycle coverage from admission through final exit.</li>
+                <li>Audit linkage between materiality, risk, assertions, and evidence.</li>
+                <li>Tax compliance depth with withholding, local tax, remedies, and compliance posture.</li>
+                <li>RFBT modules for obligations and contracts plus corporation law and liquidation.</li>
+                <li>AIS, governance, operations, and strategic integration reviewer expansion.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>OCR And Structured Review</h2>
+            <p>
+                Scan review is now more transparent. Structured fields can keep a raw value,
+                normalized value, value kind, source line, confidence, and a review-needed
+                marker before the user trusts autofill or route suggestions.
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <h3>Cleanup</h3>
+                    <p><code>ocrMathCleanup.ts</code> normalizes spacing, currencies, percentages, and line structure.</p>
+                </div>
+                <div class="tile">
+                    <h3>Parsing</h3>
+                    <p><code>ocrParser.ts</code> classifies the text, extracts candidate values, and creates structured review fields.</p>
+                </div>
+                <div class="tile">
+                    <h3>Accounting Sheets</h3>
+                    <p><code>accountingFieldExtractor.ts</code> handles worksheet-like process-costing pages with field-level metadata.</p>
+                </div>
+                <div class="tile">
+                    <h3>Review UI</h3>
+                    <p><code>ScanStructuredFieldsEditor.tsx</code> surfaces confidence and source-line context instead of raw text only.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Validation</h2>
+            <p>The final release state passed:</p>
+            <ul>
+                <li><code>npm test</code></li>
+                <li><code>npm run build</code></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Known Remaining Limits</h2>
+            <ul>
+                <li>Large production chunks still remain in the workpaper, catalog, solve-definition, and main-shell surfaces.</li>
+                <li>OCR remains a guided review flow rather than guaranteed-perfect extraction.</li>
+                <li>Several new curriculum areas in this release expand through lesson modules more than through brand-new standalone calculators.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

@@ -318,6 +318,29 @@ export function markStudySectionComplete(
     });
 }
 
+export function setStudyLastSection(
+    topic: { id: string; path: string; title: string },
+    sectionKey: string
+) {
+    updateStudyProgress((current) => {
+        const existing = getExistingTopic(current, topic);
+
+        return {
+            ...current,
+            topics: {
+                ...current.topics,
+                [topic.id]: {
+                    ...existing,
+                    path: topic.path,
+                    title: topic.title,
+                    lastViewedAt: Date.now(),
+                    lastSectionKey: sectionKey,
+                },
+            },
+        };
+    });
+}
+
 export function setStudyTopicNote(
     topic: { id: string; path: string; title: string },
     note: string
