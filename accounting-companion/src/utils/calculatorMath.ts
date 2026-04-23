@@ -1360,6 +1360,38 @@ export function computeProfitabilityIndex(
     };
 }
 
+export function computeCapitalRationingSelection(projects: Array<{
+    label: string;
+    initialInvestment: number;
+    netPresentValue: number;
+}>, capitalBudget: number) {
+    const rankedProjects = projects
+        .filter((project) => project.initialInvestment > 0)
+        .map((project) => ({
+            ...project,
+            profitabilityIndex: (project.initialInvestment + project.netPresentValue) / project.initialInvestment,
+        }))
+        .sort((a, b) => b.profitabilityIndex - a.profitabilityIndex);
+
+    let remainingBudget = capitalBudget;
+    const selectedProjects = rankedProjects.filter((project) => {
+        if (project.initialInvestment > remainingBudget) return false;
+        remainingBudget -= project.initialInvestment;
+        return true;
+    });
+
+    const totalInvestment = selectedProjects.reduce((sum, project) => sum + project.initialInvestment, 0);
+    const totalNpv = selectedProjects.reduce((sum, project) => sum + project.netPresentValue, 0);
+
+    return {
+        rankedProjects,
+        selectedProjects,
+        totalInvestment,
+        totalNpv,
+        remainingBudget,
+    };
+}
+
 export function computeInternalRateOfReturn(
     initialInvestment: number,
     cashFlows: number[],
@@ -1600,6 +1632,179 @@ export function computeStandardDeviation(values: number[], sample = false) {
         sumOfSquaredDeviations,
         variance,
         standardDeviation: Math.sqrt(variance),
+    };
+}
+
+export function computeConfidenceInterval({
+    sampleMean,
+    sampleStandardDeviation,
+    sampleSize,
+    confidenceLevelPercent,
+}: {
+    sampleMean: number;
+    sampleStandardDeviation: number;
+    sampleSize: number;
+    confidenceLevelPercent: number;
+}) {
+    const zCritical =
+        confidenceLevelPercent >= 99
+            ? 2.576
+            : confidenceLevelPercent >= 95
+              ? 1.96
+              : confidenceLevelPercent >= 90
+                ? 1.645
+                : 1.96;
+    const standardError = safeDivide(sampleStandardDeviation, Math.sqrt(sampleSize));
+    const marginOfError = safeMultiply(zCritical, standardError);
+
+    return {
+        zCritical,
+        standardError,
+        marginOfError,
+        lowerBound: safeSubtract(sampleMean, marginOfError),
+        upperBound: safeAdd(sampleMean, marginOfError),
+    };
+}
+
+export function computeProvisionExpectedValue(scenarios: Array<{
+    label: string;
+    amount: number;
+    probabilityPercent: number;
+}>) {
+    const totalProbabilityPercent = scenarios.reduce(
+        (sum, scenario) => sum + scenario.probabilityPercent,
+        0
+    );
+    const expectedValue = scenarios.reduce(
+        (sum, scenario) =>
+            safeAdd(sum, safeMultiply(scenario.amount, percentToDecimal(scenario.probabilityPercent))),
+        0
+    );
+
+    return {
+        totalProbabilityPercent,
+        expectedValue,
+        rows: scenarios.map((scenario) => ({
+            ...scenario,
+            weightedAmount: safeMultiply(
+                scenario.amount,
+                percentToDecimal(scenario.probabilityPercent)
+            ),
+        })),
+    };
+}
+
+export function computeDupontAnalysis({
+    netIncome,
+    netSales,
+    averageAssets,
+    averageEquity,
+}: {
+    netIncome: number;
+    netSales: number;
+    averageAssets: number;
+    averageEquity: number;
+}) {
+    const profitMargin = safeDivide(netIncome, netSales);
+    const assetTurnover = safeDivide(netSales, averageAssets);
+    const equityMultiplier = safeDivide(averageAssets, averageEquity);
+    const returnOnAssets = safeDivide(netIncome, averageAssets);
+    const returnOnEquity = safeDivide(netIncome, averageEquity);
+
+    return {
+        profitMargin,
+        assetTurnover,
+        equityMultiplier,
+        returnOnAssets,
+        returnOnEquity,
+        dupontReturnOnEquity: safeMultiply(
+            safeMultiply(profitMargin, assetTurnover),
+            equityMultiplier
+        ),
+    };
+}
+
+export function computeEarningsQuality({
+    netIncome,
+    operatingCashFlow,
+    averageTotalAssets,
+}: {
+    netIncome: number;
+    operatingCashFlow: number;
+    averageTotalAssets: number;
+}) {
+    const totalAccruals = safeSubtract(netIncome, operatingCashFlow);
+    const accrualRatio = safeDivide(totalAccruals, averageTotalAssets);
+    const cashConversionRatio =
+        netIncome === 0 ? 0 : safeDivide(operatingCashFlow, netIncome);
+
+    return {
+        totalAccruals,
+        accrualRatio,
+        cashConversionRatio,
+        qualitySignal:
+            operatingCashFlow >= netIncome
+                ? "Cash flow supports or exceeds reported earnings."
+                : "Reported earnings exceed operating cash flow; review accrual quality and working-capital movements.",
+    };
+}
+
+export function computeRetailMarkupMarkdown({
+    unitCost,
+    initialRetailPrice,
+    markdownPercent,
+    unitsSold,
+}: {
+    unitCost: number;
+    initialRetailPrice: number;
+    markdownPercent: number;
+    unitsSold: number;
+}) {
+    const markdownDecimal = percentToDecimal(markdownPercent);
+    const markdownAmount = safeMultiply(initialRetailPrice, markdownDecimal);
+    const finalRetailPrice = safeSubtract(initialRetailPrice, markdownAmount);
+    const markupOnCostPercent =
+        unitCost === 0 ? 0 : safeMultiply(safeDivide(safeSubtract(initialRetailPrice, unitCost), unitCost), 100);
+    const maintainedMarginPercent =
+        finalRetailPrice === 0
+            ? 0
+            : safeMultiply(safeDivide(safeSubtract(finalRetailPrice, unitCost), finalRetailPrice), 100);
+    const grossProfit = safeMultiply(safeSubtract(finalRetailPrice, unitCost), unitsSold);
+
+    return {
+        markdownAmount,
+        finalRetailPrice,
+        markupOnCostPercent,
+        maintainedMarginPercent,
+        grossProfit,
+        salesRevenue: safeMultiply(finalRetailPrice, unitsSold),
+    };
+}
+
+export function computeFranchiseRevenue({
+    initialFranchiseFee,
+    satisfiedPerformanceObligationPercent,
+    estimatedUncollectiblePercent,
+}: {
+    initialFranchiseFee: number;
+    satisfiedPerformanceObligationPercent: number;
+    estimatedUncollectiblePercent: number;
+}) {
+    const satisfiedRevenue = safeMultiply(
+        initialFranchiseFee,
+        percentToDecimal(satisfiedPerformanceObligationPercent)
+    );
+    const expectedCollectibleAmount = safeMultiply(
+        initialFranchiseFee,
+        safeSubtract(1, percentToDecimal(estimatedUncollectiblePercent))
+    );
+    const revenueRecognized = Math.min(satisfiedRevenue, expectedCollectibleAmount);
+
+    return {
+        satisfiedRevenue,
+        expectedCollectibleAmount,
+        revenueRecognized,
+        contractLiability: Math.max(safeSubtract(initialFranchiseFee, revenueRecognized), 0),
     };
 }
 

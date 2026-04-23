@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AccCalc v10.0.0 Documentation</title>
+    <style>
+        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; color: #1f2937; background: #f5f1ea; line-height: 1.6; }
+        main { max-width: 980px; margin: 0 auto; padding: 40px 24px 64px; }
+        section, .hero { background: #fffdf9; border: 1px solid #dfd7cb; border-radius: 20px; padding: 24px 28px; margin-top: 20px; box-shadow: 0 14px 40px rgba(31,41,55,.06); }
+        h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+        .kicker { color: #0f766e; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+        code { background: #f2eee8; padding: 2px 6px; border-radius: 6px; }
+        li { margin: 6px 0; }
+    </style>
+</head>
+<body>
+<main>
+    <div class="hero">
+        <p class="kicker">AccCalc v10.0.0</p>
+        <h1>Library-Driven Curriculum Expansion</h1>
+        <p>Version 10.0.0 adds original calculators, lessons, Smart Solver hooks, OCR routing, and workpaper templates inspired by major accounting, financial statement analysis, statistics, retail, and management-services topic families.</p>
+    </div>
+    <section>
+        <h2>New Tools</h2>
+        <ul>
+            <li><code>/accounting/dupont-analysis</code>: DuPont ROE Analyzer.</li>
+            <li><code>/accounting/earnings-quality-analysis</code>: Earnings Quality and Accruals Analyzer.</li>
+            <li><code>/statistics/confidence-interval</code>: Confidence Interval Helper.</li>
+            <li><code>/operations/retail-markup-markdown</code>: Retail Markup and Markdown Planner.</li>
+            <li><code>/finance/capital-rationing-prioritizer</code>: Capital Rationing Prioritizer.</li>
+            <li><code>/far/provision-expected-value</code>: Provision Expected Value Planner.</li>
+            <li><code>/afar/franchise-revenue-workspace</code>: Franchise Revenue Workspace.</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Architecture</h2>
+        <p>Routes are registered in <code>src/App.tsx</code>, described in <code>src/utils/appCatalog.ts</code>, powered by shared math in <code>src/utils/calculatorMath.ts</code>, and connected through Study Hub, Smart Solver, OCR routing, and workpapers.</p>
+    </section>
+    <section>
+        <h2>Curriculum Coverage</h2>
+        <p>The release strengthens FAR, AFAR, Cost and Managerial Accounting, Financial Statement Analysis, Statistics, Operations, Retail Pricing, and Strategic/Management Services support.</p>
+    </section>
+    <section>
+        <h2>Validation</h2>
+        <p>The release was validated with <code>npm test</code> and <code>npm run build</code>.</p>
+    </section>
+</main>
+</body>
+</html>

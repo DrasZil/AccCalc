@@ -191,6 +191,39 @@ const SOLVE_TARGET_RULES = {
         { target: "markUpPercent", patterns: [/markup on cost/i, /markup percent/i, /mark up percent/i] },
         { target: "unitsNeededForTargetIncome", patterns: [/units needed/i, /units for target income/i, /required unit volume/i] },
     ],
+    "dupont-analysis": [
+        { target: "returnOnEquity", patterns: [/\broe\b/i, /return on equity/i] },
+        { target: "profitMargin", patterns: [/profit margin/i, /net profit margin/i] },
+        { target: "equityMultiplier", patterns: [/equity multiplier/i, /financial leverage/i] },
+    ],
+    "earnings-quality-analysis": [
+        { target: "accrualRatio", patterns: [/accrual ratio/i, /accrual quality/i] },
+        { target: "cashConversionRatio", patterns: [/cash conversion/i, /cash conversion ratio/i] },
+        { target: "totalAccruals", patterns: [/total accruals/i, /earnings quality/i] },
+    ],
+    "provision-expected-value": [
+        { target: "expectedValue", patterns: [/expected value/i, /probability weighted/i, /expected provision/i] },
+        { target: "totalProbabilityPercent", patterns: [/probability check/i, /total probability/i] },
+    ],
+    "franchise-revenue-workspace": [
+        { target: "revenueRecognized", patterns: [/revenue recognized/i, /franchise revenue/i] },
+        { target: "contractLiability", patterns: [/contract liability/i, /unearned franchise/i] },
+    ],
+    "retail-markup-markdown": [
+        { target: "finalRetailPrice", patterns: [/final retail price/i, /price after markdown/i] },
+        { target: "maintainedMarginPercent", patterns: [/maintained margin/i, /margin after markdown/i] },
+        { target: "grossProfit", patterns: [/gross profit/i, /retail gross profit/i] },
+    ],
+    "confidence-interval": [
+        { target: "marginOfError", patterns: [/margin of error/i] },
+        { target: "confidenceInterval", patterns: [/confidence interval/i, /interval estimate/i] },
+        { target: "standardError", patterns: [/standard error/i] },
+    ],
+    "capital-rationing-prioritizer": [
+        { target: "selectedProjects", patterns: [/select projects/i, /which projects/i, /capital rationing/i] },
+        { target: "profitabilityIndex", patterns: [/profitability index/i, /\bpi\b/i] },
+        { target: "totalNpv", patterns: [/total npv/i, /selected npv/i] },
+    ],
     "budget-variance-analysis": [
         { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },
         { target: "spendingVariance", patterns: [/spending variance/i, /flexible budget variance/i] },

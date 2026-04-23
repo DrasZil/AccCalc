@@ -80,6 +80,12 @@ const AccruedExpenseAdjustmentPage = lazy(
 const RatioAnalysisWorkspacePage = lazy(
     () => import("./features/accounting/RatioAnalysisWorkspacePage")
 );
+const DuPontAnalysisPage = lazy(
+    () => import("./features/accounting/DuPontAnalysisPage")
+);
+const EarningsQualityPage = lazy(
+    () => import("./features/accounting/EarningsQualityPage")
+);
 const InventoryControlWorkspacePage = lazy(
     () => import("./features/accounting/InventoryControlWorkspacePage")
 );
@@ -308,6 +314,9 @@ const WorkpaperStudioPage = lazy(
 const ProfitabilityIndexPage = lazy(
     () => import("./features/finance/ProfitabilityIndexPage")
 );
+const CapitalRationingPage = lazy(
+    () => import("./features/finance/CapitalRationingPage")
+);
 const PriceElasticityPage = lazy(
     () => import("./features/economics/PriceElasticityPage")
 );
@@ -376,6 +385,9 @@ const ShareBasedPaymentPage = lazy(
 const BorrowingCostsCapitalizationPage = lazy(
     () => import("./features/far/BorrowingCostsCapitalizationPage")
 );
+const ProvisionExpectedValuePage = lazy(
+    () => import("./features/far/ProvisionExpectedValuePage")
+);
 const ImpairmentLossPage = lazy(
     () => import("./features/far/ImpairmentLossPage")
 );
@@ -405,6 +417,9 @@ const SafetyStockPlannerPage = lazy(
 );
 const CostPlusPricingPage = lazy(
     () => import("./features/operations/CostPlusPricingPage")
+);
+const RetailMarkupMarkdownPage = lazy(
+    () => import("./features/operations/RetailMarkupMarkdownPage")
 );
 const AuditPlanningWorkspacePage = lazy(
     () => import("./features/audit/AuditPlanningWorkspacePage")
@@ -453,6 +468,9 @@ const ForeignCurrencyTranslationPage = lazy(
 const ConstructionRevenuePage = lazy(
     () => import("./features/afar/ConstructionRevenuePage")
 );
+const FranchiseRevenueWorkspacePage = lazy(
+    () => import("./features/afar/FranchiseRevenueWorkspacePage")
+);
 const IntercompanyInventoryProfitPage = lazy(
     () => import("./features/afar/IntercompanyInventoryProfitPage")
 );
@@ -499,6 +517,9 @@ const BalancedScorecardWorkspacePage = lazy(
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
     () => import("./features/statistics/StandardDeviationPage")
+);
+const ConfidenceIntervalPage = lazy(
+    () => import("./features/statistics/ConfidenceIntervalPage")
 );
 const CoefficientVariationPage = lazy(
     () => import("./features/statistics/CoefficientVariationPage")
@@ -606,6 +627,7 @@ export default function App() {
                         <Route path="finance/equivalent-annual-annuity" element={renderRoute("/finance/equivalent-annual-annuity", <EquivalentAnnualAnnuityPage />)} />
                         <Route path="finance/internal-rate-of-return" element={renderRoute("/finance/internal-rate-of-return", <InternalRateOfReturnPage />)} />
                         <Route path="finance/profitability-index" element={renderRoute("/finance/profitability-index", <ProfitabilityIndexPage />)} />
+                        <Route path="finance/capital-rationing-prioritizer" element={renderRoute("/finance/capital-rationing-prioritizer", <CapitalRationingPage />)} />
                         <Route path="finance/payback-period" element={renderRoute("/finance/payback-period", <PaybackPeriodPage />)} />
                         <Route path="finance/discounted-payback-period" element={renderRoute("/finance/discounted-payback-period", <DiscountedPaybackPeriodPage />)} />
 
@@ -659,6 +681,7 @@ export default function App() {
                         <Route path="far/lease-measurement-workspace" element={renderRoute("/far/lease-measurement-workspace", <LeaseMeasurementWorkspacePage />)} />
                         <Route path="far/share-based-payment-workspace" element={renderRoute("/far/share-based-payment-workspace", <ShareBasedPaymentPage />)} />
                         <Route path="far/borrowing-costs-capitalization" element={renderRoute("/far/borrowing-costs-capitalization", <BorrowingCostsCapitalizationPage />)} />
+                        <Route path="far/provision-expected-value" element={renderRoute("/far/provision-expected-value", <ProvisionExpectedValuePage />)} />
                         <Route path="far/impairment-loss-workspace" element={renderRoute("/far/impairment-loss-workspace", <ImpairmentLossPage />)} />
                         <Route path="far/asset-disposal-analysis" element={renderRoute("/far/asset-disposal-analysis", <AssetDisposalAnalysisPage />)} />
                         <Route path="far/retained-earnings-rollforward" element={renderRoute("/far/retained-earnings-rollforward", <RetainedEarningsRollforwardPage />)} />
@@ -669,6 +692,7 @@ export default function App() {
                         <Route path="operations/moving-average-forecast" element={renderRoute("/operations/moving-average-forecast", <MovingAverageForecastPage />)} />
                         <Route path="operations/safety-stock-planner" element={renderRoute("/operations/safety-stock-planner", <SafetyStockPlannerPage />)} />
                         <Route path="operations/cost-plus-pricing" element={renderRoute("/operations/cost-plus-pricing", <CostPlusPricingPage />)} />
+                        <Route path="operations/retail-markup-markdown" element={renderRoute("/operations/retail-markup-markdown", <RetailMarkupMarkdownPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
                         <Route path="audit/assertion-evidence-planner" element={renderRoute("/audit/assertion-evidence-planner", <AuditAssertionEvidencePlannerPage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
@@ -688,6 +712,7 @@ export default function App() {
                         <Route path="afar/intercompany-ppe-transfer" element={renderRoute("/afar/intercompany-ppe-transfer", <IntercompanyPpeTransferPage />)} />
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
                         <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
+                        <Route path="afar/franchise-revenue-workspace" element={renderRoute("/afar/franchise-revenue-workspace", <FranchiseRevenueWorkspacePage />)} />
                         <Route path="afar/consignment-settlement" element={renderRoute("/afar/consignment-settlement", <ConsignmentSettlementPage />)} />
                         <Route path="afar/branch-inventory-loading" element={renderRoute("/afar/branch-inventory-loading", <BranchInventoryLoadingPage />)} />
                         <Route path="ais/it-control-matrix" element={renderRoute("/ais/it-control-matrix", <ItControlMatrixPage />)} />
@@ -766,6 +791,8 @@ export default function App() {
                         <Route path="accounting/book-value-per-share" element={renderRoute("/accounting/book-value-per-share", <BookValuePerSharePage />)} />
                         <Route path="accounting/equity-multiplier" element={renderRoute("/accounting/equity-multiplier", <EquityMultiplierPage />)} />
                         <Route path="accounting/ratio-analysis-workspace" element={renderRoute("/accounting/ratio-analysis-workspace", <RatioAnalysisWorkspacePage />)} />
+                        <Route path="accounting/dupont-analysis" element={renderRoute("/accounting/dupont-analysis", <DuPontAnalysisPage />)} />
+                        <Route path="accounting/earnings-quality-analysis" element={renderRoute("/accounting/earnings-quality-analysis", <EarningsQualityPage />)} />
                         <Route path="accounting/horizontal-analysis" element={renderRoute("/accounting/horizontal-analysis", <HorizontalAnalysisPage />)} />
                         <Route path="accounting/common-size-income-statement" element={renderRoute("/accounting/common-size-income-statement", <CommonSizeIncomeStatementPage />)} />
                         <Route path="accounting/common-size-balance-sheet" element={renderRoute("/accounting/common-size-balance-sheet", <CommonSizeBalanceSheetPage />)} />
@@ -783,6 +810,7 @@ export default function App() {
                         <Route path="accounting/trial-balance-checker" element={renderRoute("/accounting/trial-balance-checker", <TrialBalanceCheckerPage />)} />
 
                         <Route path="statistics/standard-deviation" element={renderRoute("/statistics/standard-deviation", <StandardDeviationPage />)} />
+                        <Route path="statistics/confidence-interval" element={renderRoute("/statistics/confidence-interval", <ConfidenceIntervalPage />)} />
                         <Route path="statistics/coefficient-of-variation" element={renderRoute("/statistics/coefficient-of-variation", <CoefficientVariationPage />)} />
 
                         <Route path="settings" element={renderRoute("/settings", <SettingsPage />)} />

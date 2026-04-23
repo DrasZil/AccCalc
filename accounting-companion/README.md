@@ -1,10 +1,10 @@
 # AccCalc
 
-AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `9.0.0` is a major academic-depth release focused on three product pillars:
+AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.0.0` is a library-driven curriculum expansion focused on three product pillars:
 
-- broader curriculum coverage across underrepresented tracks
-- a textbook-style Study Hub lesson experience
-- stronger OCR and Smart Solver parsing for real accounting word problems
+- broader calculator coverage from accounting, analysis, statistics, cost, retail, and AFAR topic families
+- deeper Study Hub reviewer support connected to the new tools
+- stronger discovery through catalog, search, Smart Solver, OCR routing, and workpaper templates
 
 ## Who It Is For
 
@@ -13,15 +13,16 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Tutors and instructors who want assignment-friendly workpaper support
 - Future maintainers who may return with low context and still need to extend the app safely
 
-## What's New In 9.0.0
+## What's New In 10.0.0
 
-- Rebuilt Study Hub lessons around a reusable reader layout with breadcrumbs, section anchors, chapter flow, resume state, and clearer previous/next lesson navigation
-- Expanded reviewer coverage across FAR, AFAR partnership flow, audit, taxation, RFBT, AIS, governance, operations, and strategic integration
-- Added module-shelf browsing in Study Hub so lessons feel like textbook chapters instead of a flat card wall
-- Added shared loose-number parsing for grouped digits, parenthesized negatives, percentages, and currency markers
-- Upgraded OCR cleanup and structured-field extraction to preserve normalized values, source lines, value kinds, and confidence-aware review flags
-- Improved Scan & Check summaries so they use live route metadata and show structured-field review counts
-- Preserved the `8.1.0` Windows Vite dev-start fix and the theme-family personalization system without regression
+- Added `DuPont ROE Analyzer` and `Earnings Quality and Accruals Analyzer` for stronger financial statement analysis
+- Added `Confidence Interval Helper` for statistics, audit sampling, forecasting, and marketing-research style estimates
+- Added `Retail Markup and Markdown Planner` for retail pricing, maintained margin, markdown, and gross-profit support
+- Added `Capital Rationing Prioritizer` for management-services project selection under a limited capital budget
+- Added `Provision Expected Value Planner` for FAR provisions and contingencies
+- Added `Franchise Revenue Workspace` for AFAR initial-fee revenue and contract-liability timing
+- Added new Study Hub modules, OCR route patterns, Smart Solver matches, and workpaper templates for every new route
+- Preserved the `9.0.0` textbook-style Study Hub and OCR structured-review model without regression
 
 ## Major Product Areas
 
@@ -33,20 +34,16 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
 - Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected study modules
 
-## New Academic Depth In 9.0.0
+## New Academic Depth In 10.0.0
 
-Study Hub now includes additional curriculum-aligned reviewer modules such as:
+The v10 release uses the visible accounting and business library topic families as inspiration, while keeping all content original. New emphasis areas include:
 
-- `FAR Asset and Liability Refinements`
-- `Partnership Life Cycle`
-- `Audit Risk Linkage`
-- `Tax Compliance Depth`
-- `RFBT Contracts Core`
-- `RFBT Corporation Law`
-- `AIS Control Layers`
-- `Governance and Internal Control`
-- `Operations Planning and Quality`
-- `Strategic Performance Integration`
+- Intermediate accounting: provisions, contingencies, and revenue obligations
+- Advanced accounting: franchise-fee revenue and contract liability
+- Financial statement analysis: DuPont, earnings quality, cash conversion, accrual ratio
+- Statistics and management analytics: confidence intervals and margin of error
+- Costing, pricing, and retail: markup, markdown, maintained margin, gross profit
+- Management services: capital rationing and profitability-index ranking
 
 These are wired into the existing Study Hub search and OCR lesson recommendation flow through `src/features/study/studyExpansion450.ts` and `src/features/study/studyContent.ts`.
 
@@ -131,9 +128,9 @@ npm run build
 npm run lint
 ```
 
-## Validation Status For 9.0.0
+## Validation Status For 10.0.0
 
-The final `9.0.0` implementation was validated with:
+The final `10.0.0` implementation was validated with:
 
 ```bash
 npm test
@@ -246,4 +243,4 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 
 The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
 
-The `docs/` folder contains the `9.0.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.
+The `docs/` folder contains the `10.0.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package.

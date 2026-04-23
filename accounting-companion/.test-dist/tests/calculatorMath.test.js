@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBorrowingCostsCapitalization, computeBudgetVarianceAnalysis, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryBudget, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computeOperatingExpenseBudget, computeSalesBudget, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTransferPricingSupport, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeBudgetedIncomeStatement, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeNotesReceivableDiscounting, computeStatementOfChangesInEquity, computeVatReconciliation, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeMakeOrBuyDecision, computeMovingAverageForecast, computeSurplusAtEquilibrium, computeSellProcessFurther, computeSpecialOrderDecision, computeCashRunway, computeConstrainedResourceProductMix, } from "../src/utils/calculatorMath.js";
+import { computeBreakEven, computeBankReconciliation, computeBookTaxDifference, computeBondAmortizationSchedule, computeBorrowingCostsCapitalization, computeBudgetVarianceAnalysis, computeBusinessCombination, computeCashDiscount, computeCashBudget, computeCashCollectionsSchedule, computeCashConversionCycle, computeCashDisbursementsSchedule, computeCashRatio, computePettyCashReconciliation, computeCapitalBudgetingComparison, computeCapitalRationingSelection, computeCapacityUtilization, computeConstructionRevenue, computeCustomerPayback, computeCoefficientOfVariation, computeCommonSizeStatement, computeConfidenceInterval, computeCompoundInterest, computeElasticityShift, computeCurrentRatio, computeDepreciationComparisonSchedule, computeDupontAnalysis, computeDiscountedPaybackPeriod, computeDoubleDecliningBalance, computeEconomicOrderQuantity, computeEffectiveAnnualRate, computeEquivalentUnitsWeightedAverage, computeEquityMultiplier, computeEarningsQuality, computeFlexibleBudget, computeFutureValue, computeFutureValueOfOrdinaryAnnuity, computeFactoryOverheadVariances, computeFranchiseRevenue, computeForeignCurrencyTranslation, computeGrossProfitRate, computeHorizontalAnalysisWorkspace, computeHighLowCostEstimation, computeInternalRateOfReturn, computeImpairmentLoss, computeInventoryBudget, computeInventoryShrinkage, computeInventoryMethodComparison, computeJobOrderCostSheet, computeLaborEfficiencyVariance, computeLoanAmortization, computeLoanAmortizationSchedule, computeLowerOfCostOrNrv, computeMarkupMargin, computeMaterialsQuantityVariance, computeNetPresentValue, computeOwnerSplit, computePartnershipAdmissionBonus, computePartnershipAdmissionGoodwill, computePartnerCapitalEndingBalance, computePartnershipProfitSharing, computePartnershipRetirementBonus, computePartnershipSalaryInterestAllocation, computeOperatingExpenseBudget, computeSalesBudget, computePaybackPeriod, computePresentValue, computePresentValueOfOrdinaryAnnuity, computeProductionBudget, computePrepaidExpenseAdjustment, computePricingPlanner, computeProfitabilityIndex, computeProvisionExpectedValue, computePriceElasticity, computeQuickRatio, computeRealInterestRate, computeRatioAnalysisWorkspace, computeRetailMarkupMarkdown, computeRoiRiEva, computeReceivablesAgingSchedule, computeShareBasedPayment, computeAccruedExpenseAdjustment, computeAccruedRevenueAdjustment, computeSalesForecast, computeSalesMixBreakEven, computeSimpleInterest, computeSinkingFundDeposit, computeStatementOfCashFlows, computeStandardDeviation, computeStartupCostPlan, computeStraightLineDepreciation, computeDirectMaterialsPurchasesBudget, computeDirectLaborBudget, computeUnearnedRevenueAdjustment, computeTargetProfit, computeTradeDiscount, computeTransferPricingSupport, computeTrialBalance, computeTurnoverWithDayBasis, computeUnitEconomics, computeAssetDisposal, computeBudgetedIncomeStatement, computeEquityMethodInvestment, computeFactoryOverheadBudget, computeIntercompanyInventoryProfit, computeIntercompanyPpeTransfer, computeNotesReceivableDiscounting, computeStatementOfChangesInEquity, computeVatReconciliation, computeWithholdingTax, computeWeightedMean, computeWorkingCapitalCycle, computeLeaseMeasurement, computeMarketEquilibrium, computeMakeOrBuyDecision, computeMovingAverageForecast, computeSurplusAtEquilibrium, computeSellProcessFurther, computeSpecialOrderDecision, computeCashRunway, computeConstrainedResourceProductMix, } from "../src/utils/calculatorMath.js";
 import { budgetVarianceAnalysisSolveDefinition, breakEvenSolveDefinition, budgetedIncomeStatementSolveDefinition, constrainedResourceProductMixSolveDefinition, currentRatioSolveDefinition, directLaborBudgetSolveDefinition, makeOrBuyDecisionSolveDefinition, movingAverageForecastSolveDefinition, priceCostMarginSolveDefinition, sellProcessFurtherSolveDefinition, simpleInterestSolveDefinition, specialOrderDecisionSolveDefinition, transferPricingSupportSolveDefinition, timeValueSolveDefinition, } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
@@ -1539,6 +1539,74 @@ runTest("workpaper templates register completion-pass support sheets", () => {
     assert.ok(getWorkpaperTemplate("enterprise-systems-control-map"));
     assert.ok(getWorkpaperTemplate("ethics-decision-support"));
     assert.ok(getWorkpaperTemplate("balanced-scorecard-support"));
+});
+runTest("v10 library-driven statement analysis helpers stay internally consistent", () => {
+    const dupont = computeDupontAnalysis({
+        netIncome: 98_000,
+        netSales: 950_000,
+        averageAssets: 760_000,
+        averageEquity: 380_000,
+    });
+    assert.equal(Number(dupont.profitMargin.toFixed(6)), Number((98_000 / 950_000).toFixed(6)));
+    assert.equal(Number(dupont.dupontReturnOnEquity.toFixed(6)), Number(dupont.returnOnEquity.toFixed(6)));
+    const quality = computeEarningsQuality({
+        netIncome: 98_000,
+        operatingCashFlow: 84_000,
+        averageTotalAssets: 760_000,
+    });
+    assert.equal(quality.totalAccruals, 14_000);
+    assert.equal(Number(quality.accrualRatio.toFixed(6)), Number((14_000 / 760_000).toFixed(6)));
+});
+runTest("v10 provisions, franchise revenue, retail pricing, and intervals compute expected values", () => {
+    const provision = computeProvisionExpectedValue([
+        { label: "Low", amount: 200_000, probabilityPercent: 25 },
+        { label: "Base", amount: 350_000, probabilityPercent: 50 },
+        { label: "High", amount: 600_000, probabilityPercent: 25 },
+    ]);
+    assert.equal(provision.expectedValue, 375_000);
+    assert.equal(provision.totalProbabilityPercent, 100);
+    const franchise = computeFranchiseRevenue({
+        initialFranchiseFee: 1_200_000,
+        satisfiedPerformanceObligationPercent: 70,
+        estimatedUncollectiblePercent: 5,
+    });
+    assert.equal(franchise.revenueRecognized, 840_000);
+    assert.equal(franchise.contractLiability, 360_000);
+    const retail = computeRetailMarkupMarkdown({
+        unitCost: 480,
+        initialRetailPrice: 800,
+        markdownPercent: 15,
+        unitsSold: 250,
+    });
+    assert.equal(retail.finalRetailPrice, 680);
+    assert.equal(retail.grossProfit, 50_000);
+    const interval = computeConfidenceInterval({
+        sampleMean: 42.5,
+        sampleStandardDeviation: 6.2,
+        sampleSize: 64,
+        confidenceLevelPercent: 95,
+    });
+    assert.equal(Number(interval.marginOfError.toFixed(4)), 1.5190);
+});
+runTest("v10 capital rationing ranks by profitability index within a budget", () => {
+    const result = computeCapitalRationingSelection([
+        { label: "A", initialInvestment: 400_000, netPresentValue: 90_000 },
+        { label: "B", initialInvestment: 500_000, netPresentValue: 75_000 },
+        { label: "C", initialInvestment: 300_000, netPresentValue: 84_000 },
+    ], 700_000);
+    assert.deepEqual(result.selectedProjects.map((project) => project.label), ["C", "A"]);
+    assert.equal(result.totalInvestment, 700_000);
+    assert.equal(result.totalNpv, 174_000);
+});
+runTest("v10 discovery reaches book-inspired expansion routes", () => {
+    assert.equal(searchAppRoutes("dupont roe equity multiplier")[0]?.path, "/accounting/dupont-analysis");
+    assert.equal(searchAppRoutes("quality of earnings accrual ratio")[0]?.path, "/accounting/earnings-quality-analysis");
+    assert.equal(searchAppRoutes("confidence interval margin of error")[0]?.path, "/statistics/confidence-interval");
+    assert.equal(searchAppRoutes("franchise initial fee revenue")[0]?.path, "/afar/franchise-revenue-workspace");
+    assert.ok(getWorkpaperTemplate("statement-analysis-quality-support"));
+    assert.ok(getWorkpaperTemplate("retail-pricing-and-rationing-support"));
+    assert.ok(getWorkpaperTemplate("provision-franchise-revenue-support"));
+    assert.ok(getWorkpaperTemplate("confidence-interval-support"));
 });
 runTest("smart solver target suggestions understand transfer-pricing prompts", () => {
     assert.equal(suggestSolveTarget("transfer-pricing-support", "find the minimum transfer price"), "minimumTransferPrice");

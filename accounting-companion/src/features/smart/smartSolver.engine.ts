@@ -5331,6 +5331,76 @@ import {
         keywords: [/strategic business analysis/i, /strategic cost management/i, /industry analysis/i, /consultancy/i, /research methods/i],
     },
     {
+        id: "dupont-analysis",
+        name: "DuPont ROE Analyzer",
+        route: "/accounting/dupont-analysis",
+        description:
+            "Decompose ROE into profit margin, asset turnover, and leverage when statement-analysis prompts ask why returns changed.",
+        required: [],
+        aliases: ["dupont analysis", "dupont roe", "roe decomposition", "equity multiplier"],
+        keywords: [/dupont/i, /return on equity/i, /profit margin/i, /asset turnover/i, /equity multiplier/i],
+    },
+    {
+        id: "earnings-quality-analysis",
+        name: "Earnings Quality and Accruals Analyzer",
+        route: "/accounting/earnings-quality-analysis",
+        description:
+            "Compare net income with operating cash flow when a financial-statement analysis prompt asks about accrual pressure or quality of earnings.",
+        required: [],
+        aliases: ["earnings quality", "quality of earnings", "accrual ratio", "cash conversion of income"],
+        keywords: [/earnings quality/i, /quality of earnings/i, /accrual ratio/i, /operating cash flow/i],
+    },
+    {
+        id: "provision-expected-value",
+        name: "Provision Expected Value Planner",
+        route: "/far/provision-expected-value",
+        description:
+            "Estimate a probability-weighted provision for FAR cases involving contingencies, obligations, and multiple possible outcomes.",
+        required: [],
+        aliases: ["provision expected value", "contingency estimate", "probability weighted provision"],
+        keywords: [/provision/i, /contingenc(?:y|ies)/i, /expected value/i, /probability weighted/i],
+    },
+    {
+        id: "franchise-revenue-workspace",
+        name: "Franchise Revenue Workspace",
+        route: "/afar/franchise-revenue-workspace",
+        description:
+            "Analyze initial franchise fee revenue using satisfied performance obligation and collectability assumptions.",
+        required: [],
+        aliases: ["franchise accounting", "initial franchise fee", "franchise revenue recognition"],
+        keywords: [/franchise accounting/i, /initial franchise fee/i, /performance obligation/i, /contract liability/i],
+    },
+    {
+        id: "retail-markup-markdown",
+        name: "Retail Markup and Markdown Planner",
+        route: "/operations/retail-markup-markdown",
+        description:
+            "Analyze retail pricing cases with markup, markdown, maintained margin, revenue, and gross profit.",
+        required: [],
+        aliases: ["retail markup", "markdown planner", "maintained margin", "retail pricing"],
+        keywords: [/retail markup/i, /markdown/i, /maintained margin/i, /retail pricing/i],
+    },
+    {
+        id: "confidence-interval",
+        name: "Confidence Interval Helper",
+        route: "/statistics/confidence-interval",
+        description:
+            "Build a large-sample confidence interval for statistics, audit sampling, forecasting, or marketing-research estimates.",
+        required: [],
+        aliases: ["confidence interval", "margin of error", "standard error", "sampling estimate"],
+        keywords: [/confidence interval/i, /margin of error/i, /standard error/i, /sample mean/i],
+    },
+    {
+        id: "capital-rationing-prioritizer",
+        name: "Capital Rationing Prioritizer",
+        route: "/finance/capital-rationing-prioritizer",
+        description:
+            "Rank capital projects by profitability index when a management-services prompt has a limited investment budget.",
+        required: [],
+        aliases: ["capital rationing", "project prioritization", "profitability index ranking"],
+        keywords: [/capital rationing/i, /profitability index/i, /project selection/i, /investment budget/i],
+    },
+    {
         id: "workpaper-studio",
         name: "Workpaper Studio",
         route: "/workpapers",

@@ -1,36 +1,35 @@
-export const APP_VERSION = "9.0.0";
+export const APP_VERSION = "10.0.0";
 export const APP_RELEASE_DATE = "2026-04-23";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 9.0.0 turns Study Hub into a textbook-style lesson system",
-        body: "Lessons now open inside a reusable module reader with breadcrumbs, section anchors, progress, resume state, module flow, and clearer previous/next navigation instead of feeling like disconnected cards.",
+        title: "AccCalc 10.0.0 expands the library-driven curriculum layer",
+        body: "New calculators and lessons deepen financial statement analysis, statistics, retail pricing, capital rationing, FAR provisions, and AFAR franchise revenue using original content inspired by major accounting, analytics, and business topic families.",
     },
     {
-        title: "Curriculum depth expanded across the thinnest reviewer tracks",
-        body: "New module lessons now cover FAR refinements, partnership life-cycle review, audit risk and evidence linkage, tax compliance depth, RFBT contracts and corporation law, AIS control layers, governance and COSO-style control review, operations planning, and strategic integration.",
+        title: "Statement analysis is more professional and diagnostic",
+        body: "DuPont ROE and earnings-quality routes now connect margin, turnover, leverage, operating cash flow, accrual pressure, and related workpaper support.",
     },
     {
-        title: "Scan & Check now reviews structured fields instead of dumping raw OCR only",
-        body: "OCR cleanup now separates labels from values more carefully, keeps normalized candidate values, tags likely value kinds, and flags low-certainty structured fields for manual review before autofill or route handoff.",
+        title: "Statistics and business analytics coverage is broader",
+        body: "A confidence interval helper adds margin-of-error and standard-error support for audit sampling, forecasting, quality, and marketing-research style cases.",
     },
     {
-        title: "Smart Solver is better at real accounting word-problem numbers",
-        body: "Shared numeric parsing now handles grouped digits, parenthesized negatives, currency markers, and percent forms more safely so longer accounting prompts are less likely to lose the actual values being asked about.",
+        title: "Retail, pricing, and capital selection are better connected",
+        body: "Retail markup/markdown and capital-rationing tools strengthen the bridge between cost accounting, management services, retail planning, and investment selection.",
     },
     {
-        title: "Documentation was regenerated after the shipped code changes",
-        body: "README, release notes, system overview, maintenance notes, and the HTML/PDF handoff package now describe the final 9.0.0 lesson architecture, OCR review model, and curriculum expansion.",
+        title: "FAR and AFAR special-topic coverage is more balanced",
+        body: "Provision expected-value and franchise revenue workspaces convert previously lesson-heavy topics into usable assignment-support tools with visible assumptions.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
-    "9.0.0: Rebuilt Study Hub lessons around a reusable textbook-style lesson layout with breadcrumbs, section anchors, chapter flow, resume state, progress indicators, and clearer next-step navigation.",
-    "9.0.0: Added a major new batch of curriculum-aligned reviewer modules across FAR, AFAR partnership flow, audit, taxation, RFBT, AIS, governance, operations, and strategic integration.",
-    "9.0.0: Added track-aware Study Hub browsing so lesson breadcrumbs can return to the correct module shelf instead of dropping users back into a flat mixed catalog.",
-    "9.0.0: Introduced a shared number-parsing utility so Smart Solver and Scan & Check can read grouped numbers, parenthesized negatives, percentages, and currency markers more safely.",
-    "9.0.0: Reworked OCR cleanup and structured-field extraction so labels, values, normalized candidates, source lines, and review-needed flags are preserved for manual verification.",
-    "9.0.0: Upgraded Scan & Check summaries to show structured-field counts and to use live route metadata instead of a stale hardcoded route-label table.",
-    "9.0.0: Expanded on-device study progress with better last-section resume behavior so long lessons behave more like a real module reader.",
-    "9.0.0: Updated README and the handoff documentation set to describe the new lesson architecture, OCR parser layer, and curriculum expansion.",
+    "10.0.0: Added DuPont ROE Analyzer and Earnings Quality and Accruals Analyzer for deeper financial statement analysis.",
+    "10.0.0: Added Confidence Interval Helper for statistics, analytics, audit sampling, forecasting, and market-research estimate support.",
+    "10.0.0: Added Retail Markup and Markdown Planner plus Capital Rationing Prioritizer for pricing and management-services decision support.",
+    "10.0.0: Added FAR Provision Expected Value Planner and AFAR Franchise Revenue Workspace with explicit recognition and assumption notes.",
+    "10.0.0: Added Study Hub modules, OCR route patterns, Smart Solver route matches, and workpaper templates for all new v10 topic families.",
+    "10.0.0: Added regression tests for the new shared math helpers and discovery paths.",
+    "10.0.0: Stabilized the production build script around the direct TypeScript project compile path used by the current Vite setup.",
 ] as const;
