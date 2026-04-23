@@ -172,6 +172,8 @@ import {
     getCellKey,
     getReadableTextColor,
     insertRows,
+    MAX_WORKPAPER_COLUMN_COUNT,
+    MAX_WORKPAPER_ROW_COUNT,
     resolveWorkpaperCellStyle,
     shiftFormulaReferences,
 } from "../src/features/workpapers/workpaperUtils.js";
@@ -394,6 +396,17 @@ runTest("workpaper cell styles resolve readable contrast without overwriting cus
 
     assert.equal(autoContrast.effectiveTextColor, "#F8FAFC");
     assert.equal(customText.effectiveTextColor, "#BE123C");
+});
+
+runTest("workpaper sheet dimensions are clamped for survivability", () => {
+    const sheet = createEmptySheet({
+        title: "Oversized Import",
+        rowCount: 9999,
+        columnCount: 999,
+    });
+
+    assert.equal(sheet.rowCount, MAX_WORKPAPER_ROW_COUNT);
+    assert.equal(sheet.columnCount, MAX_WORKPAPER_COLUMN_COUNT);
 });
 
 runTest("workpaper range helpers support formula shifting, formatting, and structure changes", () => {

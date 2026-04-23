@@ -10,7 +10,7 @@ import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
 import { getResultValueTone, isWideResultValue, normalizeResultValue, } from "../src/utils/resultDisplay.js";
 import { evaluateCellInput } from "../src/features/workpapers/workpaperFormula.js";
 import { getWorkpaperTemplate } from "../src/features/workpapers/workpaperTemplates.js";
-import { applyStyleToRange, clearRangeCells, createEmptySheet, createSelectionRange, createWorkbook, duplicateRangeToTarget, formatDisplayValue, getCellKey, getReadableTextColor, insertRows, resolveWorkpaperCellStyle, shiftFormulaReferences, } from "../src/features/workpapers/workpaperUtils.js";
+import { applyStyleToRange, clearRangeCells, createEmptySheet, createSelectionRange, createWorkbook, duplicateRangeToTarget, formatDisplayValue, getCellKey, getReadableTextColor, insertRows, MAX_WORKPAPER_COLUMN_COUNT, MAX_WORKPAPER_ROW_COUNT, resolveWorkpaperCellStyle, shiftFormulaReferences, } from "../src/features/workpapers/workpaperUtils.js";
 function assertClose(actual, expected, precision = 1e-6) {
     assert.ok(Math.abs(actual - expected) <= precision, `Expected ${actual} to be within ${precision} of ${expected}`);
 }
@@ -194,6 +194,15 @@ runTest("workpaper cell styles resolve readable contrast without overwriting cus
     });
     assert.equal(autoContrast.effectiveTextColor, "#F8FAFC");
     assert.equal(customText.effectiveTextColor, "#BE123C");
+});
+runTest("workpaper sheet dimensions are clamped for survivability", () => {
+    const sheet = createEmptySheet({
+        title: "Oversized Import",
+        rowCount: 9999,
+        columnCount: 999,
+    });
+    assert.equal(sheet.rowCount, MAX_WORKPAPER_ROW_COUNT);
+    assert.equal(sheet.columnCount, MAX_WORKPAPER_COLUMN_COUNT);
 });
 runTest("workpaper range helpers support formula shifting, formatting, and structure changes", () => {
     let sheet = createEmptySheet({

@@ -7,6 +7,10 @@ import type {
     WorkpaperWorkbook,
 } from "./workpaperTypes.js";
 import {
+    MAX_WORKPAPER_COLUMN_COUNT,
+    MAX_WORKPAPER_ROW_COUNT,
+    clampWorkpaperColumnCount,
+    clampWorkpaperRowCount,
     cloneSheet,
     createEmptySheet,
     createWorkbook,
@@ -51,11 +55,24 @@ function sanitizeSheet(value: Partial<WorkpaperSheet> | null | undefined): Workp
         return null;
     }
 
+    const rowCount = clampWorkpaperRowCount(value.rowCount);
+    const columnCount = clampWorkpaperColumnCount(value.columnCount);
     const cells =
         typeof value.cells === "object" && value.cells
             ? Object.fromEntries(
                   Object.entries(value.cells).flatMap(([key, cell]) => {
                       if (!cell || typeof cell.input !== "string") return [];
+                      const { rowIndex, columnIndex } = splitCellKey(key);
+                      if (
+                          !Number.isInteger(rowIndex) ||
+                          !Number.isInteger(columnIndex) ||
+                          rowIndex < 0 ||
+                          columnIndex < 0 ||
+                          rowIndex >= rowCount ||
+                          columnIndex >= columnCount
+                      ) {
+                          return [];
+                      }
                       return [[
                           key,
                           {
@@ -108,13 +125,19 @@ function sanitizeSheet(value: Partial<WorkpaperSheet> | null | undefined): Workp
         id: value.id,
         title: value.title,
         kind: value.kind as WorkpaperSheet["kind"],
-        rowCount: value.rowCount,
-        columnCount: value.columnCount,
+        rowCount,
+        columnCount,
         cells,
         note: typeof value.note === "string" ? value.note : undefined,
         templateId: typeof value.templateId === "string" ? value.templateId : undefined,
-        freezeRows: typeof value.freezeRows === "number" ? value.freezeRows : undefined,
-        freezeColumns: typeof value.freezeColumns === "number" ? value.freezeColumns : undefined,
+        freezeRows:
+            typeof value.freezeRows === "number"
+                ? Math.max(0, Math.min(rowCount - 1, Math.round(value.freezeRows)))
+                : undefined,
+        freezeColumns:
+            typeof value.freezeColumns === "number"
+                ? Math.max(0, Math.min(columnCount - 1, Math.round(value.freezeColumns)))
+                : undefined,
         sources: Array.isArray(value.sources)
             ? value.sources.filter(
                   (source): source is WorkpaperSheet["sources"][number] =>
@@ -474,15 +497,19 @@ export function appendTransferRowsToActiveSheet(
         for (const [cellKey, cell] of Object.entries(bundle.sheet.cells)) {
             const { rowIndex, columnIndex } = splitCellKey(cellKey);
             const nextRow = startRow + rowIndex;
+            if (nextRow >= MAX_WORKPAPER_ROW_COUNT || columnIndex >= MAX_WORKPAPER_COLUMN_COUNT) {
+                continue;
+            }
             nextCells[`${columnIndex}:${nextRow}`] = { ...cell };
         }
 
         const updatedSheet: WorkpaperSheet = {
             ...activeSheet,
-            rowCount: Math.max(activeSheet.rowCount, startRow + (bundle.sheet.rowCount ?? 8)),
-            columnCount: Math.max(
-                activeSheet.columnCount,
-                bundle.sheet.columnCount ?? activeSheet.columnCount
+            rowCount: clampWorkpaperRowCount(
+                Math.max(activeSheet.rowCount, startRow + (bundle.sheet.rowCount ?? 8))
+            ),
+            columnCount: clampWorkpaperColumnCount(
+                Math.max(activeSheet.columnCount, bundle.sheet.columnCount ?? activeSheet.columnCount)
             ),
             cells: nextCells,
             sources: [...activeSheet.sources, bundle.source],

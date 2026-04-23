@@ -1,10 +1,12 @@
-import * as XLSX from "xlsx";
+import type { CellObject } from "xlsx";
 import type {
     WorkpaperCellStyle,
     WorkpaperCellRecord,
     WorkpaperWorkbook,
 } from "./workpaperTypes.js";
 import {
+    MAX_WORKPAPER_COLUMN_COUNT,
+    MAX_WORKPAPER_ROW_COUNT,
     createCell,
     createEmptySheet,
     createWorkbook,
@@ -20,6 +22,10 @@ export type WorkpaperFileActionResult = {
     fileName: string;
     method: "file-picker" | "download";
 };
+
+async function loadXlsx() {
+    return import("xlsx");
+}
 
 function getWorkbookFileName(title: string, extension: "xlsx" | "csv") {
     const baseName = title.trim() || "accalc-workpaper";
@@ -73,7 +79,8 @@ async function saveBlobWithFallback(
     return { fileName, method: "download" };
 }
 
-function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
+async function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
+    const XLSX = await loadXlsx();
     const xlsxWorkbook = XLSX.utils.book_new();
 
     workbook.sheetOrder.forEach((sheetId) => {
@@ -162,7 +169,7 @@ function workbookToXlsxBinary(workbook: WorkpaperWorkbook) {
 }
 
 export async function exportWorkbookAsXlsx(workbook: WorkpaperWorkbook) {
-    const binary = workbookToXlsxBinary(workbook);
+    const binary = await workbookToXlsxBinary(workbook);
     const blob = new Blob([binary], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
@@ -175,6 +182,7 @@ export async function exportWorkbookAsXlsx(workbook: WorkpaperWorkbook) {
 }
 
 export async function exportSheetAsCsv(workbook: WorkpaperWorkbook, sheetId: string) {
+    const XLSX = await loadXlsx();
     const sheet = workbook.sheets[sheetId];
     if (!sheet) return null;
 
@@ -200,7 +208,7 @@ export async function exportSheetAsCsv(workbook: WorkpaperWorkbook, sheetId: str
     );
 }
 
-function valueToInput(value: XLSX.CellObject | undefined) {
+function valueToInput(value: CellObject | undefined) {
     if (!value) return "";
     if (typeof value.f === "string" && value.f.trim()) {
         return `=${value.f}`;
@@ -218,8 +226,8 @@ function normalizeImportedColor(value: unknown) {
     return undefined;
 }
 
-function extractImportedStyle(value: XLSX.CellObject | undefined) {
-    const rawStyle = (value as XLSX.CellObject & { s?: Record<string, unknown> } | undefined)?.s;
+function extractImportedStyle(value: CellObject | undefined) {
+    const rawStyle = (value as CellObject & { s?: Record<string, unknown> } | undefined)?.s;
     if (!rawStyle || typeof rawStyle !== "object") return undefined;
 
     const font = rawStyle.font as Record<string, unknown> | undefined;
@@ -260,6 +268,7 @@ function extractImportedStyle(value: XLSX.CellObject | undefined) {
 }
 
 export async function importWorkbookFile(file: File) {
+    const XLSX = await loadXlsx();
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, {
         type: "array",
@@ -273,9 +282,14 @@ export async function importWorkbookFile(file: File) {
         const ref = xlsxSheet["!ref"] ?? "A1:A1";
         const range = XLSX.utils.decode_range(ref);
         const cells: WorkpaperCellRecord = {};
+        const rowLimit = Math.min(range.e.r, MAX_WORKPAPER_ROW_COUNT - 1);
+        const columnLimit = Math.min(range.e.c, MAX_WORKPAPER_COLUMN_COUNT - 1);
+        const wasTruncated =
+            range.e.r + 1 > MAX_WORKPAPER_ROW_COUNT ||
+            range.e.c + 1 > MAX_WORKPAPER_COLUMN_COUNT;
 
-        for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex += 1) {
-            for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
+        for (let rowIndex = range.s.r; rowIndex <= rowLimit; rowIndex += 1) {
+            for (let columnIndex = range.s.c; columnIndex <= columnLimit; columnIndex += 1) {
                 const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
                 const xlsxCell = xlsxSheet[cellAddress];
                 const input = valueToInput(xlsxCell);
@@ -289,10 +303,12 @@ export async function importWorkbookFile(file: File) {
         return createEmptySheet({
             title: sheetName,
             kind: "imported",
-            rowCount: range.e.r + 1,
-            columnCount: range.e.c + 1,
+            rowCount: rowLimit + 1,
+            columnCount: columnLimit + 1,
             cells,
-            note: `Imported from ${file.name}.`,
+            note: wasTruncated
+                ? `Imported from ${file.name}. Large sheets are capped at ${MAX_WORKPAPER_ROW_COUNT} rows by ${MAX_WORKPAPER_COLUMN_COUNT} columns so Workpaper Studio stays responsive; keep the original file for full-detail archival work.`
+                : `Imported from ${file.name}.`,
             sources: [
                 {
                     id: `import-${Date.now()}-${sheetName}`,

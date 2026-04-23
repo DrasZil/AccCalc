@@ -10,6 +10,8 @@ import type {
 
 export const DEFAULT_WORKPAPER_ROW_COUNT = 24;
 export const DEFAULT_WORKPAPER_COLUMN_COUNT = 8;
+export const MAX_WORKPAPER_ROW_COUNT = 120;
+export const MAX_WORKPAPER_COLUMN_COUNT = 26;
 const DEFAULT_DARK_CELL_TEXT = "#0F172A";
 const DEFAULT_LIGHT_CELL_TEXT = "#F8FAFC";
 
@@ -192,12 +194,22 @@ export function createEmptySheet(options?: {
     sources?: WorkpaperSourceLink[];
 }) {
     const now = Date.now();
+    const rowCount = clampSheetDimension(
+        options?.rowCount ?? DEFAULT_WORKPAPER_ROW_COUNT,
+        DEFAULT_WORKPAPER_ROW_COUNT,
+        MAX_WORKPAPER_ROW_COUNT
+    );
+    const columnCount = clampSheetDimension(
+        options?.columnCount ?? DEFAULT_WORKPAPER_COLUMN_COUNT,
+        DEFAULT_WORKPAPER_COLUMN_COUNT,
+        MAX_WORKPAPER_COLUMN_COUNT
+    );
     return {
         id: createWorkpaperId("sheet"),
         title: options?.title ?? "Sheet 1",
         kind: options?.kind ?? "grid",
-        rowCount: options?.rowCount ?? DEFAULT_WORKPAPER_ROW_COUNT,
-        columnCount: options?.columnCount ?? DEFAULT_WORKPAPER_COLUMN_COUNT,
+        rowCount,
+        columnCount,
         cells: options?.cells ?? {},
         note: options?.note,
         templateId: options?.templateId,
@@ -266,6 +278,22 @@ export function touchWorkbook(workbook: WorkpaperWorkbook) {
 export function clampSheetDimension(value: number, fallback: number, max: number) {
     if (!Number.isFinite(value) || value < 1) return fallback;
     return Math.max(1, Math.min(max, Math.round(value)));
+}
+
+export function clampWorkpaperRowCount(value: number) {
+    return clampSheetDimension(
+        value,
+        DEFAULT_WORKPAPER_ROW_COUNT,
+        MAX_WORKPAPER_ROW_COUNT
+    );
+}
+
+export function clampWorkpaperColumnCount(value: number) {
+    return clampSheetDimension(
+        value,
+        DEFAULT_WORKPAPER_COLUMN_COUNT,
+        MAX_WORKPAPER_COLUMN_COUNT
+    );
 }
 
 export function isNumericInput(input: string) {

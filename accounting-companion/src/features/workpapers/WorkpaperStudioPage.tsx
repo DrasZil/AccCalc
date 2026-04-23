@@ -63,6 +63,8 @@ import {
     insertColumns,
     insertRows,
     isCellWithinRange,
+    MAX_WORKPAPER_COLUMN_COUNT,
+    MAX_WORKPAPER_ROW_COUNT,
     rangeToTabularData,
     resolveWorkpaperCellStyle,
     setSheetCell,
@@ -72,8 +74,8 @@ import {
     toColumnLabel,
 } from "./workpaperUtils.js";
 
-const MAX_ROWS = 120;
-const MAX_COLUMNS = 26;
+const MAX_ROWS = MAX_WORKPAPER_ROW_COUNT;
+const MAX_COLUMNS = MAX_WORKPAPER_COLUMN_COUNT;
 const GUIDANCE_STORAGE_KEY = "accalc-workpaper-guidance-dismissed";
 const FORMULA_HINTS = [
     { label: "=SUM(A1:A5)", value: "=SUM(A1:A5)" },
@@ -239,6 +241,47 @@ function isSingleCellRange(range: WorkpaperSelectionRange) {
     return (
         range.startRow === range.endRow && range.startColumn === range.endColumn
     );
+}
+
+function buildWorkpaperHealth(sheet: WorkpaperSheet | null, evaluatedCells: Record<string, { kind: string }>) {
+    if (!sheet) {
+        return {
+            label: "No sheet",
+            tone: "info" as const,
+            issues: ["Open or create a workbook before checking workpaper health."],
+        };
+    }
+
+    const formulaErrors = Object.values(evaluatedCells).filter((cell) => cell.kind === "error").length;
+    const usedCells = Object.keys(sheet.cells).length;
+    const nearRowLimit = sheet.rowCount >= MAX_ROWS;
+    const nearColumnLimit = sheet.columnCount >= MAX_COLUMNS;
+    const issues = [
+        formulaErrors > 0
+            ? `${formulaErrors} formula cell${formulaErrors === 1 ? "" : "s"} need review.`
+            : null,
+        nearRowLimit
+            ? `Sheet is at the ${MAX_ROWS}-row student-workpaper cap.`
+            : null,
+        nearColumnLimit
+            ? `Sheet is at the ${MAX_COLUMNS}-column student-workpaper cap.`
+            : null,
+        usedCells === 0 ? "No entered values yet." : null,
+    ].filter((issue): issue is string => Boolean(issue));
+
+    if (formulaErrors > 0 || nearRowLimit || nearColumnLimit) {
+        return { label: "Review needed", tone: "warning" as const, issues };
+    }
+
+    if (usedCells === 0) {
+        return { label: "Ready to start", tone: "info" as const, issues };
+    }
+
+    return {
+        label: "Healthy",
+        tone: "success" as const,
+        issues: ["No formula errors detected in visible workpaper cells."],
+    };
 }
 
 function parseClipboardMatrix(raw: string) {
@@ -481,6 +524,10 @@ export default function WorkpaperStudioPage() {
     const formulaCoverage = useMemo(
         () => activeSheet ? describeSheetFormulaCoverage(activeSheet) : { formulas: 0, values: 0 },
         [activeSheet]
+    );
+    const workpaperHealth = useMemo(
+        () => buildWorkpaperHealth(activeSheet, evaluatedCells),
+        [activeSheet, evaluatedCells]
     );
     const lastUsedRow = useMemo(
         () => activeSheet ? getLastUsedRowIndex(activeSheet) : -1,
@@ -1750,6 +1797,34 @@ export default function WorkpaperStudioPage() {
                                     </div>
                                 </section>
                             ) : null}
+
+                            <section
+                                className={[
+                                    "workpaper-health-strip",
+                                    workpaperHealth.tone === "warning"
+                                        ? "workpaper-health-strip--warning"
+                                        : workpaperHealth.tone === "success"
+                                          ? "workpaper-health-strip--success"
+                                          : "",
+                                ].join(" ")}
+                                aria-live="polite"
+                            >
+                                <div className="min-w-0">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Workbook health
+                                    </p>
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {workpaperHealth.label}
+                                    </p>
+                                </div>
+                                <div className="workpaper-health-strip__items">
+                                    {workpaperHealth.issues.map((issue) => (
+                                        <span key={issue} className="workpaper-health-strip__item">
+                                            {issue}
+                                        </span>
+                                    ))}
+                                </div>
+                            </section>
 
                             <section className="workpaper-grid-shell">
                                 <div className="workpaper-grid-shell__header">

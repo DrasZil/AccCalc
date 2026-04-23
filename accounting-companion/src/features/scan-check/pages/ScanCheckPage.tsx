@@ -124,6 +124,7 @@ export default function ScanCheckPage() {
     const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [showAdvancedReview, setShowAdvancedReview] = useState(false);
+    const [routeReviewAcknowledgedKey, setRouteReviewAcknowledgedKey] = useState("");
     const [statusMessage, setStatusMessage] = useState(
         "Upload or capture images and AccCalc will process them automatically."
     );
@@ -186,6 +187,17 @@ export default function ScanCheckPage() {
               : primaryItem?.parsedResult?.suggestedIntent === "Extract equation"
                 ? "Open suggested workspace"
                 : "Continue to SmartSolver";
+    const routeReviewKey = [
+        primaryItem?.id ?? "none",
+        primaryRouteHint,
+        primaryItem?.confidenceLevel ?? "unknown",
+        reviewFlags.slice(0, 4).join("|"),
+    ].join(":");
+    const shouldReviewBeforeRoute =
+        reviewFlags.length > 0 ||
+        primaryItem?.confidenceLevel === "low" ||
+        (primaryItem?.parsedResult?.parseConfidence ?? 100) < 60 ||
+        (primaryItem?.parsedResult?.structuredFields ?? []).some((field) => field.needsReview);
 
     function showToast(nextToast: ToastState) {
         notify({
@@ -270,6 +282,16 @@ export default function ScanCheckPage() {
     }
 
     function openPrimaryRoute() {
+        if (shouldReviewBeforeRoute && routeReviewAcknowledgedKey !== routeReviewKey) {
+            setRouteReviewAcknowledgedKey(routeReviewKey);
+            setShowAdvancedReview(true);
+            handleScanFeedback(
+                "Review the flagged OCR values before opening the suggested route. Click the primary action again after the risky fields look right.",
+                "warning"
+            );
+            return;
+        }
+
         if (accountingSession) {
             openProcessCostingWorkspace();
             return;

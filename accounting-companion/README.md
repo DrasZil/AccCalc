@@ -1,10 +1,10 @@
 # AccCalc
 
-AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.1.0` is a coverage-matrix completion release focused on three product pillars:
+AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.5.0` is the Student Reliability + Workpaper 2.0 release focused on three survivability pillars:
 
-- broader calculator coverage across lesson-heavy curriculum tracks
-- deeper Study Hub reviewer support connected to newly balanced tool families
-- stronger discovery through catalog, search, Smart Solver, OCR routing, and workpaper templates
+- safer calculator, OCR, and Smart Solver flows when assumptions or confidence are uncertain
+- a more dependable Workpaper Studio for student coursework and narrow screens
+- lighter heavy surfaces and clearer handoff guidance for limited future maintenance
 
 ## Who It Is For
 
@@ -13,19 +13,15 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Tutors and instructors who want assignment-friendly workpaper support
 - Future maintainers who may return with low context and still need to extend the app safely
 
-## What's New In 10.1.0
+## What's New In 10.5.0
 
-- Added `Segmented Income Statement Analyzer` for contribution margin, segment margin, traceable fixed costs, and responsibility-accounting interpretation
-- Added `Audit Sampling Planner` for sample size, sampling interval, tolerable misstatement, expected misstatement, and confidence-factor classroom assumptions
-- Added `PERT Project Estimate Helper` for operations/project-management expected time, standard deviation, and variance
-- Added `Quasi-Reorganization Deficit Cleanup` and `Corporate Liquidation Recovery Planner` for distressed-entity FAR/AFAR review
-- Added `Obligations and Contracts Issue Flow` for RFBT issue classification and `Access Control Review Workspace` for AIS logical-access evidence review
-- Added `Activity-Based Costing Allocator`, `Financial Asset Amortized Cost Schedule`, `Investment Property Measurement Helper`, `Joint Arrangement Share Analyzer`, and `Quality Control Chart Helper` to close additional calculator-thin curriculum gaps
-- Hardened Workpaper Studio with deferred live formula preview work, searchable/topic-filtered templates, idle-time autosave, clearer narrow-screen editing cues, sturdier frozen-cell offsets, and better grid accessibility labels
-- Upgraded `Confidence Interval Helper` with z-versus-t handling based on whether population standard deviation is known
-- Upgraded `Capital Rationing Prioritizer` with exact project-combination search while preserving profitability-index ranking for classroom comparison, including a responsive fallback for very large project sets
-- Added new Study Hub modules, OCR route patterns, Smart Solver matches, and workpaper templates for every new route
-- Preserved the `10.0.0` library-driven expansion and the `9.0.0` textbook-style Study Hub/OCR structured-review model without regression
+- Added Workpaper 2.0 health cues that surface formula errors, empty sheets, and row/column limit pressure before a student trusts a workbook
+- Clamped workpaper dimensions at creation, import, saved-state sanitation, and calculator-transfer boundaries to prevent giant sheets from overwhelming the editor
+- Preserved narrow-screen workpaper fixes while adding safer template filtering, idle autosave, bounded imported sheets, and clearer import truncation notes
+- Split the heavy `xlsx` dependency out of the Workpaper Studio route so the editor chunk loads much faster; import/export still loads spreadsheet support on demand
+- Added review-before-route guards in Smart Solver and Scan & Check when confidence is low, values are flagged, or the suggested route is ambiguous
+- Kept confidence interval z/t assumptions and capital-rationing exact-search limits visible instead of pretending classroom models are universal
+- Updated release notes, system overview, maintenance playbook, generated HTML/PDF docs, and README for v10.5.0 handoff
 
 ## Major Product Areas
 
@@ -37,18 +33,17 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
 - Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected study modules
 
-## New Academic Depth In 10.1.0
+## Reliability Focus In 10.5.0
 
-The v10.1 release uses the curriculum coverage matrix to balance topics that were still lesson-heavy or calculator-thin. It builds on the v10 library-driven additions while keeping all new explanations and examples original. New emphasis areas include:
+The v10.5 release intentionally prioritizes student trust over raw topic count. It builds on the broad v10/v10.1 curriculum coverage and hardens the surfaces most likely to fail under real coursework pressure:
 
-- Cost and managerial accounting: segmented income statements, traceable fixed costs, common fixed costs, and responsibility-accounting interpretation
-- Cost and operations analytics: activity-based costing, cost pools, driver rates, assigned overhead, unit product cost, control limits, and out-of-control signals
-- Audit and AIS: audit sampling assumptions, sample-size framing, logical access, privileged access, segregation of duties, and access-review evidence
-- Operations: PERT project estimates, expected time, uncertainty, and scheduling-review language
-- FAR and AFAR: financial asset amortized cost, investment property measurement, quasi-reorganization deficit cleanup, corporate liquidation recovery, joint arrangements, priority claims, and unsecured creditor deficiency
-- RFBT: obligations, contracts, defective contracts, remedies, and issue-flow reviewer support
+- Workpaper Studio now treats oversized imported or saved sheets as a survivability risk and clamps them to the supported student-workpaper size
+- Smart Solver and OCR now pause on risky route jumps instead of silently pushing uncertain extraction into tools
+- Workpaper formulas and imported workbook dimensions have regression coverage
+- Heavy spreadsheet import/export code is deferred until students actually import or export a file
+- Documentation now names assumptions, failure modes, and safe extension points directly
 
-These are wired into the existing Study Hub search and OCR lesson recommendation flow through `src/features/study/studyExpansion450.ts` and `src/features/study/studyContent.ts`.
+The v10.1 academic additions remain available: segmented income statements, audit sampling, PERT, quasi-reorganization, corporate liquidation, ABC, FAR financial assets, investment property, joint arrangements, quality-control charts, RFBT contracts, and AIS access controls.
 
 ## Study Hub Architecture
 
@@ -104,6 +99,8 @@ The OCR review flow now keeps richer structured fields in `src/features/scan-che
 
 This makes the scanner more honest and easier to correct before autofill.
 
+In v10.5, low-confidence Smart Solver and Scan & Check route suggestions require an extra review action before opening the suggested tool. This is deliberate: uncertain automation should slow down just enough for the student to check signs, units, dates, labels, and route fit.
+
 ## Theme System
 
 Theme preferences are persisted through `src/utils/appSettings.ts` and `src/utils/themePreferences.ts`.
@@ -131,9 +128,9 @@ npm run build
 npm run lint
 ```
 
-## Validation Status For 10.1.0
+## Validation Status For 10.5.0
 
-The final `10.1.0` implementation was validated with:
+The final `10.5.0` implementation was validated with:
 
 ```bash
 npm test
@@ -141,7 +138,7 @@ npm run build
 npm run dev
 ```
 
-All three checks passed for the final `10.1.0` state. The dev check used a bounded start-and-stop probe so no long-running server was left in the terminal.
+All three checks passed for the final `10.5.0` state. The dev check used a bounded start-and-stop probe so no long-running server was left in the terminal.
 
 ## Project Structure
 
@@ -237,6 +234,7 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - Keep template titles, descriptions, topics, tags, and related paths searchable because Workpaper Studio filters across those fields
 - For Workpaper Studio UX changes, check thin-screen behavior in `src/index.css` around `.workpaper-grid`, `.workpaper-formula-bar`, and `.workpaper-mobile-edit-dock`
 - Keep live preview and autosave responsive by avoiding full-sheet recalculation or storage writes in the urgent keystroke path
+- Keep the shared workpaper row and column caps in `src/features/workpapers/workpaperUtils.ts`; raising them means rechecking render cost, import/export behavior, and narrow-screen editing
 
 ## Troubleshooting
 
@@ -244,12 +242,14 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - If a route exists but is hard to find, check `appCatalog.ts`, Smart Solver aliases, and OCR routing patterns together
 - If a lesson breadcrumb returns to the wrong shelf, verify the `track` query-handling logic in `StudyHubPage.tsx`
 - If OCR extracts the wrong number, compare the raw OCR text, cleaned text, and structured field source line before changing the solver mapping
+- If OCR or Smart Solver asks for review before opening a route, that is expected safety behavior for low-confidence or flagged input
 - If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
 - If confidence intervals differ from a textbook table, check whether the route is using known-population-SD z logic or sample-SD t logic and whether the course requires a specific critical value
 - If capital rationing differs from PI ranking, compare the exact combination panel against the greedy PI selection; the exact panel maximizes NPV inside the budget for independent indivisible projects, while very large positive-NPV project sets intentionally fall back to PI ranking to keep the page responsive
+- If Workpaper Studio imports only part of a huge spreadsheet, check the sheet note; v10.5 intentionally caps imported dimensions to keep browser editing dependable
 
 ## Handoff Notes
 
 The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
 
-The `docs/` folder contains the `10.1.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package, alongside earlier release documentation for traceability.
+The `docs/` folder contains the `10.5.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package, alongside earlier release documentation for traceability.

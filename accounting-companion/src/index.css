@@ -2367,6 +2367,50 @@ html[data-contrast="high"] .app-sidebar-link {
     gap: 0.35rem;
 }
 
+.workpaper-health-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 1rem;
+    background: var(--app-surface);
+    padding: 0.78rem 0.9rem;
+    box-shadow: var(--app-shadow-soft);
+}
+
+.workpaper-health-strip--success {
+    border-color: rgba(52, 211, 153, 0.28);
+    background: color-mix(in srgb, var(--app-success-soft) 72%, var(--app-surface));
+}
+
+.workpaper-health-strip--warning {
+    border-color: rgba(245, 158, 11, 0.32);
+    background: color-mix(in srgb, var(--app-warning-soft) 70%, var(--app-surface));
+}
+
+.workpaper-health-strip__items {
+    display: flex;
+    flex: 1 1 22rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.workpaper-health-strip__item {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 999px;
+    background: var(--app-field-bg);
+    padding: 0.38rem 0.65rem;
+    color: var(--app-text-secondary);
+    font-size: 0.72rem;
+    line-height: 1.35;
+}
+
 .workpaper-helpers-row {
     display: grid;
     gap: 0.7rem;
@@ -3027,7 +3071,9 @@ html[data-contrast="high"] .app-sidebar-link {
 
     .workpaper-toolbar__actions,
     .workpaper-tabs__actions,
-    .workpaper-grid-shell__header-actions {
+    .workpaper-grid-shell__header-actions,
+    .workpaper-health-strip,
+    .workpaper-health-strip__items {
         justify-content: flex-start;
     }
 }

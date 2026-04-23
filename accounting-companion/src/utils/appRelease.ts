@@ -1,38 +1,38 @@
-export const APP_VERSION = "10.1.0";
+export const APP_VERSION = "10.5.0";
 export const APP_RELEASE_DATE = "2026-04-23";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 10.1.0 completes more calculator + reviewer coverage",
-        body: "New completion-pass tools balance lesson-heavy tracks with practical calculators across segment reporting, audit sampling, PERT, quasi-reorganization, corporate liquidation, RFBT contracts, and AIS access controls.",
+        title: "AccCalc 10.5.0 focuses on student reliability",
+        body: "This release hardens existing tools, Workpaper Studio, OCR review, Smart Solver routing, and saved-state safety so students can trust the app under deadline pressure.",
     },
     {
-        title: "Managerial and operations coverage is more assignment-ready",
-        body: "Segmented income statements and PERT project estimates now connect responsibility accounting, scheduling, uncertainty, Study Hub lessons, workpapers, Smart Solver, and OCR routing.",
+        title: "Workpaper Studio becomes Workpaper 2.0",
+        body: "Workpapers now clamp oversized imported or saved sheets, surface workbook health, keep template search responsive, and protect narrow-screen editing from heavy storage work.",
     },
     {
-        title: "Audit, AIS, and RFBT weak spots are better balanced",
-        body: "Audit sampling, access-control review, and obligations/contracts issue flow add structured numeric or reviewer support for curriculum areas that were more lesson-heavy.",
+        title: "Smart Solver and OCR are safer when uncertain",
+        body: "Low-confidence or flagged routes now pause for review before opening tools, making manual correction the default safety valve instead of blind automation.",
     },
     {
-        title: "FAR and AFAR distressed-entity support is deeper",
-        body: "Quasi-reorganization and corporate liquidation planners expose deficit relief, creditor recovery, priority claims, and assumption limits clearly.",
+        title: "Saved workpaper state is more survivable",
+        body: "Malformed, oversized, or migrated workbook data is sanitized before rendering so old local data is less likely to crash or overload the spreadsheet surface.",
     },
     {
-        title: "Discovery and workpapers keep the additions integrated",
-        body: "All v10.1 tools are searchable, Smart Solver and OCR aware, linked to Study Hub completion modules, and paired with practical starter workpaper templates.",
+        title: "Computation hardening stays visible",
+        body: "Confidence intervals keep explicit z/t assumptions, capital rationing keeps exact-search limits visible, and regression coverage protects the core classroom math paths.",
     },
     {
-        title: "Workpapers, confidence intervals, and capital rationing are hardened",
-        body: "Workpaper editing is smoother on narrow screens, template selection is searchable, confidence intervals explain z versus t assumptions, and capital rationing compares PI ranking with capped exact project-combination search.",
-    },
-    {
-        title: "FAR, AFAR, ABC, and quality-control gaps are smaller",
-        body: "Financial assets, investment property, joint arrangements, activity-based costing, and quality-control charting now have calculator, study, workpaper, Smart Solver, and OCR support.",
+        title: "The app is easier to hand off",
+        body: "Release notes, system overview, maintenance guidance, and generated documentation now describe the reliability guardrails and remaining assumptions for future maintainers.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "10.5.0: Hardened Workpaper Studio with workbook health cues, bounded imported/saved sheets, and safer autosave/template filtering behavior.",
+    "10.5.0: Added review-before-route guards for low-confidence Smart Solver and Scan & Check suggestions.",
+    "10.5.0: Clamped workpaper dimensions at creation, import, save, and transfer boundaries to protect narrow screens and heavy surfaces.",
+    "10.5.0: Updated docs and README around student-trust assumptions, Workpaper 2.0 behavior, OCR/Smart Solver uncertainty, and known limitations.",
     "10.1.0: Added Segmented Income Statement Analyzer and PERT Project Estimate Helper for managerial, responsibility-accounting, and operations coverage.",
     "10.1.0: Added Audit Sampling Planner, AIS Access Control Review Workspace, and RFBT Obligations and Contracts Issue Flow.",
     "10.1.0: Added FAR Quasi-Reorganization Deficit Cleanup and AFAR Corporate Liquidation Recovery Planner.",

@@ -192,6 +192,7 @@ export default function SmartSolverPage() {
     const [selectedCalculatorId, setSelectedCalculatorId] = useState<string>("");
     const [lastApplyOutcome, setLastApplyOutcome] = useState<"applied" | "empty" | null>(null);
     const [lastApplySignature, setLastApplySignature] = useState<string>("");
+    const [routeReviewAcknowledgedSignature, setRouteReviewAcknowledgedSignature] = useState("");
     const [actionFeedback, setActionFeedback] = useState<ActionFeedback | null>(null);
     const [showGuide, setShowGuide] = useState<boolean>(false);
     const [showExamples, setShowExamples] = useState<boolean>(false);
@@ -246,6 +247,15 @@ export default function SmartSolverPage() {
                 entries: analysis.extractedEntries,
             }),
         [analysis.detectedCurrency, analysis.extractedEntries, deferredSmartInput]
+    );
+    const routeSafetySignature = useMemo(
+        () =>
+            JSON.stringify({
+                apply: currentApplySignature,
+                calculator: selectedCalculatorId,
+                confidence: solverConfidence.label,
+            }),
+        [currentApplySignature, selectedCalculatorId, solverConfidence.label]
     );
 
     const solverCoverageRoutes = useMemo(
@@ -490,6 +500,11 @@ export default function SmartSolverPage() {
             : currentApplySignature === lastApplySignature && lastApplyOutcome === "empty"
               ? "Nothing to Apply"
               : "Apply Detected Values";
+    const requiresRouteReview =
+        solverConfidence.label === "Low" ||
+        (selectedCalculator?.score ?? 0) < 60 ||
+        promptMistakes.length > 0 ||
+        extractedInputReview.toLowerCase().includes("review");
 
     const promptAudienceHint = selectedCalculator
         ? `Currently reading your prompt as ${selectedCalculator.name}. You can still switch to another matching tool below.`
@@ -549,6 +564,7 @@ export default function SmartSolverPage() {
         setSelectedCalculatorId("");
         setLastApplyOutcome(null);
         setLastApplySignature("");
+        setRouteReviewAcknowledgedSignature("");
         setShowDetectedValues(false);
         setShowMoreMatches(false);
         setActionFeedback({
@@ -574,6 +590,21 @@ export default function SmartSolverPage() {
             setActionFeedback({
                 tone: "warning",
                 text: selectedRouteAvailability.reason,
+            });
+            return;
+        }
+
+        if (
+            requiresRouteReview &&
+            routeReviewAcknowledgedSignature !== routeSafetySignature
+        ) {
+            setRouteReviewAcknowledgedSignature(routeSafetySignature);
+            setShowDetectedValues(true);
+            setShowGuidanceDetails(true);
+            setActionFeedback({
+                tone: "warning",
+                text:
+                    "Smart Solver is not confident enough for a blind jump yet. Review the highlighted values, units, signs, and selected route, then click open again if it still looks right.",
             });
             return;
         }

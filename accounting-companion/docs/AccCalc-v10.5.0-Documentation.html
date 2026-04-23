@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AccCalc v10.5.0 Documentation</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; color: #172033; line-height: 1.55; margin: 40px auto; max-width: 920px; padding: 0 24px; }
+    h1, h2 { color: #0f5132; }
+    h1 { border-bottom: 3px solid #a7f3d0; padding-bottom: 12px; }
+    code { background: #eef7f1; padding: 2px 5px; border-radius: 4px; }
+    .callout { border-left: 4px solid #10b981; background: #f0fdf4; padding: 12px 16px; margin: 18px 0; }
+    .warning { border-left-color: #f59e0b; background: #fffbeb; }
+    ul { padding-left: 24px; }
+  </style>
+</head>
+<body>
+  <h1>AccCalc v10.5.0 Documentation</h1>
+  <p>AccCalc v10.5.0 is the Student Reliability + Workpaper 2.0 release. It hardens the broad calculator, study, OCR, Smart Solver, and workpaper ecosystem so students can use the app with more confidence even if future maintenance is limited.</p>
+
+  <h2>What Changed</h2>
+  <ul>
+    <li>Workpaper Studio now shows workbook health cues for formula errors, empty sheets, and row/column limit pressure.</li>
+    <li>Workpaper sheets are bounded at creation, import, transfer, and saved-state sanitation boundaries.</li>
+    <li>Oversized imports are intentionally truncated to the supported student-workpaper size with an explanatory note.</li>
+    <li>Smart Solver pauses before routing when confidence is low or extracted values require review.</li>
+    <li>Scan & Check opens review before routing when OCR confidence, parse confidence, flags, or structured fields are risky.</li>
+    <li>The spreadsheet import/export dependency is loaded on demand instead of being bundled into the default Workpaper Studio route.</li>
+  </ul>
+
+  <h2>Workpaper 2.0 Architecture</h2>
+  <p><code>WorkpaperStudioPage.tsx</code> remains the editor shell. It combines selected-cell editing, formula preview, templates, transfers, details, import/export actions, and the new health strip.</p>
+  <p><code>workpaperUtils.ts</code> now owns the survivability caps for rows and columns. <code>workpaperStore.ts</code> sanitizes local workbooks before rendering. <code>workpaperFile.ts</code> dynamically imports <code>xlsx</code> only when import/export is requested.</p>
+  <div class="callout">The workpaper cap is intentional. AccCalc workpapers are browser-based student support sheets, not a full replacement for a desktop spreadsheet application.</div>
+
+  <h2>Student-Trust Routing</h2>
+  <p>Smart Solver and Scan & Check remain fast, but uncertain automation now slows down. Low-confidence route matches, flagged OCR values, weak parse confidence, or review-needed structured fields open a correction/review step before routing into a calculator.</p>
+  <div class="callout warning">This is a safety behavior, not a bug. The user can still continue after checking the risky values.</div>
+
+  <h2>Calculation Assumptions</h2>
+  <ul>
+    <li>Confidence intervals explain whether z or t logic is being used.</li>
+    <li>Capital rationing exact search assumes independent indivisible projects and is capped at 20 positive-NPV projects.</li>
+    <li>Tax, audit, and classroom-model helpers should keep assumptions visible in page copy and result interpretation.</li>
+  </ul>
+
+  <h2>Performance Notes</h2>
+  <p>The Workpaper Studio route is substantially lighter after moving <code>xlsx</code> into a separate on-demand chunk. Future optimization candidates include the large app catalog, formula solve definitions, Smart Solver route surfaces, and MathText/KaTeX rendering surfaces.</p>
+
+  <h2>Validation</h2>
+  <p>The final v10.5.0 handoff state is validated with <code>npm test</code>, <code>npm run build</code>, and a bounded <code>npm run dev</code> probe.</p>
+</body>
+</html>
