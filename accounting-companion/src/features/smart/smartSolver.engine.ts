@@ -5221,6 +5221,16 @@ import {
         keywords: [/business continuity/i, /disaster recovery/i, /\berp\b/i, /\bcrm\b/i, /incident management/i, /capacity planning/i],
     },
     {
+        id: "business-continuity-planner",
+        name: "Business Continuity Planner",
+        route: "/ais/business-continuity-planner",
+        description:
+            "Score continuity readiness, compare expected recovery with the target RTO, and keep AIS disruption cases structured.",
+        required: [],
+        aliases: ["business continuity planner", "continuity readiness", "recovery time objective", "rto"],
+        keywords: [/business continuity/i, /recovery time objective|rto/i, /disaster recovery/i, /incident response/i, /vendor resilience/i],
+    },
+    {
         id: "commercial-transactions-reviewer",
         name: "Commercial Transactions Reviewer",
         route: "/rfbt/commercial-transactions-reviewer",
@@ -5291,6 +5301,16 @@ import {
         keywords: [/business ethics/i, /good governance/i, /management override/i, /corporate citizenship/i, /ethical decision/i],
     },
     {
+        id: "control-environment-review",
+        name: "Control Environment Review",
+        route: "/governance/control-environment-review",
+        description:
+            "Evaluate oversight, ethics, accountability, competence, and escalation readiness in governance cases.",
+        required: [],
+        aliases: ["control environment review", "tone at the top", "good governance controls", "ethical escalation"],
+        keywords: [/control environment/i, /tone at the top/i, /management override/i, /escalation/i, /good governance/i],
+    },
+    {
         id: "securities-and-governance-review",
         name: "Securities and Governance Review",
         route: "/rfbt/securities-and-governance-review",
@@ -5329,6 +5349,16 @@ import {
         required: [],
         aliases: ["strategic management analysis", "consultancy review", "industry analysis"],
         keywords: [/strategic business analysis/i, /strategic cost management/i, /industry analysis/i, /consultancy/i, /research methods/i],
+    },
+    {
+        id: "business-case-analysis",
+        name: "Business Case Analysis Planner",
+        route: "/strategic/business-case-analysis",
+        description:
+            "Blend market, execution, control, and risk signals into a cleaner strategic recommendation.",
+        required: [],
+        aliases: ["business case analysis", "go no-go analysis", "case recommendation", "strategic recommendation"],
+        keywords: [/business case/i, /go no-go/i, /market attractiveness/i, /execution readiness/i, /recommendation/i, /risk penalty/i],
     },
     {
         id: "dupont-analysis",
@@ -5459,6 +5489,16 @@ import {
         required: [],
         aliases: ["obligations", "contracts", "defective contracts", "voidable unenforceable void"],
         keywords: [/obligations?/i, /defective contracts?/i, /voidable/i, /unenforceable/i, /void contract/i],
+    },
+    {
+        id: "defective-contracts-classifier",
+        name: "Defective Contracts Classifier",
+        route: "/rfbt/defective-contracts-classifier",
+        description:
+            "Classify defective contracts while keeping enforceability, ratification, and remedy logic visible.",
+        required: [],
+        aliases: ["defective contracts classifier", "rescissible contract", "annulment and ratification", "voidable contract review"],
+        keywords: [/defective contracts?/i, /rescissible/i, /ratification/i, /annulment/i, /unenforceable/i, /voidable/i],
     },
     {
         id: "access-control-review",

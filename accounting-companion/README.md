@@ -1,125 +1,151 @@
 # AccCalc
 
-AccCalc is a browser-first accounting companion for solving, checking, organizing, and reviewing accounting coursework in one app. Version `10.5.0` is the Student Reliability + Workpaper 2.0 release focused on three survivability pillars:
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `11.0.0` is the strongest platform-level update so far: a major shell, navigation, Study Hub, weak-track completion, and Workpaper upgrade built to make the app feel more structured, more premium, and easier to trust under pressure.
 
-- safer calculator, OCR, and Smart Solver flows when assumptions or confidence are uncertain
-- a more dependable Workpaper Studio for student coursework and narrow screens
-- lighter heavy surfaces and clearer handoff guidance for limited future maintenance
+## What 11.0.0 Changes
 
-## Who It Is For
+- Added a stronger shell and homepage structure with route-surface context, curriculum track snapshots, and clearer “you may also need” guidance.
+- Upgraded Study Hub browsing so lessons feel more like a connected module system and less like a flat catalog.
+- Added new integrated tools for weak tracks:
+  - `AIS`: Business Continuity Planner
+  - `Governance`: Control Environment Review
+  - `RFBT`: Defective Contracts Classifier
+  - `Strategic`: Business Case Analysis Planner
+- Added matching Study Hub lessons, Smart Solver mappings, OCR routing rules, app-catalog entries, and workpaper templates for those new tracks.
+- Upgraded Workpaper Studio with a workbook-context panel so active sheet status, template source, related routes, and next steps stay visible while editing.
+- Improved theme personalization with richer preview cards in settings while keeping persistence and contrast safety intact.
+- Expanded shared governance, continuity, and strategic decision helpers with regression coverage.
 
-- Accounting students who need calculators plus linked explanations
-- Reviewees covering FAR, AFAR, cost and managerial accounting, taxation, audit, AIS, RFBT, operations, governance, and strategic integration
-- Tutors and instructors who want assignment-friendly workpaper support
-- Future maintainers who may return with low context and still need to extend the app safely
+## Main Product Areas
 
-## What's New In 10.5.0
+- `Smart Tools`: Smart Solver, Scan & Check, OCR-assisted review, route discovery
+- `Study Hub`: module browsing, lessons, quizzes, related-topic continuity, resume/progress behavior
+- `Workpapers`: assignment-friendly templates, workbook editing, calculator-to-workpaper support
+- `FAR / AFAR`: statements, assets, equity, leases, share-based payments, combinations, foreign currency, partnerships, branch and special topics
+- `Cost / Managerial / MS`: CVP, decision tools, budgets, process costing, variances, planning, performance
+- `Taxation`: VAT, withholding, percentage tax, estate, donor’s, DST, book-tax and compliance review support
+- `Audit / AIS / Governance / RFBT / Strategic`: reviewer workspaces, lessons, and connected support tools
 
-- Added Workpaper 2.0 health cues that surface formula errors, empty sheets, and row/column limit pressure before a student trusts a workbook
-- Clamped workpaper dimensions at creation, import, saved-state sanitation, and calculator-transfer boundaries to prevent giant sheets from overwhelming the editor
-- Preserved narrow-screen workpaper fixes while adding safer template filtering, idle autosave, bounded imported sheets, and clearer import truncation notes
-- Split the heavy `xlsx` dependency out of the Workpaper Studio route so the editor chunk loads much faster; import/export still loads spreadsheet support on demand
-- Added review-before-route guards in Smart Solver and Scan & Check when confidence is low, values are flagged, or the suggested route is ambiguous
-- Kept confidence interval z/t assumptions and capital-rationing exact-search limits visible instead of pretending classroom models are universal
-- Updated release notes, system overview, maintenance playbook, generated HTML/PDF docs, and README for v10.5.0 handoff
+## New Completion Track Support In 11.0.0
 
-## Major Product Areas
+The release focuses on tracks that were still relatively fragmented:
 
-- Smart Tools: Smart Solver, Scan & Check, OCR-assisted routing, natural-language route suggestions
-- Study System: Study Hub, topic lessons, quizzes, related-topic navigation, module progress, lesson notes
-- Workpapers: workbook-style templates, calculator-to-workpaper transfer flows, starter schedules
-- FAR / AFAR: statement support, equity, impairments, leases, share-based payments, partnership flow, intercompany tools, consignment, branch support
-- Cost / Managerial: CVP, budgets, variances, decision tools, forecasting, process costing, performance workspaces
-- Taxation: VAT, withholding tax, percentage tax, estate tax, donor's tax, documentary stamp tax, book-tax review support
-- Audit / AIS / Governance / RFBT / Strategic: reviewer workspaces and connected study modules
+- `AIS / IT Controls`
+  - continuity and recovery planning
+  - IT control matrix support
+  - access-control and systems-control routes
+- `Governance / Ethics / Risk`
+  - control-environment scoring and interpretation
+  - risk-control-matrix review
+  - ethics decision framing
+- `RFBT / Business Law`
+  - defective-contract classification
+  - obligations and contracts issue flow
+  - broader business-law and commercial-transactions review
+- `Strategic / Integrative`
+  - business-case recommendation planning
+  - strategic business analysis
+  - balanced scorecard and integrative routing support
 
-## Reliability Focus In 10.5.0
+## Shell And Navigation Design
 
-The v10.5 release intentionally prioritizes student trust over raw topic count. It builds on the broad v10/v10.1 curriculum coverage and hardens the surfaces most likely to fail under real coursework pressure:
+The app is broad enough that organization matters as much as feature count.
 
-- Workpaper Studio now treats oversized imported or saved sheets as a survivability risk and clamps them to the supported student-workpaper size
-- Smart Solver and OCR now pause on risky route jumps instead of silently pushing uncertain extraction into tools
-- Workpaper formulas and imported workbook dimensions have regression coverage
-- Heavy spreadsheet import/export code is deferred until students actually import or export a file
-- Documentation now names assumptions, failure modes, and safe extension points directly
+`11.0.0` improves app-wide information architecture through:
 
-The v10.1 academic additions remain available: segmented income statements, audit sampling, PERT, quasi-reorganization, corporate liquidation, ABC, FAR financial assets, investment property, joint arrangements, quality-control charts, RFBT contracts, and AIS access controls.
+- shell-level route context rails
+- curriculum-track snapshots
+- route-surface labeling such as calculator, study module, analyzer, or workspace
+- stronger sibling-route suggestions
+- clearer lesson-to-calculator continuity
+- stronger grouped discovery from the homepage and Study Hub
+
+The goal is to make AccCalc feel like a coherent academic product rather than a growing list of pages.
 
 ## Study Hub Architecture
 
-The Study Hub is no longer just a topic-card wall.
+Study Hub uses:
 
-`src/features/study/StudyHubPage.tsx` now acts more like a module shelf:
+- `src/features/study/StudyHubPage.tsx` for curriculum browsing and progress-aware discovery
+- `src/features/study/StudyTopicPage.tsx` for lesson rendering
+- `src/features/study/components/StudyLessonLayout.tsx` for textbook-style reading layout
+- `src/features/study/studyContent.ts`
+- `src/features/study/studyExpansion450.ts`
+- `src/features/study/studyExpansion1100.ts`
 
-- module cards by curriculum track
-- recent lesson activity
-- progress and bookmark summaries
-- track-aware browsing via `?track=...`
-- lesson discovery grouped by curriculum area
+Lessons support:
 
-`src/features/study/StudyTopicPage.tsx` now renders each topic inside `src/features/study/components/StudyLessonLayout.tsx`, which provides:
-
-- breadcrumbs
-- lesson header metadata
-- section outline with "You are here"
-- lesson progress bar
-- sticky sidebar on large screens
-- resume-from-last-section behavior
-- related calculators and related lessons
-- previous / next lesson flow
-
-Progress is stored in `src/utils/studyProgress.ts`.
+- breadcrumbs and hierarchy
+- progress and return/resume continuity
+- related calculators
+- related lessons
+- worked examples
+- recap / common mistake blocks
+- quiz handoff
 
 ## Smart Solver And OCR
 
-The routing stack is intentionally layered:
+The routing stack is layered intentionally:
 
-- `src/utils/appCatalog.ts` defines route metadata, aliases, curriculum grouping, and descriptions
-- `src/utils/appSearch.ts` powers route search using a precomputed index
-- `src/features/smart/smartSolver.engine.ts` scores calculators and workspaces from natural-language prompts
-- `src/features/smart/smartSolver.targets.ts` maps explicit prompt wording to solve targets
-- `src/features/scan-check/services/ocr/ocrRouting.ts` ranks likely routes from OCR text
-- `src/features/study/studyContent.ts` recommends related lessons from OCR or route context
+- `src/utils/appCatalog.ts` holds route metadata, aliases, curriculum groups, and route descriptions
+- `src/utils/appSearch.ts` powers route discovery
+- `src/features/smart/smartSolver.engine.ts` ranks routes from natural-language prompts
+- `src/features/smart/smartSolver.targets.ts` handles solve-target hints
+- `src/features/scan-check/services/ocr/ocrRouting.ts` recommends routes from OCR text
+- `src/utils/numberParsing.ts` normalizes grouped numbers, percents, and parenthesized negatives safely
 
-`9.0.0` adds `src/utils/numberParsing.ts` so Smart Solver and Scan & Check share safer parsing for:
+`11.0.0` extends Solver/OCR coverage for continuity, control-environment, defective-contract, and business-case prompts so those newer tracks are reachable through advanced word-problem flows instead of being hidden catalog pages.
 
-- grouped numbers like `1,250,000`
-- parenthesized negatives like `(4,500)`
-- percentages like `18%`
-- currency-marked values like `₱125,000`
+The system still prefers review-before-trust behavior when confidence is weak.
 
-The OCR review flow now keeps richer structured fields in `src/features/scan-check/types.ts`, including:
+## Workpaper Studio
 
-- raw value
-- normalized value
-- value kind
-- source line
-- confidence
-- review-needed state
+Workpaper Studio continues to be a browser-based coursework engine, not a desktop spreadsheet replacement.
 
-This makes the scanner more honest and easier to correct before autofill.
+Important files:
 
-In v10.5, low-confidence Smart Solver and Scan & Check route suggestions require an extra review action before opening the suggested tool. This is deliberate: uncertain automation should slow down just enough for the student to check signs, units, dates, labels, and route fit.
+- `src/features/workpapers/WorkpaperStudioPage.tsx`
+- `src/features/workpapers/workpaperTemplates.ts`
+- `src/features/workpapers/workpaperStore.ts`
+- `src/features/workpapers/workpaperUtils.ts`
+- `src/features/workpapers/workpaperFormula.ts`
+- `src/features/workpapers/workpaperFile.ts`
 
-## Theme System
+`11.0.0` strengthens Workpaper Studio by:
 
-Theme preferences are persisted through `src/utils/appSettings.ts` and `src/utils/themePreferences.ts`.
+- surfacing workbook context more clearly while editing
+- keeping template-to-route connections more visible
+- improving next-step discovery from active workbooks
+- preserving the narrow-screen hardening from earlier survivability passes
 
-The active theme has two axes:
+## Theme And Personalization System
 
-- `themePreference`: `system`, `light`, or `dark`
-- `themeFamily`: `classic`, `ocean`, `slate`, `rose`, `blossom`, `lavender`, `sunset`, or `emerald`
+Theme state is stored through:
 
-Theme state is restored before the main UI paints from `index.html`, then the shell applies `data-theme` and `data-theme-family` so cards, borders, text, inputs, and supporting surfaces inherit the right design tokens with less startup flicker.
+- `src/utils/appSettings.ts`
+- `src/utils/themePreferences.ts`
 
-## Installation And Setup
+Supported families remain:
+
+- `classic`
+- `ocean`
+- `slate`
+- `rose`
+- `blossom`
+- `lavender`
+- `sunset`
+- `emerald`
+
+`11.0.0` improves the settings experience with richer showcase previews while keeping persistence, readability, and contrast behavior stable.
+
+## Running The App
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Development Commands
+## Common Development Commands
 
 ```bash
 npm run dev
@@ -128,25 +154,13 @@ npm run build
 npm run lint
 ```
 
-## Validation Status For 10.5.0
-
-The final `10.5.0` implementation was validated with:
-
-```bash
-npm test
-npm run build
-npm run dev
-```
-
-All three checks passed for the final `10.5.0` state. The dev check used a bounded start-and-stop probe so no long-running server was left in the terminal.
-
 ## Project Structure
 
 ```text
 accounting-companion/
   src/
-    components/               Reusable UI blocks, cards, charts, math display, reading surfaces
-    features/                 Route-level pages and domain modules
+    components/               Shared UI blocks and reading surfaces
+    features/                 Route-level product areas
       accounting/
       afar/
       ais/
@@ -164,92 +178,41 @@ accounting-companion/
       study/
       tax/
       workpapers/
-    utils/                    Shared math, search, release metadata, parsing, settings, assumptions
-  tests/                      Shared math, solve-definition, search, and workpaper regression tests
-  docs/                       Release notes, system overview, maintenance notes, HTML and PDF handoff docs
-  vite.config.mjs             Runtime Vite config used by dev and build
+    utils/                    Shared math, release data, search, parsing, settings, and assumptions
+  tests/                      Shared math, route discovery, workpaper, and regression coverage
+  docs/                       Release notes, system overview, maintenance notes, HTML/PDF handoff docs
 ```
 
-## How Calculators And Lessons Are Organized
+## How To Add A New Calculator Or Workspace
 
-Routes are registered in `src/App.tsx`, then described centrally in `src/utils/appCatalog.ts`.
+1. Add the route page under `src/features/...`.
+2. Put reusable math in `src/utils/calculatorMath.ts` when the logic belongs in shared helpers.
+3. Add or update solve-for logic in `src/utils/formulaSolveDefinitions.ts` only when reverse solving is mathematically safe.
+4. Register the route in `src/App.tsx`.
+5. Add route metadata in `src/utils/appCatalog.ts`.
+6. Add Smart Solver support in `src/features/smart/smartSolver.engine.ts`.
+7. Add OCR routing support in `src/features/scan-check/services/ocr/ocrRouting.ts` when the topic should be scanner-discoverable.
+8. Add Study Hub support in `studyContent.ts`, `studyExpansion450.ts`, or `studyExpansion1100.ts`.
+9. Add a workpaper template in `src/features/workpapers/workpaperTemplates.ts` if the route benefits from a worksheet.
+10. Add regression coverage in `tests/calculatorMath.test.ts`.
 
-Most meaningful feature flows include:
+## Reliability Rules For Future Maintainers
 
-1. A route page in `src/features/...`
-2. Shared math in `src/utils/calculatorMath.ts`
-3. Optional solve-for definitions in `src/utils/formulaSolveDefinitions.ts`
-4. Formula-linked study support in `src/utils/formulaStudyContent.tsx`
-5. Broader reviewer coverage in `src/features/study/studyExpansion450.ts`
-6. Search aliases and route metadata in `src/utils/appCatalog.ts`
-7. Smart Solver and OCR wiring in `src/features/smart/*` and `src/features/scan-check/services/ocr/*`
-8. Optional workpaper templates in `src/features/workpapers/workpaperTemplates.ts`
+- Keep assumptions explicit.
+- Keep formulas, results, and interpretation text synchronized.
+- Prefer shared helpers over duplicated page logic.
+- Add discovery wiring for any meaningful new route.
+- Treat OCR and Smart Solver as review assistants, not infallible automation.
+- Prefer safe route additions and shell consistency over flashy isolated features.
 
-## Updating Shared Formula Logic
+## Validation Status For 11.0.0
 
-- Keep the source of truth inside shared math helpers
-- Keep result labels and interpretation text aligned with computed values
-- Surface assumptions visibly, especially for tax logic and classroom-specific conventions
-- Add reverse-solve behavior only when the target is mathematically safe
+The final `11.0.0` release is validated with:
 
-## Updating Study Content
+```bash
+npm test
+npm run build
+npm run dev
+```
 
-Study content lives in two layers:
-
-- `src/features/study/studyContent.ts` for richer hand-authored core topics and Study Hub helpers
-- `src/features/study/studyExpansion450.ts` for broader curriculum-scale reviewer modules built through the `makeTopic(...)` seed pattern
-
-When adding a new lesson:
-
-1. Add the topic content in `studyContent.ts` or `studyExpansion450.ts`
-2. Set `relatedCalculatorPaths` so lessons connect to tools
-3. Set `scanSignals` and `keywords` so OCR and Study Hub search can find it
-4. Add meaningful `relatedTopicIds` so next-step reading feels intentional
-5. Verify the lesson renders cleanly inside `StudyLessonLayout`
-
-## Updating OCR And Smart Solver
-
-- Shared number parsing: `src/utils/numberParsing.ts`
-- OCR cleanup: `src/features/scan-check/services/ocr/ocrMathCleanup.ts`
-- OCR parse-to-structured-fields step: `src/features/scan-check/services/ocr/ocrParser.ts`
-- Accounting worksheet extraction: `src/features/scan-check/services/accounting/accountingFieldExtractor.ts`
-- Smart Solver ranking: `src/features/smart/smartSolver.engine.ts`
-- Target hints: `src/features/smart/smartSolver.targets.ts`
-
-If OCR feels off, prefer improving normalization, source-line review, or confidence labeling before adding blind autofill.
-
-## Updating Themes
-
-- Add new families in `src/utils/themePreferences.ts`
-- Add corresponding CSS token overrides in `src/index.css`
-- Keep both light and dark variants readable
-- Surface the new family in `src/features/meta/SettingsContent.tsx`
-- Check wrapping and selected-state clarity across mobile, laptop, and desktop widths
-
-## Updating Workpaper Templates
-
-- Register templates in `src/features/workpapers/workpaperTemplates.ts`
-- Prefer assignment-friendly starter sheets with traceable labels and formulas
-- Link templates back to related calculator paths so discovery stays connected
-- Keep template titles, descriptions, topics, tags, and related paths searchable because Workpaper Studio filters across those fields
-- For Workpaper Studio UX changes, check thin-screen behavior in `src/index.css` around `.workpaper-grid`, `.workpaper-formula-bar`, and `.workpaper-mobile-edit-dock`
-- Keep live preview and autosave responsive by avoiding full-sheet recalculation or storage writes in the urgent keystroke path
-- Keep the shared workpaper row and column caps in `src/features/workpapers/workpaperUtils.ts`; raising them means rechecking render cost, import/export behavior, and narrow-screen editing
-
-## Troubleshooting
-
-- If `npm run dev` fails on Windows, confirm the scripts still point to `vite.config.mjs` with `--configLoader native`
-- If a route exists but is hard to find, check `appCatalog.ts`, Smart Solver aliases, and OCR routing patterns together
-- If a lesson breadcrumb returns to the wrong shelf, verify the `track` query-handling logic in `StudyHubPage.tsx`
-- If OCR extracts the wrong number, compare the raw OCR text, cleaned text, and structured field source line before changing the solver mapping
-- If OCR or Smart Solver asks for review before opening a route, that is expected safety behavior for low-confidence or flagged input
-- If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
-- If confidence intervals differ from a textbook table, check whether the route is using known-population-SD z logic or sample-SD t logic and whether the course requires a specific critical value
-- If capital rationing differs from PI ranking, compare the exact combination panel against the greedy PI selection; the exact panel maximizes NPV inside the budget for independent indivisible projects, while very large positive-NPV project sets intentionally fall back to PI ranking to keep the page responsive
-- If Workpaper Studio imports only part of a huge spreadsheet, check the sheet note; v10.5 intentionally caps imported dimensions to keep browser editing dependable
-
-## Handoff Notes
-
-The project is organized around durable shared systems instead of page-local logic. Future maintainers should extend the shared layers first, then attach route UI, discovery, study support, and workpaper support around them.
-
-The `docs/` folder contains the `10.5.0` release notes, system overview, maintenance playbook, and generated HTML plus PDF handoff package, alongside earlier release documentation for traceability.
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal.

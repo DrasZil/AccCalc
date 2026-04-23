@@ -523,8 +523,14 @@ const EnterpriseSystemsControlMapperPage = lazy(
 const AccessControlReviewPage = lazy(
     () => import("./features/ais/AccessControlReviewPage")
 );
+const BusinessContinuityPlannerPage = lazy(
+    () => import("./features/ais/BusinessContinuityPlannerPage")
+);
 const RiskControlMatrixPage = lazy(
     () => import("./features/governance/RiskControlMatrixPage")
+);
+const ControlEnvironmentReviewPage = lazy(
+    () => import("./features/governance/ControlEnvironmentReviewPage")
 );
 const EthicsDecisionWorkspacePage = lazy(
     () => import("./features/governance/EthicsDecisionWorkspacePage")
@@ -534,6 +540,9 @@ const BusinessLawReviewPage = lazy(
 );
 const ObligationsContractsFlowPage = lazy(
     () => import("./features/rfbt/ObligationsContractsFlowPage")
+);
+const DefectiveContractsClassifierPage = lazy(
+    () => import("./features/rfbt/DefectiveContractsClassifierPage")
 );
 const CommercialTransactionsReviewerPage = lazy(
     () => import("./features/rfbt/CommercialTransactionsReviewerPage")
@@ -546,6 +555,9 @@ const IntegrativeCaseMapperPage = lazy(
 );
 const StrategicBusinessAnalysisPage = lazy(
     () => import("./features/strategic/StrategicBusinessAnalysisPage")
+);
+const BusinessCaseAnalysisPage = lazy(
+    () => import("./features/strategic/BusinessCaseAnalysisPage")
 );
 const BalancedScorecardWorkspacePage = lazy(
     () => import("./features/strategic/BalancedScorecardWorkspacePage")
@@ -765,14 +777,18 @@ export default function App() {
                         <Route path="ais/ais-lifecycle-and-recovery" element={renderRoute("/ais/ais-lifecycle-and-recovery", <AisLifecycleAndRecoveryPage />)} />
                         <Route path="ais/enterprise-systems-control-mapper" element={renderRoute("/ais/enterprise-systems-control-mapper", <EnterpriseSystemsControlMapperPage />)} />
                         <Route path="ais/access-control-review" element={renderRoute("/ais/access-control-review", <AccessControlReviewPage />)} />
+                        <Route path="ais/business-continuity-planner" element={renderRoute("/ais/business-continuity-planner", <BusinessContinuityPlannerPage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
+                        <Route path="governance/control-environment-review" element={renderRoute("/governance/control-environment-review", <ControlEnvironmentReviewPage />)} />
                         <Route path="governance/ethics-decision-workspace" element={renderRoute("/governance/ethics-decision-workspace", <EthicsDecisionWorkspacePage />)} />
                         <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
                         <Route path="rfbt/obligations-contracts-flow" element={renderRoute("/rfbt/obligations-contracts-flow", <ObligationsContractsFlowPage />)} />
+                        <Route path="rfbt/defective-contracts-classifier" element={renderRoute("/rfbt/defective-contracts-classifier", <DefectiveContractsClassifierPage />)} />
                         <Route path="rfbt/commercial-transactions-reviewer" element={renderRoute("/rfbt/commercial-transactions-reviewer", <CommercialTransactionsReviewerPage />)} />
                         <Route path="rfbt/securities-and-governance-review" element={renderRoute("/rfbt/securities-and-governance-review", <SecuritiesGovernanceReviewPage />)} />
                         <Route path="strategic/integrative-case-mapper" element={renderRoute("/strategic/integrative-case-mapper", <IntegrativeCaseMapperPage />)} />
                         <Route path="strategic/strategic-business-analysis" element={renderRoute("/strategic/strategic-business-analysis", <StrategicBusinessAnalysisPage />)} />
+                        <Route path="strategic/business-case-analysis" element={renderRoute("/strategic/business-case-analysis", <BusinessCaseAnalysisPage />)} />
                         <Route path="strategic/balanced-scorecard-workspace" element={renderRoute("/strategic/balanced-scorecard-workspace", <BalancedScorecardWorkspacePage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />

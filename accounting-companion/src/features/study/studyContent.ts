@@ -1,4 +1,5 @@
 import { STUDY_HUB_CURRICULUM_TOPICS } from "./studyExpansion450.js";
+import { STUDY_HUB_EXPANSION_1100_TOPICS } from "./studyExpansion1100.js";
 
 export type StudyTopicCategory =
     | "Financial Accounting"
@@ -4175,6 +4176,7 @@ const STUDY_TOPICS: StudyTopic[] = [
     ...CORE_STUDY_TOPICS,
     ...STUDY_HUB_EXPANSION_TOPICS,
     ...STUDY_HUB_CURRICULUM_TOPICS,
+    ...STUDY_HUB_EXPANSION_1100_TOPICS,
 ];
 
 export const STUDY_TOPICS_BY_ID = new Map(STUDY_TOPICS.map((topic) => [topic.id, topic]));

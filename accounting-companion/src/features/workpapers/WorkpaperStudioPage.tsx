@@ -1826,6 +1826,103 @@ export default function WorkpaperStudioPage() {
                                 </div>
                             </section>
 
+                            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)]">
+                                <SectionCard>
+                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="app-section-kicker text-[0.68rem]">
+                                                Workbook context
+                                            </p>
+                                            <h2 className="app-section-title mt-2">
+                                                {selectedWorkbook?.title ?? "Untitled workbook"}
+                                            </h2>
+                                            <p className="app-body-md mt-2 text-sm">
+                                                {selectedWorkbook?.description ||
+                                                    "Keep calculator support, assumptions, and reviewer notes together in one workbook."}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                Topic {selectedWorkbook?.topic || "General"}
+                                            </span>
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                {draftWorkbook?.sheetOrder.length ?? 0} sheet
+                                                {(draftWorkbook?.sheetOrder.length ?? 0) === 1 ? "" : "s"}
+                                            </span>
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                {formulaCoverage.formulas} formula
+                                                {formulaCoverage.formulas === 1 ? "" : "s"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
+                                                Active sheet
+                                            </p>
+                                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                                {activeSheet.title}
+                                            </p>
+                                        </div>
+                                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
+                                                Template source
+                                            </p>
+                                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                                {activeTemplate?.title ?? "Custom workbook"}
+                                            </p>
+                                        </div>
+                                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
+                                                Next workpaper step
+                                            </p>
+                                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                                {activeTemplate
+                                                    ? "Open the matching calculator or lesson"
+                                                    : "Add assumptions, totals, or a summary sheet"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </SectionCard>
+
+                                <SectionCard>
+                                    <p className="app-card-title text-sm">Connected routes</p>
+                                    <div className="mt-3 space-y-2">
+                                        {relatedItems.length ? (
+                                            relatedItems.slice(0, 3).map((item) => (
+                                                <Link
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    className="block rounded-[1rem] border border-[color:var(--app-border)] px-3.5 py-3 text-sm transition hover:border-[color:var(--app-accent)] hover:bg-[color:var(--app-surface)]"
+                                                >
+                                                    <strong className="block">{item.label}</strong>
+                                                    <span className="app-helper mt-1 block text-xs">
+                                                        {item.path.replace(/^\//, "").replace(/\//g, " / ")}
+                                                    </span>
+                                                </Link>
+                                            ))
+                                        ) : (
+                                            filteredTemplates.slice(0, 2).map((template) => (
+                                                <button
+                                                    key={template.id}
+                                                    type="button"
+                                                    onClick={() => openTemplateWorkbook(template)}
+                                                    className="w-full rounded-[1rem] border border-[color:var(--app-border)] px-3.5 py-3 text-left transition hover:border-[color:var(--app-accent)] hover:bg-[color:var(--app-surface)]"
+                                                >
+                                                    <strong className="block text-sm">
+                                                        {template.title}
+                                                    </strong>
+                                                    <span className="app-helper mt-1 block text-xs">
+                                                        {template.description}
+                                                    </span>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                </SectionCard>
+                            </section>
+
                             <section className="workpaper-grid-shell">
                                 <div className="workpaper-grid-shell__header">
                                     <div className="min-w-0">

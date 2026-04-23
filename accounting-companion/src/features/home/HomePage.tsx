@@ -22,6 +22,11 @@ import {
     getRouteMeta,
 } from "../../utils/appCatalog";
 import {
+    buildCurriculumTrackSnapshots,
+    getRouteSurfaceLabel,
+    inferRouteSurface,
+} from "../../utils/appExperience";
+import {
     APP_RELEASE_HIGHLIGHTS,
     APP_RELEASE_NOTES,
     APP_VERSION,
@@ -398,9 +403,64 @@ export default function HomePage() {
         () => studyTopics.filter((topic) => topic.bookmarked).slice(0, 3),
         [studyTopics]
     );
+    const curriculumSnapshots = useMemo(
+        () =>
+            buildCurriculumTrackSnapshots().filter(
+                (snapshot) =>
+                    snapshot.track !== "Study Hub" && snapshot.track !== "Smart Tools"
+            ),
+        []
+    );
+    const routeSurfaceLanes = useMemo(() => {
+        const lanes = new Map<
+            string,
+            Array<(typeof featuredRoutes)[number]>
+        >();
+
+        featuredRoutes.forEach((route) => {
+            const surface = inferRouteSurface(route.path, route.label, route.description);
+            const label = getRouteSurfaceLabel(surface);
+            lanes.set(label, [...(lanes.get(label) ?? []), route]);
+        });
+
+        return Array.from(lanes.entries()).map(([label, routes]) => ({
+            label,
+            routes: routes.slice(0, 4),
+        }));
+    }, [featuredRoutes]);
+    const priorityTracks = useMemo(
+        () =>
+            [...curriculumSnapshots]
+                .sort(
+                    (left, right) =>
+                        (left.status === "emerging"
+                            ? 0
+                            : left.status === "growing"
+                              ? 1
+                              : 2) -
+                            (right.status === "emerging"
+                                ? 0
+                                : right.status === "growing"
+                                  ? 1
+                                  : 2) ||
+                        left.routeCount - right.routeCount
+                )
+                .slice(0, 4),
+        [curriculumSnapshots]
+    );
     const statusStats = [
         { label: "Pins", value: pinnedRoutes.length, helper: "Quick access" },
         { label: "Saved", value: activity.savedRecords.length, helper: "Stored prompts" },
+        {
+            label: "Lessons",
+            value: Object.keys(studyProgress.topics).length,
+            helper: "Tracked on this device",
+        },
+        {
+            label: "Tracks",
+            value: curriculumSnapshots.length,
+            helper: "Grouped academic lanes",
+        },
     ];
 
     return (
@@ -638,6 +698,138 @@ export default function HomePage() {
                         ) : null}
                     </div>
                 </DisclosurePanel>
+            </section>
+
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p className="app-section-kicker text-[0.68rem]">Control tower</p>
+                            <h2 className="app-section-title mt-2">Curriculum map at a glance</h2>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                Track where the app is calculator-heavy, lesson-heavy, or already well-connected so you can enter the right lane faster.
+                            </p>
+                        </div>
+                        <Link
+                            to="/study"
+                            className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                        >
+                            Open Study Hub
+                        </Link>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+                        {curriculumSnapshots.map((snapshot) => (
+                            <div
+                                key={snapshot.track}
+                                className="app-subtle-surface rounded-[1.1rem] px-4 py-3.5"
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {snapshot.track}
+                                    </p>
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {snapshot.status}
+                                    </span>
+                                </div>
+                                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Routes</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.routeCount}
+                                        </p>
+                                    </div>
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Lessons</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.lessonCount}
+                                        </p>
+                                    </div>
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Guided</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.workspaceCount}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <DisclosurePanel
+                        title="System lanes"
+                        summary="Jump in by the kind of experience you want, not just by subject name."
+                        badge={`${routeSurfaceLanes.length} lanes`}
+                        defaultOpen
+                    >
+                        <div className="grid gap-3">
+                            {routeSurfaceLanes.map((lane) => (
+                                <div key={lane.label} className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {lane.label}
+                                        </p>
+                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            {lane.routes.length}
+                                        </span>
+                                    </div>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {lane.routes.map((route) => (
+                                            <Link
+                                                key={route.path}
+                                                to={route.path}
+                                                className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                            >
+                                                {route.shortLabel ?? route.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </DisclosurePanel>
+
+                    <DisclosurePanel
+                        title="Strengthen next"
+                        summary="These tracks still benefit most from deeper linked use of lessons, tools, and workpapers."
+                        badge="Focus"
+                    >
+                        <div className="grid gap-3">
+                            {priorityTracks.map((snapshot) => (
+                                <div key={snapshot.track} className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.track}
+                                        </p>
+                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            {snapshot.calculatorCount} calc
+                                        </span>
+                                    </div>
+                                    <p className="app-helper mt-2 text-xs leading-5">
+                                        Use the grouped tools below to keep this track feeling connected instead of scattered.
+                                    </p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {snapshot.highlightPaths.map((path) => {
+                                            const route = APP_ROUTE_META_MAP.get(path);
+                                            if (!route) return null;
+                                            return (
+                                                <Link
+                                                    key={route.path}
+                                                    to={route.path}
+                                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                                >
+                                                    {route.shortLabel ?? route.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </DisclosurePanel>
+                </div>
             </section>
 
             {studyTopics.length > 0 ? (

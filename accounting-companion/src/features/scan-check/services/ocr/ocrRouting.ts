@@ -801,6 +801,14 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "notes-reference": 4, "textbook-page": 3 },
     },
     {
+        path: "/ais/business-continuity-planner",
+        label: "Business Continuity Planner",
+        category: "AIS & IT Controls",
+        patterns: [/\bbusiness continuity\b/i, /\brecovery time objective\b|\brto\b/i, /\bincident response\b/i],
+        bonus: [/\bvendor resilience\b/i, /\bexpected recovery\b/i, /\bdisaster recovery\b/i],
+        kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
+    },
+    {
         path: "/rfbt/commercial-transactions-reviewer",
         label: "Commercial Transactions Reviewer",
         category: "RFBT & Law",
@@ -814,6 +822,14 @@ const ROUTE_RULES: RouteRule[] = [
         category: "RFBT & Law",
         patterns: [/\bobligations?\b/i, /\bdefective contracts?\b/i, /\bvoidable\b/i, /\bunenforceable\b/i, /\bvoid contract\b/i],
         bonus: [/\bdamages\b/i, /\bremedies\b/i, /\bextinguishment\b/i],
+        kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
+    },
+    {
+        path: "/rfbt/defective-contracts-classifier",
+        label: "Defective Contracts Classifier",
+        category: "RFBT & Law",
+        patterns: [/\bdefective contracts?\b/i, /\bvoidable\b/i, /\bunenforceable\b/i, /\brescissible\b/i],
+        bonus: [/\bratification\b/i, /\bannulment\b/i, /\bvoid contract\b/i],
         kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
     },
     {
@@ -833,12 +849,28 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
     },
     {
+        path: "/governance/control-environment-review",
+        label: "Control Environment Review",
+        category: "Governance & Ethics",
+        patterns: [/\bcontrol environment\b/i, /\btone at the top\b/i, /\bgood governance\b/i],
+        bonus: [/\bmanagement override\b/i, /\bescalation\b/i, /\bethics program\b/i],
+        kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
+    },
+    {
         path: "/strategic/strategic-business-analysis",
         label: "Strategic Business Analysis Workspace",
         category: "Strategic & Integrative",
         patterns: [/\bstrategic business analysis\b/i, /\bstrategic cost management\b/i, /\bindustry analysis\b/i],
         bonus: [/\bconsultancy\b/i, /\bresearch methods\b/i, /\bcompetition analysis\b/i],
         kindBoosts: { "notes-reference": 4, "textbook-page": 3 },
+    },
+    {
+        path: "/strategic/business-case-analysis",
+        label: "Business Case Analysis Planner",
+        category: "Strategic & Integrative",
+        patterns: [/\bbusiness case\b/i, /\bgo no-go\b/i, /\brecommendation\b/i],
+        bonus: [/\bmarket attractiveness\b/i, /\bexecution readiness\b/i, /\brisk penalty\b/i],
+        kindBoosts: { "notes-reference": 4, "textbook-page": 3, "word-problem": 2 },
     },
     {
         path: "/strategic/balanced-scorecard-workspace",

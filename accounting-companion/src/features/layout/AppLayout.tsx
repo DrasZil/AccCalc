@@ -36,10 +36,20 @@ import {
 import { checkForAppUpdates, useAppUpdateState } from "../../utils/appUpdate";
 import { APP_VERSION } from "../../utils/appRelease";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
+import {
+    buildCurriculumTrackSnapshots,
+    getRouteSurfaceLabel,
+    getSuggestedSiblingRoutes,
+    inferRouteSurface,
+} from "../../utils/appExperience";
 import { useInstallExperience } from "../../utils/installExperience";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import { clearDeploymentMismatch, useOfflineBundleStatus } from "../../utils/offlineStatus";
 import { getThemeMetaColor, resolveThemeMode } from "../../utils/themePreferences";
+import {
+    buildStudyTopicPath,
+    getStudyTopicsForRoute,
+} from "../study/studyContent";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
 import { useAppNotifications } from "./AppNotifications";
 import {
@@ -711,6 +721,135 @@ function MobileNavButton({
     );
 }
 
+function HeaderContextRail({
+    route,
+    availability,
+    studyLinks,
+    siblingRoutes,
+    currentPath,
+    trackSnapshot,
+}: {
+    route: ReturnType<typeof getRouteMeta>;
+    availability: ReturnType<typeof getRouteAvailability> | null;
+    studyLinks: Array<{ title: string; path: string }>;
+    siblingRoutes: ReturnType<typeof getSuggestedSiblingRoutes>;
+    currentPath: string;
+    trackSnapshot?: ReturnType<typeof buildCurriculumTrackSnapshots>[number];
+}) {
+    if (!route || currentPath === "/" || currentPath.startsWith("/settings")) {
+        return null;
+    }
+
+    const surface = inferRouteSurface(route.path, route.label, route.description);
+    const statusLabel =
+        trackSnapshot?.status === "dense"
+            ? "Strong coverage"
+            : trackSnapshot?.status === "growing"
+              ? "Growing coverage"
+              : "Emerging coverage";
+
+    return (
+        <div className="border-b app-divider md:px-5">
+            <div className="mx-auto grid w-full max-w-[120rem] gap-3 px-3.5 py-3 md:px-0 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+                <div className="app-panel rounded-[1.15rem] px-4 py-3.5">
+                    <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
+                        <span>{route.category}</span>
+                        <span>/</span>
+                        <span>{route.subtopic}</span>
+                        <span>/</span>
+                        <span>{getRouteSurfaceLabel(surface)}</span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Current workspace context
+                            </p>
+                            <p className="app-helper mt-1 text-xs leading-5">
+                                {route.description}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                {getRouteSurfaceLabel(surface)}
+                            </span>
+                            {availability ? (
+                                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                    {availability.label}
+                                </span>
+                            ) : null}
+                            {trackSnapshot ? (
+                                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                    {trackSnapshot.routeCount} routes | {trackSnapshot.lessonCount} lessons
+                                </span>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    {(siblingRoutes.length > 0 || studyLinks.length > 0) ? (
+                        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                            {siblingRoutes.length > 0 ? (
+                                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                                    <p className="app-label text-[0.66rem]">You may also need</p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {siblingRoutes.slice(0, 3).map((relatedRoute) => (
+                                            <Link
+                                                key={relatedRoute.path}
+                                                to={relatedRoute.path}
+                                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
+                                            >
+                                                {relatedRoute.shortLabel ?? relatedRoute.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {studyLinks.length > 0 ? (
+                                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
+                                    <p className="app-label text-[0.66rem]">Continue learning</p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {studyLinks.slice(0, 2).map((topic) => (
+                                            <Link
+                                                key={topic.path}
+                                                to={topic.path}
+                                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
+                                            >
+                                                {topic.title}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : null}
+                        </div>
+                    ) : null}
+                </div>
+
+                {trackSnapshot ? (
+                    <div className="app-subtle-surface rounded-[1.15rem] px-4 py-3.5">
+                        <p className="app-label text-[0.66rem]">Track status</p>
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {statusLabel}
+                                </p>
+                                <p className="app-helper mt-1 text-xs leading-5">
+                                    {route.category} stays easier to navigate when lessons, calculators, and
+                                    workspaces point at each other clearly.
+                                </p>
+                            </div>
+                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                {trackSnapshot.workspaceCount} guided
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
+            </div>
+        </div>
+    );
+}
+
 export default function AppLayout() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -770,6 +909,7 @@ export default function AppLayout() {
     const pinnedRoutes = useMemo(() => getPinnedRoutes(activity), [activity]);
     const mostUsedRoutes = useMemo(() => getMostUsedRoutes(activity), [activity]);
     const recentRoutes = useMemo(() => getRecentRoutes(activity), [activity]);
+    const curriculumSnapshots = useMemo(() => buildCurriculumTrackSnapshots(), []);
     const pageShellClassName = useMemo(() => {
         const baseClassName = "app-page-shell animate-[fade-rise_0.42s_ease-out]";
 
@@ -1382,6 +1522,25 @@ export default function AppLayout() {
               currentPath: location.pathname,
           })
         : null;
+    const currentStudyLinks = useMemo(
+        () =>
+            getStudyTopicsForRoute(location.pathname).map((topic) => ({
+                title: topic.shortTitle,
+                path: buildStudyTopicPath(topic.id),
+            })),
+        [location.pathname]
+    );
+    const currentSiblingRoutes = useMemo(
+        () => getSuggestedSiblingRoutes(location.pathname, 3),
+        [location.pathname]
+    );
+    const currentTrackSnapshot = useMemo(
+        () =>
+            currentMeta
+                ? curriculumSnapshots.find((snapshot) => snapshot.track === currentMeta.category)
+                : undefined,
+        [currentMeta, curriculumSnapshots]
+    );
     const themeButtonLabel =
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
     const promptDockHidden = mobileSearchOpen || mobileSidebarOpen;
@@ -1617,6 +1776,15 @@ export default function AppLayout() {
                             </div>
                         </div>
                     </header>
+
+                    <HeaderContextRail
+                        route={currentMeta}
+                        availability={currentRouteAvailability}
+                        studyLinks={currentStudyLinks}
+                        siblingRoutes={currentSiblingRoutes}
+                        currentPath={location.pathname}
+                        trackSnapshot={currentTrackSnapshot}
+                    />
 
                     {!network.online ? (
                         <div

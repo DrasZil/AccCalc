@@ -5214,3 +5214,127 @@ export function computeQualityControlChart({
                 : "No entered observation falls outside the three-sigma control limits under the selected assumptions.",
     };
 }
+
+export function computeBusinessContinuityReadiness({
+    backupRecovery,
+    incidentResponse,
+    vendorResilience,
+    communicationsReadiness,
+    recoveryTimeObjectiveHours,
+    expectedRecoveryHours,
+}: {
+    backupRecovery: number;
+    incidentResponse: number;
+    vendorResilience: number;
+    communicationsReadiness: number;
+    recoveryTimeObjectiveHours: number;
+    expectedRecoveryHours: number;
+}) {
+    const readinessAverage = safeDivide(
+        safeAdd(
+            safeAdd(backupRecovery, incidentResponse),
+            safeAdd(vendorResilience, communicationsReadiness)
+        ),
+        4
+    );
+    const readinessPercent = safeMultiply(safeDivide(readinessAverage, 5), 100);
+    const recoveryGapHours = safeSubtract(expectedRecoveryHours, recoveryTimeObjectiveHours);
+    const withinObjective = recoveryGapHours <= 0;
+
+    return {
+        readinessAverage,
+        readinessPercent,
+        recoveryGapHours,
+        withinObjective,
+        continuitySignal:
+            withinObjective && readinessAverage >= 4
+                ? "Recovery posture is relatively aligned with the stated classroom objective."
+                : withinObjective
+                  ? "Recovery timing is currently acceptable, but control depth still needs reinforcement."
+                  : "Expected recovery time exceeds the stated objective, so continuity controls need a stronger response plan.",
+    };
+}
+
+export function computeControlEnvironmentStrength({
+    oversightStrength,
+    ethicsProgramStrength,
+    accountabilityStrength,
+    competenceStrength,
+    escalationStrength,
+}: {
+    oversightStrength: number;
+    ethicsProgramStrength: number;
+    accountabilityStrength: number;
+    competenceStrength: number;
+    escalationStrength: number;
+}) {
+    const controlEnvironmentAverage = safeDivide(
+        safeAdd(
+            safeAdd(oversightStrength, ethicsProgramStrength),
+            safeAdd(accountabilityStrength, safeAdd(competenceStrength, escalationStrength))
+        ),
+        5
+    );
+    const overrideRiskIndex = roundTo(
+        Math.max(safeSubtract(6, controlEnvironmentAverage), 1),
+        2
+    );
+
+    return {
+        controlEnvironmentAverage,
+        overrideRiskIndex,
+        environmentSignal:
+            controlEnvironmentAverage >= 4
+                ? "Tone at the top and supporting governance factors look stronger under the selected facts."
+                : controlEnvironmentAverage >= 3
+                  ? "Control-environment strength is mixed, so students should identify where discipline may break first."
+                  : "Weak control-environment fundamentals make override, inconsistency, and poor follow-through more likely.",
+    };
+}
+
+export function computeBusinessCaseScore({
+    marketAttractiveness,
+    costAdvantage,
+    controlReadiness,
+    executionCapacity,
+    riskPenalty,
+}: {
+    marketAttractiveness: number;
+    costAdvantage: number;
+    controlReadiness: number;
+    executionCapacity: number;
+    riskPenalty: number;
+}) {
+    const weightedScore = roundTo(
+        safeSubtract(
+            safeAdd(
+                safeAdd(
+                    safeMultiply(marketAttractiveness, 0.3),
+                    safeMultiply(costAdvantage, 0.25)
+                ),
+                safeAdd(
+                    safeMultiply(controlReadiness, 0.25),
+                    safeMultiply(executionCapacity, 0.2)
+                )
+            ),
+            riskPenalty
+        ),
+        2
+    );
+
+    return {
+        weightedScore,
+        recommendation:
+            weightedScore >= 3.8
+                ? "Stronger classroom case to pursue"
+                : weightedScore >= 2.8
+                  ? "Proceed only with tighter assumptions"
+                  : "Case needs major redesign or a safer alternative",
+        planningSignal:
+            weightedScore >= 3.8
+                ? "The opportunity looks comparatively balanced across market, cost, control, and execution."
+                : weightedScore >= 2.8
+                  ? "The case has promise, but one weak layer could still undermine the plan."
+                  : "Strategic enthusiasm is outrunning the underlying economics or control readiness.",
+    };
+}

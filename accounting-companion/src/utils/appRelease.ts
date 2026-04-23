@@ -1,38 +1,41 @@
-export const APP_VERSION = "10.5.0";
-export const APP_RELEASE_DATE = "2026-04-23";
+export const APP_VERSION = "11.0.0";
+export const APP_RELEASE_DATE = "2026-04-24";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 10.5.0 focuses on student reliability",
-        body: "This release hardens existing tools, Workpaper Studio, OCR review, Smart Solver routing, and saved-state safety so students can trust the app under deadline pressure.",
+        title: "AccCalc 11.0.0 is the strongest platform upgrade so far",
+        body: "This release pushes shell design, curriculum organization, study navigation, Workpaper flows, and student-trust guidance into a more structured and premium whole.",
     },
     {
-        title: "Workpaper Studio becomes Workpaper 2.0",
-        body: "Workpapers now clamp oversized imported or saved sheets, surface workbook health, keep template search responsive, and protect narrow-screen editing from heavy storage work.",
+        title: "The shell now behaves more like a learning system",
+        body: "Homepage, shell header, and Study Hub surfaces now show track progress, route type, next-step recommendations, and clearer curriculum context instead of leaving the app feeling flat.",
     },
     {
-        title: "Smart Solver and OCR are safer when uncertain",
-        body: "Low-confidence or flagged routes now pause for review before opening tools, making manual correction the default safety valve instead of blind automation.",
+        title: "Weak tracks gained real integrated tools",
+        body: "AIS, governance, RFBT, and strategic tracks now add continuity, control-environment, defective-contract, and business-case tools with matching lessons, templates, search, OCR, and Smart Solver support.",
     },
     {
-        title: "Saved workpaper state is more survivable",
-        body: "Malformed, oversized, or migrated workbook data is sanitized before rendering so old local data is less likely to crash or overload the spreadsheet surface.",
+        title: "Workpaper 2.5 feels more connected",
+        body: "Workpaper Studio now surfaces workbook context, active template source, next-step guidance, and quicker route handoffs so sheets behave more like coursework engines than isolated grids.",
     },
     {
-        title: "Computation hardening stays visible",
-        body: "Confidence intervals keep explicit z/t assumptions, capital rationing keeps exact-search limits visible, and regression coverage protects the core classroom math paths.",
+        title: "Shared trust signals are stronger",
+        body: "Theme previews are richer, route surfaces are clearer, continuity and governance scoring is more honest, and the app keeps assumptions visible instead of hiding simplified classroom logic.",
     },
     {
-        title: "The app is easier to hand off",
-        body: "Release notes, system overview, maintenance guidance, and generated documentation now describe the reliability guardrails and remaining assumptions for future maintainers.",
+        title: "The handoff story is updated for 11.0.0",
+        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe the stronger navigation, new curriculum coverage, and integrated study/workpaper flows.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
-    "10.5.0: Hardened Workpaper Studio with workbook health cues, bounded imported/saved sheets, and safer autosave/template filtering behavior.",
-    "10.5.0: Added review-before-route guards for low-confidence Smart Solver and Scan & Check suggestions.",
-    "10.5.0: Clamped workpaper dimensions at creation, import, save, and transfer boundaries to protect narrow screens and heavy surfaces.",
-    "10.5.0: Updated docs and README around student-trust assumptions, Workpaper 2.0 behavior, OCR/Smart Solver uncertainty, and known limitations.",
+    "11.0.0: Added shell-level context rails, curriculum track snapshots, route-surface labels, and stronger next-step guidance across the homepage and main layout.",
+    "11.0.0: Upgraded Study Hub with curriculum shelf summaries, stronger continuity cues, and better module orientation for broad-track browsing.",
+    "11.0.0: Added Business Continuity Planner, Control Environment Review, Defective Contracts Classifier, and Business Case Analysis Planner.",
+    "11.0.0: Added matching lesson modules, Smart Solver mappings, OCR routing rules, app catalog entries, and assignment-friendly workpaper templates for the new weak-track tools.",
+    "11.0.0: Upgraded Workpaper Studio with a connected workbook context panel so templates, active sheets, and related routes stay visible while editing.",
+    "11.0.0: Expanded shared governance, continuity, and business-case math helpers with regression coverage.",
+    "11.0.0: Improved appearance settings with richer theme preview cards and better premium-feel personalization cues.",
     "10.1.0: Added Segmented Income Statement Analyzer and PERT Project Estimate Helper for managerial, responsibility-accounting, and operations coverage.",
     "10.1.0: Added Audit Sampling Planner, AIS Access Control Review Workspace, and RFBT Obligations and Contracts Issue Flow.",
     "10.1.0: Added FAR Quasi-Reorganization Deficit Cleanup and AFAR Corporate Liquidation Recovery Planner.",

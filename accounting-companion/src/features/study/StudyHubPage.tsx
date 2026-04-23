@@ -7,6 +7,7 @@ import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
 import { APP_NAV_GROUPS } from "../../utils/appCatalog";
+import { buildCurriculumTrackSnapshots } from "../../utils/appExperience";
 import {
     STUDY_CATEGORY_DETAILS,
     buildStudyQuizPath,
@@ -354,6 +355,16 @@ export default function StudyHubPage() {
             null,
         [activeTrack, moduleSummaries]
     );
+    const curriculumSnapshots = useMemo(
+        () =>
+            buildCurriculumTrackSnapshots().filter(
+                (snapshot) =>
+                    snapshot.track !== "Study Hub" &&
+                    snapshot.track !== "Smart Tools" &&
+                    snapshot.track !== "General"
+            ),
+        []
+    );
 
     const quizCount = Object.keys(studyProgress.quizzes).length;
     const calculatorGroups = useMemo(
@@ -412,6 +423,93 @@ export default function StudyHubPage() {
                     },
                 ]}
             />
+
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+                <SectionCard>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p className="app-section-kicker text-[0.68rem]">Module shelf</p>
+                            <h2 className="app-section-title mt-2">Curriculum tracks with lesson depth</h2>
+                            <p className="app-helper mt-2 text-xs leading-5">
+                                Each track now reads more like a shelf: lessons, linked tools, and progress cues stay grouped instead of feeling like one long mixed list.
+                            </p>
+                        </div>
+                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                            {curriculumSnapshots.length} tracks
+                        </span>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {curriculumSnapshots.map((snapshot) => (
+                            <button
+                                key={snapshot.track}
+                                type="button"
+                                onClick={() => setActiveTrack(snapshot.track)}
+                                className={[
+                                    "rounded-[1.05rem] border px-4 py-3.5 text-left transition",
+                                    activeTrack === snapshot.track
+                                        ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                                        : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
+                                ].join(" ")}
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                        {snapshot.track}
+                                    </p>
+                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                        {snapshot.status}
+                                    </span>
+                                </div>
+                                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Lessons</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.lessonCount}
+                                        </p>
+                                    </div>
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Routes</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.routeCount}
+                                        </p>
+                                    </div>
+                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
+                                        <p className="app-helper text-[0.62rem]">Guided</p>
+                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                            {snapshot.workspaceCount}
+                                        </p>
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </SectionCard>
+
+                <SectionCard>
+                    <p className="app-section-kicker text-[0.68rem]">Study trust</p>
+                    <h2 className="app-section-title mt-2">What stays saved on this device</h2>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                            <p className="app-metric-label">Lessons started</p>
+                            <p className="app-metric-value mt-2">
+                                {Object.keys(studyProgress.topics).length}
+                            </p>
+                            <p className="app-helper mt-1 text-xs">Resume flow stays local.</p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                            <p className="app-metric-label">Quiz sets touched</p>
+                            <p className="app-metric-value mt-2">{quizCount}</p>
+                            <p className="app-helper mt-1 text-xs">Scores stay tied to topics.</p>
+                        </div>
+                    </div>
+                    <div className="app-tone-info mt-4 rounded-[1rem] px-4 py-3.5">
+                        <p className="app-card-title text-sm">Reading flow rule</p>
+                        <p className="app-body-md mt-2 text-sm">
+                            Open one track, keep the lesson shelf focused, then move into quizzes and calculators only after the topic framing is clear enough to trust your next step.
+                        </p>
+                    </div>
+                </SectionCard>
+            </section>
 
             <SectionCard>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

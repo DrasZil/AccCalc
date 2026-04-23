@@ -126,7 +126,10 @@ import {
     computePertEstimate,
     computeQuasiReorganization,
     computeCorporateLiquidation,
+    computeBusinessContinuityReadiness,
+    computeBusinessCaseScore,
     computeActivityBasedCosting,
+    computeControlEnvironmentStrength,
     computeFinancialAssetAmortizedCost,
     computeInvestmentPropertyMeasurement,
     computeJointArrangementShare,
@@ -2191,7 +2194,7 @@ runTest("v10.1 discovery and workpapers reach completion-pass additions", () => 
     assert.equal(searchAppRoutes("pert optimistic most likely pessimistic")[0]?.path, "/operations/pert-project-estimate");
     assert.equal(searchAppRoutes("quasi reorganization deficit cleanup")[0]?.path, "/far/quasi-reorganization");
     assert.equal(searchAppRoutes("corporate liquidation statement of affairs")[0]?.path, "/afar/corporate-liquidation");
-    assert.equal(searchAppRoutes("voidable unenforceable defective contracts")[0]?.path, "/rfbt/obligations-contracts-flow");
+    assert.equal(searchAppRoutes("voidable unenforceable defective contracts")[0]?.path, "/rfbt/defective-contracts-classifier");
     assert.equal(searchAppRoutes("logical access privileged segregation of duties")[0]?.path, "/ais/access-control-review");
     assert.ok(getWorkpaperTemplate("segmented-income-statement-support"));
     assert.ok(getWorkpaperTemplate("audit-sampling-support"));
@@ -2257,6 +2260,41 @@ runTest("v10.1 expanded completion math covers ABC, FAR assets, AFAR joint arran
     assert.equal(quality.lowerControlLimit, 45.2);
     assert.equal(quality.upperControlLimit, 54.8);
     assert.equal(quality.outOfControlCount, 1);
+});
+
+runTest("v11 shared governance, continuity, and strategic helpers stay coherent", () => {
+    const continuity = computeBusinessContinuityReadiness({
+        backupRecovery: 4,
+        incidentResponse: 5,
+        vendorResilience: 3,
+        communicationsReadiness: 4,
+        recoveryTimeObjectiveHours: 10,
+        expectedRecoveryHours: 8,
+    });
+    assert.equal(continuity.readinessAverage, 4);
+    assert.equal(continuity.readinessPercent, 80);
+    assert.equal(continuity.recoveryGapHours, -2);
+    assert.equal(continuity.withinObjective, true);
+
+    const governance = computeControlEnvironmentStrength({
+        oversightStrength: 4,
+        ethicsProgramStrength: 5,
+        accountabilityStrength: 3,
+        competenceStrength: 4,
+        escalationStrength: 4,
+    });
+    assert.equal(governance.controlEnvironmentAverage, 4);
+    assert.equal(governance.overrideRiskIndex, 2);
+
+    const businessCase = computeBusinessCaseScore({
+        marketAttractiveness: 4.4,
+        costAdvantage: 3.8,
+        controlReadiness: 3.6,
+        executionCapacity: 4.2,
+        riskPenalty: 0.55,
+    });
+    assert.equal(businessCase.weightedScore, 3.46);
+    assert.equal(businessCase.recommendation, "Proceed only with tighter assumptions");
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

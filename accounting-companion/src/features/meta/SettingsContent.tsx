@@ -192,6 +192,105 @@ function ThemeFamilyCard({
     );
 }
 
+function ThemeShowcaseCard({
+    option,
+    active,
+}: {
+    option: ThemeFamilyOption;
+    active: boolean;
+}) {
+    return (
+        <div
+            className={[
+                "rounded-[1.15rem] border p-4 transition",
+                active
+                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                    : "app-panel",
+            ].join(" ")}
+        >
+            <div className="flex items-center justify-between gap-3">
+                <div>
+                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                        {option.title}
+                    </p>
+                    <p className="app-helper mt-1 text-xs">{option.description}</p>
+                </div>
+                <div className="flex gap-1.5">
+                    {option.swatches.map((swatch) => (
+                        <span
+                            key={swatch}
+                            className="h-3.5 w-3.5 rounded-full border border-white/40 shadow-sm"
+                            style={{ backgroundColor: swatch }}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-4 rounded-[1rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-surface)] p-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
+                            Preview
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                            Workbook dashboard
+                        </p>
+                    </div>
+                    <span
+                        className="rounded-full px-2.5 py-1 text-[0.62rem] font-semibold"
+                        style={{
+                            backgroundColor: `${option.swatches[0]}18`,
+                            color: option.swatches[0],
+                        }}
+                    >
+                        Active
+                    </span>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1.2fr_0.8fr]">
+                    <div className="rounded-[0.9rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-panel-bg-soft)] p-3">
+                        <div
+                            className="h-2.5 rounded-full"
+                            style={{
+                                background: `linear-gradient(90deg, ${option.swatches[0]}, ${option.swatches[1]})`,
+                            }}
+                        />
+                        <div className="mt-3 grid gap-2">
+                            <div className="h-2.5 rounded-full bg-[color:var(--app-border)]/70" />
+                            <div className="h-2.5 w-3/4 rounded-full bg-[color:var(--app-border)]/50" />
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                        <div className="rounded-[0.9rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-panel-bg-soft)] p-3">
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className="h-2.5 w-2.5 rounded-full"
+                                    style={{ backgroundColor: option.swatches[1] }}
+                                />
+                                <div className="h-2 w-20 rounded-full bg-[color:var(--app-border)]/60" />
+                            </div>
+                        </div>
+                        <div className="rounded-[0.9rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-panel-bg-soft)] p-3">
+                            <div className="flex items-end gap-1">
+                                {[40, 58, 72, 48].map((height, index) => (
+                                    <span
+                                        key={`${option.value}-${height}-${index}`}
+                                        className="w-4 rounded-t-full"
+                                        style={{
+                                            height: `${height / 4}px`,
+                                            backgroundColor:
+                                                option.swatches[index % option.swatches.length],
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function SegmentedRow<TValue extends string>({
     title,
     description,
@@ -428,6 +527,28 @@ export default function SettingsContent({
                             <p className="app-body-md mt-1 text-sm">
                                 Pick a saved visual style family. The selected family works in both light and dark mode.
                             </p>
+                        </div>
+                        <div className="grid gap-3 xl:grid-cols-2">
+                            {THEME_FAMILY_OPTIONS.filter(
+                                (option) =>
+                                    option.value === settings.themeFamily ||
+                                    option.value === "classic" ||
+                                    option.value === "ocean" ||
+                                    option.value === "blossom"
+                            )
+                                .filter(
+                                    (option, index, array) =>
+                                        array.findIndex((entry) => entry.value === option.value) ===
+                                        index
+                                )
+                                .slice(0, 3)
+                                .map((option) => (
+                                    <ThemeShowcaseCard
+                                        key={`preview-${option.value}`}
+                                        option={option}
+                                        active={settings.themeFamily === option.value}
+                                    />
+                                ))}
                         </div>
                         <div className="grid auto-rows-fr gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                             {THEME_FAMILY_OPTIONS.map((option) => (
