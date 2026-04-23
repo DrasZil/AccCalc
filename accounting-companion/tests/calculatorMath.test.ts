@@ -2094,6 +2094,7 @@ runTest("v10 capital rationing ranks by profitability index within a budget", ()
     assert.equal(result.totalInvestment, 700_000);
     assert.equal(result.totalNpv, 174_000);
     assert.deepEqual(result.greedySelectedProjects.map((project) => project.label), ["C", "A"]);
+    assert.equal(result.exactSearchEvaluated, true);
 });
 
 runTest("capital rationing exact combination can beat greedy PI ranking", () => {
@@ -2107,6 +2108,7 @@ runTest("capital rationing exact combination can beat greedy PI ranking", () => 
     assert.deepEqual(result.selectedProjects.map((project) => project.label), ["Pair One", "Pair Two"]);
     assert.equal(result.totalNpv, 350_000);
     assert.equal(result.optimizationImprovement, 15_000);
+    assert.equal(result.selectionMethod, "exact-combination");
 });
 
 runTest("v10 discovery reaches book-inspired expansion routes", () => {

@@ -19,7 +19,7 @@ Use this playbook when extending or debugging the v10.1 completion-pass addition
 
 - Audit sampling uses classroom-style confidence factors. Do not treat the planner as a substitute for professional sampling software.
 - Confidence intervals use supported classroom z/t critical values. If a course supplies a different critical value, document that assumption before comparing answers.
-- Capital rationing exact-combination mode assumes independent, indivisible projects with no dependency or mutual-exclusion constraints.
+- Capital rationing exact-combination mode assumes independent, indivisible projects with no dependency or mutual-exclusion constraints. Exact search is capped at 20 positive-NPV projects; larger sets intentionally use the PI fallback to avoid exponential UI work.
 - Quasi-reorganization output depends on stated legal/classroom assumptions about available relief sources.
 - Corporate liquidation support separates priority claims from unsecured recovery; keep this order visible.
 - RFBT and AIS pages are reviewer workspaces, not legal or cybersecurity advice.
@@ -37,6 +37,8 @@ Prefer completing a topic family over adding a hidden one-off page. A new curric
 ## Workpaper Maintenance Notes
 
 - Keep urgent typing responsive. If a new preview feature requires full-sheet evaluation, defer it or trigger it from an explicit action.
+- Keep template filtering cheap. Workpaper Studio searches title, description, topic, tags, and related paths using a deferred query, so avoid adding expensive computed metadata in the render path.
+- Keep autosave off the urgent edit path. The page debounces saves and uses idle callbacks where supported; preserve that behavior when adding persistence features.
 - Frozen-cell geometry depends on `--workpaper-row-header-width` and `--workpaper-column-header-height` in `src/index.css`; update those variables instead of scattering hardcoded offsets.
 - Check narrow screens after changing toolbar, formula bar, or grid CSS. The selected-cell editor and formula bar must remain usable without sticky overlap.
 

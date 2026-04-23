@@ -1365,6 +1365,7 @@ export function computeCapitalRationingSelection(projects: Array<{
     initialInvestment: number;
     netPresentValue: number;
 }>, capitalBudget: number) {
+    const MAX_EXACT_COMBINATION_PROJECTS = 20;
     const rankedProjects = projects
         .filter((project) => project.initialInvestment > 0)
         .map((project) => ({
@@ -1384,19 +1385,23 @@ export function computeCapitalRationingSelection(projects: Array<{
     let optimalInvestment = 0;
     let optimalNpv = Number.NEGATIVE_INFINITY;
     const candidateProjects = rankedProjects.filter((project) => project.netPresentValue > 0);
-    const totalCombinations = 2 ** candidateProjects.length;
-    for (let mask = 1; mask < totalCombinations; mask += 1) {
-        const selected = candidateProjects.filter((_, index) => (mask & (1 << index)) !== 0);
-        const investment = selected.reduce((sum, project) => sum + project.initialInvestment, 0);
-        if (investment > capitalBudget) continue;
-        const npv = selected.reduce((sum, project) => sum + project.netPresentValue, 0);
-        const isBetterNpv = npv > optimalNpv + 0.000001;
-        const isTieWithBetterBudgetUse =
-            Math.abs(npv - optimalNpv) <= 0.000001 && investment > optimalInvestment;
-        if (isBetterNpv || isTieWithBetterBudgetUse) {
-            optimalProjects = selected;
-            optimalInvestment = investment;
-            optimalNpv = npv;
+    const exactSearchEvaluated = candidateProjects.length <= MAX_EXACT_COMBINATION_PROJECTS;
+
+    if (exactSearchEvaluated) {
+        const totalCombinations = 2 ** candidateProjects.length;
+        for (let mask = 1; mask < totalCombinations; mask += 1) {
+            const selected = candidateProjects.filter((_, index) => (mask & (1 << index)) !== 0);
+            const investment = selected.reduce((sum, project) => sum + project.initialInvestment, 0);
+            if (investment > capitalBudget) continue;
+            const npv = selected.reduce((sum, project) => sum + project.netPresentValue, 0);
+            const isBetterNpv = npv > optimalNpv + 0.000001;
+            const isTieWithBetterBudgetUse =
+                Math.abs(npv - optimalNpv) <= 0.000001 && investment > optimalInvestment;
+            if (isBetterNpv || isTieWithBetterBudgetUse) {
+                optimalProjects = selected;
+                optimalInvestment = investment;
+                optimalNpv = npv;
+            }
         }
     }
 
@@ -1420,7 +1425,11 @@ export function computeCapitalRationingSelection(projects: Array<{
         optimalInvestment,
         optimalNpv,
         optimizationImprovement: safeSubtract(totalNpv, greedyTotalNpv),
-        selectionMethod: "exact-combination" as const,
+        exactSearchEvaluated,
+        optimizationNote: exactSearchEvaluated
+            ? "Exact combination search evaluated all positive-NPV independent project subsets."
+            : `Exact subset search is capped at ${MAX_EXACT_COMBINATION_PROJECTS} positive-NPV projects; PI ranking is shown as the practical classroom fallback.`,
+        selectionMethod: exactSearchEvaluated ? "exact-combination" as const : "greedy-pi-fallback" as const,
         selectedProjects,
         totalInvestment,
         totalNpv,

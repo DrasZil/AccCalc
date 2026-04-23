@@ -161,6 +161,10 @@ function normalizeSelection(rowIndex: number, columnIndex: number, sheet: Workpa
     );
 }
 
+function normalizeTemplateSearch(value: string) {
+    return value.trim().toLowerCase();
+}
+
 function describeFileAction(result: WorkpaperFileActionResult, action: "Imported" | "Exported") {
     if (result.method === "file-picker") {
         return `${action} ${result.fileName}. Saved using your chosen file location.`;
@@ -336,8 +340,11 @@ export default function WorkpaperStudioPage() {
     const [showFormattingTools, setShowFormattingTools] = useState(false);
     const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
     const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
+    const [templateSearchQuery, setTemplateSearchQuery] = useState("");
+    const [selectedTemplateTopic, setSelectedTemplateTopic] = useState("All");
     const deferredCellDraft = useDeferredValue(cellDraft);
     const deferredCellNoteDraft = useDeferredValue(cellNoteDraft);
+    const deferredTemplateSearchQuery = useDeferredValue(templateSearchQuery);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formulaBarInputRef = useRef<HTMLInputElement | null>(null);
     const selectedCellEditorRef = useRef<HTMLInputElement | null>(null);
@@ -441,13 +448,26 @@ export default function WorkpaperStudioPage() {
     useEffect(() => {
         if (!draftWorkbook || !hasPendingDraftSave || !selectedWorkbookId) return;
 
-        const timeout = window.setTimeout(() => {
+        let idleCallbackId: number | null = null;
+        const persistDraft = () => {
             saveWorkbookSnapshot(draftWorkbook);
             setHasPendingDraftSave(false);
             setStatusMessage(`Autosaved ${draftWorkbook.title} at ${new Date().toLocaleTimeString()}.`);
+        };
+        const timeout = window.setTimeout(() => {
+            if ("requestIdleCallback" in window) {
+                idleCallbackId = window.requestIdleCallback(persistDraft, { timeout: 1200 });
+                return;
+            }
+            persistDraft();
         }, 420);
 
-        return () => window.clearTimeout(timeout);
+        return () => {
+            window.clearTimeout(timeout);
+            if (idleCallbackId !== null && "cancelIdleCallback" in window) {
+                window.cancelIdleCallback(idleCallbackId);
+            }
+        };
     }, [draftVersion, draftWorkbook, hasPendingDraftSave, selectedWorkbookId]);
 
     const evaluatedCells = useMemo(
@@ -466,9 +486,33 @@ export default function WorkpaperStudioPage() {
         () => activeSheet ? getLastUsedRowIndex(activeSheet) : -1,
         [activeSheet]
     );
-    const activeTemplate = activeSheet?.templateId
-        ? getWorkpaperTemplate(activeSheet.templateId)
-        : null;
+    const activeTemplate = useMemo(
+        () => activeSheet?.templateId ? getWorkpaperTemplate(activeSheet.templateId) : null,
+        [activeSheet?.templateId]
+    );
+    const templateTopics = useMemo(
+        () => ["All", ...Array.from(new Set(WORKPAPER_TEMPLATES.map((template) => template.topic))).sort()],
+        []
+    );
+    const filteredTemplates = useMemo(() => {
+        const query = normalizeTemplateSearch(deferredTemplateSearchQuery);
+
+        return WORKPAPER_TEMPLATES.filter((template) => {
+            if (selectedTemplateTopic !== "All" && template.topic !== selectedTemplateTopic) {
+                return false;
+            }
+
+            if (!query) return true;
+
+            return [
+                template.title,
+                template.description,
+                template.topic,
+                ...template.tags,
+                ...template.relatedPaths,
+            ].some((value) => value.toLowerCase().includes(query));
+        });
+    }, [deferredTemplateSearchQuery, selectedTemplateTopic]);
     const hasSheetContent = activeSheet ? Object.keys(activeSheet.cells).length > 0 : false;
     const selectedCellStyle = selectedCell?.style;
     const resolvedSelectedCellStyle = useMemo(
@@ -508,6 +552,14 @@ export default function WorkpaperStudioPage() {
         setDraftVersion((current) => current + 1);
         setHasPendingDraftSave(true);
         if (message) setStatusMessage(message);
+    }
+
+    function openTemplateWorkbook(template: (typeof WORKPAPER_TEMPLATES)[number]) {
+        const workbook = template.buildWorkbook();
+        saveWorkbookSnapshot(workbook);
+        startTransition(() => setSelectedWorkbookId(workbook.id));
+        setActivePanel("none");
+        setStatusMessage(`Opened ${template.title} from templates.`);
     }
 
     function mutateWorkbook(
@@ -2196,8 +2248,44 @@ export default function WorkpaperStudioPage() {
                                             defaultOpen
                                             compact
                                         >
-                                            <div className="workpaper-card-grid">
-                                                {WORKPAPER_TEMPLATES.map((template) => (
+                                            <div className="workpaper-template-filters" aria-label="Template filters">
+                                                <label className="workpaper-template-filters__search">
+                                                    <span className="app-helper text-xs">Search templates</span>
+                                                    <input
+                                                        value={templateSearchQuery}
+                                                        onChange={(event) => setTemplateSearchQuery(event.target.value)}
+                                                        placeholder="Try ABC, audit, FAR, budget..."
+                                                        className="workpaper-details-form__input"
+                                                    />
+                                                </label>
+                                                <label className="workpaper-template-filters__topic">
+                                                    <span className="app-helper text-xs">Topic</span>
+                                                    <select
+                                                        value={selectedTemplateTopic}
+                                                        onChange={(event) => setSelectedTemplateTopic(event.target.value)}
+                                                        className="workpaper-toolbar__select"
+                                                    >
+                                                        {templateTopics.map((topic) => (
+                                                            <option key={topic} value={topic}>
+                                                                {topic}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            <p className="app-helper mt-3 text-xs">
+                                                Showing {filteredTemplates.length} of {WORKPAPER_TEMPLATES.length} assignment-ready templates.
+                                            </p>
+                                            {filteredTemplates.length === 0 ? (
+                                                <SectionCard className="app-tone-warning mt-3">
+                                                    <p className="app-card-title text-sm">No matching templates</p>
+                                                    <p className="app-body-md mt-2 text-sm">
+                                                        Try a broader topic, calculator name, or curriculum keyword.
+                                                    </p>
+                                                </SectionCard>
+                                            ) : null}
+                                            <div className="workpaper-card-grid mt-3">
+                                                {filteredTemplates.map((template) => (
                                                     <div key={template.id} className="workpaper-card">
                                                         <strong>{template.title}</strong>
                                                         <p className="app-helper mt-1 text-xs">
@@ -2215,16 +2303,7 @@ export default function WorkpaperStudioPage() {
                                                         </div>
                                                         <button
                                                             type="button"
-                                                            onClick={() => {
-                                                                const workbook = template.buildWorkbook();
-                                                                saveWorkbookSnapshot(workbook);
-                                                                startTransition(() =>
-                                                                    setSelectedWorkbookId(workbook.id)
-                                                                );
-                                                                setStatusMessage(
-                                                                    `Opened ${template.title} from templates.`
-                                                                );
-                                                            }}
+                                                            onClick={() => openTemplateWorkbook(template)}
                                                             className="app-button-secondary mt-3 rounded-xl px-3.5 py-2 text-sm font-semibold"
                                                         >
                                                             Open template
@@ -2466,12 +2545,7 @@ export default function WorkpaperStudioPage() {
                             <button
                                 key={template.id}
                                 type="button"
-                                onClick={() => {
-                                    const workbook = template.buildWorkbook();
-                                    saveWorkbookSnapshot(workbook);
-                                    startTransition(() => setSelectedWorkbookId(workbook.id));
-                                    setStatusMessage(`Opened ${template.title} from templates.`);
-                                }}
+                                onClick={() => openTemplateWorkbook(template)}
                                 className="workpaper-card-button"
                             >
                                 <strong>{template.title}</strong>

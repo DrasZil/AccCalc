@@ -40,6 +40,8 @@ The release adds regression tests for the new shared math helpers, search/discov
 ## Workpaper Hardening Follow-Up
 
 - Deferred live formula preview evaluation so typing in the selected cell and formula bar stays more responsive.
+- Added searchable and topic-filtered template discovery so large template sets remain assignment-friendly instead of becoming a long card wall.
+- Moved autosave persistence behind the debounce into `requestIdleCallback` where available so storage work avoids the urgent editing path.
 - Added a narrow-screen edit dock that tells users where they are and gives a direct focus action for the formula bar.
 - Replaced hardcoded frozen-cell offsets with shared CSS variables for row-header width and column-header height.
 - Added a grid region label and improved mobile/touch behavior without reintroducing sticky formula-bar friction.
@@ -48,6 +50,7 @@ The release adds regression tests for the new shared math helpers, search/discov
 
 - Confidence intervals now support a z path when population standard deviation is known and a t path when the interval is based on a sample standard deviation.
 - Capital rationing now preserves profitability-index ranking while also running an exact combination search for independent, indivisible projects inside the capital budget.
+- Exact capital-rationing search is capped at 20 positive-NPV projects; larger sets show the classroom PI fallback with an explicit responsiveness note instead of silently attempting exponential work.
 - New ABC, FAR asset, AFAR joint-arrangement, and quality-control helpers were added to shared math with regression coverage so page output, search, workpapers, and solver hints stay aligned.
 
 ## Validation

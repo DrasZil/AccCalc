@@ -24,7 +24,7 @@ export const APP_RELEASE_HIGHLIGHTS = [
     },
     {
         title: "Workpapers, confidence intervals, and capital rationing are hardened",
-        body: "Workpaper editing is smoother on narrow screens, confidence intervals now explain z versus t assumptions, and capital rationing compares PI ranking with exact project-combination search.",
+        body: "Workpaper editing is smoother on narrow screens, template selection is searchable, confidence intervals explain z versus t assumptions, and capital rationing compares PI ranking with capped exact project-combination search.",
     },
     {
         title: "FAR, AFAR, ABC, and quality-control gaps are smaller",
@@ -38,7 +38,7 @@ export const APP_RELEASE_NOTES = [
     "10.1.0: Added FAR Quasi-Reorganization Deficit Cleanup and AFAR Corporate Liquidation Recovery Planner.",
     "10.1.0: Added Study Hub completion modules, Smart Solver matches, OCR routing rules, search catalog entries, and workpaper templates for all new tools.",
     "10.1.0: Added regression tests for new shared calculation helpers, discovery aliases, workpaper templates, and solve-target suggestions.",
-    "10.1.0: Hardened Workpaper Studio narrow-screen editing and deferred live formula preview work for smoother typing.",
+    "10.1.0: Hardened Workpaper Studio narrow-screen editing, deferred live formula preview work, searchable template filtering, and idle-time autosave scheduling.",
     "10.1.0: Upgraded Confidence Interval Helper with z/t method selection and upgraded Capital Rationing Prioritizer with exact combination comparison.",
     "10.1.0: Added Activity-Based Costing, Financial Asset Amortized Cost, Investment Property Measurement, Joint Arrangement Share, and Quality Control Chart helpers with integrated lessons and workpapers.",
     "10.0.0: Added the library-driven expansion layer with DuPont, earnings quality, confidence intervals, retail pricing, capital rationing, provisions, and franchise revenue.",

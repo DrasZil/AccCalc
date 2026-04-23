@@ -21,9 +21,9 @@ AccCalc is a browser-first accounting companion for solving, checking, organizin
 - Added `Quasi-Reorganization Deficit Cleanup` and `Corporate Liquidation Recovery Planner` for distressed-entity FAR/AFAR review
 - Added `Obligations and Contracts Issue Flow` for RFBT issue classification and `Access Control Review Workspace` for AIS logical-access evidence review
 - Added `Activity-Based Costing Allocator`, `Financial Asset Amortized Cost Schedule`, `Investment Property Measurement Helper`, `Joint Arrangement Share Analyzer`, and `Quality Control Chart Helper` to close additional calculator-thin curriculum gaps
-- Hardened Workpaper Studio with deferred live formula preview work, clearer narrow-screen editing cues, sturdier frozen-cell offsets, and better grid accessibility labels
+- Hardened Workpaper Studio with deferred live formula preview work, searchable/topic-filtered templates, idle-time autosave, clearer narrow-screen editing cues, sturdier frozen-cell offsets, and better grid accessibility labels
 - Upgraded `Confidence Interval Helper` with z-versus-t handling based on whether population standard deviation is known
-- Upgraded `Capital Rationing Prioritizer` with exact project-combination search while preserving profitability-index ranking for classroom comparison
+- Upgraded `Capital Rationing Prioritizer` with exact project-combination search while preserving profitability-index ranking for classroom comparison, including a responsive fallback for very large project sets
 - Added new Study Hub modules, OCR route patterns, Smart Solver matches, and workpaper templates for every new route
 - Preserved the `10.0.0` library-driven expansion and the `9.0.0` textbook-style Study Hub/OCR structured-review model without regression
 
@@ -234,8 +234,9 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - Register templates in `src/features/workpapers/workpaperTemplates.ts`
 - Prefer assignment-friendly starter sheets with traceable labels and formulas
 - Link templates back to related calculator paths so discovery stays connected
+- Keep template titles, descriptions, topics, tags, and related paths searchable because Workpaper Studio filters across those fields
 - For Workpaper Studio UX changes, check thin-screen behavior in `src/index.css` around `.workpaper-grid`, `.workpaper-formula-bar`, and `.workpaper-mobile-edit-dock`
-- Keep live preview responsive by avoiding full-sheet recalculation in the urgent keystroke path
+- Keep live preview and autosave responsive by avoiding full-sheet recalculation or storage writes in the urgent keystroke path
 
 ## Troubleshooting
 
@@ -245,7 +246,7 @@ If OCR feels off, prefer improving normalization, source-line review, or confide
 - If OCR extracts the wrong number, compare the raw OCR text, cleaned text, and structured field source line before changing the solver mapping
 - If a calculator result looks inconsistent, trace the path from page component to `calculatorMath.ts` and then to `formulaSolveDefinitions.ts`
 - If confidence intervals differ from a textbook table, check whether the route is using known-population-SD z logic or sample-SD t logic and whether the course requires a specific critical value
-- If capital rationing differs from PI ranking, compare the exact combination panel against the greedy PI selection; the exact panel maximizes NPV inside the budget for independent indivisible projects
+- If capital rationing differs from PI ranking, compare the exact combination panel against the greedy PI selection; the exact panel maximizes NPV inside the budget for independent indivisible projects, while very large positive-NPV project sets intentionally fall back to PI ranking to keep the page responsive
 
 ## Handoff Notes
 

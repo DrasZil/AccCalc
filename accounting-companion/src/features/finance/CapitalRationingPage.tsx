@@ -74,16 +74,21 @@ export default function CapitalRationingPage() {
                             <ResultCard title="Remaining Budget" value={formatPHP(result.remainingBudget)} />
                         </ResultGrid>
                         <SectionCard>
-                            <p className="app-card-title text-sm">Exact constrained-budget combination</p>
+                            <p className="app-card-title text-sm">
+                                {result.exactSearchEvaluated ? "Exact constrained-budget combination" : "PI fallback selection"}
+                            </p>
                             <p className="app-body-md mt-2 text-sm">
-                                Selected by exact combination search:{" "}
+                                Selected projects:{" "}
                                 <strong>{result.selectedProjects.map((project) => project.label).join(", ") || "no positive-NPV project fits"}</strong>.
-                                {result.optimizationImprovement > 0 ? (
+                                {result.exactSearchEvaluated && result.optimizationImprovement > 0 ? (
                                     <> This improves NPV by {formatPHP(result.optimizationImprovement)} over the simple PI ranking pick.</>
-                                ) : (
+                                ) : result.exactSearchEvaluated ? (
                                     <> The PI ranking pick is already tied with the best combination for these inputs.</>
+                                ) : (
+                                    <> Exact search was skipped to keep the page responsive for large project sets.</>
                                 )}
                             </p>
+                            <p className="app-helper mt-2 text-xs">{result.optimizationNote}</p>
                         </SectionCard>
                         <SectionCard>
                             <p className="app-card-title text-sm">Ranking by profitability index</p>
@@ -106,7 +111,7 @@ export default function CapitalRationingPage() {
                     <FormulaCard
                         formula="Profitability index = present value of inflows / initial investment = (investment + NPV) / investment"
                         steps={result.rankedProjects.map((project) => `${project.label}: PI = (${formatPHP(project.initialInvestment)} + ${formatPHP(project.netPresentValue)}) / ${formatPHP(project.initialInvestment)} = ${project.profitabilityIndex.toFixed(4)}`)}
-                        interpretation={`Best combination selected: ${result.selectedProjects.map((project) => project.label).join(", ") || "none within the capital budget"}. The PI ranking remains visible for classroom comparison.`}
+                        interpretation={`${result.exactSearchEvaluated ? "Best combination" : "PI fallback"} selected: ${result.selectedProjects.map((project) => project.label).join(", ") || "none within the capital budget"}. The PI ranking remains visible for classroom comparison.`}
                         warnings={[
                             "Exact combination search assumes projects are independent and indivisible. Mutually exclusive alternatives, dependency constraints, and strategic minimums still require judgment beyond the numeric ranking.",
                             "Negative-NPV projects are not selected by the exact search unless your assignment states a strategic reason to include them.",

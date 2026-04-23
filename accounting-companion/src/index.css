@@ -2353,6 +2353,20 @@ html[data-contrast="high"] .app-sidebar-link {
     padding: 0.68rem 0.82rem;
 }
 
+.workpaper-template-filters {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 0.45fr);
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.workpaper-template-filters__search,
+.workpaper-template-filters__topic {
+    display: grid;
+    min-width: 0;
+    gap: 0.35rem;
+}
+
 .workpaper-helpers-row {
     display: grid;
     gap: 0.7rem;
@@ -3080,6 +3094,10 @@ html[data-contrast="high"] .app-sidebar-link {
 
     .workpaper-quickbar__actions > * {
         flex: 1 1 9rem;
+    }
+
+    .workpaper-template-filters {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .workpaper-grid {

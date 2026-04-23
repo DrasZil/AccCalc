@@ -41,7 +41,7 @@ These helpers keep page output, tests, and future solver work aligned.
 The hardening follow-up also strengthens two earlier helpers:
 
 - `computeConfidenceInterval` now returns z/t method metadata, critical value, degrees of freedom, standard error, and interval bounds.
-- `computeCapitalRationingSelection` now returns both greedy PI-ranking selection and exact combination-search selection for independent, indivisible projects.
+- `computeCapitalRationingSelection` now returns both greedy PI-ranking selection and exact combination-search selection for independent, indivisible projects, with a capped exact-search path so large project sets remain responsive.
 
 ## Discovery And Smart Routing
 
@@ -59,7 +59,7 @@ The hardening follow-up also strengthens two earlier helpers:
 
 `src/features/workpapers/workpaperTemplates.ts` adds starter sheets for segment reporting, audit sampling, PERT, liquidation/quasi-reorganization, RFBT/AIS review, ABC and quality-control support, FAR financial-assets/investment-property support, and joint-arrangement support.
 
-`src/features/workpapers/WorkpaperStudioPage.tsx` now defers live formula-preview evaluation and exposes clearer narrow-screen editing guidance. `src/index.css` centralizes workpaper row-header and column-header dimensions with CSS variables so frozen rows and columns stay aligned across thin screens.
+`src/features/workpapers/WorkpaperStudioPage.tsx` now defers live formula-preview evaluation, filters templates by search text and topic, opens templates through a shared launch action, schedules autosave work during idle time where supported, and exposes clearer narrow-screen editing guidance. `src/index.css` centralizes workpaper row-header and column-header dimensions with CSS variables so frozen rows and columns stay aligned across thin screens, and the template filter controls collapse cleanly on small screens.
 
 ## Tests
 

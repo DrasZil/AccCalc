@@ -39,12 +39,12 @@
 
   <h2>Workpapers</h2>
   <p>New templates support segment reporting, audit sampling, PERT, liquidation/quasi-reorganization, combined RFBT/AIS reviewer work, ABC and quality-control support, FAR asset measurement, and joint-arrangement schedules. They are registered in <code>src/features/workpapers/workpaperTemplates.ts</code>.</p>
-  <p>The hardening follow-up improves Workpaper Studio by deferring live preview evaluation, adding a narrow-screen edit dock, labeling the editable grid region, and centralizing frozen-row/column offsets with CSS variables.</p>
+  <p>The hardening follow-up improves Workpaper Studio by deferring live preview evaluation, adding searchable and topic-filtered template discovery, scheduling autosave work during idle time where supported, adding a narrow-screen edit dock, labeling the editable grid region, and centralizing frozen-row/column offsets with CSS variables.</p>
 
   <h2>Computation Hardening</h2>
   <ul>
     <li>The confidence interval helper now explains and computes z intervals when population standard deviation is known and t intervals when standard deviation is estimated from the sample.</li>
-    <li>The capital rationing helper now compares classroom profitability-index ranking with exact project-combination search for independent indivisible projects.</li>
+    <li>The capital rationing helper now compares classroom profitability-index ranking with exact project-combination search for independent indivisible projects. Exact search is capped at 20 positive-NPV projects, with an explicit PI fallback note for larger sets to keep the page responsive.</li>
     <li>New shared helpers cover ABC overhead assignment, amortized-cost financial assets, investment-property measurement, joint-arrangement share schedules, and three-sigma quality-control limits.</li>
   </ul>
 
