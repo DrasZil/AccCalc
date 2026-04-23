@@ -1,12 +1,13 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import ContextualPageMenu from "./ContextualPageMenu";
 import DisclosurePanel from "./DisclosurePanel";
 import GuidedStartPanel, { type GuidedStartStep } from "./GuidedStartPanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageBackButton from "./PageBackButton";
 import PageHeader from "./PageHeader";
-import ToolAboutPanel from "./ToolAboutPanel";
 import ToolPinButton from "./ToolPinButton";
+import RelatedLinksPanel from "./RelatedLinksPanel";
 import {
     APP_ROUTE_META,
     getRouteAvailability,
@@ -47,7 +48,7 @@ type CalculatorPageLayoutProps = {
         | false;
 };
 
-type SectionKey = "inputs" | "results" | "learn";
+type SectionKey = "inputs" | "results";
 
 function LayoutSection({
     label,
@@ -91,7 +92,7 @@ export default function CalculatorPageLayout({
     const offlineBundle = useOfflineBundleStatus();
     const currentMeta = getRouteMeta(location.pathname);
     const [activeSection, setActiveSection] = useState<SectionKey>(
-        prioritizeResultSection ? "results" : "inputs"
+        prioritizeResultSection && resultSection ? "results" : "inputs"
     );
     const routeAvailability = useMemo(
         () =>
@@ -147,83 +148,6 @@ export default function CalculatorPageLayout({
                 .slice(0, 4),
         [location.pathname]
     );
-
-    const combinedHeaderActions = useMemo(() => {
-        if (!currentMeta || currentMeta.path === "/" || currentMeta.path.startsWith("/settings")) {
-            return headerActions ?? null;
-        }
-
-        return (
-            <>
-                <ToolPinButton
-                    path={currentMeta.path}
-                    label={currentMeta.label}
-                    variant="icon"
-                />
-                {headerActions}
-            </>
-        );
-    }, [currentMeta, headerActions]);
-
-    const sections = useMemo(
-        () =>
-            [
-                {
-                    key: "inputs" as const,
-                    label: "Inputs",
-                    shortLabel: "Inputs",
-                    content: inputSection,
-                },
-                resultSection
-                    ? {
-                          key: "results" as const,
-                          label: "Results",
-                          shortLabel: "Results",
-                          content: resultSection,
-                      }
-                    : null,
-                explanationSection
-                    ? {
-                          key: "learn" as const,
-                          label: "Learn",
-                          shortLabel: "Learn",
-                          content: explanationSection,
-                      }
-                    : null,
-            ].filter(Boolean) as Array<{
-                key: SectionKey;
-                label: string;
-                shortLabel: string;
-                content: ReactNode;
-            }>,
-        [explanationSection, inputSection, resultSection]
-    );
-    const mobileHeaderMeta = useMemo(() => {
-        if (!currentMeta) return headerMeta ?? null;
-
-        return (
-            <>
-                <OfflineCapabilityBadge
-                    level={currentMeta.offlineSupport}
-                    className="px-2.5 py-1 text-[0.62rem]"
-                />
-                {routeAvailability ? (
-                    <span className="app-chip inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
-                        {routeAvailability.label}
-                    </span>
-                ) : null}
-            </>
-        );
-    }, [currentMeta, headerMeta, routeAvailability]);
-
-    const pageWidthClass =
-        pageWidth === "data"
-            ? "app-page-shell-data"
-            : pageWidth === "wide"
-            ? "app-page-shell-wide"
-            : pageWidth === "study"
-              ? "app-page-shell-study"
-              : "";
     const resolvedStartGuide = useMemo(() => {
         if (startGuide === false) return null;
 
@@ -282,6 +206,164 @@ export default function CalculatorPageLayout({
             actions: startGuide?.actions ?? null,
         };
     }, [explanationSection, resultSection, startGuide]);
+
+    const combinedHeaderActions = useMemo(() => {
+        const pageMenu =
+            currentMeta || resolvedStartGuide || relatedStudyLinks.length > 0 || relatedRoutes.length > 0 ? (
+                <ContextualPageMenu
+                    title={`${title} page menu`}
+                    description="Open orientation help, related study, nearby tools, and lower-priority page detail without pushing the main solve area off the screen."
+                    badge={currentMeta?.subtopic ?? badge}
+                >
+                    <div className="space-y-4">
+                        {resolvedStartGuide ? (
+                            <GuidedStartPanel
+                                badge={resolvedStartGuide.badge}
+                                title={resolvedStartGuide.title}
+                                summary={resolvedStartGuide.summary}
+                                steps={resolvedStartGuide.steps}
+                                actions={resolvedStartGuide.actions}
+                                compact
+                            />
+                        ) : null}
+
+                        {routeAvailability ? (
+                            <div
+                                className={[
+                                    "rounded-[1rem] px-4 py-3.5 text-sm leading-6",
+                                    routeAvailability.canOpen
+                                        ? "app-subtle-surface"
+                                        : "app-tone-warning",
+                                ].join(" ")}
+                            >
+                                <p className="app-label text-[0.66rem]">Availability and assumptions</p>
+                                <p className="app-body-md mt-2">{routeAvailability.reason}</p>
+                            </div>
+                        ) : null}
+
+                        {currentMeta ? (
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-label text-[0.66rem]">Page focus</p>
+                                <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                    Solve the current {currentMeta.subtopic.toLowerCase()} task first.
+                                </p>
+                                <p className="app-helper mt-2 text-sm leading-6">
+                                    Use this page for the answer and short interpretation first, then open related study or follow-up tools only if you still need more context.
+                                </p>
+                            </div>
+                        ) : null}
+
+                        {relatedStudyLinks.length > 0 ? (
+                            <RelatedLinksPanel
+                                title="Related study"
+                                summary="Open lessons or quick practice only after the main answer is on screen."
+                                badge={`${relatedStudyLinks.length} study links`}
+                                items={relatedStudyLinks}
+                                compact
+                                showDescriptions
+                                defaultOpen
+                            />
+                        ) : null}
+
+                        {relatedRoutes.length > 0 ? (
+                            <RelatedLinksPanel
+                                title="Related tools"
+                                summary="Keep adjacent calculators and analyzers available without crowding the main workflow."
+                                badge={`${relatedRoutes.length} tools`}
+                                items={relatedRoutes.map((route) => ({
+                                    path: route.path,
+                                    label: route.shortLabel ?? route.label,
+                                    description: route.description,
+                                }))}
+                                compact
+                            />
+                        ) : null}
+                    </div>
+                </ContextualPageMenu>
+            ) : null;
+
+        if (!currentMeta || currentMeta.path === "/" || currentMeta.path.startsWith("/settings")) {
+            return (
+                <>
+                    {pageMenu}
+                    {headerActions}
+                </>
+            );
+        }
+
+        return (
+            <>
+                {pageMenu}
+                <ToolPinButton
+                    path={currentMeta.path}
+                    label={currentMeta.label}
+                    variant="icon"
+                />
+                {headerActions}
+            </>
+        );
+    }, [
+        badge,
+        currentMeta,
+        headerActions,
+        relatedRoutes,
+        relatedStudyLinks,
+        resolvedStartGuide,
+        routeAvailability,
+        title,
+    ]);
+
+    const sections = useMemo(
+        () =>
+            [
+                {
+                    key: "inputs" as const,
+                    label: "Inputs",
+                    shortLabel: "Inputs",
+                    content: inputSection,
+                },
+                resultSection
+                    ? {
+                          key: "results" as const,
+                          label: "Results",
+                          shortLabel: "Results",
+                          content: resultSection,
+                      }
+                    : null,
+            ].filter(Boolean) as Array<{
+                key: SectionKey;
+                label: string;
+                shortLabel: string;
+                content: ReactNode;
+            }>,
+        [inputSection, resultSection]
+    );
+    const mobileHeaderMeta = useMemo(() => {
+        if (!currentMeta) return headerMeta ?? null;
+
+        return (
+            <>
+                <OfflineCapabilityBadge
+                    level={currentMeta.offlineSupport}
+                    className="px-2.5 py-1 text-[0.62rem]"
+                />
+                {routeAvailability ? (
+                    <span className="app-chip inline-flex items-center rounded-full px-2.5 py-1 text-[0.62rem]">
+                        {routeAvailability.label}
+                    </span>
+                ) : null}
+            </>
+        );
+    }, [currentMeta, headerMeta, routeAvailability]);
+
+    const pageWidthClass =
+        pageWidth === "data"
+            ? "app-page-shell-data"
+            : pageWidth === "wide"
+            ? "app-page-shell-wide"
+            : pageWidth === "study"
+              ? "app-page-shell-study"
+              : "";
     const shouldShowAvailabilityBanner =
         routeAvailability !== null &&
         (!routeAvailability.canOpen || routeAvailability.support !== "full");
@@ -311,17 +393,6 @@ export default function CalculatorPageLayout({
                 }
                 mobileMeta={mobileHeaderMeta}
             />
-
-            {resolvedStartGuide ? (
-                <GuidedStartPanel
-                    badge={resolvedStartGuide.badge}
-                    title={resolvedStartGuide.title}
-                    summary={resolvedStartGuide.summary}
-                    steps={resolvedStartGuide.steps}
-                    actions={resolvedStartGuide.actions}
-                    compact
-                />
-            ) : null}
 
             {shouldShowAvailabilityBanner ? (
                 <div
@@ -419,33 +490,11 @@ export default function CalculatorPageLayout({
                             )}
                         </div>
 
-                        {explanationSection ? (
-                            <div className="app-adaptive-support">
-                                <DisclosurePanel
-                                    title="Learn this method"
-                                    summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
-                                    badge="Details"
-                                >
-                                    {explanationSection}
-                                </DisclosurePanel>
-                            </div>
-                        ) : null}
                     </div>
                 ) : (
-                    <>
-                        <LayoutSection label="Inputs" id="section-inputs">
-                            {inputSection}
-                        </LayoutSection>
-                        {explanationSection ? (
-                            <DisclosurePanel
-                                title="Learn this method"
-                                summary="Open the formula, procedure, meaning, and cautions only when you need a deeper explanation."
-                                badge="Details"
-                            >
-                                {explanationSection}
-                            </DisclosurePanel>
-                        ) : null}
-                    </>
+                    <LayoutSection label="Inputs" id="section-inputs">
+                        {inputSection}
+                    </LayoutSection>
                 )}
             </div>
 
@@ -463,15 +512,14 @@ export default function CalculatorPageLayout({
                 )}
             </div>
 
-            {currentMeta ? (
-                <ToolAboutPanel
-                    route={currentMeta}
-                    availability={routeAvailability}
-                    relatedStudyLinks={relatedStudyLinks}
-                    relatedRoutes={relatedRoutes}
-                    compact={settings.compactMobileChrome}
-                    includeDescription={!settings.compactMobileChrome}
-                />
+            {explanationSection ? (
+                <DisclosurePanel
+                    title="Learn this method"
+                    summary="Open the formula, procedure, interpretation, and cautions only when you need deeper support."
+                    badge="Learn"
+                >
+                    {explanationSection}
+                </DisclosurePanel>
             ) : null}
         </div>
     );

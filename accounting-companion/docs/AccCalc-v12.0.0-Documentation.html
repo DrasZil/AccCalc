@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccCalc v12.0.0 Documentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f3ef;
+        --surface: #ffffff;
+        --text: #1b1d23;
+        --muted: #5e6575;
+        --border: #ddd9d1;
+        --accent: #d56236;
+        --soft: #f6e2d8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #faf8f4 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      main {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+      header, section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 26px;
+        box-shadow: 0 16px 40px rgba(34, 32, 28, 0.06);
+      }
+      header { margin-bottom: 20px; }
+      section + section { margin-top: 16px; }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1, h2 { line-height: 1.1; letter-spacing: -0.03em; }
+      h1 { margin: 14px 0 10px; font-size: 38px; }
+      h2 { margin: 0 0 14px; font-size: 24px; }
+      p, li { max-width: 74ch; }
+      ul { margin: 0; padding-left: 20px; }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fcfbf9;
+      }
+      .muted { color: var(--muted); }
+      @media (max-width: 760px) {
+        main { padding: 20px 14px 40px; }
+        header, section { padding: 18px; border-radius: 18px; }
+        h1 { font-size: 30px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">AccCalc v12.0.0</span>
+        <h1>Focus-First UI Organization Overhaul</h1>
+        <p class="muted">
+          Version 12.0.0 reorganizes AccCalc around a single rule: keep the main
+          task visible first and make supporting detail available on demand.
+        </p>
+      </header>
+
+      <section>
+        <h2>Main Changes</h2>
+        <ul>
+          <li>Added a shared page-menu pattern for lower-priority route support and orientation content.</li>
+          <li>Reworked shared calculator pages so inputs and results stay primary.</li>
+          <li>Rebuilt the homepage around next-step decisions and delayed discovery.</li>
+          <li>Lightened study-page side references so lessons remain textbook-like and calmer.</li>
+          <li>Added a Workpaper Studio focus mode for cleaner worksheet editing.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Focus-First Rules</h2>
+        <div class="grid two">
+          <div class="card">
+            <strong>Visible now</strong>
+            <p class="muted">Inputs, main actions, main outputs, essential warnings, and current workflow state.</p>
+          </div>
+          <div class="card">
+            <strong>Discoverable later</strong>
+            <p class="muted">Related tools, deeper study notes, orientation help, supporting references, and grouped browsing.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Shared Surfaces</h2>
+        <ul>
+          <li><code>CalculatorPageLayout.tsx</code> now keeps solving surfaces primary and routes support into disclosures and the page menu.</li>
+          <li><code>ContextualPageMenu.tsx</code> standardizes lower-priority page content across major tool pages.</li>
+          <li><code>HomePage.tsx</code> now emphasizes quick solve, quick scan, workpapers, continue study, and focused discovery.</li>
+          <li><code>StudyTopicPage.tsx</code> reduces side-reference dominance.</li>
+          <li><code>WorkpaperStudioPage.tsx</code> adds a student-friendly focus mode for editing.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Validation</h2>
+        <ul>
+          <li><code>npm test</code></li>
+          <li><code>npm run build</code></li>
+          <li>bounded <code>npm run dev</code> probe</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

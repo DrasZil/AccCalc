@@ -613,6 +613,53 @@ a:active {
     min-width: 0;
 }
 
+.app-page-menu-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.app-page-menu-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: var(--app-overlay);
+    backdrop-filter: blur(8px);
+}
+
+.app-page-menu-panel {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: min(100%, 31rem);
+    max-height: min(92vh, 52rem);
+    border: 1px solid var(--app-border-subtle);
+    border-radius: 1.4rem 1.4rem 0 0;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
+        linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
+    box-shadow: var(--app-shadow-lg);
+}
+
+.app-page-menu-panel__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.95rem;
+    border-bottom: 1px solid var(--app-border-subtle);
+}
+
+.app-page-menu-panel__body {
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem;
+}
+
 .app-page-header__actions {
     width: 100%;
     min-width: 0;
@@ -2568,6 +2615,11 @@ html[data-contrast="high"] .app-sidebar-link {
     padding: 0.8rem;
 }
 
+.workpaper-grid-shell--focus {
+    padding: 0.65rem;
+    box-shadow: var(--app-shadow);
+}
+
 .workpaper-grid-shell__header {
     display: flex;
     justify-content: space-between;
@@ -3248,6 +3300,11 @@ html[data-contrast="high"] .app-sidebar-link {
     .app-workspace-side-grid {
         grid-template-columns: minmax(0, 1fr);
     }
+
+    .app-page-menu-panel {
+        width: 100%;
+        max-height: 88vh;
+    }
 }
 
 @media (max-width: 28rem) {
@@ -3266,6 +3323,19 @@ html[data-contrast="high"] .app-sidebar-link {
 
     .app-back-link__label {
         font-size: 0.84rem;
+    }
+}
+
+@media (min-width: 48rem) {
+    .app-page-menu-layer {
+        align-items: stretch;
+        padding: 1rem;
+    }
+
+    .app-page-menu-panel {
+        height: calc(100vh - 2rem);
+        max-height: none;
+        border-radius: 1.45rem;
     }
 }
 

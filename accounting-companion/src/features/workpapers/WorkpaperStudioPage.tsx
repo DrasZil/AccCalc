@@ -381,6 +381,7 @@ export default function WorkpaperStudioPage() {
     const [showFormulaExamples, setShowFormulaExamples] = useState(false);
     const [showFunctionPicker, setShowFunctionPicker] = useState(false);
     const [showFormattingTools, setShowFormattingTools] = useState(false);
+    const [focusMode, setFocusMode] = useState(false);
     const [actionState, setActionState] = useState<WorkpaperActionState>({ status: "idle" });
     const [openMenu, setOpenMenu] = useState<WorkpaperMenuKey | null>(null);
     const [templateSearchQuery, setTemplateSearchQuery] = useState("");
@@ -482,6 +483,12 @@ export default function WorkpaperStudioPage() {
             window.removeEventListener("keydown", handleEscape);
         };
     }, [openMenu]);
+
+    useEffect(() => {
+        if (focusMode && activePanel !== "none") {
+            setActivePanel("none");
+        }
+    }, [activePanel, focusMode]);
 
     useEffect(() => {
         setCellDraft(selectedCell?.input ?? "");
@@ -1198,6 +1205,16 @@ export default function WorkpaperStudioPage() {
                     <span className="app-chip rounded-full px-3 py-1 text-xs">v{APP_VERSION}</span>
                     <button
                         type="button"
+                        onClick={() => setFocusMode((current) => !current)}
+                        className={[
+                            "rounded-xl px-3.5 py-2 text-sm font-semibold",
+                            focusMode ? "app-button-primary" : "app-button-secondary",
+                        ].join(" ")}
+                    >
+                        {focusMode ? "Show support" : "Focus mode"}
+                    </button>
+                    <button
+                        type="button"
                         onClick={createBlankWorkbook}
                         className="app-button-primary rounded-xl px-3.5 py-2 text-sm font-semibold"
                     >
@@ -1465,11 +1482,12 @@ export default function WorkpaperStudioPage() {
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() =>
+                                        onClick={() => {
+                                            setFocusMode(false);
                                             setActivePanel((current) =>
                                                 current === "details" ? "none" : "details"
-                                            )
-                                        }
+                                            );
+                                        }}
                                         className="workpaper-toolbar__button workpaper-toolbar__button--secondary"
                                     >
                                         {activePanel === "details" ? "Hide details" : "Details"}
@@ -1798,74 +1816,76 @@ export default function WorkpaperStudioPage() {
                                 </section>
                             ) : null}
 
-                            <section
-                                className={[
-                                    "workpaper-health-strip",
-                                    workpaperHealth.tone === "warning"
-                                        ? "workpaper-health-strip--warning"
-                                        : workpaperHealth.tone === "success"
-                                          ? "workpaper-health-strip--success"
-                                          : "",
-                                ].join(" ")}
-                                aria-live="polite"
-                            >
-                                <div className="min-w-0">
-                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
-                                        Workbook health
-                                    </p>
-                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                        {workpaperHealth.label}
-                                    </p>
-                                </div>
-                                <div className="workpaper-health-strip__items">
-                                    {workpaperHealth.issues.map((issue) => (
-                                        <span key={issue} className="workpaper-health-strip__item">
-                                            {issue}
-                                        </span>
-                                    ))}
-                                </div>
-                            </section>
-
-                            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)]">
-                                <SectionCard>
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                            {!focusMode ? (
+                                <>
+                                    <section
+                                        className={[
+                                            "workpaper-health-strip",
+                                            workpaperHealth.tone === "warning"
+                                                ? "workpaper-health-strip--warning"
+                                                : workpaperHealth.tone === "success"
+                                                  ? "workpaper-health-strip--success"
+                                                  : "",
+                                        ].join(" ")}
+                                        aria-live="polite"
+                                    >
                                         <div className="min-w-0">
-                                            <p className="app-section-kicker text-[0.68rem]">
-                                                Workbook context
+                                            <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                                Workbook health
                                             </p>
-                                            <h2 className="app-section-title mt-2">
-                                                {selectedWorkbook?.title ?? "Untitled workbook"}
-                                            </h2>
-                                            <p className="app-body-md mt-2 text-sm">
-                                                {selectedWorkbook?.description ||
-                                                    "Keep calculator support, assumptions, and reviewer notes together in one workbook."}
+                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {workpaperHealth.label}
                                             </p>
                                         </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
-                                                Topic {selectedWorkbook?.topic || "General"}
-                                            </span>
-                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
-                                                {draftWorkbook?.sheetOrder.length ?? 0} sheet
-                                                {(draftWorkbook?.sheetOrder.length ?? 0) === 1 ? "" : "s"}
-                                            </span>
-                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
-                                                {formulaCoverage.formulas} formula
-                                                {formulaCoverage.formulas === 1 ? "" : "s"}
-                                            </span>
+                                        <div className="workpaper-health-strip__items">
+                                            {workpaperHealth.issues.map((issue) => (
+                                                <span key={issue} className="workpaper-health-strip__item">
+                                                    {issue}
+                                                </span>
+                                            ))}
                                         </div>
-                                    </div>
+                                    </section>
 
-                                    <div className="mt-4 grid gap-3 md:grid-cols-3">
-                                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
-                                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
-                                                Active sheet
-                                            </p>
-                                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
-                                                {activeSheet.title}
-                                            </p>
-                                        </div>
-                                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                                    <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)]">
+                                        <SectionCard>
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="app-section-kicker text-[0.68rem]">
+                                                        Workbook context
+                                                    </p>
+                                                    <h2 className="app-section-title mt-2">
+                                                        {selectedWorkbook?.title ?? "Untitled workbook"}
+                                                    </h2>
+                                                    <p className="app-body-md mt-2 text-sm">
+                                                        {selectedWorkbook?.description ||
+                                                            "Keep calculator support, assumptions, and reviewer notes together in one workbook."}
+                                                    </p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                        Topic {selectedWorkbook?.topic || "General"}
+                                                    </span>
+                                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                        {draftWorkbook?.sheetOrder.length ?? 0} sheet
+                                                        {(draftWorkbook?.sheetOrder.length ?? 0) === 1 ? "" : "s"}
+                                                    </span>
+                                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.68rem]">
+                                                        {formulaCoverage.formulas} formula
+                                                        {formulaCoverage.formulas === 1 ? "" : "s"}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                                <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                                                    <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
+                                                        Active sheet
+                                                    </p>
+                                                    <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                                        {activeSheet.title}
+                                                    </p>
+                                                </div>
+                                                <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
                                             <p className="app-helper text-[0.68rem] uppercase tracking-[0.14em]">
                                                 Template source
                                             </p>
@@ -1922,8 +1942,15 @@ export default function WorkpaperStudioPage() {
                                     </div>
                                 </SectionCard>
                             </section>
+                                </>
+                            ) : null}
 
-                            <section className="workpaper-grid-shell">
+                            <section
+                                className={[
+                                    "workpaper-grid-shell",
+                                    focusMode ? "workpaper-grid-shell--focus" : "",
+                                ].join(" ")}
+                            >
                                 <div className="workpaper-grid-shell__header">
                                     <div className="min-w-0">
                                         <h2 className="workpaper-grid-shell__title">{activeSheet.title}</h2>
@@ -2209,10 +2236,12 @@ export default function WorkpaperStudioPage() {
                                             activePanel === panel.key
                                                 ? "Currently open below the worksheet."
                                                 : "Open this utility without crowding the grid.",
-                                        onSelect: () =>
+                                        onSelect: () => {
+                                            setFocusMode(false);
                                             setActivePanel((current) =>
                                                 current === panel.key ? "none" : panel.key
-                                            ),
+                                            );
+                                        },
                                     }))}
                                 />
                                 {activePanel !== "none" ? (

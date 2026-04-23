@@ -1,66 +1,59 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `11.0.0` is the strongest platform-level update so far: a major shell, navigation, Study Hub, weak-track completion, and Workpaper upgrade built to make the app feel more structured, more premium, and easier to trust under pressure.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.0.0` is the app-wide focus-first organization release: a major UI and information-hierarchy overhaul built to help students see the main task first and open supporting detail only when they need it.
 
-## What 11.0.0 Changes
+## What 12.0.0 Changes
 
-- Added a stronger shell and homepage structure with route-surface context, curriculum track snapshots, and clearer “you may also need” guidance.
-- Upgraded Study Hub browsing so lessons feel more like a connected module system and less like a flat catalog.
-- Added new integrated tools for weak tracks:
-  - `AIS`: Business Continuity Planner
-  - `Governance`: Control Environment Review
-  - `RFBT`: Defective Contracts Classifier
-  - `Strategic`: Business Case Analysis Planner
-- Added matching Study Hub lessons, Smart Solver mappings, OCR routing rules, app-catalog entries, and workpaper templates for those new tracks.
-- Upgraded Workpaper Studio with a workbook-context panel so active sheet status, template source, related routes, and next steps stay visible while editing.
-- Improved theme personalization with richer preview cards in settings while keeping persistence and contrast safety intact.
-- Expanded shared governance, continuity, and strategic decision helpers with regression coverage.
+- Reorganized the shared calculator shell so inputs, solve targets, and primary results stay dominant while lower-priority guidance moves behind a page menu and collapsed learning surfaces.
+- Rebuilt the homepage around a smaller set of next-step decisions: quick solve, quick scan, continue study, workpapers, and focused discovery.
+- Added a shared dynamic page-menu pattern for secondary content such as orientation help, related study, nearby tools, assumptions, and route context.
+- Reduced study-side clutter by moving module flow and lesson signals into lighter progressive-disclosure panels.
+- Added a Workpaper Studio focus mode so workbook health, workbook context, and panel utilities can move out of the active editing path when students need a cleaner worksheet surface.
+- Kept the broader curriculum and weak-track additions from `11.0.0` intact while making them easier to reach without flooding the first screen with choices.
+
+## Focus-First Page Philosophy
+
+Every major page now follows one principle:
+
+- Important now = visible now
+- Useful later = discoverable on demand
+
+Practical rules for the app:
+
+- calculator pages should show inputs and results first
+- homepage should answer “what should I do next?”
+- study pages should feel like reading flows, not dashboards
+- workpapers should prioritize the active sheet over surrounding metadata
+- secondary content should move into disclosures, page menus, or secondary rails
 
 ## Main Product Areas
 
 - `Smart Tools`: Smart Solver, Scan & Check, OCR-assisted review, route discovery
-- `Study Hub`: module browsing, lessons, quizzes, related-topic continuity, resume/progress behavior
-- `Workpapers`: assignment-friendly templates, workbook editing, calculator-to-workpaper support
-- `FAR / AFAR`: statements, assets, equity, leases, share-based payments, combinations, foreign currency, partnerships, branch and special topics
-- `Cost / Managerial / MS`: CVP, decision tools, budgets, process costing, variances, planning, performance
+- `Study Hub`: module browsing, lessons, quizzes, progress, resume behavior
+- `Workpapers`: assignment-friendly templates, workbook editing, calculator-to-workpaper flows
+- `FAR / AFAR`: statements, leases, foreign currency, partnerships, combinations, reporting support
+- `Cost / Managerial / MS`: CVP, decision tools, budgets, costing, variances, planning, performance
 - `Taxation`: VAT, withholding, percentage tax, estate, donor’s, DST, book-tax and compliance review support
-- `Audit / AIS / Governance / RFBT / Strategic`: reviewer workspaces, lessons, and connected support tools
+- `Audit / AIS / Governance / RFBT / Strategic`: reviewer workspaces, lessons, and connected decision support tools
 
-## New Completion Track Support In 11.0.0
+## Shared Page Organization System
 
-The release focuses on tracks that were still relatively fragmented:
+Important shared files:
 
-- `AIS / IT Controls`
-  - continuity and recovery planning
-  - IT control matrix support
-  - access-control and systems-control routes
-- `Governance / Ethics / Risk`
-  - control-environment scoring and interpretation
-  - risk-control-matrix review
-  - ethics decision framing
-- `RFBT / Business Law`
-  - defective-contract classification
-  - obligations and contracts issue flow
-  - broader business-law and commercial-transactions review
-- `Strategic / Integrative`
-  - business-case recommendation planning
-  - strategic business analysis
-  - balanced scorecard and integrative routing support
+- `src/components/CalculatorPageLayout.tsx`
+- `src/components/ContextualPageMenu.tsx`
+- `src/components/DisclosurePanel.tsx`
+- `src/components/PageHeader.tsx`
+- `src/features/home/HomePage.tsx`
+- `src/features/study/components/StudyLessonLayout.tsx`
+- `src/features/workpapers/WorkpaperStudioPage.tsx`
 
-## Shell And Navigation Design
+The new organization model works like this:
 
-The app is broad enough that organization matters as much as feature count.
-
-`11.0.0` improves app-wide information architecture through:
-
-- shell-level route context rails
-- curriculum-track snapshots
-- route-surface labeling such as calculator, study module, analyzer, or workspace
-- stronger sibling-route suggestions
-- clearer lesson-to-calculator continuity
-- stronger grouped discovery from the homepage and Study Hub
-
-The goal is to make AccCalc feel like a coherent academic product rather than a growing list of pages.
+- the main page body shows the core task
+- explanation and related learning stay collapsed until requested
+- page-level menus hold secondary route context and related follow-up links
+- broader browsing is grouped behind disclosures instead of being dumped above the fold
 
 ## Study Hub Architecture
 
@@ -83,9 +76,11 @@ Lessons support:
 - recap / common mistake blocks
 - quiz handoff
 
+`12.0.0` keeps the textbook/module direction but reduces side-rail noise so the current lesson stays primary.
+
 ## Smart Solver And OCR
 
-The routing stack is layered intentionally:
+The routing stack remains layered intentionally:
 
 - `src/utils/appCatalog.ts` holds route metadata, aliases, curriculum groups, and route descriptions
 - `src/utils/appSearch.ts` powers route discovery
@@ -94,9 +89,7 @@ The routing stack is layered intentionally:
 - `src/features/scan-check/services/ocr/ocrRouting.ts` recommends routes from OCR text
 - `src/utils/numberParsing.ts` normalizes grouped numbers, percents, and parenthesized negatives safely
 
-`11.0.0` extends Solver/OCR coverage for continuity, control-environment, defective-contract, and business-case prompts so those newer tracks are reachable through advanced word-problem flows instead of being hidden catalog pages.
-
-The system still prefers review-before-trust behavior when confidence is weak.
+The focus-first release does not hide those tools. It makes their entry points easier to find without turning the homepage or calculator headers into feature walls.
 
 ## Workpaper Studio
 
@@ -111,14 +104,14 @@ Important files:
 - `src/features/workpapers/workpaperFormula.ts`
 - `src/features/workpapers/workpaperFile.ts`
 
-`11.0.0` strengthens Workpaper Studio by:
+`12.0.0` adds:
 
-- surfacing workbook context more clearly while editing
-- keeping template-to-route connections more visible
-- improving next-step discovery from active workbooks
-- preserving the narrow-screen hardening from earlier survivability passes
+- a focus mode for cleaner worksheet editing
+- less always-visible workbook support chrome
+- cleaner separation between sheet work and optional utility panels
+- preserved template, transfer, and detail flows without forcing them into the main editing path
 
-## Theme And Personalization System
+## Theme And Personalization
 
 Theme state is stored through:
 
@@ -136,7 +129,7 @@ Supported families remain:
 - `sunset`
 - `emerald`
 
-`11.0.0` improves the settings experience with richer showcase previews while keeping persistence, readability, and contrast behavior stable.
+The app keeps the richer preview cards introduced earlier while making page hierarchy calmer and more consistent across themes.
 
 ## Running The App
 
@@ -159,7 +152,7 @@ npm run lint
 ```text
 accounting-companion/
   src/
-    components/               Shared UI blocks and reading surfaces
+    components/               Shared UI blocks, page shells, and organization patterns
     features/                 Route-level product areas
       accounting/
       afar/
@@ -168,6 +161,7 @@ accounting-companion/
       business/
       far/
       governance/
+      home/
       layout/
       meta/
       operations/
@@ -179,35 +173,36 @@ accounting-companion/
       tax/
       workpapers/
     utils/                    Shared math, release data, search, parsing, settings, and assumptions
-  tests/                      Shared math, route discovery, workpaper, and regression coverage
+  tests/                      Shared math, discovery, workpaper, and regression coverage
   docs/                       Release notes, system overview, maintenance notes, HTML/PDF handoff docs
 ```
 
-## How To Add A New Calculator Or Workspace
+## How To Add A New Page Without Reintroducing Clutter
 
 1. Add the route page under `src/features/...`.
-2. Put reusable math in `src/utils/calculatorMath.ts` when the logic belongs in shared helpers.
-3. Add or update solve-for logic in `src/utils/formulaSolveDefinitions.ts` only when reverse solving is mathematically safe.
-4. Register the route in `src/App.tsx`.
-5. Add route metadata in `src/utils/appCatalog.ts`.
-6. Add Smart Solver support in `src/features/smart/smartSolver.engine.ts`.
-7. Add OCR routing support in `src/features/scan-check/services/ocr/ocrRouting.ts` when the topic should be scanner-discoverable.
-8. Add Study Hub support in `studyContent.ts`, `studyExpansion450.ts`, or `studyExpansion1100.ts`.
-9. Add a workpaper template in `src/features/workpapers/workpaperTemplates.ts` if the route benefits from a worksheet.
-10. Add regression coverage in `tests/calculatorMath.test.ts`.
+2. Register the route in `src/App.tsx`.
+3. Add route metadata in `src/utils/appCatalog.ts`.
+4. Use shared shells such as `CalculatorPageLayout` or the Study Hub lesson layout instead of inventing a new page structure.
+5. Keep the page’s main task above the fold.
+6. Move secondary notes, related tools, assumptions, and deep references into disclosures or the page menu when they are not critical to the first task.
+7. Add Smart Solver support in `src/features/smart/smartSolver.engine.ts` when the route should be reachable by prompt.
+8. Add OCR routing support in `src/features/scan-check/services/ocr/ocrRouting.ts` when the route should be scanner-discoverable.
+9. Add Study Hub support when the route belongs to a real curriculum family.
+10. Add a workpaper template when the route benefits from a worksheet.
+11. Add regression coverage in `tests/calculatorMath.test.ts` when shared logic changes.
 
 ## Reliability Rules For Future Maintainers
 
 - Keep assumptions explicit.
-- Keep formulas, results, and interpretation text synchronized.
+- Keep formulas, results, and interpretation synchronized.
 - Prefer shared helpers over duplicated page logic.
-- Add discovery wiring for any meaningful new route.
+- Keep secondary content discoverable, not dominant.
 - Treat OCR and Smart Solver as review assistants, not infallible automation.
-- Prefer safe route additions and shell consistency over flashy isolated features.
+- Prefer calm hierarchy and stable workflows over flashy page density.
 
-## Validation Status For 11.0.0
+## Validation Status For 12.0.0
 
-The final `11.0.0` release is validated with:
+The final `12.0.0` release is validated with:
 
 ```bash
 npm test

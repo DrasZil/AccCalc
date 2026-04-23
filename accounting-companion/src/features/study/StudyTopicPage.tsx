@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
+import DisclosurePanel from "../../components/DisclosurePanel";
 import PageBackButton from "../../components/PageBackButton";
 import TransitionLink from "../../components/TransitionLink";
 import FormulaBlock from "../../components/math/FormulaBlock";
@@ -294,12 +295,14 @@ export default function StudyTopicPage() {
                     </>
                 }
                 sidebarTop={
-                    <div className="app-panel rounded-[1.35rem] p-4">
-                        <p className="app-section-kicker text-[0.68rem]">Current module</p>
-                        <h2 className="app-section-title mt-2">
-                            {getStudyCategoryTrack(topic.category)} chapter flow
-                        </h2>
-                        <div className="mt-4 space-y-2">
+                    <DisclosurePanel
+                        title={`${getStudyCategoryTrack(topic.category)} chapter flow`}
+                        summary="Keep the wider module map nearby without letting it overpower the lesson you are currently reading."
+                        badge="Module"
+                        defaultOpen
+                        compact
+                    >
+                        <div className="space-y-2">
                             {moduleTopics.slice(0, 8).map((moduleTopic) => (
                                 <Link
                                     key={moduleTopic.id}
@@ -320,7 +323,7 @@ export default function StudyTopicPage() {
                                 </Link>
                             ))}
                         </div>
-                    </div>
+                    </DisclosurePanel>
                 }
                 sidebarBottom={
                     <div className="space-y-4">
@@ -364,9 +367,13 @@ export default function StudyTopicPage() {
                             </div>
                         </div>
 
-                        <div className="app-panel rounded-[1.35rem] p-4">
-                            <p className="app-section-kicker text-[0.68rem]">Lesson signals</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
+                        <DisclosurePanel
+                            title="Lesson signals"
+                            summary="Open keywords and quiz feedback only when you want a quick reference read."
+                            badge="Reference"
+                            compact
+                        >
+                            <div className="flex flex-wrap gap-2">
                                 {topic.keywords.slice(0, 8).map((keyword) => (
                                     <span
                                         key={keyword}
@@ -382,7 +389,7 @@ export default function StudyTopicPage() {
                                     {Math.round((quizRecord.bestScore / quizRecord.totalQuestions) * 100)}%
                                 </p>
                             ) : null}
-                        </div>
+                        </DisclosurePanel>
                     </div>
                 }
             >
