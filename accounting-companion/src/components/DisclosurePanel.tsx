@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 type DisclosurePanelProps = {
     title: string;
@@ -43,7 +43,14 @@ export default function DisclosurePanel({
     children,
 }: DisclosurePanelProps) {
     const [open, setOpen] = useState(defaultOpen);
+    const [hasRendered, setHasRendered] = useState(defaultOpen);
     const contentId = useId();
+
+    useEffect(() => {
+        if (open) {
+            setHasRendered(true);
+        }
+    }, [open]);
 
     return (
         <section className={["app-panel rounded-[var(--app-radius-lg)]", className].join(" ")}>
@@ -94,27 +101,29 @@ export default function DisclosurePanel({
                 </div>
             </button>
 
-            <div
-                id={contentId}
-                className={[
-                    "grid overflow-hidden transition-all duration-300",
-                    open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-                ].join(" ")}
-            >
-                <div className="min-h-0 overflow-hidden">
-                    <div
-                        className={[
-                            "border-t app-divider",
-                            compact
-                                ? "px-4 py-4 md:px-4.5 md:py-4.5"
-                                : "px-4.5 py-4.5 md:px-5.5 md:py-5.5",
-                            contentClassName,
-                        ].join(" ")}
-                    >
-                        {children}
+            {hasRendered ? (
+                <div
+                    id={contentId}
+                    className={[
+                        "grid overflow-hidden transition-all duration-300",
+                        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                    ].join(" ")}
+                >
+                    <div className="min-h-0 overflow-hidden">
+                        <div
+                            className={[
+                                "border-t app-divider",
+                                compact
+                                    ? "px-4 py-4 md:px-4.5 md:py-4.5"
+                                    : "px-4.5 py-4.5 md:px-5.5 md:py-5.5",
+                                contentClassName,
+                            ].join(" ")}
+                        >
+                            {children}
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : null}
         </section>
     );
 }

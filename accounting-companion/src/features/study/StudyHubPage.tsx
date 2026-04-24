@@ -1,13 +1,11 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
-import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
 import { APP_NAV_GROUPS } from "../../utils/appCatalog";
-import { buildCurriculumTrackSnapshots } from "../../utils/appExperience";
 import {
     STUDY_CATEGORY_DETAILS,
     buildStudyQuizPath,
@@ -33,12 +31,18 @@ function TopicCard({
     bestScore: number | null;
     continueLabel?: string;
 }) {
+    const topicMeta = [
+        getStudyCategoryTrack(topic.category),
+        `${reviewedCount} sections reviewed`,
+        bestScore !== null ? `Best quiz ${Math.round(bestScore)}%` : null,
+        continueLabel,
+    ]
+        .filter(Boolean)
+        .join(" · ");
+
     return (
         <div className="app-link-card min-w-0 rounded-[1.15rem] px-4 py-4">
             <div className="flex min-w-0 flex-wrap items-start gap-2">
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {getStudyCategoryTrack(topic.category)}
-                </span>
                 {bookmarked ? (
                     <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
                         Bookmarked
@@ -56,14 +60,7 @@ function TopicCard({
             </h3>
             <p className="app-helper mt-1.5 text-xs leading-5">{topic.summary}</p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="app-helper text-xs">{reviewedCount} sections reviewed</span>
-                {continueLabel ? (
-                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                        {continueLabel}
-                    </span>
-                ) : null}
-            </div>
+            <p className="app-helper mt-3 text-xs leading-5">{topicMeta}</p>
 
             <div className="app-card-grid-readable--compact mt-4">
                 <TransitionLink
@@ -116,11 +113,10 @@ function ModuleCard({
         >
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <p className="app-section-kicker text-[0.68rem]">Module</p>
-                    <h3 className="mt-2 text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                    <h3 className="text-lg font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                         {summary.track}
                     </h3>
-                    <p className="app-helper mt-2 text-xs leading-5">{summary.summary}</p>
+                    <p className="app-helper mt-1.5 text-xs leading-5">{summary.summary}</p>
                 </div>
                 <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                     {summary.lessonCount} lessons
@@ -145,17 +141,10 @@ function ModuleCard({
                 />
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {summary.linkedCalculatorCount} linked tools
-                </span>
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {summary.reviewedSections} reviewed sections
-                </span>
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {summary.bookmarkCount} bookmarks
-                </span>
-            </div>
+            <p className="app-helper mt-4 text-xs leading-5">
+                {summary.linkedCalculatorCount} linked tools · {summary.reviewedSections} reviewed
+                sections · {summary.bookmarkCount} bookmarks
+            </p>
 
             <div className="mt-4 app-card-grid-readable--compact">
                 <button
@@ -355,17 +344,6 @@ export default function StudyHubPage() {
             null,
         [activeTrack, moduleSummaries]
     );
-    const curriculumSnapshots = useMemo(
-        () =>
-            buildCurriculumTrackSnapshots().filter(
-                (snapshot) =>
-                    snapshot.track !== "Study Hub" &&
-                    snapshot.track !== "Smart Tools" &&
-                    snapshot.track !== "General"
-            ),
-        []
-    );
-
     const quizCount = Object.keys(studyProgress.quizzes).length;
     const calculatorGroups = useMemo(
         () =>
@@ -376,9 +354,8 @@ export default function StudyHubPage() {
     return (
         <div className="app-page-stack">
             <PageHeader
-                badge="Study Hub"
-                title="Study topics step by step, then move into practice"
-                description="Use Study Hub when you need plain-language review before solving, when you want a stronger explanation after a calculator result, or when you need a short quiz to confirm that the topic really makes sense."
+                title="Open a lesson, keep your place, and move into practice when ready"
+                description="Search topics, focus one module, and return to recent lessons without digging through extra study chrome."
                 compactDescriptionOnMobile
                 actions={
                     <>
@@ -398,125 +375,12 @@ export default function StudyHubPage() {
                 }
             />
 
-            <GuidedStartPanel
-                badge="Study path"
-                title="Keep learning layered: lesson first, quiz second, deeper support only when needed"
-                summary="The Study Hub is meant to reduce intimidation. Start with a topic overview, move into a short practice set, and return to deeper sections only for the parts that still feel weak."
-                steps={[
-                    {
-                        title: "Open one lesson",
-                        description:
-                            "Start with a topic page when you need the meaning, formula logic, procedure, and common mistakes in plain language.",
-                        badge: "Lesson",
-                    },
-                    {
-                        title: "Use a mini quiz",
-                        description:
-                            "Practice after the concept already feels familiar so the quiz becomes self-check, not blind guessing.",
-                        badge: "Quiz",
-                    },
-                    {
-                        title: "Return only to the weak spots",
-                        description:
-                            "Bookmarks, notes, reviewed sections, and scores stay on this device so you can keep studying without re-reading everything.",
-                        badge: "Review",
-                    },
-                ]}
-            />
-
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-                <SectionCard>
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                            <p className="app-section-kicker text-[0.68rem]">Module shelf</p>
-                            <h2 className="app-section-title mt-2">Curriculum tracks with lesson depth</h2>
-                            <p className="app-helper mt-2 text-xs leading-5">
-                                Each track now reads more like a shelf: lessons, linked tools, and progress cues stay grouped instead of feeling like one long mixed list.
-                            </p>
-                        </div>
-                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                            {curriculumSnapshots.length} tracks
-                        </span>
-                    </div>
-
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                        {curriculumSnapshots.map((snapshot) => (
-                            <button
-                                key={snapshot.track}
-                                type="button"
-                                onClick={() => setActiveTrack(snapshot.track)}
-                                className={[
-                                    "rounded-[1.05rem] border px-4 py-3.5 text-left transition",
-                                    activeTrack === snapshot.track
-                                        ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
-                                        : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
-                                ].join(" ")}
-                            >
-                                <div className="flex items-center justify-between gap-3">
-                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                        {snapshot.track}
-                                    </p>
-                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {snapshot.status}
-                                    </span>
-                                </div>
-                                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
-                                        <p className="app-helper text-[0.62rem]">Lessons</p>
-                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
-                                            {snapshot.lessonCount}
-                                        </p>
-                                    </div>
-                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
-                                        <p className="app-helper text-[0.62rem]">Routes</p>
-                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
-                                            {snapshot.routeCount}
-                                        </p>
-                                    </div>
-                                    <div className="app-panel rounded-[0.95rem] px-2.5 py-2.5">
-                                        <p className="app-helper text-[0.62rem]">Guided</p>
-                                        <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
-                                            {snapshot.workspaceCount}
-                                        </p>
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </SectionCard>
-
-                <SectionCard>
-                    <p className="app-section-kicker text-[0.68rem]">Study trust</p>
-                    <h2 className="app-section-title mt-2">What stays saved on this device</h2>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-metric-label">Lessons started</p>
-                            <p className="app-metric-value mt-2">
-                                {Object.keys(studyProgress.topics).length}
-                            </p>
-                            <p className="app-helper mt-1 text-xs">Resume flow stays local.</p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-metric-label">Quiz sets touched</p>
-                            <p className="app-metric-value mt-2">{quizCount}</p>
-                            <p className="app-helper mt-1 text-xs">Scores stay tied to topics.</p>
-                        </div>
-                    </div>
-                    <div className="app-tone-info mt-4 rounded-[1rem] px-4 py-3.5">
-                        <p className="app-card-title text-sm">Reading flow rule</p>
-                        <p className="app-body-md mt-2 text-sm">
-                            Open one track, keep the lesson shelf focused, then move into quizzes and calculators only after the topic framing is clear enough to trust your next step.
-                        </p>
-                    </div>
-                </SectionCard>
-            </section>
-
             <SectionCard>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-2xl">
-                        <p className="app-section-kicker text-[0.68rem]">Search topics</p>
+                        <h2 className="app-section-title">Find the next topic faster</h2>
                         <p className="app-body-md mt-2 text-sm">
-                            Search by topic, classroom wording, or concept signal such as break-even, transferred-in cost, elasticity, or liquidation.
+                            Search by topic or classroom wording, then narrow the shelf to one module when you want a cleaner reading run.
                         </p>
                     </div>
                     <div className="w-full max-w-xl">
@@ -553,17 +417,25 @@ export default function StudyHubPage() {
                     </div>
                 </div>
 
+                {deferredQuery.trim() === "" ? (
+                    <div className="mt-4 app-card-grid-readable">
+                        {moduleSummaries.map((summary) => (
+                            <ModuleCard
+                                key={summary.track}
+                                summary={summary}
+                                active={summary.track === activeTrack}
+                                onActivate={() => setActiveTrack(summary.track)}
+                            />
+                        ))}
+                    </div>
+                ) : null}
+
                 {activeModuleSummary ? (
-                    <div className="app-tone-info mt-4 rounded-[1rem] px-4 py-3.5">
-                        <p className="app-card-title text-sm">
+                    <div className="app-subtle-surface mt-4 rounded-[1rem] px-4 py-3.5">
+                        <p className="app-body-md text-sm">
                             {activeTrack === "All"
-                                ? "Full library open"
-                                : `${activeModuleSummary.track} module focus`}
-                        </p>
-                        <p className="app-body-md mt-2 text-sm">
-                            {activeTrack === "All"
-                                ? "Browse every module when you are still deciding what to review next. Switch to one module when you want the reading flow to feel more like a chapter shelf than a giant mixed list."
-                                : `${activeModuleSummary.track} currently contains ${activeModuleSummary.lessonCount} lessons, ${activeModuleSummary.linkedCalculatorCount} linked tools, and ${activeModuleSummary.reviewedSections} reviewed sections on this device.`}
+                                ? "All modules are visible. Pick one track when you want the lesson list to feel tighter and easier to scan."
+                                : `${activeModuleSummary.track} is active: ${activeModuleSummary.lessonCount} lessons, ${activeModuleSummary.linkedCalculatorCount} linked tools, and ${activeModuleSummary.reviewedSections} reviewed sections on this device.`}
                         </p>
                     </div>
                 ) : null}
@@ -658,39 +530,15 @@ export default function StudyHubPage() {
                 </SectionCard>
             </section>
 
-            {deferredQuery.trim() === "" ? (
-                <section className="space-y-4">
-                    <div>
-                        <p className="app-section-kicker text-[0.68rem]">Module library</p>
-                        <h2 className="app-section-title mt-2">Textbook-style shelves by track</h2>
-                        <p className="app-helper mt-2 text-xs">
-                            Use module cards when you want the Study Hub to behave more like a chapter shelf: one curriculum track at a time, with progress, next lesson, and linked calculators kept together.
-                        </p>
-                    </div>
-
-                    <div className="app-card-grid-readable">
-                        {moduleSummaries.map((summary) => (
-                            <ModuleCard
-                                key={summary.track}
-                                summary={summary}
-                                active={summary.track === activeTrack}
-                                onActivate={() => setActiveTrack(summary.track)}
-                            />
-                        ))}
-                    </div>
-                </section>
-            ) : null}
-
             <section className="space-y-4">
                 <div>
-                    <p className="app-section-kicker text-[0.68rem]">Browse by category</p>
                     <h2 className="app-section-title mt-2">
                         {deferredQuery.trim() ? "Search results" : "Structured study categories"}
                     </h2>
-                    <p className="app-helper mt-2 text-xs">
+                    <p className="app-helper mt-2 text-xs leading-5">
                         {activeTrack === "All"
-                            ? "Browse the full study catalog by track, then open one lesson instead of scanning every topic at once."
-                            : `Showing ${activeTrack} topics first so the study view stays narrower and easier to scan.`}
+                            ? "Browse the full study catalog by track, then open the lesson you actually need."
+                            : `Showing ${activeTrack} topics first so the list stays narrower and easier to scan.`}
                     </p>
                 </div>
 
@@ -711,21 +559,11 @@ export default function StudyHubPage() {
                                         : "Structured study coverage for this curriculum track."}
                                 </p>
                                 <p className="app-helper mt-2 text-xs leading-5">
-                                    Focus: {topics[0]
-                                        ? STUDY_CATEGORY_DETAILS[topics[0].category].emphasis
-                                        : "Concept structure and practical interpretation"}
+                                    {categoryCoverage[category]?.topicCount ?? 0} lessons ·{" "}
+                                    {categoryCoverage[category]?.quizCount ?? 0} quizzes ·{" "}
+                                    {categoryCoverage[category]?.calculatorCount ?? 0} linked
+                                    calculators
                                 </p>
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category]?.topicCount ?? 0} lessons
-                                    </span>
-                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category]?.quizCount ?? 0} quizzes
-                                    </span>
-                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        {categoryCoverage[category]?.calculatorCount ?? 0} linked calculators
-                                    </span>
-                                </div>
                             </div>
                             <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                                 {topics.length} topics

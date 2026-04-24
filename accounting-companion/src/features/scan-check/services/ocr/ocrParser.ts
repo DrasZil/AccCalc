@@ -1,5 +1,15 @@
-import { recommendStudyTopicsFromText } from "../../../study/studyContent";
-import type { ParsedScanResult, ScanPageType, StructuredScanField } from "../../types";
+import { recommendStudyTopicsFromText } from "../../../study/studyContent.js";
+import {
+    analyzeSmartInput,
+    FIELD_META,
+    INITIAL_FIELDS,
+} from "../../../smart/smartSolver.engine.js";
+import type {
+    ParsedScanResult,
+    ScanPageType,
+    ScanRouteRecommendation,
+    StructuredScanField,
+} from "../../types.js";
 import {
     detectStructuredValueKind,
     FLEXIBLE_NUMBER_CAPTURE_PATTERN,
@@ -8,11 +18,11 @@ import {
 import {
     extractAccountingFields,
     normalizeAccountingWorksheetText,
-} from "../accounting/accountingFieldExtractor";
-import { classifyAccountingWorksheet } from "../accounting/accountingWorksheetClassifier";
-import { classifyScanText } from "./ocrClassifier";
-import { cleanupMathLikeText } from "./ocrMathCleanup";
-import { recommendScanRoutes } from "./ocrRouting";
+} from "../accounting/accountingFieldExtractor.js";
+import { classifyAccountingWorksheet } from "../accounting/accountingWorksheetClassifier.js";
+import { classifyScanText } from "./ocrClassifier.js";
+import { cleanupMathLikeText } from "./ocrMathCleanup.js";
+import { recommendScanRoutes } from "./ocrRouting.js";
 
 function extractUnits(text: string) {
     const matches =
@@ -157,10 +167,44 @@ function detectLikelyIssues(
     return issues;
 }
 
+function buildSmartStructuredFields(text: string) {
+    const smartAnalysis = analyzeSmartInput({ ...INITIAL_FIELDS }, text);
+
+    const structuredFields: StructuredScanField[] = smartAnalysis.extractedEntries.map(
+        ([key, value]) => ({
+            key,
+            label: FIELD_META[key]?.label ?? key,
+            value,
+            normalizedValue: normalizeStructuredFieldValue(value),
+            valueKind: detectStructuredValueKind(value),
+            confidence:
+                !smartAnalysis.best
+                    ? 62
+                    : Math.max(62, Math.min(92, smartAnalysis.best?.score ?? 62)),
+            needsReview:
+                smartAnalysis.warnings.length > 0 ||
+                !smartAnalysis.isReadyToRoute ||
+                (smartAnalysis.best?.score ?? 0) < 70,
+        })
+    );
+
+    return {
+        smartAnalysis,
+        structuredFields,
+    };
+}
+
+function getRecommendationConfidence(score: number): ScanRouteRecommendation["confidence"] {
+    if (score >= 72) return "high";
+    if (score >= 50) return "moderate";
+    return "low";
+}
+
 export function parseOcrText(text: string, ocrConfidence: number): ParsedScanResult {
     const cleanup = cleanupMathLikeText(text, ocrConfidence);
     const cleanedText = cleanup.cleanedText;
     const normalizedAccountingText = normalizeAccountingWorksheetText(cleanedText);
+    const smartStructured = buildSmartStructuredFields(cleanedText);
     const accountingFields = extractAccountingFields(normalizedAccountingText);
     const genericStructuredFields = extractStructuredCandidates(cleanedText);
     const accountingClassification = classifyAccountingWorksheet(normalizedAccountingText);
@@ -174,6 +218,8 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
     const detectedUnits = extractUnits(cleanedText);
     const structuredFields = isAccountingWorksheet
         ? accountingFields
+        : smartStructured.structuredFields.length > 0
+          ? smartStructured.structuredFields
         : genericStructuredFields.length > 0
           ? genericStructuredFields
           : undefined;
@@ -182,11 +228,41 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         cleanup.flaggedValues,
         structuredFields ?? []
     );
-    const recommendations = recommendScanRoutes(
+    const fallbackRecommendations = recommendScanRoutes(
         isAccountingWorksheet ? normalizedAccountingText : cleanedText,
         kind,
         accountingPageType
     );
+    const solverRecommendations: ScanRouteRecommendation[] = smartStructured.smartAnalysis.best
+        ? [
+              {
+                  path: smartStructured.smartAnalysis.best.route,
+                  label: smartStructured.smartAnalysis.best.name,
+                  category: smartStructured.smartAnalysis.topicFamily?.label ?? "Smart Solver",
+                  reason: smartStructured.smartAnalysis.best.reason,
+                  score: smartStructured.smartAnalysis.best.score,
+                  confidence: getRecommendationConfidence(
+                      smartStructured.smartAnalysis.best.score
+                  ),
+              },
+              ...smartStructured.smartAnalysis.secondaryRoutes.map((route) => ({
+                  path: route.route,
+                  label: route.name,
+                  category: smartStructured.smartAnalysis.topicFamily?.label ?? "Smart Solver",
+                  reason: route.reason,
+                  score: route.score,
+                  confidence: getRecommendationConfidence(route.score),
+              })),
+          ]
+        : [];
+    const shouldPreferSolverRecommendations =
+        solverRecommendations.length > 0 &&
+        (smartStructured.smartAnalysis.topicFamily?.confidence === "high" ||
+            (smartStructured.smartAnalysis.best?.score ?? 0) >=
+                (fallbackRecommendations[0]?.score ?? 0));
+    const recommendations = shouldPreferSolverRecommendations
+        ? solverRecommendations
+        : fallbackRecommendations;
     const primaryRecommendation = recommendations[0];
     const secondRecommendation = recommendations[1];
     const studyRecommendations = recommendStudyTopicsFromText(
@@ -201,7 +277,8 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
                 (kind === "unknown" ? 22 : 0) +
                 Math.min(extractedValues.length * 3, 18) +
                 Math.min((structuredFields?.length ?? 0) * 2, 10) -
-                Math.min(cleanup.flaggedValues.length * 5, 18)
+                Math.min(cleanup.flaggedValues.length * 5, 18) +
+                Math.min((smartStructured.smartAnalysis.best?.score ?? 0) / 12, 8)
         )
     );
 
@@ -239,6 +316,10 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         );
     }
 
+    if (smartStructured.smartAnalysis.warnings.length > 0) {
+        likelyIssues.push(...smartStructured.smartAnalysis.warnings);
+    }
+
     const notes = [
         kind === "accounting-worksheet"
             ? "This looks like an accounting worksheet, so review structured fields and page roles before trusting the final totals."
@@ -258,6 +339,9 @@ export function parseOcrText(text: string, ocrConfidence: number): ParsedScanRes
         primaryRecommendation
             ? `Best-fit route: ${primaryRecommendation.label}. ${primaryRecommendation.reason}`
             : "No confident specialized route was found, so Smart Solver remains the safest fallback.",
+        smartStructured.smartAnalysis.topicFamily
+            ? `Topic-first OCR routing currently reads this as ${smartStructured.smartAnalysis.topicFamily.label.toLowerCase()}.`
+            : "OCR topic-family routing is still weak, so fallback routing rules remain active.",
         routeLooksAmbiguous && secondRecommendation
             ? `The top route is only slightly ahead of ${secondRecommendation.label}, so treat the recommendation as a guided shortlist instead of a final classification.`
             : "Routing confidence is separated from OCR confidence so you can review topic fit independently of text accuracy.",

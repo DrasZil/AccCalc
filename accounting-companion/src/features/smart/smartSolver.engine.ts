@@ -7,9 +7,11 @@ import type {
     FieldsState,
     RankedCalculator,
     SmartSolverAnalysis,
-    } from "./smartSolver.types";
-    import { ALL_FIELD_KEYS } from "./smartSolver.types";
-import { detectCurrencyFromText } from "../../utils/currency";
+    TopicFamilyConfidence,
+    TopicFamilyMatch,
+} from "./smartSolver.types.js";
+import { ALL_FIELD_KEYS } from "./smartSolver.types.js";
+import { detectCurrencyFromText } from "../../utils/currency.js";
 import {
     FLEXIBLE_NUMBER_CAPTURE_PATTERN,
     parseLooseNumber,
@@ -5572,6 +5574,316 @@ import {
     },
     ];
 
+type RouteFamilyRule = {
+    id: string;
+    label: string;
+    calculatorIds: readonly string[];
+    extractionFieldKeys?: readonly FieldKey[];
+    positivePatterns?: readonly RegExp[];
+    contradictionPatterns?: readonly RegExp[];
+    relatedCalculatorIds?: readonly string[];
+};
+
+type RankedTopicFamily = TopicFamilyMatch & {
+    contradictionPenalty: number;
+};
+
+const SPECIAL_ROUTE_FAMILY_RULES: RouteFamilyRule[] = [
+    {
+        id: "cash-budget-suite",
+        label: "Cash Budget Suite",
+        calculatorIds: [
+            "cash-budget",
+            "cash-collections-schedule",
+            "cash-disbursements-schedule",
+            "sales-budget",
+            "production-budget",
+            "direct-materials-purchases-budget",
+            "direct-labor-budget",
+            "factory-overhead-budget",
+            "budgeted-income-statement",
+        ],
+        positivePatterns: [
+            /\bcash budget\b/i,
+            /\bcash collections?\b/i,
+            /\bcash disbursements?\b/i,
+            /\bminimum cash\b/i,
+            /\bfinancing need\b/i,
+            /\bcash receipts?\b/i,
+        ],
+        contradictionPatterns: [
+            /\bbank reconciliation\b/i,
+            /\bgross profit rate\b/i,
+            /\bloan amortization\b/i,
+            /\bconfidence interval\b/i,
+        ],
+        relatedCalculatorIds: [
+            "cash-collections-schedule",
+            "cash-disbursements-schedule",
+            "direct-materials-purchases-budget",
+            "sales-budget",
+        ],
+    },
+    {
+        id: "bank-reconciliation",
+        label: "Bank Reconciliation",
+        calculatorIds: ["bank-reconciliation"],
+        positivePatterns: [
+            /\bbank reconciliation\b/i,
+            /\bdeposits in transit\b/i,
+            /\boutstanding checks?\b/i,
+            /\bbook balance\b/i,
+            /\bbank balance\b/i,
+            /\bnsf\b/i,
+        ],
+        contradictionPatterns: [
+            /\bgross profit\b/i,
+            /\bcash budget\b/i,
+            /\bloan amortization\b/i,
+            /\bpresent value\b/i,
+            /\bbreak[- ]even\b/i,
+        ],
+    },
+    {
+        id: "intercompany-inventory",
+        label: "Intercompany Inventory",
+        calculatorIds: ["intercompany-inventory-profit"],
+        positivePatterns: [
+            /\bintercompany inventory\b/i,
+            /\bunrealized profit\b/i,
+            /\bending inventory unsold\b/i,
+            /\bmarkup on cost\b/i,
+        ],
+        contradictionPatterns: [
+            /\buseful life\b/i,
+            /\bexcess depreciation\b/i,
+            /\bbank reconciliation\b/i,
+        ],
+    },
+    {
+        id: "intercompany-ppe",
+        label: "Intercompany PPE Transfer",
+        calculatorIds: ["intercompany-ppe-transfer"],
+        positivePatterns: [
+            /\bintercompany ppe\b/i,
+            /\bintercompany equipment\b/i,
+            /\bcarrying amount\b/i,
+            /\buseful life\b/i,
+            /\bexcess depreciation\b/i,
+            /\bunamortized intercompany profit\b/i,
+        ],
+        contradictionPatterns: [
+            /\bending inventory unsold\b/i,
+            /\bmarkup on cost\b/i,
+            /\bbank reconciliation\b/i,
+            /\bloan amortization\b/i,
+        ],
+    },
+];
+
+const SPECIAL_ROUTE_FAMILY_BY_CALCULATOR_ID = new Map(
+    SPECIAL_ROUTE_FAMILY_RULES.flatMap((family) =>
+        family.calculatorIds.map((calculatorId) => [calculatorId, family] as const)
+    )
+);
+
+function clampScore(value: number) {
+    return Math.max(0, Math.min(100, value));
+}
+
+function dedupeFieldKeys(keys: readonly FieldKey[]): FieldKey[] {
+    return Array.from(new Set(keys)) as FieldKey[];
+}
+
+function getRouteFamilyRule(calculator: CalculatorConfig): RouteFamilyRule {
+    const special = SPECIAL_ROUTE_FAMILY_BY_CALCULATOR_ID.get(calculator.id);
+    if (special) {
+        return {
+            ...special,
+            extractionFieldKeys:
+                special.extractionFieldKeys ??
+                dedupeFieldKeys(
+                    special.calculatorIds.flatMap((calculatorId) => {
+                        const matchedCalculator = CALCULATORS.find(
+                            (entry) => entry.id === calculatorId
+                        );
+                        return matchedCalculator
+                            ? [
+                                  ...matchedCalculator.required,
+                                  ...(matchedCalculator.optional ?? []),
+                              ]
+                            : [];
+                    })
+                ),
+        };
+    }
+
+    return {
+        id: calculator.id,
+        label: calculator.name,
+        calculatorIds: [calculator.id],
+        extractionFieldKeys: dedupeFieldKeys([
+            ...calculator.required,
+            ...(calculator.optional ?? []),
+        ]),
+        relatedCalculatorIds: [],
+    };
+}
+
+function getTopicFamilyConfidence(score: number): TopicFamilyConfidence {
+    if (score >= 70) return "high";
+    if (score >= 42) return "moderate";
+    return "low";
+}
+
+function looksLikeCalendarYear(value: number | null) {
+    if (value === null || !Number.isFinite(value)) return false;
+    return Number.isInteger(value) && value >= 1900 && value <= 2100;
+}
+
+function isStudyFirstPrompt(query: string) {
+    if (!query.trim()) return false;
+
+    const studySignals =
+        (query.match(/\b(explain|lesson|learn|study|reviewer|review|concept|why|meaning|difference between|theory|journalize)\b/gi) ?? [])
+            .length;
+    const calculatorSignals =
+        (query.match(/\b(calculate|compute|solve|determine|prepare|cash budget|bank reconciliation|break[- ]even|intercompany|depreciation)\b/gi) ?? [])
+            .length;
+
+    return studySignals >= 2 && calculatorSignals === 0;
+}
+
+function findNearbyAliasWindow(text: string, aliases: readonly string[]) {
+    if (!aliases.length) return "";
+
+    const variants = [...new Set(aliases.flatMap(buildPhraseVariants))];
+    for (const alias of variants) {
+        const index = text.indexOf(alias);
+        if (index === -1) continue;
+
+        return text.slice(Math.max(0, index - 24), Math.min(text.length, index + alias.length + 24));
+    }
+
+    return "";
+}
+
+function sanitizeExtractedFactValue(
+    key: FieldKey,
+    value: string | number,
+    query: string
+) {
+    const numericValue = typeof value === "number" ? value : toNumber(value);
+    if (numericValue === null) {
+        return typeof value === "number" ? null : String(value);
+    }
+
+    const meta = FIELD_META[key];
+    const nearbyWindow = findNearbyAliasWindow(query, meta.aliases ?? []);
+    const explicitPercentNearby = /%|percent|percentage|rate/i.test(nearbyWindow);
+    const explicitDateNearby =
+        /\b(year ended|fiscal year|calendar year|as of|dated|date)\b/i.test(nearbyWindow);
+
+    if (meta.kind === "percent") {
+        if (looksLikeCalendarYear(numericValue)) return null;
+        if (!explicitPercentNearby && Math.abs(numericValue) > 100) return null;
+    }
+
+    if (meta.kind === "money" && looksLikeCalendarYear(numericValue) && !explicitDateNearby) {
+        return null;
+    }
+
+    if (
+        (meta.kind === "number" || meta.kind === "time") &&
+        key !== "year" &&
+        key !== "years" &&
+        key !== "yearsInArrears" &&
+        looksLikeCalendarYear(numericValue)
+    ) {
+        return null;
+    }
+
+    return typeof value === "number" ? numberToInput(value) : String(value);
+}
+
+type ExtractionGuardContext = {
+    allowedFields?: Set<FieldKey>;
+    query?: string;
+};
+
+let activeExtractionGuardContext: ExtractionGuardContext | null = null;
+
+function withExtractionGuardContext<T>(
+    context: ExtractionGuardContext,
+    run: () => T
+) {
+    const previous = activeExtractionGuardContext;
+    activeExtractionGuardContext = context;
+
+    try {
+        return run();
+    } finally {
+        activeExtractionGuardContext = previous;
+    }
+}
+
+function computeTopicSignalScore(
+    calculator: CalculatorConfig,
+    query: string
+) {
+    const familyRule = getRouteFamilyRule(calculator);
+    const keywordMatches = calculator.keywords.filter((keyword) => keyword.test(query)).length;
+    const aliasMatches = countPhraseMatches(query, calculator.aliases);
+    const nameMatches = countPhraseMatches(query, [calculator.name]);
+    const familyMatches =
+        (familyRule.positivePatterns ?? []).filter((pattern) => pattern.test(query)).length;
+    const contradictionPenalty =
+        (familyRule.contradictionPatterns ?? []).filter((pattern) => pattern.test(query)).length *
+        12;
+
+    const topicScore =
+        keywordMatches * 12 +
+        aliasMatches * 14 +
+        nameMatches * 8 +
+        familyMatches * 10 -
+        contradictionPenalty;
+
+    return {
+        familyRule,
+        topicScore: clampScore(topicScore),
+        contradictionPenalty,
+        keywordMatches,
+        aliasMatches,
+        familyMatches,
+    };
+}
+
+function rankTopicFamilies(query: string): RankedTopicFamily[] {
+    const familyMap = new Map<string, RankedTopicFamily>();
+
+    CALCULATORS.forEach((calculator) => {
+        const topic = computeTopicSignalScore(calculator, query);
+        const existing = familyMap.get(topic.familyRule.id);
+
+        if (!existing || topic.topicScore > existing.score) {
+            familyMap.set(topic.familyRule.id, {
+                id: topic.familyRule.id,
+                label: topic.familyRule.label,
+                score: topic.topicScore,
+                confidence: getTopicFamilyConfidence(topic.topicScore),
+                reason:
+                    topic.familyMatches > 0
+                        ? `${topic.familyRule.label} won on topic-specific wording before field extraction was applied.`
+                        : `${topic.familyRule.label} currently has the strongest vocabulary match.`,
+                calculatorIds: [...topic.familyRule.calculatorIds],
+                contradictionPenalty: topic.contradictionPenalty,
+            });
+        }
+    });
+
+    return [...familyMap.values()].sort((left, right) => right.score - left.score);
+}
+
     /* -------------------------------------------------------------------------- */
     /* HELPERS */
     /* -------------------------------------------------------------------------- */
@@ -5584,7 +5896,9 @@ export function normalizeText(text: string = ""): string {
     const normalized = String(text)
         .toLowerCase()
         .replace(/₱/g, " php ")
-        .replace(/[,_]/g, " ")
+        .replace(/(?<=\d),(?=\d)/g, "")
+        .replace(/_/g, " ")
+        .replace(/,/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 
@@ -5971,82 +6285,97 @@ export function normalizeText(text: string = ""): string {
     value: string | number | null | undefined
     ) {
     if (value === null || value === undefined || value === "") return;
+    if (
+        activeExtractionGuardContext?.allowedFields &&
+        !activeExtractionGuardContext.allowedFields.has(key)
+    ) return;
     if (target[key]) return;
 
-    target[key] = typeof value === "number" ? numberToInput(value) : String(value);
+    const sanitized = sanitizeExtractedFactValue(
+        key,
+        value,
+        activeExtractionGuardContext?.query ?? ""
+    );
+    if (!sanitized) return;
+
+    target[key] = sanitized;
     }
 
     function applyMirrors(facts: Partial<Record<FieldKey, string>>) {
+    const canSet = (field: FieldKey) =>
+        !activeExtractionGuardContext?.allowedFields ||
+        activeExtractionGuardContext.allowedFields.has(field);
+
     if (facts.principal) {
-        if (!facts.loanAmount) facts.loanAmount = facts.principal;
-        if (!facts.presentValue) facts.presentValue = facts.principal;
+        if (canSet("loanAmount") && !facts.loanAmount) facts.loanAmount = facts.principal;
+        if (canSet("presentValue") && !facts.presentValue) facts.presentValue = facts.principal;
     }
 
-    if (facts.loanAmount && !facts.principal) {
+    if (facts.loanAmount && !facts.principal && canSet("principal")) {
         facts.principal = facts.loanAmount;
     }
 
-    if (facts.presentValue && !facts.principal) {
+    if (facts.presentValue && !facts.principal && canSet("principal")) {
         facts.principal = facts.presentValue;
     }
 
-    if (facts.rate && !facts.annualRate) {
+    if (facts.rate && !facts.annualRate && canSet("annualRate")) {
         facts.annualRate = facts.rate;
     }
 
-    if (facts.annualRate && !facts.rate) {
+    if (facts.annualRate && !facts.rate && canSet("rate")) {
         facts.rate = facts.annualRate;
     }
 
-    if (facts.time && !facts.years) {
+    if (facts.time && !facts.years && canSet("years")) {
         facts.years = facts.time;
     }
 
-    if (facts.years && !facts.time) {
+    if (facts.years && !facts.time && canSet("time")) {
         facts.time = facts.years;
     }
 
-    if (facts.revenue && !facts.sales) {
+    if (facts.revenue && !facts.sales && canSet("sales")) {
         facts.sales = facts.revenue;
     }
 
-    if (facts.sales && !facts.revenue) {
+    if (facts.sales && !facts.revenue && canSet("revenue")) {
         facts.revenue = facts.sales;
     }
 
-    if (facts.accountsReceivable && !facts.netReceivables) {
+    if (facts.accountsReceivable && !facts.netReceivables && canSet("netReceivables")) {
         facts.netReceivables = facts.accountsReceivable;
     }
 
-    if (facts.netReceivables && !facts.accountsReceivable) {
+    if (facts.netReceivables && !facts.accountsReceivable && canSet("accountsReceivable")) {
         facts.accountsReceivable = facts.netReceivables;
     }
 
-    if (facts.assets && !facts.averageTotalAssets) {
+    if (facts.assets && !facts.averageTotalAssets && canSet("averageTotalAssets")) {
         facts.averageTotalAssets = facts.assets;
     }
 
-    if (facts.averageTotalAssets && !facts.assets) {
+    if (facts.averageTotalAssets && !facts.assets && canSet("assets")) {
         facts.assets = facts.averageTotalAssets;
     }
 
-    if (facts.equity && !facts.averageEquity) {
+    if (facts.equity && !facts.averageEquity && canSet("averageEquity")) {
         facts.averageEquity = facts.equity;
     }
 
-    if (facts.averageEquity && !facts.equity) {
+    if (facts.averageEquity && !facts.equity && canSet("equity")) {
         facts.equity = facts.averageEquity;
     }
 
-    if (facts.equity && !facts.commonEquity) {
+    if (facts.equity && !facts.commonEquity && canSet("commonEquity")) {
         facts.commonEquity = facts.equity;
     }
 
-    if (facts.sales && !facts.actualSales) {
+    if (facts.sales && !facts.actualSales && canSet("actualSales")) {
         facts.actualSales = facts.sales;
     }
 
-    if (facts.actualSales && !facts.sales) {
+    if (facts.actualSales && !facts.sales && canSet("sales")) {
         facts.sales = facts.actualSales;
     }
     }
@@ -6055,7 +6384,10 @@ export function normalizeText(text: string = ""): string {
     /* EXTRACTION */
     /* -------------------------------------------------------------------------- */
 
-    export function extractFacts(query: string): ExtractedFacts {
+    export function extractFacts(
+    query: string,
+    allowedFields?: readonly FieldKey[]
+    ): ExtractedFacts {
     const text = normalizeText(query);
 
     if (!text) {
@@ -6064,6 +6396,15 @@ export function normalizeText(text: string = ""): string {
         notes: [],
         };
     }
+
+    const allowedFieldSet = allowedFields ? new Set(allowedFields) : undefined;
+
+    return withExtractionGuardContext(
+        {
+            allowedFields: allowedFieldSet,
+            query: text,
+        },
+        () => {
 
     const notes: string[] = [];
     const facts: Partial<Record<FieldKey, string>> = {};
@@ -6730,7 +7071,12 @@ export function normalizeText(text: string = ""): string {
         text,
         FIELD_META.proceedsFromDiscounting.aliases ?? []
     );
-    const transferPrice = extractNumberByAliases(text, FIELD_META.transferPrice.aliases ?? []);
+    const transferPrice =
+        extractNumberByAliases(text, FIELD_META.transferPrice.aliases ?? []) ??
+        extractFirstNumber(text, [
+            /(?:sold|transferred)\s+(?:equipment|asset|ppe|property|machine|machinery)[\s\S]{0,80}?\b(?:to\s+(?:the\s+)?(?:subsidiary|parent|affiliate|related party))[\s\S]{0,30}?\bfor\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
+            /(?:intercompany|intra[- ]group)\s+(?:sale|transfer)[\s\S]{0,40}?\bfor\s*[\u20B1$]?(-?\d+(?:\.\d+)?)/i,
+        ]);
     const markupRateOnCostPercent = extractNumberByAliases(
         text,
         FIELD_META.markupRateOnCostPercent.aliases ?? [],
@@ -7276,6 +7622,8 @@ export function normalizeText(text: string = ""): string {
         ...facts,
         notes,
     };
+        }
+    );
     }
 
     /* -------------------------------------------------------------------------- */
@@ -7300,27 +7648,32 @@ export function normalizeText(text: string = ""): string {
 export function buildReason(
     calculator: CalculatorConfig,
     merged: FieldsState,
-    query: string
+    query: string,
+    topicScore = 0,
+    fieldScore = 0
     ): string {
     const matchedFields = calculator.required.filter((field) => merged[field] !== "");
     const matchedKeywords = calculator.keywords.filter((keyword) => keyword.test(query)).length;
     const matchedAliases = countPhraseMatches(query, calculator.aliases);
+    const routeFamily = getRouteFamilyRule(calculator);
 
     if (
         matchedFields.length === calculator.required.length &&
         (matchedKeywords > 0 || matchedAliases > 0)
     ) {
-        return `Matched all required values (${matchedFields
+        return `Won on ${routeFamily.label.toLowerCase()} topic evidence and matched all required values (${matchedFields
         .map(humanizeField)
         .join(", ")}) and recognized related accounting vocabulary from your natural-language input.`;
     }
 
-    if (matchedFields.length === calculator.required.length) {
-        return `Matched all required values: ${matchedFields.map(humanizeField).join(", ")}.`;
+    if (matchedFields.length === calculator.required.length && topicScore > 0) {
+        return `Won on topic-specific language and matched all required values: ${matchedFields
+            .map(humanizeField)
+            .join(", ")}.`;
     }
 
     if (matchedFields.length > 0) {
-        return `Partially matched ${matchedFields
+        return `Won on ${topicScore}% topic fit and ${fieldScore}% route-specific extraction. It matched ${matchedFields
         .map(humanizeField)
         .join(", ")} but still needs ${calculator.required
         .filter((field) => merged[field] === "")
@@ -7328,13 +7681,16 @@ export function buildReason(
         .join(", ")}.`;
     }
 
+    if (topicScore > 0) {
+        return `The route won mainly on topic wording. Review the prepared values before trusting it because the extraction is still thin.`;
+    }
+
     return calculator.description;
     }
 
-export function scoreCalculator(
+function scoreFieldContribution(
     calculator: CalculatorConfig,
     merged: FieldsState,
-    query: string,
     extracted: ExtractedFacts
     ): number {
     let score = 0;
@@ -7349,23 +7705,23 @@ export function scoreCalculator(
     if (missingRequired.length === 0) score += 20;
     score += (calculator.optional ?? []).filter((field) => merged[field] !== "").length * 8;
 
-    calculator.keywords.forEach((keyword) => {
-        if (keyword.test(query)) score += 7;
-    });
-
-    score += countPhraseMatches(query, calculator.aliases) * 9;
-    score += countPhraseMatches(query, [calculator.name]) * 6;
-
-    calculator.required.forEach((field) => {
-        const aliases = FIELD_META[field]?.aliases ?? [];
-        score += countPhraseMatches(query, aliases) * 2;
-    });
-
     if (presentRequired.length === 0 && missingRequired.length > 0) {
         score -= 5;
     }
 
     return Math.max(0, Math.min(100, score));
+    }
+
+export function scoreCalculator(
+    calculator: CalculatorConfig,
+    merged: FieldsState,
+    extracted: ExtractedFacts,
+    topicScore: number,
+    contradictionPenalty: number,
+    familyGatePenalty: number
+    ): number {
+    const fieldScore = scoreFieldContribution(calculator, merged, extracted);
+    return clampScore(topicScore + fieldScore - contradictionPenalty - familyGatePenalty);
     }
 
     export function confidenceLabel(score: number): ConfidenceLabel {
@@ -7378,8 +7734,14 @@ export function scoreCalculator(
     export function buildFollowUp(
     best: RankedCalculator | null,
     secondBest: RankedCalculator | null,
-    query = ""
+    query = "",
+    topicFamily: TopicFamilyMatch | null = null,
+    warnings: string[] = []
     ): string {
+    if (isStudyFirstPrompt(query)) {
+        return "This reads more like a study or explanation prompt than a single calculator request. Review the lesson suggestions first or keep the route in review mode.";
+    }
+
     if (!best || best.score < 35) {
         return 'Try typing your full problem naturally, like: "Find simple interest for 10000 at 5% for 2 years" or "I bought for 5000 and sold for 8000."';
     }
@@ -7390,6 +7752,10 @@ export function scoreCalculator(
         secondBest.score >= 35
     ) {
         return `This looks slightly ambiguous between ${best.name} and ${secondBest.name}. Add one more clue or value so Smart Solver can route with more confidence.`;
+    }
+
+    if (warnings.length > 0) {
+        return warnings[0];
     }
 
     if (best.missing.length > 0) {
@@ -7404,6 +7770,10 @@ export function scoreCalculator(
 
       if (/\b(workpaper|workbook|spreadsheet|xlsx|csv export|supporting schedule)\b/i.test(query)) {
           return `${best.name} is the best solving route. After solving, send the result to Workpaper Studio if you want an exportable workbook, supporting schedule, or reusable working paper.`;
+      }
+
+      if (topicFamily?.confidence === "low") {
+          return `${best.name} is the current best route, but the topic family is still weak. Review the prepared values and related routes before opening it.`;
       }
 
       return `${best.name} is ready. You can apply detected values and open the calculator.`;
@@ -7529,30 +7899,121 @@ export function suggestSolveTarget(calculatorId: string, query: string) {
     fields: FieldsState,
     smartInput: string
     ): SmartSolverAnalysis {
-    const extracted = extractFacts(smartInput);
-    const merged = mergeInputs(fields, extracted);
     const normalizedQuery = normalizeText(smartInput);
     const detectedCurrency = detectCurrencyFromText(smartInput);
+    const topicFamilies = rankTopicFamilies(normalizedQuery);
+    const topicFamily = topicFamilies[0] ?? null;
+    const topicFamilyGap =
+        topicFamily && topicFamilies[1]
+            ? topicFamily.score - topicFamilies[1].score
+            : null;
+    const strongFamilyGate = Boolean(
+        topicFamily &&
+            topicFamily.confidence !== "low" &&
+            (topicFamilyGap === null || topicFamilyGap >= 10)
+    );
+    const extractionFamilies = topicFamily
+        ? strongFamilyGate
+            ? [topicFamily]
+            : topicFamilies
+                  .filter(
+                      (_, index) =>
+                          index === 0 ||
+                          (index === 1 &&
+                              (topicFamilyGap === null ||
+                                  topicFamilyGap <= 6 ||
+                                  topicFamily.confidence === "low"))
+                  )
+                  .slice(0, 2)
+        : [];
+    const allowedFieldKeys =
+        extractionFamilies.length > 0
+            ? dedupeFieldKeys(
+                  extractionFamilies.flatMap((family) =>
+                      family.calculatorIds.flatMap((calculatorId) => {
+                          const calculator = CALCULATORS.find(
+                              (entry) => entry.id === calculatorId
+                          );
+                          if (!calculator) return [];
+                          return getRouteFamilyRule(calculator).extractionFieldKeys ?? [
+                              ...calculator.required,
+                              ...(calculator.optional ?? []),
+                          ];
+                      })
+                  )
+              )
+            : undefined;
+    const extracted = extractFacts(smartInput, allowedFieldKeys);
+    const merged = mergeInputs(fields, extracted);
+    const warnings: string[] = [];
+
+    if (isStudyFirstPrompt(normalizedQuery)) {
+        warnings.push(
+            "The prompt looks more like a study or explanation request than a single calculator instruction."
+        );
+    }
+
+    if (topicFamilyGap !== null && topicFamilyGap <= 6 && topicFamilies[1]) {
+        warnings.push(
+            `Topic-family routing is still close between ${topicFamily.label} and ${topicFamilies[1].label}.`
+        );
+    }
 
     const ranked: RankedCalculator[] = CALCULATORS.map((calculator) => {
-        const score = scoreCalculator(calculator, merged, normalizedQuery, extracted);
+        const topicSignals = computeTopicSignalScore(calculator, normalizedQuery);
+        const familyGatePenalty =
+            strongFamilyGate && topicFamily && topicSignals.familyRule.id !== topicFamily.id
+                ? 24
+                : topicFamily && topicSignals.familyRule.id !== topicFamily.id
+                  ? 10
+                  : 0;
+        const score = scoreCalculator(
+            calculator,
+            merged,
+            extracted,
+            topicSignals.topicScore,
+            0,
+            familyGatePenalty
+        );
         const missing = calculator.required.filter((field) => merged[field] === "");
+        const fieldScore = scoreFieldContribution(calculator, merged, extracted);
 
         return {
         ...calculator,
         score,
         confidence: confidenceLabel(score),
         missing,
-        reason: buildReason(calculator, merged, normalizedQuery),
+        reason: buildReason(calculator, merged, normalizedQuery, topicSignals.topicScore, fieldScore),
+        topicScore: topicSignals.topicScore,
+        fieldScore,
+        contradictionPenalty: topicSignals.contradictionPenalty,
+        familyGatePenalty,
+        familyId: topicSignals.familyRule.id,
         };
     }).sort((a, b) => b.score - a.score);
 
     const best = ranked[0] ?? null;
     const secondBest = ranked[1] ?? null;
+    const relatedCalculatorIds =
+        best ? getRouteFamilyRule(best).relatedCalculatorIds ?? [] : [];
+    const secondaryRoutes = ranked
+        .filter((calculator) => calculator.id !== best?.id)
+        .filter(
+            (calculator) =>
+                relatedCalculatorIds.includes(calculator.id) ||
+                (calculator.score >= 35 && calculator.topicScore >= 24)
+        )
+        .slice(0, 4);
 
-    const extractedEntries: Array<[FieldKey, string]> = FIELD_KEYS.flatMap((key) =>
-        extracted[key] !== "" ? [[key, extracted[key]]] : []
-    );
+    const extractedEntries: Array<[FieldKey, string]> = (
+        allowedFieldKeys && allowedFieldKeys.length > 0 ? allowedFieldKeys : FIELD_KEYS
+    ).flatMap((key) => (extracted[key] !== "" ? [[key, extracted[key]]] : []));
+
+    if (best && best.familyGatePenalty > 0 && best.score < 55) {
+        warnings.push(
+            "The selected route is being held below auto-open strength because the topic signals are still mixed."
+        );
+    }
 
     return {
         extracted,
@@ -7560,11 +8021,25 @@ export function suggestSolveTarget(calculatorId: string, query: string) {
         ranked,
         best,
         secondBest,
+        topicFamily,
+        secondaryRoutes,
         detectedCurrency,
-        followUp: buildFollowUp(best, secondBest, smartInput),
-        hasStrongMatch: Boolean(best && best.score >= 55),
-        isReadyToRoute: Boolean(best && best.score >= 55 && best.missing.length === 0),
+        followUp: buildFollowUp(best, secondBest, smartInput, topicFamily, warnings),
+        hasStrongMatch: Boolean(
+            best &&
+                best.score >= 55 &&
+                !isStudyFirstPrompt(normalizedQuery) &&
+                topicFamily?.confidence !== "low"
+        ),
+        isReadyToRoute: Boolean(
+            best &&
+                best.score >= 55 &&
+                best.missing.length === 0 &&
+                !isStudyFirstPrompt(normalizedQuery) &&
+                topicFamily?.confidence !== "low"
+        ),
         extractedEntries,
+        warnings,
     };
 }
 

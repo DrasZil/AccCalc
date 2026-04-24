@@ -1,4 +1,6 @@
 import SettingsContent from "./SettingsContent";
+import ViewportPortal from "../../components/ViewportPortal";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 type SettingsDrawerProps = {
     open: boolean;
@@ -62,27 +64,41 @@ export function SettingsPanelBody({
 }
 
 export default function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
-    return (
-        <>
-            <button
-                type="button"
-                aria-label="Close settings overlay"
-                onClick={onClose}
-                className={[
-                    "app-backdrop fixed inset-0 z-[96] transition duration-300 xl:hidden",
-                    open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-                ].join(" ")}
-            />
+    const shouldLockBody =
+        open &&
+        typeof window !== "undefined" &&
+        window.matchMedia("(max-width: 1279px)").matches;
+    useBodyScrollLock(shouldLockBody);
 
-            <aside
-                aria-hidden={!open}
-                className={[
-                    "app-panel-elevated fixed inset-y-0 right-0 z-[97] flex w-full max-w-xl flex-col rounded-none border-l transition-transform duration-300 xl:hidden",
-                    open ? "translate-x-0" : "translate-x-full",
-                ].join(" ")}
-            >
-                <SettingsPanelBody onClose={onClose} />
-            </aside>
-        </>
+    return (
+        <ViewportPortal>
+            <>
+                <button
+                    type="button"
+                    aria-label="Close settings overlay"
+                    onClick={onClose}
+                    className={[
+                        "app-backdrop fixed inset-0 z-[100] transition duration-300 xl:hidden",
+                        open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+                    ].join(" ")}
+                />
+
+                <aside
+                    aria-hidden={!open}
+                    className={[
+                        "app-panel-elevated fixed z-[101] flex w-full flex-col border transition-transform duration-300 xl:hidden",
+                        open ? "translate-x-0" : "translate-x-full",
+                    ].join(" ")}
+                    style={{
+                        top: "var(--app-shell-overlay-top, 0.75rem)",
+                        right: "0.5rem",
+                        width: "min(34rem, calc(100vw - 1rem))",
+                        height: "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                    }}
+                >
+                    <SettingsPanelBody onClose={onClose} />
+                </aside>
+            </>
+        </ViewportPortal>
     );
 }

@@ -1,4 +1,6 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
+import useBodyScrollLock from "../hooks/useBodyScrollLock";
+import ViewportPortal from "./ViewportPortal";
 
 type ContextualPageMenuProps = {
     title: string;
@@ -17,22 +19,20 @@ export default function ContextualPageMenu({
 }: ContextualPageMenuProps) {
     const [open, setOpen] = useState(false);
     const titleId = useId();
+    useBodyScrollLock(open);
 
     useEffect(() => {
         if (!open) return;
 
-        const previousOverflow = document.body.style.overflow;
         const handleEscape = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setOpen(false);
             }
         };
 
-        document.body.style.overflow = "hidden";
         window.addEventListener("keydown", handleEscape);
 
         return () => {
-            document.body.style.overflow = previousOverflow;
             window.removeEventListener("keydown", handleEscape);
         };
     }, [open]);
@@ -49,61 +49,58 @@ export default function ContextualPageMenu({
             >
                 <span className="hidden sm:inline">{buttonLabel}</span>
                 <span className="sm:hidden">Menu</span>
-                <span aria-hidden="true">•••</span>
+                <span aria-hidden="true">...</span>
             </button>
 
             {open ? (
-                <div className="app-page-menu-layer" role="presentation">
-                    <button
-                        type="button"
-                        className="app-page-menu-backdrop"
-                        aria-label="Close page menu"
-                        onClick={() => setOpen(false)}
-                    />
+                <ViewportPortal>
+                    <div className="app-page-menu-layer" role="presentation">
+                        <button
+                            type="button"
+                            className="app-page-menu-backdrop"
+                            aria-label="Close page menu"
+                            onClick={() => setOpen(false)}
+                        />
 
-                    <section
-                        id={titleId}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby={`${titleId}-heading`}
-                        className="app-page-menu-panel"
-                    >
-                        <div className="app-page-menu-panel__header">
-                            <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
+                        <section
+                            id={titleId}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby={`${titleId}-heading`}
+                            className="app-page-menu-panel"
+                        >
+                            <div className="app-page-menu-panel__header">
+                                <div className="min-w-0">
                                     {badge ? (
                                         <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
                                             {badge}
                                         </span>
                                     ) : null}
-                                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                        Secondary content
-                                    </span>
+                                    <h2
+                                        id={`${titleId}-heading`}
+                                        className="mt-3 text-[1.1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]"
+                                    >
+                                        {title}
+                                    </h2>
+                                    <p className="app-helper mt-2 text-sm leading-6">
+                                        {description}
+                                    </p>
                                 </div>
-                                <h2
-                                    id={`${titleId}-heading`}
-                                    className="mt-3 text-[1.1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]"
+
+                                <button
+                                    type="button"
+                                    onClick={() => setOpen(false)}
+                                    className="app-button-ghost inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold"
+                                    aria-label="Close page menu"
                                 >
-                                    {title}
-                                </h2>
-                                <p className="app-helper mt-2 text-sm leading-6">
-                                    {description}
-                                </p>
+                                    X
+                                </button>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={() => setOpen(false)}
-                                className="app-button-ghost inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold"
-                                aria-label="Close page menu"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div className="app-page-menu-panel__body">{children}</div>
-                    </section>
-                </div>
+                            <div className="app-page-menu-panel__body">{children}</div>
+                        </section>
+                    </div>
+                </ViewportPortal>
             ) : null}
         </>
     );

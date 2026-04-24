@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccCalc v12.1.0 Documentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f3ef;
+        --surface: #ffffff;
+        --text: #1b1d23;
+        --muted: #5e6575;
+        --border: #ddd9d1;
+        --accent: #d56236;
+        --soft: #f6e2d8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #faf8f4 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      main {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+      header, section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 26px;
+        box-shadow: 0 16px 40px rgba(34, 32, 28, 0.06);
+      }
+      header { margin-bottom: 20px; }
+      section + section { margin-top: 16px; }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1, h2 { line-height: 1.1; letter-spacing: -0.03em; }
+      h1 { margin: 14px 0 10px; font-size: 38px; }
+      h2 { margin: 0 0 14px; font-size: 24px; }
+      p, li { max-width: 74ch; }
+      ul { margin: 0; padding-left: 20px; }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fcfbf9;
+      }
+      .muted { color: var(--muted); }
+      @media (max-width: 760px) {
+        main { padding: 20px 14px 40px; }
+        header, section { padding: 18px; border-radius: 18px; }
+        h1 { font-size: 30px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">AccCalc v12.1.0</span>
+        <h1>Focus-First Shell Stabilization</h1>
+        <p class="muted">
+          Version 12.1.0 hardens the responsive shell, fixes the mobile menu
+          bug at the root, and keeps major product surfaces more task-first.
+        </p>
+      </header>
+
+      <section>
+        <h2>Main Changes</h2>
+        <ul>
+          <li>Fixed the mobile navigation and partial-screen overlay bug with viewport portals and shared live-height handling.</li>
+          <li>Added shared body scroll locking for mobile navigation, search, settings, and page menus.</li>
+          <li>Simplified the shell context rail so global wayfinding stays helpful without dominating the page.</li>
+          <li>Reorganized the homepage around best-next actions, resume flow, and delayed discovery.</li>
+          <li>Moved lesson context and settings navigation into calmer progressive-disclosure patterns.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Focus-First Rules</h2>
+        <div class="grid two">
+          <div class="card">
+            <strong>Visible now</strong>
+            <p class="muted">Inputs, main actions, main outputs, essential warnings, and the current workflow state.</p>
+          </div>
+          <div class="card">
+            <strong>Discoverable later</strong>
+            <p class="muted">Related tools, deeper study notes, route context, support metadata, and broader browsing.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Mobile Shell Rules</h2>
+        <ul>
+          <li>Render temporary overlays at the viewport layer, not inside clipping layout containers.</li>
+          <li>Lock background scroll when a temporary surface is open.</li>
+          <li>Size menus, sheets, and drawers from the live viewport height.</li>
+          <li>Do not let bottom navigation compete with active overlays.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Shared Surfaces</h2>
+        <ul>
+          <li><code>AppLayout.tsx</code> now owns a more reliable overlay and viewport model.</li>
+          <li><code>ViewportPortal.tsx</code> standardizes rendering shell overlays against <code>document.body</code>.</li>
+          <li><code>useBodyScrollLock.ts</code> coordinates background scrolling for temporary surfaces.</li>
+          <li><code>HomePage.tsx</code> now emphasizes next-step decisions instead of equal-weight browsing.</li>
+          <li><code>StudyLessonLayout.tsx</code> keeps lesson context secondary to the reading surface.</li>
+          <li><code>SettingsContent.tsx</code> groups controls around category jumps and progressive disclosure.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

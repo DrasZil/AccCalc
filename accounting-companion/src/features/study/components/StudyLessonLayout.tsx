@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import DisclosurePanel from "../../../components/DisclosurePanel";
 
 export type StudyLessonOutlineItem = {
     id: string;
@@ -120,6 +121,18 @@ export default function StudyLessonLayout({
                             <p className="app-body-md mt-4 max-w-3xl text-sm leading-7 md:text-[0.98rem]">
                                 {summary}
                             </p>
+
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <span className="app-chip rounded-full px-3 py-1 text-[0.68rem]">
+                                    {progressLabel}
+                                </span>
+                                <span className="app-chip rounded-full px-3 py-1 text-[0.68rem]">
+                                    {difficultyLabel}
+                                </span>
+                                <span className="app-chip rounded-full px-3 py-1 text-[0.68rem]">
+                                    {estimatedTimeLabel}
+                                </span>
+                            </div>
                         </div>
 
                         {headerActions ? (
@@ -129,51 +142,93 @@ export default function StudyLessonLayout({
                         ) : null}
                     </div>
 
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
-                                Progress
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
-                                {progressLabel}
-                            </p>
-                            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[color:var(--app-border)]/60">
-                                <div
-                                    className="h-full rounded-full bg-[color:var(--app-accent)] transition-all"
-                                    style={{ width: `${progressPercent}%` }}
-                                />
+                    <DisclosurePanel
+                        title="Lesson context"
+                        summary="Progress, pace, and prerequisite cues stay close by without pushing the reading flow down the page."
+                        badge="Context"
+                        compact
+                    >
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
+                                    Progress
+                                </p>
+                                <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                    {progressLabel}
+                                </p>
+                                <div className="mt-3 h-2 overflow-hidden rounded-full bg-[color:var(--app-border)]/60">
+                                    <div
+                                        className="h-full rounded-full bg-[color:var(--app-accent)] transition-all"
+                                        style={{ width: `${progressPercent}%` }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
+                                    Difficulty
+                                </p>
+                                <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                    {difficultyLabel}
+                                </p>
+                            </div>
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
+                                    Estimated time
+                                </p>
+                                <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                    {estimatedTimeLabel}
+                                </p>
+                            </div>
+                            <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
+                                    Prerequisite focus
+                                </p>
+                                <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
+                                    {prerequisiteLabel ?? "Open the overview first"}
+                                </p>
+                                <p className="app-helper mt-2 text-xs">{completionLabel}</p>
                             </div>
                         </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
-                                Difficulty
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
-                                {difficultyLabel}
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
-                                Estimated time
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
-                                {estimatedTimeLabel}
-                            </p>
-                        </div>
-                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                            <p className="app-helper text-[0.68rem] uppercase tracking-[0.16em]">
-                                Prerequisite focus
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-[color:var(--app-text)]">
-                                {prerequisiteLabel ?? "Open the overview first"}
-                            </p>
-                            <p className="app-helper mt-2 text-xs">{completionLabel}</p>
-                        </div>
-                    </div>
+                    </DisclosurePanel>
                 </div>
             </div>
 
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <DisclosurePanel
+                    title="Lesson outline"
+                    summary="Jump between sections on smaller screens without keeping the outline visible all the time."
+                    badge={`${outline.length} sections`}
+                    compact
+                    className="xl:hidden"
+                >
+                    <div className="space-y-2">
+                        {outline.map((item, index) => (
+                            <a
+                                key={item.id}
+                                href={`#${item.id}`}
+                                className={[
+                                    "block rounded-[1rem] border px-3.5 py-3 transition",
+                                    activeSectionId === item.id
+                                        ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                                        : "app-divider hover:border-[color:var(--app-border-strong)]",
+                                ].join(" ")}
+                            >
+                                <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
+                                    Section {index + 1}
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
+                                    {item.title}
+                                </p>
+                                {item.summary ? (
+                                    <p className="app-helper mt-1 text-xs leading-5">
+                                        {item.summary}
+                                    </p>
+                                ) : null}
+                            </a>
+                        ))}
+                    </div>
+                </DisclosurePanel>
+
                 <article className="min-w-0 space-y-5">{children}</article>
 
                 <aside className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">

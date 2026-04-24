@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccCalc v12.3.0 Documentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f1eb;
+        --surface: #ffffff;
+        --text: #1b2028;
+        --muted: #5a6574;
+        --border: #d9d3c9;
+        --accent: #2e6d8f;
+        --soft: #dfeff5;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #faf8f2 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      main {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+      header, section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 26px;
+        box-shadow: 0 16px 40px rgba(31, 36, 41, 0.06);
+      }
+      header { margin-bottom: 20px; }
+      section + section { margin-top: 16px; }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1, h2 { line-height: 1.1; letter-spacing: -0.03em; }
+      h1 { margin: 14px 0 10px; font-size: 38px; }
+      h2 { margin: 0 0 14px; font-size: 24px; }
+      p, li { max-width: 74ch; }
+      ul { margin: 0; padding-left: 20px; }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fbfcfd;
+      }
+      .muted { color: var(--muted); }
+      @media (max-width: 760px) {
+        main { padding: 20px 14px 40px; }
+        header, section { padding: 18px; border-radius: 18px; }
+        h1 { font-size: 30px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">AccCalc v12.3.0</span>
+        <h1>Smart Solver And OCR Precision</h1>
+        <p class="muted">
+          Version 12.3.0 hardens the decision pipeline around topic-first routing,
+          route-aware extraction, selected-route consistency, and structure-first OCR parsing.
+        </p>
+      </header>
+
+      <section>
+        <h2>Main Changes</h2>
+        <ul>
+          <li>Classifies topic families before route-specific extraction and prepared-input building.</li>
+          <li>Adds route-family gating so distinctive accounting topics outrank generic finance routes.</li>
+          <li>Keeps Smart Solver UI summaries aligned to the same selected-route state.</li>
+          <li>Preserves comma-separated classroom amounts so OCR and prompt extraction do not collapse values.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Routing And Confidence</h2>
+        <div class="grid two">
+          <div class="card">
+            <strong>Topic-first routing</strong>
+            <p class="muted">Route families are ranked before extraction so generic vocabulary cannot dominate the pipeline too early.</p>
+          </div>
+          <div class="card">
+            <strong>Confidence that means something</strong>
+            <p class="muted">Confidence now reflects topic fit, contradiction pressure, missing fields, and warning states instead of token overlap alone.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>OCR Direction</h2>
+        <ul>
+          <li>OCR recommendations can use Smart Solver topic-family analysis when it beats generic OCR hints.</li>
+          <li>Route-aware structured fields stay cleaner before autofill or review.</li>
+          <li>Low-confidence OCR outputs remain review-first instead of pretending to be solved.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Evaluation Pack</h2>
+        <ul>
+          <li>Audit bank reconciliation</li>
+          <li>Cash budget with secondary schedules</li>
+          <li>Intercompany PPE transfer</li>
+          <li>Gross profit method</li>
+          <li>VAT reconciliation</li>
+          <li>Study-first uncertainty prompts</li>
+          <li>OCR cash-budget parsing</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

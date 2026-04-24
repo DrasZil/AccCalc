@@ -456,8 +456,14 @@ export function FeedbackReminder({
     if (!visible) return null;
 
     return (
-        <div className="app-backdrop fixed inset-0 z-[115] flex items-end justify-center px-4 pb-4 md:items-center" style={{ paddingTop: "calc(var(--app-header-height) + 1rem)" }}>
-            <div className="app-panel-elevated w-full max-w-lg rounded-[1.8rem] p-5">
+        <div
+            className="app-backdrop fixed inset-0 z-[115] flex items-end justify-center px-4 md:items-center"
+            style={{
+                paddingTop: "max(1rem, var(--app-shell-overlay-top, 1rem))",
+                paddingBottom: "max(1rem, var(--app-shell-overlay-bottom, 1rem))",
+            }}
+        >
+            <div className="app-panel-elevated max-h-[var(--app-shell-overlay-height)] w-full max-w-lg overflow-auto rounded-[1.8rem] p-5">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="app-kicker text-[0.68rem]">

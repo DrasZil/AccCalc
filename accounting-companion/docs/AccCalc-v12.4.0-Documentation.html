@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccCalc v12.4.0 Documentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f1e7;
+        --surface: #ffffff;
+        --text: #16202a;
+        --muted: #5f6b78;
+        --border: #ddd6c8;
+        --accent: #23617e;
+        --soft: #dff0ef;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #fbf7f0 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      main {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+      header, section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 26px;
+        box-shadow: 0 16px 40px rgba(26, 31, 34, 0.06);
+      }
+      header { margin-bottom: 20px; }
+      section + section { margin-top: 16px; }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1, h2 { line-height: 1.1; letter-spacing: -0.03em; }
+      h1 { margin: 14px 0 10px; font-size: 38px; }
+      h2 { margin: 0 0 14px; font-size: 24px; }
+      p, li { max-width: 74ch; }
+      ul { margin: 0; padding-left: 20px; }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fcfbf8;
+      }
+      .muted { color: var(--muted); }
+      @media (max-width: 760px) {
+        main { padding: 20px 14px 40px; }
+        header, section { padding: 18px; border-radius: 18px; }
+        h1 { font-size: 30px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">AccCalc v12.4.0</span>
+        <h1>Compact Personalization And Theme System</h1>
+        <p class="muted">
+          Version 12.4.0 expands the theme families, keeps Appearance compact by default,
+          and applies personalization state earlier so customization feels cleaner and more reliable.
+        </p>
+      </header>
+
+      <section>
+        <h2>Main Changes</h2>
+        <ul>
+          <li>Added Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey while keeping Classic.</li>
+          <li>Rebuilt Settings Appearance around a compact summary and a discoverable gallery.</li>
+          <li>Applied theme, family, contrast, motion, and meta theme-color before React mounts.</li>
+          <li>Added safe migration from older family names to the new palette-led set.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Palette Families</h2>
+        <div class="grid two">
+          <div class="card"><strong>Warm families</strong><p class="muted">Butter, Guava, Sunset, and Sangria bring warmer editorial and coral-led atmospheres.</p></div>
+          <div class="card"><strong>Cool families</strong><p class="muted">Seabreeze, Lagoon, and Odyssey bring calmer chrome, stronger analytical contrast, and more premium depth.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Appearance IA</h2>
+        <ul>
+          <li>Mode switching stays visible first.</li>
+          <li>Current theme summary stays visible first.</li>
+          <li>Quick family switching happens in a compact strip.</li>
+          <li>Full gallery browsing is secondary and on demand.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Reliability</h2>
+        <ul>
+          <li>Theme state persists through the shared app settings store.</li>
+          <li>Legacy stored families map forward safely.</li>
+          <li>Pre-mount theme application reduces flicker during startup and reload.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

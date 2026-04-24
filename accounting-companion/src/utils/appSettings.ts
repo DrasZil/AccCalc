@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { isThemeFamily, type ThemeFamily } from "./themePreferences.js";
+import { normalizeThemeFamily, type ThemeFamily } from "./themePreferences.js";
 
 export type ThemePreference = "system" | "dark" | "light";
 
@@ -82,7 +82,7 @@ function sanitizeSmartSolverMode(
 }
 
 function sanitizeThemeFamily(value: unknown): ThemeFamily {
-    return isThemeFamily(value) ? value : DEFAULT_APP_SETTINGS.themeFamily;
+    return normalizeThemeFamily(value);
 }
 
 function sanitizeSettings(value: Partial<AppSettings> | null | undefined): AppSettings {

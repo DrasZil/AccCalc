@@ -2,7 +2,7 @@ import type {
     ScanPageType,
     ScanProblemKind,
     ScanRouteRecommendation,
-} from "../../types";
+} from "../../types.js";
 
 type RouteRule = {
     path: string;

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { startTransition, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import ShareAppButton from "../../components/ShareAppButton";
@@ -19,6 +19,7 @@ import { APP_RELEASE_NOTES, APP_VERSION } from "../../utils/appRelease";
 import {
     THEME_FAMILY_OPTIONS,
     type ThemeFamily,
+    type ThemeFamilyOption as ThemeFamilyDefinition,
 } from "../../utils/themePreferences";
 import { useLocalNotifications } from "../../hooks/useLocalNotifications";
 import { usePermissionState } from "../../hooks/usePermissionState";
@@ -40,13 +41,6 @@ type ThemeOption = {
     value: ThemePreference;
     title: string;
     description: string;
-};
-
-type ThemeFamilyOption = {
-    value: ThemeFamily;
-    title: string;
-    description: string;
-    swatches: [string, string, string];
 };
 
 type SolverModeOption = {
@@ -79,11 +73,39 @@ const SOLVER_MODE_OPTIONS: SolverModeOption[] = [
     },
 ];
 
+const SETTINGS_CATEGORY_LINKS = [
+    {
+        id: "settings-account",
+        label: "Account",
+        description: "History, feedback, and support entry points.",
+    },
+    {
+        id: "settings-appearance",
+        label: "Appearance",
+        description: "Theme, contrast, motion, and reading comfort.",
+    },
+    {
+        id: "settings-workflow",
+        label: "Workflow",
+        description: "Calculator defaults, Smart Solver, and prompts.",
+    },
+    {
+        id: "settings-data",
+        label: "Data",
+        description: "Saved history, permissions, offline, and privacy.",
+    },
+    {
+        id: "settings-updates",
+        label: "Updates",
+        description: "Version status, install guidance, and release notes.",
+    },
+] as const;
+
 function ToggleRow({ title, description, value, onChange }: ToggleRowProps) {
     return (
         <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="max-w-2xl">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                <div className="min-w-0 max-w-3xl">
                     <h3 className="app-card-title text-sm">{title}</h3>
                     <p className="app-body-md mt-1 text-sm">{description}</p>
                 </div>
@@ -92,7 +114,7 @@ function ToggleRow({ title, description, value, onChange }: ToggleRowProps) {
                     type="button"
                     onClick={() => onChange(!value)}
                     className={[
-                        "rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
+                        "w-full rounded-full px-3.5 py-1.5 text-xs font-semibold transition sm:w-auto lg:justify-self-end",
                         value ? "app-button-primary" : "app-button-secondary",
                     ].join(" ")}
                 >
@@ -118,7 +140,7 @@ function LinkTile({
         <Link
             to={to}
             onClick={onNavigate}
-            className="app-link-card rounded-[1rem] px-4 py-3.5"
+            className="app-link-card min-w-0 rounded-[1rem] px-4 py-3.5"
         >
             <h3 className="app-card-title text-sm">{title}</h3>
             <p className="app-body-md mt-1.5 text-sm">{description}</p>
@@ -126,127 +148,102 @@ function LinkTile({
     );
 }
 
-function ThemeCard({
-    option,
-    active,
-    onSelect,
+function ThemeSwatchRow({
+    swatches,
+    size = "md",
 }: {
-    option: ThemeOption;
-    active: boolean;
-    onSelect: (value: ThemePreference) => void;
+    swatches: [string, string, string];
+    size?: "sm" | "md";
 }) {
+    const swatchClass =
+        size === "sm"
+            ? "h-3.5 w-8 first:ml-0 -ml-2.5"
+            : "h-4 w-10 first:ml-0 -ml-3";
+
     return (
-        <button
-            type="button"
-            onClick={() => onSelect(option.value)}
-            className={[
-                "rounded-[1rem] border p-4 text-left transition",
-                active
-                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
-                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
-            ].join(" ")}
-        >
-            <p className="app-card-title text-sm">{option.title}</p>
-            <p className="app-body-md mt-2 text-sm">{option.description}</p>
-        </button>
+        <div className="inline-flex min-w-0 flex-nowrap items-center overflow-visible pl-0.5">
+            {swatches.map((swatch, index) => (
+                <span
+                    key={`${swatch}-${index}`}
+                    className={`${swatchClass} rounded-full border border-white/60 shadow-sm ring-1 ring-black/5`}
+                    style={{ backgroundColor: swatch }}
+                />
+            ))}
+        </div>
     );
 }
 
-function ThemeFamilyCard({
+function ThemeSummaryCard({
     option,
-    active,
-    onSelect,
+    preference,
+    highContrastMode,
+    motionEnabled,
+    onToggleGallery,
+    galleryOpen,
 }: {
-    option: ThemeFamilyOption;
-    active: boolean;
-    onSelect: (value: ThemeFamily) => void;
+    option: ThemeFamilyDefinition;
+    preference: ThemePreference;
+    highContrastMode: boolean;
+    motionEnabled: boolean;
+    onToggleGallery: () => void;
+    galleryOpen: boolean;
 }) {
-    return (
-        <button
-            type="button"
-            onClick={() => onSelect(option.value)}
-            className={[
-                "h-full rounded-[1rem] border p-4 text-left transition",
-                active
-                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
-                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
-            ].join(" ")}
-        >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <p className="app-card-title text-sm">{option.title}</p>
-                    <p className="app-helper mt-1 text-xs">Saved across light and dark mode.</p>
-                </div>
-                <div className="flex max-w-full flex-wrap items-center justify-end gap-1.5">
-                    {option.swatches.map((swatch) => (
-                        <span
-                            key={swatch}
-                            className="h-3.5 w-3.5 rounded-full border border-white/40 shadow-sm"
-                            style={{ backgroundColor: swatch }}
-                        />
-                    ))}
-                </div>
-            </div>
-            <p className="app-body-md mt-2 text-sm">{option.description}</p>
-        </button>
-    );
-}
+    const modeLabel =
+        preference === "system"
+            ? "System"
+            : preference === "dark"
+              ? "Dark"
+              : "Light";
 
-function ThemeShowcaseCard({
-    option,
-    active,
-}: {
-    option: ThemeFamilyOption;
-    active: boolean;
-}) {
     return (
-        <div
-            className={[
-                "rounded-[1.15rem] border p-4 transition",
-                active
-                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
-                    : "app-panel",
-            ].join(" ")}
-        >
-            <div className="flex items-center justify-between gap-3">
-                <div>
-                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                        {option.title}
+        <div className="app-panel rounded-[1.15rem] p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 max-w-2xl">
+                    <p className="app-card-title text-sm">Appearance summary</p>
+                    <p className="app-body-md mt-1.5 text-sm">
+                        {option.title} is active with {modeLabel.toLowerCase()} mode. Open
+                        the gallery only when you want to browse the full palette set.
                     </p>
-                    <p className="app-helper mt-1 text-xs">{option.description}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {[
+                            `${option.title} family`,
+                            `${modeLabel} mode`,
+                            highContrastMode ? "High contrast" : "Standard contrast",
+                            motionEnabled ? "Motion on" : "Motion reduced",
+                        ].map((label) => (
+                            <span
+                                key={label}
+                                className="rounded-full border border-[color:var(--app-border-subtle)] bg-[color:var(--app-chip-bg)] px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--app-chip-text)]"
+                            >
+                                {label}
+                            </span>
+                        ))}
+                    </div>
                 </div>
-                <div className="flex gap-1.5">
-                    {option.swatches.map((swatch) => (
-                        <span
-                            key={swatch}
-                            className="h-3.5 w-3.5 rounded-full border border-white/40 shadow-sm"
-                            style={{ backgroundColor: swatch }}
-                        />
-                    ))}
-                </div>
+
+                <button
+                    type="button"
+                    onClick={onToggleGallery}
+                    className="app-button-secondary rounded-full px-4 py-2 text-sm font-medium"
+                >
+                    {galleryOpen ? "Hide theme gallery" : "Open theme gallery"}
+                </button>
             </div>
 
             <div className="mt-4 rounded-[1rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-surface)] p-3">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
+                <div className="flex min-w-0 items-center justify-between gap-3">
+                    <div className="min-w-0">
                         <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
-                            Preview
+                            Live sample
                         </p>
                         <p className="mt-1 text-sm font-semibold text-[color:var(--app-text)]">
-                            Workbook dashboard
+                            {option.title} workspace chrome
                         </p>
                     </div>
-                    <span
-                        className="rounded-full px-2.5 py-1 text-[0.62rem] font-semibold"
-                        style={{
-                            backgroundColor: `${option.swatches[0]}18`,
-                            color: option.swatches[0],
-                        }}
-                    >
-                        Active
-                    </span>
+                    <ThemeSwatchRow swatches={option.swatches} />
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1.2fr_0.8fr]">
+
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1.35fr_0.65fr]">
                     <div className="rounded-[0.9rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-panel-bg-soft)] p-3">
                         <div
                             className="h-2.5 rounded-full"
@@ -271,7 +268,7 @@ function ThemeShowcaseCard({
                         </div>
                         <div className="rounded-[0.9rem] border border-[color:var(--app-border-subtle)] bg-[color:var(--app-panel-bg-soft)] p-3">
                             <div className="flex items-end gap-1">
-                                {[40, 58, 72, 48].map((height, index) => (
+                                {[44, 60, 72, 52].map((height, index) => (
                                     <span
                                         key={`${option.value}-${height}-${index}`}
                                         className="w-4 rounded-t-full"
@@ -288,6 +285,76 @@ function ThemeShowcaseCard({
                 </div>
             </div>
         </div>
+    );
+}
+
+function ThemeFamilyStripButton({
+    option,
+    active,
+    onSelect,
+}: {
+    option: ThemeFamilyDefinition;
+    active: boolean;
+    onSelect: (value: ThemeFamily) => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={() => onSelect(option.value)}
+            className={[
+                "min-w-[11rem] rounded-[0.95rem] border px-3.5 py-3 text-left transition md:min-w-0",
+                active
+                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
+            ].join(" ")}
+        >
+            <div className="flex min-w-0 flex-col gap-2">
+                <div className="min-w-0">
+                    <p className="app-card-title text-sm">{option.title}</p>
+                    <p className="app-helper mt-1 text-xs">Quick switch</p>
+                </div>
+                <ThemeSwatchRow swatches={option.swatches} size="sm" />
+            </div>
+        </button>
+    );
+}
+
+function ThemeFamilyCard({
+    option,
+    active,
+    onSelect,
+}: {
+    option: ThemeFamilyDefinition;
+    active: boolean;
+    onSelect: (value: ThemeFamily) => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={() => onSelect(option.value)}
+            className={[
+                "h-full min-w-0 rounded-[1rem] border px-4 py-3.5 text-left transition",
+                active
+                    ? "border-[color:var(--app-border-strong)] bg-[var(--app-accent-soft)] shadow-[var(--app-shadow-sm)]"
+                    : "app-subtle-surface hover:border-[color:var(--app-border-strong)]",
+            ].join(" ")}
+        >
+            <div className="flex min-w-0 flex-col gap-2.5">
+                <div className="min-w-0">
+                    <p className="app-card-title text-sm">{option.title}</p>
+                    <p className="app-helper mt-1 text-xs">
+                        Saved across light, dark, and system mode.
+                    </p>
+                </div>
+                <ThemeSwatchRow swatches={option.swatches} />
+            </div>
+            <p className="app-body-md app-wrap-anywhere mt-2 text-sm">{option.description}</p>
+            {active ? (
+                <span className="mt-3 inline-flex rounded-full bg-[color:var(--app-chip-bg)] px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--app-chip-text)]">
+                    Selected
+                </span>
+            ) : null}
+        </button>
     );
 }
 
@@ -311,7 +378,7 @@ function SegmentedRow<TValue extends string>({
                 <p className="app-body-md mt-1 text-sm">{description}</p>
             </div>
 
-            <div className="mt-3 grid gap-2 md:grid-cols-3">
+            <div className="mt-3 grid gap-2 lg:grid-cols-3">
                 {options.map((option) => (
                     <button
                         key={option.value}
@@ -350,8 +417,8 @@ function SelectRow({
 }) {
     return (
         <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="max-w-2xl">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,16rem)] lg:items-start">
+                <div className="min-w-0 max-w-3xl">
                     <h3 className="app-card-title text-sm">{title}</h3>
                     <p className="app-body-md mt-1 text-sm">{description}</p>
                 </div>
@@ -359,7 +426,7 @@ function SelectRow({
                 <select
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
-                    className="app-select min-w-[10rem] rounded-xl px-4 py-2 text-sm outline-none"
+                    className="app-select w-full min-w-0 rounded-xl px-4 py-2 text-sm outline-none lg:justify-self-end"
                 >
                     {options.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -377,6 +444,7 @@ export default function SettingsContent({
     onNavigate,
 }: SettingsContentProps) {
     const settings = useAppSettings();
+    const [themeGalleryOpen, setThemeGalleryOpen] = useState(false);
     const update = useAppUpdateState();
     const permissions = usePermissionState();
     const notifications = useLocalNotifications({
@@ -385,12 +453,33 @@ export default function SettingsContent({
         tone: settings.reminderTone,
         frequency: settings.reminderFrequency,
     });
+    const currentThemeFamily = useMemo(
+        () =>
+            THEME_FAMILY_OPTIONS.find((option) => option.value === settings.themeFamily) ??
+            THEME_FAMILY_OPTIONS[0],
+        [settings.themeFamily]
+    );
+    const featuredThemeFamilies = useMemo(() => {
+        const next: ThemeFamilyDefinition[] = [];
+        const seen = new Set<ThemeFamily>();
+
+        const pushOption = (option: ThemeFamilyDefinition | undefined) => {
+            if (!option || seen.has(option.value)) return;
+            seen.add(option.value);
+            next.push(option);
+        };
+
+        pushOption(currentThemeFamily);
+        THEME_FAMILY_OPTIONS.filter((option) => option.featured).forEach(pushOption);
+
+        return next.slice(0, 6);
+    }, [currentThemeFamily]);
 
     const quickStats = useMemo(
         () => [
             {
                 label: "Theme",
-                value: `${THEME_FAMILY_OPTIONS.find((option) => option.value === settings.themeFamily)?.title ?? "Classic"} / ${
+                value: `${currentThemeFamily.title} / ${
                     settings.themePreference === "system"
                         ? "Auto"
                         : settings.themePreference === "dark"
@@ -413,9 +502,9 @@ export default function SettingsContent({
             },
         ],
         [
+            currentThemeFamily.title,
             settings.saveOfflineHistory,
             settings.smartSolverDefaultMode,
-            settings.themeFamily,
             settings.themePreference,
         ]
     );
@@ -447,6 +536,14 @@ export default function SettingsContent({
         }
     }
 
+    function jumpToCategory(id: (typeof SETTINGS_CATEGORY_LINKS)[number]["id"]) {
+        if (typeof document === "undefined") return;
+        document.getElementById(id)?.scrollIntoView({
+            block: "start",
+            behavior: "smooth",
+        });
+    }
+
     return (
         <div className="app-page-stack">
             <SectionCard>
@@ -468,11 +565,11 @@ export default function SettingsContent({
                     </button>
                 </div>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="mt-4 grid gap-3 md:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
                     {quickStats.map((item) => (
-                        <div key={item.label} className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                        <div key={item.label} className="app-subtle-surface min-w-0 rounded-[1rem] px-4 py-3">
                             <p className="app-metric-label">{item.label}</p>
-                            <p className="mt-2 text-base font-semibold text-[color:var(--app-text)]">
+                            <p className="app-wrap-anywhere mt-2 text-base font-semibold text-[color:var(--app-text)]">
                                 {item.value}
                             </p>
                         </div>
@@ -480,29 +577,63 @@ export default function SettingsContent({
                 </div>
             </SectionCard>
 
-            <DisclosurePanel
-                title="Account"
-                summary="Profile-style entry points and support surfaces."
-                badge="Overview"
-                defaultOpen
-                compact={compact}
-            >
-                <div className="grid gap-3 md:grid-cols-2">
-                    <LinkTile
-                        title="History"
-                        description="Review saved prompts, recent tools, and resume points."
-                        to="/history"
-                        onNavigate={onNavigate}
-                    />
-                    <LinkTile
-                        title="Feedback"
-                        description="Open the feedback form for bugs, missing topics, or requests."
-                        to="/settings/feedback"
-                        onNavigate={onNavigate}
-                    />
+            <SectionCard>
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                        <p className="app-section-kicker">Category map</p>
+                        <h2 className="app-section-title mt-2 text-lg">Jump to the settings category you need</h2>
+                        <p className="app-helper mt-2 text-sm leading-6">
+                            Settings are grouped below by job so you can move straight to
+                            appearance, workflow, privacy, or update controls.
+                        </p>
+                    </div>
                 </div>
-            </DisclosurePanel>
 
+                <div className="mt-4 grid gap-3 md:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]">
+                    {SETTINGS_CATEGORY_LINKS.map((category) => (
+                        <button
+                            key={category.id}
+                            type="button"
+                            onClick={() => jumpToCategory(category.id)}
+                            className="app-link-card rounded-[1rem] px-4 py-3.5 text-left"
+                        >
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                {category.label}
+                            </p>
+                            <p className="app-helper mt-1.5 text-xs leading-5">
+                                {category.description}
+                            </p>
+                        </button>
+                    ))}
+                </div>
+            </SectionCard>
+
+            <section id="settings-account" className="scroll-mt-28 space-y-4">
+                <DisclosurePanel
+                    title="Account"
+                    summary="Profile-style entry points and support surfaces."
+                    badge="Overview"
+                    defaultOpen
+                    compact={compact}
+                >
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <LinkTile
+                            title="History"
+                            description="Review saved prompts, recent tools, and resume points."
+                            to="/history"
+                            onNavigate={onNavigate}
+                        />
+                        <LinkTile
+                            title="Feedback"
+                            description="Open the feedback form for bugs, missing topics, or requests."
+                            to="/settings/feedback"
+                            onNavigate={onNavigate}
+                        />
+                    </div>
+                </DisclosurePanel>
+            </section>
+
+            <section id="settings-appearance" className="scroll-mt-28 space-y-4">
             <DisclosurePanel
                 title="Appearance"
                 summary="Theme, contrast, and motion."
@@ -511,46 +642,77 @@ export default function SettingsContent({
                 compact={compact}
             >
                 <div className="space-y-4">
-                    <div className="grid gap-3 md:grid-cols-3">
-                        {THEME_OPTIONS.map((option) => (
-                            <ThemeCard
-                                key={option.value}
-                                option={option}
-                                active={settings.themePreference === option.value}
-                                onSelect={(value) => setSetting("themePreference", value)}
-                            />
-                        ))}
-                    </div>
-                    <div className="space-y-3">
-                        <div>
-                            <h3 className="app-card-title text-sm">Theme family</h3>
-                            <p className="app-body-md mt-1 text-sm">
-                                Pick a saved visual style family. The selected family works in both light and dark mode.
-                            </p>
+                    <ThemeSummaryCard
+                        option={currentThemeFamily}
+                        preference={settings.themePreference}
+                        highContrastMode={settings.highContrastMode}
+                        motionEnabled={settings.enableMotionEffects}
+                        galleryOpen={themeGalleryOpen}
+                        onToggleGallery={() =>
+                            startTransition(() => {
+                                setThemeGalleryOpen((current) => !current);
+                            })
+                        }
+                    />
+                    <SegmentedRow
+                        title="Color mode"
+                        description="Keep the everyday control simple: follow the device or stay fixed in light or dark mode."
+                        value={settings.themePreference}
+                        onChange={(value) => setSetting("themePreference", value)}
+                        options={THEME_OPTIONS}
+                    />
+                    <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="min-w-0 max-w-3xl">
+                                <h3 className="app-card-title text-sm">Theme family</h3>
+                                <p className="app-body-md mt-1 text-sm">
+                                    Keep a few strong options visible for fast switching, then
+                                    open the full gallery only when you want to browse.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    startTransition(() => {
+                                        setThemeGalleryOpen((current) => !current);
+                                    })
+                                }
+                                className="app-button-secondary rounded-full px-4 py-2 text-sm font-medium"
+                            >
+                                {themeGalleryOpen ? "Hide gallery" : "More themes"}
+                            </button>
                         </div>
-                        <div className="grid gap-3 xl:grid-cols-2">
-                            {THEME_FAMILY_OPTIONS.filter(
-                                (option) =>
-                                    option.value === settings.themeFamily ||
-                                    option.value === "classic" ||
-                                    option.value === "ocean" ||
-                                    option.value === "blossom"
-                            )
-                                .filter(
-                                    (option, index, array) =>
-                                        array.findIndex((entry) => entry.value === option.value) ===
-                                        index
-                                )
-                                .slice(0, 3)
-                                .map((option) => (
-                                    <ThemeShowcaseCard
-                                        key={`preview-${option.value}`}
+
+                        <div className="-mx-1 mt-3 overflow-x-auto pb-1">
+                            <div className="flex min-w-max gap-2 px-1 md:grid md:min-w-0 md:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">
+                                {featuredThemeFamilies.map((option) => (
+                                    <ThemeFamilyStripButton
+                                        key={`strip-${option.value}`}
                                         option={option}
                                         active={settings.themeFamily === option.value}
+                                        onSelect={(value) => setSetting("themeFamily", value)}
                                     />
                                 ))}
+                            </div>
                         </div>
-                        <div className="grid auto-rows-fr gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    </div>
+                    {themeGalleryOpen ? (
+                        <div className="app-panel rounded-[1.15rem] p-4">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                <div className="min-w-0 max-w-2xl">
+                                    <p className="app-card-title text-sm">Theme gallery</p>
+                                    <p className="app-body-md mt-1 text-sm">
+                                        Palette-led families inspired by butter, moss, palm,
+                                        guava, sunset, sangria, seabreeze, lagoon, and odyssey.
+                                    </p>
+                                </div>
+                                <p className="app-helper text-xs">
+                                    The selected family persists across reloads and mode changes.
+                                </p>
+                            </div>
+
+                            <div className="mt-4 grid auto-rows-fr gap-3 sm:grid-cols-2 xl:grid-cols-3">
                             {THEME_FAMILY_OPTIONS.map((option) => (
                                 <ThemeFamilyCard
                                     key={option.value}
@@ -559,23 +721,28 @@ export default function SettingsContent({
                                     onSelect={(value) => setSetting("themeFamily", value)}
                                 />
                             ))}
+                            </div>
                         </div>
+                    ) : null}
+                    <div className="grid gap-4 xl:grid-cols-2">
+                        <ToggleRow
+                            title="High contrast support"
+                            description="Strengthen borders and text contrast for denser study sessions and accessibility-sensitive screens."
+                            value={settings.highContrastMode}
+                            onChange={(value) => setSetting("highContrastMode", value)}
+                        />
+                        <ToggleRow
+                            title="Premium motion"
+                            description="Keep subtle transitions and movement cues active."
+                            value={settings.enableMotionEffects}
+                            onChange={(value) => setSetting("enableMotionEffects", value)}
+                        />
                     </div>
-                    <ToggleRow
-                        title="High contrast support"
-                        description="Strengthen borders and text contrast for denser study sessions and accessibility-sensitive screens."
-                        value={settings.highContrastMode}
-                        onChange={(value) => setSetting("highContrastMode", value)}
-                    />
-                    <ToggleRow
-                        title="Premium motion"
-                        description="Keep subtle transitions and movement cues active."
-                        value={settings.enableMotionEffects}
-                        onChange={(value) => setSetting("enableMotionEffects", value)}
-                    />
                 </div>
             </DisclosurePanel>
+            </section>
 
+            <section id="settings-workflow" className="scroll-mt-28 space-y-4">
             <DisclosurePanel
                 title="Calculator behavior"
                 summary="Currency, mobile density, and workspace defaults."
@@ -655,6 +822,7 @@ export default function SettingsContent({
                 </div>
             </DisclosurePanel>
 
+            <section id="settings-data" className="scroll-mt-28 space-y-4">
             <DisclosurePanel
                 title="Saved data / History"
                 summary="Local history, recommendations, and resume data."
@@ -669,8 +837,8 @@ export default function SettingsContent({
                         onChange={(value) => setSetting("saveOfflineHistory", value)}
                     />
                     <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div className="max-w-2xl">
+                        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                            <div className="min-w-0 max-w-3xl">
                                 <h3 className="app-card-title text-sm">Clear local history</h3>
                                 <p className="app-body-md mt-1 text-sm">
                                     Remove saved route history, recommendations, and stored prompts from this device.
@@ -680,7 +848,7 @@ export default function SettingsContent({
                             <button
                                 type="button"
                                 onClick={clearStoredActivity}
-                                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
+                                className="app-button-secondary w-full rounded-xl px-4 py-2 text-sm font-medium sm:w-auto lg:justify-self-end"
                             >
                                 Clear
                             </button>
@@ -760,8 +928,8 @@ export default function SettingsContent({
                         }
                     />
                     <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div className="max-w-2xl">
+                        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                            <div className="min-w-0 max-w-3xl">
                                 <h3 className="app-card-title text-sm">Share link</h3>
                                 <p className="app-body-md mt-1 text-sm">
                                     Open the native share sheet when supported or copy the live app link.
@@ -819,6 +987,7 @@ export default function SettingsContent({
                     </div>
                 </div>
             </DisclosurePanel>
+            </section>
 
             <DisclosurePanel
                 title="Notifications / Prompts"
@@ -847,7 +1016,9 @@ export default function SettingsContent({
                     </div>
                 </div>
             </DisclosurePanel>
+            </section>
 
+            <section id="settings-updates" className="scroll-mt-28 space-y-4">
             <DisclosurePanel
                 title="Support"
                 summary="Optional support details, full-screen QR viewing, and share/download actions that match the newer premium support flow."
@@ -867,8 +1038,8 @@ export default function SettingsContent({
             >
                 <div className="space-y-4">
                     <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div className="max-w-2xl">
+                        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                            <div className="min-w-0 max-w-3xl">
                                 <h3 className="app-card-title text-sm">Update status</h3>
                                 <p className="app-body-md mt-1 text-sm">
                                     {update.updateReady
@@ -886,7 +1057,7 @@ export default function SettingsContent({
                                 onClick={() => {
                                     void checkForAppUpdates();
                                 }}
-                                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
+                                className="app-button-secondary w-full rounded-xl px-4 py-2 text-sm font-medium sm:w-auto lg:justify-self-end"
                             >
                                 Check now
                             </button>
@@ -920,6 +1091,7 @@ export default function SettingsContent({
                     </div>
                 </div>
             </DisclosurePanel>
+            </section>
         </div>
     );
 }

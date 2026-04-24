@@ -1,4 +1,4 @@
-import type { ScanProblemKind } from "../../types";
+import type { ScanProblemKind } from "../../types.js";
 
 type KindScore = {
     kind: ScanProblemKind;

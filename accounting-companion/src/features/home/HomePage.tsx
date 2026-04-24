@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import AppBrandMark from "../../components/AppBrandMark";
 import DisclosurePanel from "../../components/DisclosurePanel";
 import FeatureSearch from "../../components/FeatureSearch";
-import OfflineCapabilityBadge from "../../components/OfflineCapabilityBadge";
 import ShareAppButton from "../../components/ShareAppButton";
 import {
     getMostUsedRoutes,
@@ -106,43 +105,26 @@ function SectionHeading({
 
 function RouteCard({
     route,
-    currentPath,
+    availabilityLabel,
     toneLabel,
 }: {
     route: RouteMeta;
-    currentPath: string;
+    availabilityLabel?: string | null;
     toneLabel?: string;
 }) {
-    const network = useNetworkStatus();
-    const offlineBundle = useOfflineBundleStatus();
-    const availability = getRouteAvailability(route, {
-        online: network.online,
-        bundleReady: offlineBundle.ready,
-        currentPath,
-    });
     const surfaceLabel = getRouteSurfaceLabel(
         inferRouteSurface(route.path, route.label, route.description)
     );
+    const metaLine = [toneLabel ?? route.category, surfaceLabel, availabilityLabel]
+        .filter(Boolean)
+        .join(" · ");
 
     return (
         <Link
             to={route.path}
             className="app-link-card rounded-[1.1rem] px-4 py-4"
-            title={availability.reason}
         >
-            <div className="flex flex-wrap items-center gap-2">
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {toneLabel ?? route.category}
-                </span>
-                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                    {surfaceLabel}
-                </span>
-                <OfflineCapabilityBadge
-                    level={route.offlineSupport}
-                    className="px-2.5 py-1 text-[0.62rem]"
-                    label={availability.label}
-                />
-            </div>
+            <p className="app-helper text-[0.72rem] leading-5">{metaLine}</p>
             <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
                 {route.shortLabel ?? route.label}
             </h3>
@@ -154,6 +136,8 @@ function RouteCard({
 export default function HomePage() {
     const activity = useAppActivity();
     const studyProgress = useStudyProgress();
+    const network = useNetworkStatus();
+    const offlineBundle = useOfflineBundleStatus();
     const pinnedRoutes = getPinnedRoutes(activity);
     const recentRoutes = getRecentRoutes(activity, 4);
     const mostUsedRoutes = getMostUsedRoutes(activity, 4);
@@ -270,29 +254,36 @@ export default function HomePage() {
         },
         { label: "Priority tracks", value: priorityTracks.length, helper: "Need extra depth" },
     ];
+    const favoriteRoutes = pinnedRoutes.slice(0, 4);
+    const getAvailabilityLabel = (route: RouteMeta) => {
+        const availability = getRouteAvailability(route, {
+            online: network.online,
+            bundleReady: offlineBundle.ready,
+            currentPath: "/",
+        });
+
+        return availability.support === "full" ? null : availability.label;
+    };
 
     return (
         <div className="app-page-stack">
-            <section className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(19rem,0.92fr)] xl:items-start">
+            <section className="app-panel app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
                     <div className="max-w-3xl">
                         <div className="flex flex-wrap items-center gap-2">
                             <AppBrandMark compact />
                             <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
                                 v{APP_VERSION}
                             </span>
-                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                Focus-first workspace
-                            </span>
                         </div>
 
-                        <h1 className="mt-4 max-w-2xl text-[clamp(1.65rem,1.18rem+1.42vw,2.6rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
-                            Focus on one next step instead of the whole product at once.
+                        <h1 className="mt-4 max-w-2xl text-[clamp(1.7rem,1.22rem+1.48vw,2.8rem)] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                            Start from the next task, not the whole product.
                         </h1>
                         <p className="app-body-md mt-3 max-w-2xl text-sm leading-7 md:text-[0.98rem]">
-                            Start with the job in front of you: solve a problem, scan a page,
-                            continue a lesson, or open a workbook. Everything else stays available
-                            without crowding the first decision.
+                            AccCalc now keeps the first decision calm: solve, scan, continue a lesson,
+                            or open a workbook. Broader browsing is still here, but it no longer fights
+                            the main path for attention.
                         </p>
 
                         <div className="mt-5 flex flex-wrap gap-2.5">
@@ -312,7 +303,7 @@ export default function HomePage() {
                                 to="/workpapers"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                Open workpapers
+                                Workpapers
                             </Link>
                             <Link
                                 to="/study"
@@ -327,7 +318,7 @@ export default function HomePage() {
                     <div className="space-y-4">
                         <FeatureSearch
                             variant="hero"
-                            placeholder="Search only when you need a specific tool or topic"
+                            placeholder="Search only when you already know the tool or topic"
                         />
 
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -350,115 +341,181 @@ export default function HomePage() {
                 </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
                     <SectionHeading
-                        kicker="Next step"
-                        title="What to open now"
+                        kicker="Open now"
+                        title="Best next surfaces"
                         action={
-                            <Link
-                                to="/smart/solver"
-                                className="app-link-accent text-sm font-medium"
-                            >
+                            <Link to="/smart/solver" className="app-link-accent text-sm font-medium">
                                 Need routing help
                             </Link>
                         }
                     />
                     <p className="app-helper mt-2 text-sm leading-6">
-                        These are the best starting points based on what you used recently and what
-                        students usually need first.
+                        These are the strongest next destinations based on your recent activity and
+                        the most common first jobs inside the app.
                     </p>
 
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {quickStartRoutes.map((route) => (
-                            <RouteCard key={route.path} route={route} currentPath="/" />
+                            <RouteCard
+                                key={route.path}
+                                route={route}
+                                availabilityLabel={getAvailabilityLabel(route)}
+                            />
                         ))}
                     </div>
                 </div>
 
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <SectionHeading
-                        kicker="Continue"
-                        title="Pick up where you left off"
-                        action={
-                            <Link to="/study" className="app-link-accent text-sm font-medium">
-                                Open Study Hub
-                            </Link>
-                        }
-                    />
-
-                    {studyTopics.length > 0 ? (
-                        <div className="mt-4 space-y-3">
-                            {studyTopics.map((topic) => (
-                                <Link
-                                    key={topic.id}
-                                    to={topic.path}
-                                    className="app-list-link rounded-[1rem] px-4 py-3.5"
-                                >
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-sm font-semibold text-[color:var(--app-text)]">
-                                            {topic.route?.shortLabel ?? topic.title}
-                                        </span>
-                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                            {topic.completedSections.length} reviewed
-                                        </span>
-                                    </div>
-                                    <p className="app-helper mt-1 text-xs leading-5">
-                                        {topic.route?.description ??
-                                            "Continue the lesson where you last stopped."}
-                                    </p>
+                <div className="space-y-4">
+                    <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                        <SectionHeading
+                            kicker="Continue"
+                            title="Pick up where you left off"
+                            action={
+                                <Link to="/study" className="app-link-accent text-sm font-medium">
+                                    Open Study Hub
                                 </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="mt-4 app-subtle-surface rounded-[1.05rem] px-4 py-4">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                No current study session yet
-                            </p>
-                            <p className="app-helper mt-2 text-sm leading-6">
-                                Open Study Hub when you want the textbook-style lesson path instead
-                                of a calculator-first workflow.
-                            </p>
-                            <Link
-                                to="/study"
-                                className="app-button-secondary mt-3 inline-flex rounded-xl px-4 py-2.5 text-sm font-semibold"
-                            >
-                                Start a lesson
-                            </Link>
-                        </div>
-                    )}
+                            }
+                        />
 
-                    {mostUsedRoutes.length > 0 ? (
-                        <div className="mt-5">
-                            <p className="app-section-kicker text-[0.68rem]">Most used here</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {mostUsedRoutes.map((route) => (
+                        {studyTopics.length > 0 ? (
+                            <div className="mt-4 space-y-3">
+                                {studyTopics.map((topic) => (
                                     <Link
-                                        key={route.path}
-                                        to={route.path}
-                                        className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                        key={topic.id}
+                                        to={topic.path}
+                                        className="app-list-link rounded-[1rem] px-4 py-3.5"
                                     >
-                                        {route.shortLabel ?? route.label}
+                                        <div className="flex items-center justify-between gap-3">
+                                            <span className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {topic.route?.shortLabel ?? topic.title}
+                                            </span>
+                                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                                {topic.completedSections.length} reviewed
+                                            </span>
+                                        </div>
+                                        <p className="app-helper mt-1 text-xs leading-5">
+                                            {topic.route?.description ??
+                                                "Continue the lesson where you last stopped."}
+                                        </p>
                                     </Link>
                                 ))}
                             </div>
-                        </div>
-                    ) : null}
+                        ) : (
+                            <div className="mt-4 app-subtle-surface rounded-[1rem] px-4 py-4">
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    No current study session yet
+                                </p>
+                                <p className="app-helper mt-2 text-sm leading-6">
+                                    Open Study Hub when you want a textbook-style reading flow first.
+                                </p>
+                                <Link
+                                    to="/study"
+                                    className="app-button-secondary mt-3 inline-flex rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                >
+                                    Start a lesson
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                        <SectionHeading kicker="Favorites" title="Pinned and frequent tools" />
+
+                        {favoriteRoutes.length > 0 ? (
+                            <div className="mt-4 grid gap-2">
+                                {favoriteRoutes.map((route) => (
+                                    <Link
+                                        key={route.path}
+                                        to={route.path}
+                                        className="app-list-link rounded-[1rem] px-4 py-3"
+                                    >
+                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                            {route.shortLabel ?? route.label}
+                                        </p>
+                                        <p className="app-helper mt-1 text-xs leading-5">
+                                            {route.description}
+                                        </p>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="mt-4 app-subtle-surface rounded-[1rem] px-4 py-4">
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    No pinned tools yet
+                                </p>
+                                <p className="app-helper mt-2 text-sm leading-6">
+                                    Pin a calculator or workspace from its page header to keep it
+                                    closer to the launchpad.
+                                </p>
+                            </div>
+                        )}
+
+                        {mostUsedRoutes.length > 0 ? (
+                            <div className="mt-4">
+                                <p className="app-section-kicker text-[0.68rem]">Frequent here</p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {mostUsedRoutes.map((route) => (
+                                        <Link
+                                            key={route.path}
+                                            to={route.path}
+                                            className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                        >
+                                            {route.shortLabel ?? route.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
             </section>
 
             <section className="space-y-3">
-                <SectionHeading kicker="Primary entry points" title="Start from the surface that matches the job" />
+                <SectionHeading kicker="Primary surfaces" title="Start from the surface that matches the job" />
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                     {entryRoutes.map((route) => (
-                        <RouteCard key={route.path} route={route} currentPath="/" />
+                        <RouteCard
+                            key={route.path}
+                            route={route}
+                            availabilityLabel={getAvailabilityLabel(route)}
+                        />
                     ))}
                 </div>
             </section>
 
             <section className="grid gap-4 xl:grid-cols-2">
                 <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <SectionHeading kicker="Strengthen next" title="Tracks that still need the most linked use" />
+                    <SectionHeading kicker="Focused lanes" title="Common paths through the product" />
+                    <div className="mt-4 grid gap-3">
+                        {workflowCollections.map((collection) => (
+                            <div key={collection.title} className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                    {collection.title}
+                                </p>
+                                <p className="app-helper mt-1.5 text-xs leading-5">
+                                    {collection.description}
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {collection.routes.map((route) => (
+                                        <Link
+                                            key={route.path}
+                                            to={route.path}
+                                            className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                        >
+                                            {route.shortLabel ?? route.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+                    <SectionHeading kicker="Priority coverage" title="Tracks that still need the most linked use" />
                     <div className="mt-4 grid gap-3">
                         {priorityTracks.map((snapshot) => (
                             <div key={snapshot.track} className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
@@ -494,80 +551,63 @@ export default function HomePage() {
                         ))}
                     </div>
                 </div>
-
-                <div className="app-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
-                    <SectionHeading kicker="Focused discovery" title="Strong tools when you want to browse intentionally" />
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                        {discoveryRoutes.map((route) => (
-                            <RouteCard key={route.path} route={route} currentPath="/" />
-                        ))}
-                    </div>
-                </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-2">
-                <DisclosurePanel
-                    title="Browse by curriculum"
-                    summary="Open grouped categories only when you want broader exploration beyond the current task."
-                    badge={`${categoryShortcuts.length} groups`}
-                >
-                    <div className="grid gap-4 xl:grid-cols-2">
-                        {categoryShortcuts.map((group) => (
-                            <div key={group.title} className="space-y-2">
-                                <div>
-                                    <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                        {group.title}
-                                    </p>
-                                    <p className="app-helper mt-1 text-xs leading-5">{group.hint}</p>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {group.items.map((item) => (
-                                        <Link
-                                            key={item.path}
-                                            to={item.path}
-                                            className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
-                                        >
-                                            {item.shortLabel ?? item.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </DisclosurePanel>
-
-                <DisclosurePanel
-                    title="More ways to move through the app"
-                    summary="Collections, new routes, and release-level highlights stay available without crowding the first screen."
-                    badge="Discover later"
-                >
+            <DisclosurePanel
+                title="Browse the wider app only when you need it"
+                summary="Curriculum groups, deeper discovery, new routes, and release-level detail stay available here instead of crowding the first screen."
+                badge="Discover later"
+            >
+                <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-5">
                         <div className="space-y-3">
-                            {workflowCollections.map((collection) => (
-                                <div key={collection.title} className="space-y-2">
-                                    <div>
-                                        <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                            {collection.title}
-                                        </p>
-                                        <p className="app-helper mt-1 text-xs leading-5">
-                                            {collection.description}
-                                        </p>
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Browse by curriculum
+                            </p>
+                            <div className="grid gap-4 xl:grid-cols-2">
+                                {categoryShortcuts.map((group) => (
+                                    <div key={group.title} className="space-y-2">
+                                        <div>
+                                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                                {group.title}
+                                            </p>
+                                            <p className="app-helper mt-1 text-xs leading-5">
+                                                {group.hint}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {group.items.map((item) => (
+                                                <Link
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
+                                                >
+                                                    {item.shortLabel ?? item.label}
+                                                </Link>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {collection.routes.map((route) => (
-                                            <Link
-                                                key={route.path}
-                                                to={route.path}
-                                                className="app-list-link rounded-full px-3 py-1.5 text-sm font-medium"
-                                            >
-                                                {route.shortLabel ?? route.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
 
+                        <div className="space-y-3">
+                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
+                                Intentional discovery
+                            </p>
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {discoveryRoutes.map((route) => (
+                                    <RouteCard
+                                        key={route.path}
+                                        route={route}
+                                        availabilityLabel={getAvailabilityLabel(route)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-5">
                         {unseenFeatures.length > 0 ? (
                             <div className="space-y-2">
                                 <p className="text-sm font-semibold text-[color:var(--app-text)]">
@@ -613,8 +653,8 @@ export default function HomePage() {
                             </div>
                         </div>
                     </div>
-                </DisclosurePanel>
-            </section>
+                </div>
+            </DisclosurePanel>
         </div>
     );
 }

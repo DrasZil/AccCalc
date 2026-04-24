@@ -312,7 +312,7 @@ export const ALL_FIELD_KEYS = [
     notes: string[];
     };
 
-    export type CalculatorConfig = {
+export type CalculatorConfig = {
     id: string;
     name: string;
     route: string;
@@ -323,6 +323,17 @@ export const ALL_FIELD_KEYS = [
     keywords: readonly RegExp[];
     };
 
+export type TopicFamilyConfidence = "high" | "moderate" | "low";
+
+export type TopicFamilyMatch = {
+    id: string;
+    label: string;
+    score: number;
+    confidence: TopicFamilyConfidence;
+    reason: string;
+    calculatorIds: string[];
+};
+
     export type ConfidenceLabel = "High" | "Good" | "Possible" | "Low";
 
     export type RankedCalculator = CalculatorConfig & {
@@ -330,6 +341,11 @@ export const ALL_FIELD_KEYS = [
     confidence: ConfidenceLabel;
     missing: FieldKey[];
     reason: string;
+    topicScore: number;
+    fieldScore: number;
+    contradictionPenalty: number;
+    familyGatePenalty: number;
+    familyId: string;
     };
 
 export type SmartSolverAnalysis = {
@@ -338,9 +354,12 @@ export type SmartSolverAnalysis = {
     ranked: RankedCalculator[];
     best: RankedCalculator | null;
     secondBest: RankedCalculator | null;
+    topicFamily: TopicFamilyMatch | null;
+    secondaryRoutes: RankedCalculator[];
     detectedCurrency: string | null;
     followUp: string;
     hasStrongMatch: boolean;
     isReadyToRoute: boolean;
     extractedEntries: Array<[FieldKey, string]>;
+    warnings: string[];
 };

@@ -228,12 +228,6 @@ export default function SmartSolverPage() {
         () => scoreSmartIntent(deferredSmartInput, analysis),
         [analysis, deferredSmartInput]
     );
-    const extractionSummary = useMemo(() => summarizeExtractedValues(analysis), [analysis]);
-    const solverConfidence = useMemo(() => summarizeSolverConfidence(analysis), [analysis]);
-    const extractedInputReview = useMemo(
-        () => buildExtractedInputReview(analysis),
-        [analysis]
-    );
     const promptMistakes = useMemo(
         () => detectPromptMistakes(deferredSmartInput),
         [deferredSmartInput]
@@ -247,15 +241,6 @@ export default function SmartSolverPage() {
                 entries: analysis.extractedEntries,
             }),
         [analysis.detectedCurrency, analysis.extractedEntries, deferredSmartInput]
-    );
-    const routeSafetySignature = useMemo(
-        () =>
-            JSON.stringify({
-                apply: currentApplySignature,
-                calculator: selectedCalculatorId,
-                confidence: solverConfidence.label,
-            }),
-        [currentApplySignature, selectedCalculatorId, solverConfidence.label]
     );
 
     const solverCoverageRoutes = useMemo(
@@ -342,6 +327,56 @@ export default function SmartSolverPage() {
             analysis.best
         );
     }, [analysis.best, analysis.ranked, hasAnyInput, selectedCalculatorId]);
+    const selectedRouteState = useMemo(() => {
+        const solverConfidence = summarizeSolverConfidence(analysis, selectedCalculator);
+        const extractionSummary = summarizeExtractedValues(analysis, selectedCalculator);
+        const extractedInputReview = buildExtractedInputReview(analysis, selectedCalculator);
+        const routeReady = Boolean(
+            selectedCalculator &&
+                selectedCalculator.score >= 55 &&
+                selectedCalculator.missing.length === 0 &&
+                solverConfidence.label !== "Low" &&
+                analysis.warnings.length === 0
+        );
+
+        let interpreterFeedback = analysis.followUp;
+        if (selectedCalculator) {
+            if (analysis.warnings.length > 0) {
+                interpreterFeedback = analysis.warnings[0];
+            } else if (selectedCalculator.missing.length > 0) {
+                interpreterFeedback = `To route confidently to ${selectedCalculator.name}, add ${selectedCalculator.missing
+                    .map((field) => FIELD_META[field].label)
+                    .join(", ")}.`;
+            } else if (solverConfidence.label === "Low") {
+                interpreterFeedback = `${selectedCalculator.name} is still a review-first route. Compare the primary route against the secondary options before opening it.`;
+            } else if (analysis.secondaryRoutes.length > 0) {
+                interpreterFeedback = `${selectedCalculator.name} is the active route. Secondary routes stayed separated so their fields do not contaminate the prepared inputs.`;
+            } else {
+                interpreterFeedback = `${selectedCalculator.name} is ready. You can apply detected values and open the selected tool.`;
+            }
+        }
+
+        return {
+            solverConfidence,
+            extractionSummary,
+            extractedInputReview,
+            interpreterFeedback,
+            routeReady,
+        };
+    }, [analysis, selectedCalculator]);
+    const activeSolverConfidence = selectedRouteState.solverConfidence;
+    const activeExtractionSummary = selectedRouteState.extractionSummary;
+    const activeExtractedInputReview = selectedRouteState.extractedInputReview;
+    const selectedInterpreterFeedback = selectedRouteState.interpreterFeedback;
+    const routeSafetySignature = useMemo(
+        () =>
+            JSON.stringify({
+                apply: currentApplySignature,
+                calculator: selectedCalculator?.id ?? selectedCalculatorId,
+                confidence: activeSolverConfidence.label,
+            }),
+        [activeSolverConfidence.label, currentApplySignature, selectedCalculator?.id, selectedCalculatorId]
+    );
     const relatedStudyTopics = useMemo(
         () =>
             recommendStudyTopicsFromText(
@@ -351,11 +386,7 @@ export default function SmartSolverPage() {
         [analysis.best?.route, deferredSmartInput, selectedCalculator?.route]
     );
 
-    const selectedCalculatorRouteReady = Boolean(
-        selectedCalculator &&
-            selectedCalculator.score >= 35 &&
-            selectedCalculator.missing.length === 0
-    );
+    const selectedCalculatorRouteReady = selectedRouteState.routeReady;
     const suggestedSolveTarget = useMemo(
         () =>
             selectedCalculator
@@ -418,10 +449,7 @@ export default function SmartSolverPage() {
         if (!selectedCalculator) return null;
 
         const missingLabels = selectedCalculator.missing.map((field) => FIELD_META[field].label);
-        const relatedTools = analysis.ranked
-            .filter((calculator) => calculator.id !== selectedCalculator.id)
-            .slice(0, 3)
-            .map((calculator) => calculator.name);
+        const relatedTools = analysis.secondaryRoutes.map((calculator) => calculator.name);
         const routeCategory = selectedRouteMeta?.category ?? "General";
         const methodCue =
             suggestedSolveTarget !== null
@@ -474,24 +502,32 @@ export default function SmartSolverPage() {
             assumptions:
                 missingLabels.length > 0
                     ? [`Missing values: ${missingLabels.join(", ")}.`]
-                    : analysis.extracted.notes.slice(0, 2),
+                    : [...analysis.extracted.notes.slice(0, 2), ...analysis.warnings].slice(0, 2),
         };
     }, [
         analysis.extracted.notes,
-        analysis.ranked,
+        analysis.secondaryRoutes,
+        analysis.warnings,
         selectedCalculator,
         selectedRouteMeta?.category,
         suggestedSolveTarget,
     ]);
 
     const primarySuggestions = useMemo(
-        () => analysis.ranked.slice(0, Math.min(settings.smartSolverMaxSuggestions, 3)),
-        [analysis.ranked, settings.smartSolverMaxSuggestions]
+        () => analysis.secondaryRoutes.slice(0, Math.min(settings.smartSolverMaxSuggestions, 3)),
+        [analysis.secondaryRoutes, settings.smartSolverMaxSuggestions]
     );
 
     const remainingSuggestions = useMemo(
-        () => analysis.ranked.slice(primarySuggestions.length, settings.smartSolverMaxSuggestions),
-        [analysis.ranked, primarySuggestions.length, settings.smartSolverMaxSuggestions]
+        () =>
+            analysis.ranked
+                .filter(
+                    (calculator) =>
+                        calculator.id !== selectedCalculator?.id &&
+                        !primarySuggestions.some((entry) => entry.id === calculator.id)
+                )
+                .slice(0, settings.smartSolverMaxSuggestions),
+        [analysis.ranked, primarySuggestions, selectedCalculator?.id, settings.smartSolverMaxSuggestions]
     );
 
     const applyButtonLabel =
@@ -501,13 +537,14 @@ export default function SmartSolverPage() {
               ? "Nothing to Apply"
               : "Apply Detected Values";
     const requiresRouteReview =
-        solverConfidence.label === "Low" ||
+        activeSolverConfidence.label === "Low" ||
         (selectedCalculator?.score ?? 0) < 60 ||
         promptMistakes.length > 0 ||
-        extractedInputReview.toLowerCase().includes("review");
+        activeExtractedInputReview.toLowerCase().includes("review") ||
+        analysis.warnings.length > 0;
 
     const promptAudienceHint = selectedCalculator
-        ? `Currently reading your prompt as ${selectedCalculator.name}. You can still switch to another matching tool below.`
+        ? `Currently reading your prompt as ${selectedCalculator.name}.${analysis.secondaryRoutes.length > 0 ? ` ${analysis.secondaryRoutes.length} secondary route${analysis.secondaryRoutes.length === 1 ? "" : "s"} stayed separate from the primary route.` : ""}`
         : "Type the problem naturally. Smart Solver will try to map plain language, student wording, and accounting jargon into usable values.";
 
     const handleApplyDetected = () => {
@@ -907,8 +944,8 @@ export default function SmartSolverPage() {
                                 />
                                 <ResultCard
                                     title="Solver Confidence"
-                                    value={solverConfidence.label}
-                                    supportingText={solverConfidence.reason}
+                                    value={activeSolverConfidence.label}
+                                    supportingText={activeSolverConfidence.reason}
                                 />
                                 <ResultCard
                                     title="Next Step"
@@ -917,19 +954,45 @@ export default function SmartSolverPage() {
                                             ? `Add ${selectedCalculator.missing
                                                   .map((field) => FIELD_META[field].label)
                                                   .join(", ")}`
-                                            : "Review the inputs, then open the selected tool."
+                                            : selectedCalculatorRouteReady
+                                              ? "Review the prepared inputs, then open the selected tool."
+                                              : "Review the route and prepared values before opening it."
                                     }
                                 />
-                                <ResultCard title="Interpreter Feedback" value={analysis.followUp} />
+                                <ResultCard
+                                    title="Interpreter Feedback"
+                                    value={selectedInterpreterFeedback}
+                                />
                             </ResultGrid>
+
+                            {analysis.topicFamily ? (
+                                <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
+                                    <p className="app-helper text-xs uppercase tracking-[0.16em]">
+                                        Topic-first routing
+                                    </p>
+                                    <p className="app-body-md mt-2 text-sm">
+                                        {analysis.topicFamily.reason}
+                                    </p>
+                                </div>
+                            ) : null}
+
+                            {analysis.warnings.length > 0 ? (
+                                <div className="app-tone-warning rounded-2xl px-4 py-3.5">
+                                    {analysis.warnings.map((warning) => (
+                                        <p key={warning} className="text-sm leading-6">
+                                            {warning}
+                                        </p>
+                                    ))}
+                                </div>
+                            ) : null}
 
                             <div className="grid gap-3 md:grid-cols-2">
                                 <div className="app-subtle-surface rounded-2xl px-4 py-3.5">
                                     <p className="app-helper text-xs uppercase tracking-[0.16em]">
-                                        Extracted input review
+                                        Why this route won
                                     </p>
                                     <p className="app-body-md mt-2 text-sm">
-                                        {extractedInputReview}
+                                        {selectedCalculator?.reason ?? selectedInterpreterFeedback}
                                     </p>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         {intentScores.slice(0, 3).map((intent) => (
@@ -948,7 +1011,10 @@ export default function SmartSolverPage() {
                                         Value extraction
                                     </p>
                                     <p className="app-body-md mt-2 text-sm">
-                                        {extractionSummary.summary}
+                                        {activeExtractionSummary.summary}
+                                    </p>
+                                    <p className="app-helper mt-2 text-xs leading-5">
+                                        {activeExtractedInputReview}
                                     </p>
                                     {promptMistakes.length > 0 ? (
                                         <div className="mt-3 space-y-1">
@@ -1217,10 +1283,10 @@ export default function SmartSolverPage() {
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div>
                                     <h3 className="app-section-kicker text-xs">
-                                        Tool matches
+                                        Secondary route options
                                     </h3>
                                     <p className="app-body-md mt-1 text-sm">
-                                        The top matches are shown first. Switch tools if the current interpretation is slightly off.
+                                        The primary route stays above. These follow-up routes stay separate so they do not pollute the selected tool's prepared inputs.
                                     </p>
                                 </div>
                         </div>

@@ -1,4 +1,4 @@
-import type { ScanPageType } from "../../types";
+import type { ScanPageType } from "../../types.js";
 
 const PAGE_HINTS: Array<{
     pageType: ScanPageType;

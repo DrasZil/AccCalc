@@ -153,7 +153,13 @@ import {
 } from "../src/utils/formulaSolveDefinitions.js";
 import { searchAccountReferences } from "../src/utils/accountingReference.js";
 import { searchAppRoutes } from "../src/utils/appSearch.js";
+import {
+    analyzeSmartInput,
+    INITIAL_FIELDS,
+} from "../src/features/smart/smartSolver.engine.js";
+import { SMART_SOLVER_EVALUATION_PACK } from "../src/features/smart/smartSolver.evaluationPack.js";
 import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
+import { parseOcrText } from "../src/features/scan-check/services/ocr/ocrParser.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
 import { parseLooseNumber } from "../src/utils/numberParsing.js";
 import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
@@ -2405,6 +2411,139 @@ runTest("wide result heuristics flag dense cards before layout collapses", () =>
         }),
         false
     );
+});
+
+runTest("smart solver routes bank reconciliation ahead of generic finance matches", () => {
+    const analysis = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "Prepare a bank reconciliation. Bank balance is 120000, book balance is 118500, deposits in transit are 8000, outstanding checks are 6500, service charges are 500, NSF checks are 1200, and interest income is 300."
+    );
+
+    assert.equal(analysis.topicFamily?.id, "bank-reconciliation");
+    assert.equal(analysis.best?.id, "bank-reconciliation");
+    assert.equal(analysis.extracted.bankBalance, "120000");
+    assert.equal(analysis.extracted.bookBalance, "118500");
+    assert.equal(analysis.extracted.sales, "");
+    assert.equal(analysis.extracted.grossProfitRate, "");
+});
+
+runTest("smart solver keeps cash-budget support routes secondary instead of contaminating the primary route", () => {
+    const analysis = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "Prepare a cash budget for April with beginning cash 50000, cash collections of 180000, cash disbursements of 210000, and a minimum cash balance of 25000. We may need financing, and the instructor also wants separate cash collections and cash disbursements support schedules."
+    );
+
+    assert.equal(analysis.topicFamily?.id, "cash-budget-suite");
+    assert.equal(analysis.best?.id, "cash-budget");
+    assert.equal(
+        analysis.secondaryRoutes.some((route) => route.id === "cash-collections-schedule"),
+        true
+    );
+    assert.equal(
+        analysis.secondaryRoutes.some((route) => route.id === "cash-disbursements-schedule"),
+        true
+    );
+    assert.equal(analysis.extracted.beginningCashBalance, "50000");
+    assert.equal(analysis.extracted.minimumCashBalance, "25000");
+});
+
+runTest("smart solver protects intercompany PPE prompts from generic rate contamination", () => {
+    const analysis = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "Parent sold equipment to subsidiary for 260000 when the carrying amount was 200000. The remaining useful life is 5 years. Compute the excess depreciation and the unamortized intercompany profit for year 2."
+    );
+
+    assert.equal(analysis.topicFamily?.id, "intercompany-ppe");
+    assert.equal(analysis.best?.id, "intercompany-ppe-transfer");
+    assert.equal(analysis.extracted.transferPrice, "260000");
+    assert.equal(analysis.extracted.carryingAmount, "200000");
+    assert.equal(analysis.extracted.usefulLife, "5");
+    assert.equal(analysis.extracted.year, "2");
+    assert.equal(analysis.extracted.annualRate, "");
+    assert.equal(analysis.extracted.grossProfitRate, "");
+});
+
+runTest("smart solver keeps study-first prompts out of false ready-to-open states", () => {
+    const analysis = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "Explain the difference between markup on cost and gross profit on sales, then recommend the lesson I should study before using any calculator."
+    );
+
+    assert.equal(analysis.hasStrongMatch, false);
+    assert.equal(analysis.isReadyToRoute, false);
+    assert.equal(
+        analysis.warnings.some((warning) => /study or explanation request/i.test(warning)),
+        true
+    );
+});
+
+runTest("ocr parser uses topic-first extraction for cash-budget style text", () => {
+    const parsed = parseOcrText(
+        [
+            "Cash Budget",
+            "Beginning cash balance 50,000",
+            "Cash collections 180,000",
+            "Cash disbursements 210,000",
+            "Minimum cash balance 25,000",
+            "For April 2026",
+        ].join("\n"),
+        88
+    );
+
+    assert.equal(parsed.routeHint, "/business/cash-budget");
+    assert.equal(
+        parsed.structuredFields?.some((field) => field.key === "beginningCashBalance"),
+        true
+    );
+    assert.equal(
+        parsed.structuredFields?.some(
+            (field) =>
+                field.key === "beginningCashBalance" && field.normalizedValue === "2026"
+        ),
+        false
+    );
+});
+
+SMART_SOLVER_EVALUATION_PACK.forEach((testCase) => {
+    runTest(`smart solver evaluation pack: ${testCase.id}`, () => {
+        if (testCase.level === "OCR") {
+            const parsed = parseOcrText(testCase.prompt, testCase.ocrConfidence ?? 85);
+
+            assert.equal(parsed.routeHint, testCase.expectedRouteHint);
+
+            Object.entries(testCase.expectedExtractedFields ?? {}).forEach(([key, value]) => {
+                assert.equal(
+                    parsed.structuredFields?.some(
+                        (field) =>
+                            field.key === key && field.normalizedValue === value
+                    ),
+                    true
+                );
+            });
+
+            return;
+        }
+
+        const analysis = analyzeSmartInput({ ...INITIAL_FIELDS }, testCase.prompt);
+
+        if (testCase.shouldRemainUncertain) {
+            assert.equal(analysis.isReadyToRoute, false);
+            assert.equal(analysis.hasStrongMatch, false);
+        } else {
+            assert.equal(analysis.best?.id, testCase.expectedPrimaryRoute);
+        }
+
+        (testCase.expectedSecondaryRoutes ?? []).forEach((routeId) => {
+            assert.equal(
+                analysis.secondaryRoutes.some((route) => route.id === routeId),
+                true
+            );
+        });
+
+        Object.entries(testCase.expectedExtractedFields ?? {}).forEach(([key, value]) => {
+            assert.equal(analysis.extracted[key as keyof typeof analysis.extracted], value);
+        });
+    });
 });
 
 process.stdout.write("All calculator math tests passed.\n");

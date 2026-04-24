@@ -1,4 +1,4 @@
-import type { StructuredScanField } from "../../types";
+import type { StructuredScanField } from "../../types.js";
 import {
     detectStructuredValueKind,
     normalizeStructuredFieldValue,

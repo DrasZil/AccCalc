@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AccCalc v12.2.0 Documentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f3ef;
+        --surface: #ffffff;
+        --text: #1b1d23;
+        --muted: #5e6575;
+        --border: #ddd9d1;
+        --accent: #d56236;
+        --soft: #f6e2d8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #faf8f4 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      main {
+        width: min(100%, 980px);
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+      header, section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 24px 26px;
+        box-shadow: 0 16px 40px rgba(34, 32, 28, 0.06);
+      }
+      header { margin-bottom: 20px; }
+      section + section { margin-top: 16px; }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1, h2 { line-height: 1.1; letter-spacing: -0.03em; }
+      h1 { margin: 14px 0 10px; font-size: 38px; }
+      h2 { margin: 0 0 14px; font-size: 24px; }
+      p, li { max-width: 74ch; }
+      ul { margin: 0; padding-left: 20px; }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fcfbf9;
+      }
+      .muted { color: var(--muted); }
+      @media (max-width: 760px) {
+        main { padding: 20px 14px 40px; }
+        header, section { padding: 18px; border-radius: 18px; }
+        h1 { font-size: 30px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">AccCalc v12.2.0</span>
+        <h1>Shell Tightening And Density Control</h1>
+        <p class="muted">
+          Version 12.2.0 finishes the remaining viewport-fit work, removes redundant
+          Learning Hub chrome, fixes settings overflow more systemically, and trims
+          repeated-use friction from the shared shell.
+        </p>
+      </header>
+
+      <section>
+        <h2>Main Changes</h2>
+        <ul>
+          <li>Finished viewport-safe shell sizing for page menus, settings, navigation, search, and reminder overlays.</li>
+          <li>Reduced Learning Hub ceremony so module shelves and useful lesson paths appear sooner.</li>
+          <li>Reworked settings rows and cards so long text wraps instead of overflowing awkwardly.</li>
+          <li>Deferred hidden disclosure content and reduced repeated card-level subscriptions for smoother use.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Viewport-Fit Rules</h2>
+        <div class="grid two">
+          <div class="card">
+            <strong>Shared shell metrics</strong>
+            <p class="muted">Temporary surfaces now reserve top chrome, bottom chrome, and safe-area insets before sizing themselves.</p>
+          </div>
+          <div class="card">
+            <strong>One overlay model</strong>
+            <p class="muted">Menus, drawers, and reminder surfaces share the same viewport-portal and scroll-lock foundation.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Learning Hub Direction</h2>
+        <ul>
+          <li>Shorter header copy and less self-explanatory chrome.</li>
+          <li>Module shelves moved higher so users reach useful study structure faster.</li>
+          <li>Less chip-heavy metadata on repeated topic and module cards.</li>
+          <li>Category summaries stay helpful without crowding the lesson list.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Settings And Performance</h2>
+        <ul>
+          <li>Repeated settings rows now use wrap-friendly grid layouts.</li>
+          <li>Permission and reminder cards handle long text and actions more gracefully.</li>
+          <li>Hidden disclosure content mounts lazily after first open.</li>
+          <li>Homepage metadata subscriptions are computed once instead of per route card.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

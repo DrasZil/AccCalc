@@ -6,8 +6,8 @@ export default function SettingsPage() {
         <div className="app-page-stack">
             <PageHeader
                 badge="Settings"
-                title="App Preferences"
-                description="Control navigation behavior, Smart Solver presentation, offline history, feedback reminders, motion, and currency. These settings are saved on this device."
+                title="Settings by category"
+                description="Jump into one settings area at a time: account, appearance, workflow, data, or updates. Controls stay grouped so the main adjustment you need is easier to find on every screen size."
             />
 
             <SettingsContent />

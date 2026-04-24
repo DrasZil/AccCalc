@@ -15,6 +15,7 @@ import FloatingPromptDock from "../../components/FloatingPromptDock";
 import InstallPrompt from "../../components/InstallPrompt";
 import ReturnToTopButton from "../../components/ReturnToTopButton";
 import ShareAppButton from "../../components/ShareAppButton";
+import ViewportPortal from "../../components/ViewportPortal";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -51,6 +52,7 @@ import {
     getStudyTopicsForRoute,
 } from "../study/studyContent";
 import SettingsDrawer, { SettingsPanelBody } from "../meta/SettingsDrawer";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 import { useAppNotifications } from "./AppNotifications";
 import {
     FeedbackReminder,
@@ -741,110 +743,57 @@ function HeaderContextRail({
     }
 
     const surface = inferRouteSurface(route.path, route.label, route.description);
-    const statusLabel =
-        trackSnapshot?.status === "dense"
-            ? "Strong coverage"
-            : trackSnapshot?.status === "growing"
-              ? "Growing coverage"
-              : "Emerging coverage";
+    const shouldShowAvailability = availability && availability.support !== "full";
+    const shouldShowCoverageChip = trackSnapshot?.status === "emerging";
 
     return (
         <div className="border-b app-divider md:px-5">
-            <div className="mx-auto grid w-full max-w-[120rem] gap-3 px-3.5 py-3 md:px-0 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
-                <div className="app-panel rounded-[1.15rem] px-4 py-3.5">
-                    <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--app-text-muted)]">
-                        <span>{route.category}</span>
-                        <span>/</span>
-                        <span>{route.subtopic}</span>
-                        <span>/</span>
-                        <span>{getRouteSurfaceLabel(surface)}</span>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                Current workspace context
-                            </p>
-                            <p className="app-helper mt-1 text-xs leading-5">
-                                {route.description}
-                            </p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                {getRouteSurfaceLabel(surface)}
-                            </span>
-                            {availability ? (
-                                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                    {availability.label}
-                                </span>
-                            ) : null}
-                            {trackSnapshot ? (
-                                <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                    {trackSnapshot.routeCount} routes | {trackSnapshot.lessonCount} lessons
-                                </span>
-                            ) : null}
-                        </div>
-                    </div>
-
-                    {(siblingRoutes.length > 0 || studyLinks.length > 0) ? (
-                        <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                            {siblingRoutes.length > 0 ? (
-                                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
-                                    <p className="app-label text-[0.66rem]">You may also need</p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {siblingRoutes.slice(0, 3).map((relatedRoute) => (
-                                            <Link
-                                                key={relatedRoute.path}
-                                                to={relatedRoute.path}
-                                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
-                                            >
-                                                {relatedRoute.shortLabel ?? relatedRoute.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : null}
-
-                            {studyLinks.length > 0 ? (
-                                <div className="app-subtle-surface rounded-[1rem] px-3.5 py-3">
-                                    <p className="app-label text-[0.66rem]">Continue learning</p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {studyLinks.slice(0, 2).map((topic) => (
-                                            <Link
-                                                key={topic.path}
-                                                to={topic.path}
-                                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
-                                            >
-                                                {topic.title}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : null}
-                        </div>
+            <div className="mx-auto flex w-full max-w-[120rem] flex-col gap-2.5 px-3.5 py-2.5 md:px-0 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                        {route.category}
+                    </span>
+                    <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                        {route.subtopic}
+                    </span>
+                    {shouldShowAvailability ? (
+                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                            {availability.label}
+                        </span>
+                    ) : null}
+                    {shouldShowCoverageChip ? (
+                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                            Needs more linked coverage
+                        </span>
                     ) : null}
                 </div>
 
-                {trackSnapshot ? (
-                    <div className="app-subtle-surface rounded-[1.15rem] px-4 py-3.5">
-                        <p className="app-label text-[0.66rem]">Track status</p>
-                        <div className="mt-2 flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-sm font-semibold text-[color:var(--app-text)]">
-                                    {statusLabel}
-                                </p>
-                                <p className="app-helper mt-1 text-xs leading-5">
-                                    {route.category} stays easier to navigate when lessons, calculators, and
-                                    workspaces point at each other clearly.
-                                </p>
-                            </div>
-                            <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
-                                {trackSnapshot.workspaceCount} guided
-                            </span>
-                        </div>
+                {(siblingRoutes.length > 0 || studyLinks.length > 0) ? (
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        {siblingRoutes.slice(0, 2).map((relatedRoute) => (
+                            <Link
+                                key={relatedRoute.path}
+                                to={relatedRoute.path}
+                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
+                            >
+                                {relatedRoute.shortLabel ?? relatedRoute.label}
+                            </Link>
+                        ))}
+                        {studyLinks.slice(0, 1).map((topic) => (
+                            <Link
+                                key={topic.path}
+                                to={topic.path}
+                                className="app-list-link rounded-full px-3 py-1.5 text-xs font-semibold"
+                            >
+                                {topic.title}
+                            </Link>
+                        ))}
                     </div>
-                ) : null}
+                ) : (
+                    <p className="app-helper text-xs leading-5">
+                        {getRouteSurfaceLabel(surface)} workflow
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -1204,8 +1153,17 @@ export default function AppLayout() {
         if (typeof document === "undefined") return;
 
         const rootStyle = document.documentElement.style;
-        const syncViewportInsets = () => {
-            if (typeof window === "undefined" || !window.visualViewport) {
+        const syncViewportMetrics = () => {
+            if (typeof window === "undefined") {
+                rootStyle.setProperty("--app-keyboard-inset", "0px");
+                rootStyle.setProperty("--app-viewport-height", "100vh");
+                return;
+            }
+
+            const viewportHeight = Math.round(window.visualViewport?.height ?? window.innerHeight);
+            rootStyle.setProperty("--app-viewport-height", `${viewportHeight}px`);
+
+            if (!window.visualViewport) {
                 rootStyle.setProperty("--app-keyboard-inset", "0px");
                 return;
             }
@@ -1218,25 +1176,27 @@ export default function AppLayout() {
             rootStyle.setProperty("--app-keyboard-inset", `${nextInset}px`);
         };
 
-        syncViewportInsets();
+        syncViewportMetrics();
 
         if (!window.visualViewport) {
-            window.addEventListener("resize", syncViewportInsets);
+            window.addEventListener("resize", syncViewportMetrics);
             return () => {
                 rootStyle.setProperty("--app-keyboard-inset", "0px");
-                window.removeEventListener("resize", syncViewportInsets);
+                rootStyle.setProperty("--app-viewport-height", "100vh");
+                window.removeEventListener("resize", syncViewportMetrics);
             };
         }
 
-        window.visualViewport.addEventListener("resize", syncViewportInsets);
-        window.visualViewport.addEventListener("scroll", syncViewportInsets);
-        window.addEventListener("resize", syncViewportInsets);
+        window.visualViewport.addEventListener("resize", syncViewportMetrics);
+        window.visualViewport.addEventListener("scroll", syncViewportMetrics);
+        window.addEventListener("resize", syncViewportMetrics);
 
         return () => {
             rootStyle.setProperty("--app-keyboard-inset", "0px");
-            window.visualViewport?.removeEventListener("resize", syncViewportInsets);
-            window.visualViewport?.removeEventListener("scroll", syncViewportInsets);
-            window.removeEventListener("resize", syncViewportInsets);
+            rootStyle.setProperty("--app-viewport-height", "100vh");
+            window.visualViewport?.removeEventListener("resize", syncViewportMetrics);
+            window.visualViewport?.removeEventListener("scroll", syncViewportMetrics);
+            window.removeEventListener("resize", syncViewportMetrics);
         };
     }, []);
 
@@ -1543,7 +1503,31 @@ export default function AppLayout() {
     );
     const themeButtonLabel =
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-    const promptDockHidden = mobileSearchOpen || mobileSidebarOpen;
+    const promptDockHidden = mobileSearchOpen || mobileSidebarOpen || settingsPanelOpen;
+    const mobileTransientPanelOpen = mobileSidebarOpen || mobileSearchOpen;
+
+    useBodyScrollLock(mobileTransientPanelOpen);
+
+    function toggleMobileSidebar() {
+        setMobileSearchRoute(null);
+        setMobileSidebarRoute((current) =>
+            current === location.pathname ? null : location.pathname
+        );
+    }
+
+    function toggleMobileSearch() {
+        setMobileSidebarRoute(null);
+        setMobileSearchRoute((current) =>
+            current === location.pathname ? null : location.pathname
+        );
+    }
+
+    function toggleSettingsPanel() {
+        closeTransientPanels();
+        setSettingsPanelRoute((current) =>
+            current === location.pathname ? null : location.pathname
+        );
+    }
 
     return (
         <div className="min-h-screen bg-transparent text-[color:var(--app-text)]">
@@ -1596,43 +1580,6 @@ export default function AppLayout() {
                         <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[color:var(--app-border-subtle)]" />
                     </button>
                 ) : null}
-
-                <aside
-                    className={[
-                        "fixed inset-y-0 left-0 z-[92] w-[84vw] max-w-[19rem] border-r app-divider backdrop-blur-xl transition-transform duration-300 xl:hidden",
-                        mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
-                    ].join(" ")}
-                    style={{ background: "var(--app-sidebar-bg)" }}
-                >
-                    <SidebarContent
-                        locationPathname={location.pathname}
-                        openGroups={effectiveOpenGroups}
-                        toggleGroup={toggleGroup}
-                        closeMobileSidebar={closeTransientPanels}
-                        showNewIndicators={settings.showNewFeatureIndicators}
-                        seenNewPaths={activity.seenNewPaths}
-                        pinnedRoutes={pinnedRoutes}
-                        recentRoutes={recentRoutes}
-                        mostUsedRoutes={mostUsedRoutes}
-                        online={network.online}
-                        bundleReady={offlineBundle.ready}
-                        onUnavailableRoute={(reason) =>
-                            pushNotice("Unavailable offline", reason, "warning")
-                        }
-                    />
-                </aside>
-
-                <button
-                    type="button"
-                    onClick={closeTransientPanels}
-                    aria-label="Close sidebar overlay"
-                    className={[
-                        "app-backdrop fixed inset-0 z-[91] transition duration-300 xl:hidden",
-                        mobileSidebarOpen || mobileSearchOpen
-                            ? "pointer-events-auto opacity-100"
-                            : "pointer-events-none opacity-0",
-                    ].join(" ")}
-                />
 
                 <div className="app-surface min-w-0 flex-1">
                     <header
@@ -1762,11 +1709,7 @@ export default function AppLayout() {
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setSettingsPanelRoute((current) =>
-                                            current === location.pathname ? null : location.pathname
-                                        )
-                                    }
+                                    onClick={toggleSettingsPanel}
                                     aria-label={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     title={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     className={settingsButtonClass}
@@ -1851,7 +1794,9 @@ export default function AppLayout() {
                 className={[
                     "app-bottom-nav fixed inset-x-0 bottom-0 z-[95] border-t app-divider backdrop-blur-xl xl:hidden",
                     mobileNavHidden ? "app-bottom-nav--hidden" : "",
-                    mobileSearchOpen ? "pointer-events-none opacity-0" : "",
+                    mobileSidebarOpen || mobileSearchOpen || settingsPanelOpen
+                        ? "pointer-events-none opacity-0"
+                        : "",
                 ].join(" ")}
                 style={{ background: "var(--app-header-bg)" }}
             >
@@ -1879,7 +1824,7 @@ export default function AppLayout() {
                         <MobileNavButton
                             label="Search"
                             icon={<ShellIcon kind="search" className="h-5 w-5" />}
-                            onClick={() => setMobileSearchRoute(location.pathname)}
+                            onClick={toggleMobileSearch}
                         />
                         <MobileNavButton
                             active={location.pathname === "/history"}
@@ -1890,53 +1835,111 @@ export default function AppLayout() {
                         <MobileNavButton
                             label="Menu"
                             icon={<ShellIcon kind="menu" className="h-5 w-5" />}
-                            onClick={() => setMobileSidebarRoute(location.pathname)}
+                            onClick={toggleMobileSidebar}
                         />
                     </div>
                 </div>
             </div>
 
-            <div
-                className={[
-                    settings.compactMobileChrome
-                        ? "fixed inset-x-2.5 top-[calc(var(--app-header-height)+0.5rem)] z-[96] transition duration-300 md:hidden"
-                        : "fixed inset-x-3 top-[calc(var(--app-header-height)+0.75rem)] z-[96] transition duration-300 md:hidden",
-                    mobileSearchOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-                ].join(" ")}
-            >
-                <div
-                    className={[
-                        "app-search-panel",
-                        settings.compactMobileChrome
-                            ? "rounded-[1.35rem] p-2.5"
-                            : "rounded-[1.6rem] p-3",
-                    ].join(" ")}
-                >
-                    <div className="flex items-center justify-between gap-3 px-1 pb-3">
-                        <div>
-                            <p className="app-kicker text-[0.68rem]">Mobile search</p>
-                            <p className="app-helper mt-1 text-xs">
-                                Find tools quickly.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setMobileSearchRoute(null)}
-                            className="app-icon-button rounded-xl p-2"
-                            aria-label="Close search"
-                        >
-                            <ShellIcon kind="close" className="h-4 w-4" />
-                        </button>
-                    </div>
-                    <FeatureSearch
-                        key={`mobile-${location.pathname}`}
-                        variant="hero"
-                        autoFocus
-                        suppressMobileAutoFocus
-                        placeholder="Search ratios, depreciation, inventory..."
+            <ViewportPortal>
+                <>
+                    <aside
+                        aria-hidden={!mobileSidebarOpen}
+                        className={[
+                            "fixed z-[98] w-[min(88vw,22rem)] border app-divider backdrop-blur-xl transition duration-300 xl:hidden",
+                            mobileSidebarOpen
+                                ? "translate-x-0 opacity-100"
+                                : "-translate-x-full pointer-events-none opacity-0",
+                        ].join(" ")}
+                        style={{
+                            left: "0.5rem",
+                            top: "var(--app-shell-overlay-top, 0.75rem)",
+                            background: "var(--app-sidebar-bg)",
+                            height: "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                        }}
+                    >
+                        <SidebarContent
+                            locationPathname={location.pathname}
+                            openGroups={effectiveOpenGroups}
+                            toggleGroup={toggleGroup}
+                            closeMobileSidebar={closeTransientPanels}
+                            showNewIndicators={settings.showNewFeatureIndicators}
+                            seenNewPaths={activity.seenNewPaths}
+                            pinnedRoutes={pinnedRoutes}
+                            recentRoutes={recentRoutes}
+                            mostUsedRoutes={mostUsedRoutes}
+                            online={network.online}
+                            bundleReady={offlineBundle.ready}
+                            onUnavailableRoute={(reason) =>
+                                pushNotice("Unavailable offline", reason, "warning")
+                            }
+                        />
+                    </aside>
+
+                    <button
+                        type="button"
+                        onClick={closeTransientPanels}
+                        aria-label="Close sidebar overlay"
+                        className={[
+                            "app-backdrop fixed inset-0 z-[97] transition duration-300 xl:hidden",
+                            mobileTransientPanelOpen
+                                ? "pointer-events-auto opacity-100"
+                                : "pointer-events-none opacity-0",
+                        ].join(" ")}
                     />
-                </div>
-            </div>
+
+                    <div
+                        className={[
+                            settings.compactMobileChrome
+                                ? "fixed inset-x-2.5 z-[99] transition duration-300 md:hidden"
+                                : "fixed inset-x-3 z-[99] transition duration-300 md:hidden",
+                            mobileSearchOpen
+                                ? "pointer-events-auto opacity-100"
+                                : "pointer-events-none opacity-0",
+                        ].join(" ")}
+                        style={{
+                            top: "var(--app-shell-overlay-top, 0.75rem)",
+                            maxHeight:
+                                "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                        }}
+                    >
+                        <div
+                            className={[
+                                "app-search-panel flex max-h-full flex-col overflow-hidden",
+                                settings.compactMobileChrome
+                                    ? "rounded-[1.35rem] p-2.5"
+                                    : "rounded-[1.6rem] p-3",
+                            ].join(" ")}
+                        >
+                            <div className="flex items-center justify-between gap-3 px-1 pb-3">
+                                <div>
+                                    <p className="app-kicker text-[0.68rem]">Mobile search</p>
+                                    <p className="app-helper mt-1 text-xs">
+                                        Find tools quickly.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileSearchRoute(null)}
+                                    className="app-icon-button rounded-xl p-2"
+                                    aria-label="Close search"
+                                >
+                                    <ShellIcon kind="close" className="h-4 w-4" />
+                                </button>
+                            </div>
+                            <div className="min-h-0 flex-1 overflow-y-auto">
+                                <FeatureSearch
+                                    key={`mobile-${location.pathname}`}
+                                    variant="hero"
+                                    autoFocus
+                                    suppressMobileAutoFocus
+                                    placeholder="Search ratios, depreciation, inventory..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            </ViewportPortal>
 
             <ReturnToTopButton />
             <SettingsDrawer open={settingsPanelOpen} onClose={() => setSettingsPanelRoute(null)} />

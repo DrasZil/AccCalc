@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { isThemeFamily } from "./themePreferences.js";
+import { normalizeThemeFamily } from "./themePreferences.js";
 const STORAGE_KEY = "accalc-app-settings";
 const SETTINGS_UPDATED_EVENT = "accalc-settings-updated";
 let cachedSettingsRaw;
@@ -41,7 +41,7 @@ function sanitizeSmartSolverMode(value) {
         : DEFAULT_APP_SETTINGS.smartSolverDefaultMode;
 }
 function sanitizeThemeFamily(value) {
-    return isThemeFamily(value) ? value : DEFAULT_APP_SETTINGS.themeFamily;
+    return normalizeThemeFamily(value);
 }
 function sanitizeSettings(value) {
     return {

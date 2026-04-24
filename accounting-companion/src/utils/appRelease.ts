@@ -1,34 +1,59 @@
-export const APP_VERSION = "12.0.0";
+export const APP_VERSION = "12.4.0";
 export const APP_RELEASE_DATE = "2026-04-24";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 12.0.0 is the focus-first organization overhaul",
-        body: "This release reorganizes the app around one rule: show the main job first, and keep supporting detail discoverable on demand instead of letting everything compete at once.",
+        title: "AccCalc 12.4.0 expands the theme families cleanly",
+        body: "Classic stays intact, but the palette system now adds Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey as more intentional light-and-dark theme families.",
     },
     {
-        title: "Calculator pages are now tool-first",
-        body: "Shared calculator layouts now keep inputs and results primary while orientation help, related study, and nearby tools move into an intentional page menu and collapsed learning sections.",
+        title: "Appearance is compact by default now",
+        body: "Settings no longer spends the main scroll path on a wall of theme cards. Appearance starts with a tighter summary, a compact family strip, and an on-demand gallery.",
     },
     {
-        title: "The homepage now answers what to do next",
-        body: "Home now prioritizes quick solve, quick scan, workpapers, resume study, and recent routes first, while broader discovery moves into grouped disclosures instead of a feature wall.",
+        title: "Theme state applies earlier and more reliably",
+        body: "Theme, family, contrast, motion, and theme-color metadata are applied before React mounts, which reduces personalization flicker and keeps reload behavior more consistent.",
     },
     {
-        title: "Study and workpaper support blocks are calmer",
-        body: "Lesson side references are lighter and Workpaper Studio now offers a real focus mode so the active reading or editing surface stays dominant when students need less noise.",
+        title: "The token system is more disciplined",
+        body: "Theme families now map through cleaner shared tokens for accents, chrome, chips, charts, and workspace atmosphere instead of relying on ad hoc family swaps.",
     },
     {
-        title: "Progressive disclosure is now a shared system",
-        body: "Dynamic page menus, collapsible support blocks, and lighter secondary rails give the app a more premium and more intentional information hierarchy across major page families.",
+        title: "Legacy theme picks migrate safely",
+        body: "Older stored family names are mapped forward to the closest new palette family so personalization survives the upgrade without breaking settings persistence.",
     },
     {
-        title: "The handoff story is updated for 12.0.0",
-        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe the focus-first page philosophy and how future pages should keep primary workflows visible.",
+        title: "The handoff story is updated for 12.4.0",
+        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe the new theme families, compact appearance layout, token rules, and early theme boot behavior.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "12.4.0: Expanded the theme system with palette-led families for Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey while preserving Classic as the default baseline.",
+    "12.4.0: Reorganized Settings so Appearance now opens with a compact summary card, a smaller mode selector, a quick family strip, and a discoverable theme gallery instead of a large always-visible theme wall.",
+    "12.4.0: Added safer theme-family normalization so legacy stored family values migrate to the closest new palette family without losing persistence.",
+    "12.4.0: Applied theme, family, contrast, motion, and meta theme-color state before React mounts to reduce visual flicker and make reload behavior more consistent.",
+    "12.4.0: Strengthened the shared theme-token structure with cleaner family-driven chrome, accent, chip, chart, and workspace atmosphere variables.",
+    "12.4.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the personalization and settings cleanup release.",
+    "12.3.0: Rebuilt Smart Solver around topic-first routing so route families are classified before extraction and generic vocabulary no longer dominates calculator choice.",
+    "12.3.0: Added route-family gating, contradiction pressure, and cleaner secondary-route separation so multi-concept prompts stop contaminating the primary prepared inputs.",
+    "12.3.0: Moved Smart Solver UI summaries onto a selected-route source of truth so Best Match, confidence, interpreter feedback, prepared inputs, and open/apply actions stay aligned.",
+    "12.3.0: Hardened extraction hygiene with stronger year/date, percent, and route-family field guards and improved intercompany transfer-price detection.",
+    "12.3.0: Updated OCR parsing to use topic-first Smart Solver analysis, preserve comma-separated classroom amounts during normalization, and keep route-aware structured values cleaner before review.",
+    "12.3.0: Added a reusable Smart Solver evaluation pack covering FAR, AFAR, Cost & Managerial, Audit, Tax, study-first, and OCR scenarios.",
+    "12.3.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the Smart Solver and OCR precision release.",
+    "12.2.0: Finished the shell viewport-fit pass by reserving top and bottom chrome space for page menus, mobile navigation, settings, search, and reminder overlays instead of letting temporary surfaces collide with app chrome.",
+    "12.2.0: Removed redundant Learning Hub chrome so module shelves, recent lesson activity, and category browsing reach useful content faster with less label and chip noise.",
+    "12.2.0: Rebuilt settings row layout rules with resilient grid and wrapping behavior so longer labels, selects, badges, and action buttons reflow cleanly on wider screens.",
+    "12.2.0: Deferred disclosure body rendering, reduced repeated homepage status subscriptions, and trimmed low-value metadata so the app feels smoother during repeated daily use.",
+    "12.2.0: Simplified shell context copy and page-menu framing so the focus-first system explains itself less and gets out of the user's way more often.",
+    "12.2.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the shell-tightening and density-control release.",
+    "12.1.0: Fixed the mobile menu root cause by portaling shell overlays to the viewport, removing shell clipping, and unifying live viewport-height handling for phones and small browsers.",
+    "12.1.0: Added shared body-scroll locking so mobile navigation, settings, search, and page menus no longer compete with background scrolling or partial-screen overlays.",
+    "12.1.0: Simplified the shell context rail and hid competing mobile chrome while transient panels are open, making navigation states clearer across phone, tablet, and desktop layouts.",
+    "12.1.0: Reorganized the homepage around best-next surfaces, return flows, pinned tools, and delayed discovery instead of equal-weight content blocks.",
+    "12.1.0: Moved lesson context into progressive disclosure and added a settings category map so reading and configuration flows stay more single-purpose.",
+    "12.1.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the stabilized focus-first release.",
     "12.0.0: Added a shared page menu system so secondary guidance, related study, and nearby routes stop crowding calculator and workspace headers.",
     "12.0.0: Reworked CalculatorPageLayout to keep inputs and results primary while moving supporting detail into progressive-disclosure surfaces.",
     "12.0.0: Rebuilt the homepage around next-step decisions, primary entry points, and delayed discovery instead of a broad feature wall.",
