@@ -8,6 +8,7 @@ import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
+import { getRouteMeta } from "../../utils/appCatalog";
 import {
     buildStudyTopicPath,
     getStudyTopic,
@@ -61,6 +62,10 @@ export default function TopicQuizPage() {
 
     const activeTopic = topic;
     const quizRecord = studyProgress.quizzes[activeTopic.id];
+    const relatedToolLinks = activeTopic.relatedCalculatorPaths
+        .map((path) => getRouteMeta(path))
+        .filter((item): item is NonNullable<ReturnType<typeof getRouteMeta>> => Boolean(item))
+        .slice(0, 2);
 
     function handleChange(questionId: string, value: string) {
         setAnswers((current) => ({ ...current, [questionId]: value }));
@@ -100,6 +105,19 @@ export default function TopicQuizPage() {
         setScore(null);
         setAnswers({});
     }
+
+    const accuracyPercent =
+        submitted && score !== null
+            ? Math.round((score / activeTopic.quiz.questions.length) * 100)
+            : null;
+    const nextStepSummary =
+        accuracyPercent === null
+            ? null
+            : accuracyPercent >= 85
+              ? "Strong result. Move into the related calculator or a neighboring topic while the procedure is still clear."
+              : accuracyPercent >= 60
+                ? "Mixed result. Review the explanation panels, then reopen the lesson for the step or definition that still felt shaky."
+                : "This topic still needs a slower pass. Revisit the lesson first, then use the related tool only after the concept reads clearly again.";
 
     return (
         <div className="app-page-stack">
@@ -173,13 +191,13 @@ export default function TopicQuizPage() {
                             <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                                 <p className="app-metric-label">Accuracy</p>
                                 <p className="app-metric-value mt-2">
-                                    {Math.round((score / activeTopic.quiz.questions.length) * 100)}%
+                                    {accuracyPercent}%
                                 </p>
                             </div>
                             <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
                                 <p className="app-metric-label">Study next</p>
                                 <p className="app-body-md mt-2 text-sm">
-                                    Review explanations below, then return to the lesson if the logic still feels weak.
+                                    {nextStepSummary}
                                 </p>
                             </div>
                         </div>
@@ -198,6 +216,12 @@ export default function TopicQuizPage() {
                                 label: `Return to ${activeTopic.shortTitle} lesson`,
                                 description: "Review the explanation, formulas, and worked examples for the questions that still felt weak.",
                             },
+                            ...relatedToolLinks.map((tool) => ({
+                                path: tool.path,
+                                label: `Open ${tool.shortLabel ?? tool.label}`,
+                                description:
+                                    "Use the linked calculator or workspace once the lesson logic is clear enough to solve a problem directly.",
+                            })),
                             {
                                 path: "/study/practice",
                                 label: "Open practice mode",

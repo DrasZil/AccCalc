@@ -448,6 +448,9 @@ const AuditPlanningWorkspacePage = lazy(
 const AuditSamplingPlannerPage = lazy(
     () => import("./features/audit/AuditSamplingPlannerPage")
 );
+const AuditMisstatementEvaluationPage = lazy(
+    () => import("./features/audit/AuditMisstatementEvaluationPage")
+);
 const AuditAssertionEvidencePlannerPage = lazy(
     () => import("./features/audit/AuditAssertionEvidencePlannerPage")
 );
@@ -523,6 +526,9 @@ const EnterpriseSystemsControlMapperPage = lazy(
 const AccessControlReviewPage = lazy(
     () => import("./features/ais/AccessControlReviewPage")
 );
+const SegregationOfDutiesConflictPage = lazy(
+    () => import("./features/ais/SegregationOfDutiesConflictPage")
+);
 const BusinessContinuityPlannerPage = lazy(
     () => import("./features/ais/BusinessContinuityPlannerPage")
 );
@@ -534,6 +540,9 @@ const ControlEnvironmentReviewPage = lazy(
 );
 const EthicsDecisionWorkspacePage = lazy(
     () => import("./features/governance/EthicsDecisionWorkspacePage")
+);
+const GovernanceEscalationPlannerPage = lazy(
+    () => import("./features/governance/GovernanceEscalationPlannerPage")
 );
 const BusinessLawReviewPage = lazy(
     () => import("./features/rfbt/BusinessLawReviewPage")
@@ -750,6 +759,7 @@ export default function App() {
                         <Route path="operations/quality-control-chart" element={renderRoute("/operations/quality-control-chart", <QualityControlChartPage />)} />
                         <Route path="audit/audit-planning-workspace" element={renderRoute("/audit/audit-planning-workspace", <AuditPlanningWorkspacePage />)} />
                         <Route path="audit/audit-sampling-planner" element={renderRoute("/audit/audit-sampling-planner", <AuditSamplingPlannerPage />)} />
+                        <Route path="audit/misstatement-evaluation-workspace" element={renderRoute("/audit/misstatement-evaluation-workspace", <AuditMisstatementEvaluationPage />)} />
                         <Route path="audit/assertion-evidence-planner" element={renderRoute("/audit/assertion-evidence-planner", <AuditAssertionEvidencePlannerPage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
@@ -777,10 +787,12 @@ export default function App() {
                         <Route path="ais/ais-lifecycle-and-recovery" element={renderRoute("/ais/ais-lifecycle-and-recovery", <AisLifecycleAndRecoveryPage />)} />
                         <Route path="ais/enterprise-systems-control-mapper" element={renderRoute("/ais/enterprise-systems-control-mapper", <EnterpriseSystemsControlMapperPage />)} />
                         <Route path="ais/access-control-review" element={renderRoute("/ais/access-control-review", <AccessControlReviewPage />)} />
+                        <Route path="ais/segregation-of-duties-conflict-matrix" element={renderRoute("/ais/segregation-of-duties-conflict-matrix", <SegregationOfDutiesConflictPage />)} />
                         <Route path="ais/business-continuity-planner" element={renderRoute("/ais/business-continuity-planner", <BusinessContinuityPlannerPage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
                         <Route path="governance/control-environment-review" element={renderRoute("/governance/control-environment-review", <ControlEnvironmentReviewPage />)} />
                         <Route path="governance/ethics-decision-workspace" element={renderRoute("/governance/ethics-decision-workspace", <EthicsDecisionWorkspacePage />)} />
+                        <Route path="governance/governance-escalation-planner" element={renderRoute("/governance/governance-escalation-planner", <GovernanceEscalationPlannerPage />)} />
                         <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
                         <Route path="rfbt/obligations-contracts-flow" element={renderRoute("/rfbt/obligations-contracts-flow", <ObligationsContractsFlowPage />)} />
                         <Route path="rfbt/defective-contracts-classifier" element={renderRoute("/rfbt/defective-contracts-classifier", <DefectiveContractsClassifierPage />)} />

@@ -1,14 +1,18 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.4.0` is the personalization and settings cleanup release: it expands the theme system with palette-led families, makes Appearance much more compact in Settings, and applies theme state earlier so customization feels premium instead of intrusive.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.4.0` is a combined personalization and academic-expansion release: it keeps Settings compact while expanding calculator coverage, lesson depth, quiz support, and the learn-practice-solve loop across weaker curriculum tracks.
 
 ## What 12.4.0 Changes
 
-- preserves the existing Classic theme while adding Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey
-- reorganizes Appearance around a compact summary card, a small mode selector, a quick family strip, and a discoverable theme gallery
-- keeps light, dark, and system mode behavior persistent and reliable across reloads
-- maps older stored theme-family values to the closest new palette family during the upgrade
-- reduces settings bulk so the theme system feels richer without turning Settings into a playground
+- adds three new academically useful workspaces in weaker tracks:
+  - Audit Misstatement Evaluation Workspace
+  - Segregation of Duties Conflict Matrix
+  - Governance Escalation Planner
+- expands study coverage with new receivables/discounting and managerial cost-behavior modules plus topic-specific quiz sets
+- tightens the lesson -> practice -> solve loop so Study Hub, Practice Hub, and quiz results now surface the nearest linked calculator directly
+- improves Smart Solver discovery so segregation-of-duties prompts route to the conflict matrix instead of the broader access-control review when the prompt is really about incompatible duties
+- keeps Appearance compact with a summary card, a small mode selector, a quick family strip, and a discoverable theme gallery
+- preserves the familiar working themes while also supporting the newer palette-led families
 
 ## Theme System
 
@@ -23,10 +27,35 @@ Important files:
 Theme-system rules in `12.4.0`:
 
 - Classic remains the safe default.
+- Ocean, Slate, Rose, Blossom, Lavender, and Emerald remain available for students who already rely on the earlier color families.
+- Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey extend the palette with more editorial families.
 - Every family works in light, dark, and system mode.
 - Theme families are palette-led, not random one-off color swaps.
-- Legacy stored families migrate safely to the closest new family.
+- Legacy stored families migrate safely.
 - Theme state applies before React mounts to reduce flicker.
+
+## Academic Expansion
+
+Important files:
+
+- `src/utils/calculatorMath.ts`
+- `src/features/audit/AuditMisstatementEvaluationPage.tsx`
+- `src/features/ais/SegregationOfDutiesConflictPage.tsx`
+- `src/features/governance/GovernanceEscalationPlannerPage.tsx`
+- `src/features/study/studyExpansion450.ts`
+- `src/features/study/studyExpansion1100.ts`
+- `src/features/study/StudyHubPage.tsx`
+- `src/features/study/StudyPracticeHubPage.tsx`
+- `src/features/study/TopicQuizPage.tsx`
+- `src/features/smart/smartSolver.engine.ts`
+
+Academic rules in `12.4.0`:
+
+- Prefer academically useful tools over toy formulas.
+- Strengthen weaker tracks before adding more density to already strong ones.
+- Every added or touched topic should answer how to learn it, practice it, and solve it.
+- Study and practice surfaces should recommend the right tool, not a generic hub when a closer next step exists.
+- Smart Solver and app discovery should recognize new academic tools as first-class routes, not dead-end additions.
 
 ## Appearance Settings Direction
 
@@ -47,6 +76,15 @@ Practical application:
 - quick family switching happens from a smaller swatch strip
 - the full gallery stays available without dominating the page
 - contrast and motion controls remain nearby, but no longer feel buried under theme cards
+
+## Learn, Practice, Solve
+
+The academic loop is tighter in `12.4.0`:
+
+- lessons now link more deliberately to the most relevant calculators and quizzes
+- practice cards surface linked tools so students can move from a weak quiz score into the exact workspace they need
+- quiz results point back to the lesson and forward into related calculators instead of only sending students to a generic study hub
+- calculator discovery covers the new audit, AIS, and governance workspaces in the app catalog and Smart Solver
 
 ## Main Product Areas
 
@@ -107,4 +145,10 @@ npm run build
 npm run dev
 ```
 
-The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. For theme and settings work, the final manual pass should include light/dark/system switching, family persistence, and a narrow-screen review of the Appearance section.
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.4.0` should include:
+
+- light, dark, and system switching
+- theme persistence and restored familiar family coverage
+- narrow-screen review of the Appearance section
+- Study Hub and Practice Hub checks for lesson/tool/quiz linkage
+- Smart Solver checks for the new audit, AIS, and governance routes

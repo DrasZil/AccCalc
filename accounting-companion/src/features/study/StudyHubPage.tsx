@@ -5,7 +5,7 @@ import PageHeader from "../../components/PageHeader";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
 import TransitionLink from "../../components/TransitionLink";
-import { APP_NAV_GROUPS } from "../../utils/appCatalog";
+import { APP_NAV_GROUPS, getRouteMeta } from "../../utils/appCatalog";
 import {
     STUDY_CATEGORY_DETAILS,
     buildStudyQuizPath,
@@ -31,9 +31,14 @@ function TopicCard({
     bestScore: number | null;
     continueLabel?: string;
 }) {
+    const firstToolPath = topic.relatedCalculatorPaths[0] ?? null;
+    const firstToolMeta = firstToolPath ? getRouteMeta(firstToolPath) : null;
     const topicMeta = [
         getStudyCategoryTrack(topic.category),
         `${reviewedCount} sections reviewed`,
+        topic.relatedCalculatorPaths.length > 0
+            ? `${topic.relatedCalculatorPaths.length} linked tool${topic.relatedCalculatorPaths.length === 1 ? "" : "s"}`
+            : null,
         bestScore !== null ? `Best quiz ${Math.round(bestScore)}%` : null,
         continueLabel,
     ]
@@ -75,6 +80,14 @@ function TopicCard({
                 >
                     Practice quiz
                 </TransitionLink>
+                {firstToolMeta ? (
+                    <TransitionLink
+                        to={firstToolMeta.path}
+                        className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                    >
+                        Open {firstToolMeta.shortLabel ?? "tool"}
+                    </TransitionLink>
+                ) : null}
             </div>
         </div>
     );

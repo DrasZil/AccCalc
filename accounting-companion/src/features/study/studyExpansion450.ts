@@ -1324,6 +1324,7 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         scanSignals: ["performance materiality", "detection risk", "assertion", "substantive procedure"],
         relatedCalculatorPaths: [
             "/audit/audit-planning-workspace",
+            "/audit/misstatement-evaluation-workspace",
             "/audit/audit-cycle-reviewer",
             "/audit/audit-completion-and-opinion",
         ],
@@ -1432,6 +1433,7 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         relatedCalculatorPaths: [
             "/ais/it-control-matrix",
             "/ais/ais-lifecycle-and-recovery",
+            "/ais/segregation-of-duties-conflict-matrix",
             "/audit/audit-planning-workspace",
         ],
         relatedTopicIds: ["governance-control-environment-risk-and-monitoring", "audit-materiality-risk-and-evidence-linkage"],
@@ -1458,6 +1460,7 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
         scanSignals: ["control environment", "monitoring", "segregation of duties", "residual risk"],
         relatedCalculatorPaths: [
             "/governance/risk-control-matrix",
+            "/governance/governance-escalation-planner",
             "/audit/audit-planning-workspace",
             "/ais/it-control-matrix",
         ],
@@ -1677,7 +1680,11 @@ export const STUDY_HUB_CURRICULUM_TOPICS: StudyTopic[] = [
             "Ethics answers improve when the escalation and control response are as clear as the moral diagnosis.",
         keywords: ["business ethics", "management override", "stakeholder impact", "ethical pressure"],
         scanSignals: ["ethical pressure", "override", "stakeholder", "escalation", "tone at the top"],
-        relatedCalculatorPaths: ["/governance/ethics-decision-workspace", "/governance/risk-control-matrix"],
+        relatedCalculatorPaths: [
+            "/governance/ethics-decision-workspace",
+            "/governance/risk-control-matrix",
+            "/governance/governance-escalation-planner",
+        ],
         relatedTopicIds: ["governance-control-environment-risk-and-monitoring", "governance-risk-ethics-and-internal-control"],
     }),
     makeTopic({

@@ -2469,6 +2469,29 @@ export function computeAuditSamplingPlan({ populationBookValue, tolerableMisstat
             : "Sampling plan is mathematically workable under the selected classroom confidence factor.",
     };
 }
+export function computeAuditMisstatementEvaluation({ tolerableMisstatement, projectedMisstatement, allowanceForSamplingRisk, clearlyTrivialThreshold, qualitativeConcernCount, }) {
+    const upperMisstatementLimit = safeAdd(projectedMisstatement, allowanceForSamplingRisk);
+    const headroom = safeSubtract(tolerableMisstatement, upperMisstatementLimit);
+    const utilizationRate = tolerableMisstatement === 0
+        ? 0
+        : safeDivide(upperMisstatementLimit, tolerableMisstatement);
+    const qualitativePenalty = safeMultiply(qualitativeConcernCount, 0.08);
+    const adjustedRiskIndex = roundTo(safeAdd(utilizationRate, qualitativePenalty), 2);
+    const aboveClearlyTrivial = projectedMisstatement >= clearlyTrivialThreshold;
+    return {
+        upperMisstatementLimit,
+        headroom,
+        utilizationRate,
+        qualitativePenalty,
+        adjustedRiskIndex,
+        aboveClearlyTrivial,
+        conclusion: upperMisstatementLimit > tolerableMisstatement || qualitativeConcernCount >= 3
+            ? "Projected misstatement plus sampling allowance now pushes the case beyond the safer tolerable range, so additional work or adjustment is likely needed."
+            : utilizationRate >= 0.85 || aboveClearlyTrivial || qualitativeConcernCount > 0
+                ? "The case is still close enough to tolerable misstatement that more evidence, stronger explanation, or a proposed adjustment should be considered."
+                : "The projected misstatement stays below the selected tolerable range, but the team should still document why qualitative matters do or do not change the conclusion.",
+    };
+}
 export function computePertEstimate({ optimistic, mostLikely, pessimistic, }) {
     const expectedTime = safeDivide(safeAdd(safeAdd(optimistic, safeMultiply(4, mostLikely)), pessimistic), 6);
     const standardDeviation = safeDivide(safeSubtract(pessimistic, optimistic), 6);
@@ -2607,6 +2630,45 @@ export function computeBusinessContinuityReadiness({ backupRecovery, incidentRes
                 : "Expected recovery time exceeds the stated objective, so continuity controls need a stronger response plan.",
     };
 }
+export function computeSegregationOfDutiesConflict({ authorizationCustodyConflict, custodyRecordingConflict, recordingReconciliationConflict, privilegedAccessConflict, compensatingReviewStrength, }) {
+    const rawConflictScore = safeAdd(safeAdd(authorizationCustodyConflict, custodyRecordingConflict), safeAdd(recordingReconciliationConflict, privilegedAccessConflict));
+    const mitigationCredit = roundTo(safeMultiply(Math.max(safeSubtract(compensatingReviewStrength, 1), 0), 0.9), 2);
+    const netConflictScore = roundTo(Math.max(safeSubtract(rawConflictScore, mitigationCredit), 1), 2);
+    const conflictRows = [
+        {
+            label: "Authorization with custody",
+            value: authorizationCustodyConflict,
+        },
+        {
+            label: "Custody with recording",
+            value: custodyRecordingConflict,
+        },
+        {
+            label: "Recording with reconciliation",
+            value: recordingReconciliationConflict,
+        },
+        {
+            label: "Privileged access override",
+            value: privilegedAccessConflict,
+        },
+    ].sort((left, right) => right.value - left.value);
+    return {
+        rawConflictScore,
+        mitigationCredit,
+        netConflictScore,
+        dominantConflict: conflictRows[0]?.label ?? "Role overlap",
+        riskLabel: netConflictScore >= 9
+            ? "Severe segregation-of-duties exposure"
+            : netConflictScore >= 7
+                ? "Elevated segregation-of-duties exposure"
+                : "Manageable but review-worthy segregation exposure",
+        recommendedResponse: netConflictScore >= 9
+            ? "Separate incompatible duties or add truly independent review immediately, especially where privileged access can bypass normal approval."
+            : netConflictScore >= 7
+                ? "Reduce overlapping roles, formalize exception approval, and strengthen recurring conflict review and log monitoring."
+                : "Document the remaining conflict, confirm the compensating review evidence, and keep periodic recertification on schedule.",
+    };
+}
 export function computeControlEnvironmentStrength({ oversightStrength, ethicsProgramStrength, accountabilityStrength, competenceStrength, escalationStrength, }) {
     const controlEnvironmentAverage = safeDivide(safeAdd(safeAdd(oversightStrength, ethicsProgramStrength), safeAdd(accountabilityStrength, safeAdd(competenceStrength, escalationStrength))), 5);
     const overrideRiskIndex = roundTo(Math.max(safeSubtract(6, controlEnvironmentAverage), 1), 2);
@@ -2618,6 +2680,36 @@ export function computeControlEnvironmentStrength({ oversightStrength, ethicsPro
             : controlEnvironmentAverage >= 3
                 ? "Control-environment strength is mixed, so students should identify where discipline may break first."
                 : "Weak control-environment fundamentals make override, inconsistency, and poor follow-through more likely.",
+    };
+}
+export function computeGovernanceEscalationPlan({ issueSeverity, overrideRisk, stakeholderExposure, documentationStrength, oversightReadiness, }) {
+    const evidenceGap = Math.max(safeSubtract(4, documentationStrength), 0);
+    const oversightGap = Math.max(safeSubtract(4, oversightReadiness), 0);
+    const escalationScore = safeAdd(safeAdd(issueSeverity, overrideRisk), safeAdd(stakeholderExposure, safeAdd(evidenceGap, oversightGap)));
+    const preserveEvidence = overrideRisk >= 2 || documentationStrength <= 1;
+    return {
+        escalationScore,
+        preserveEvidence,
+        urgency: escalationScore >= 12 || overrideRisk === 3
+            ? "Immediate"
+            : escalationScore >= 9
+                ? "Prompt"
+                : "Structured follow-up",
+        escalationTier: escalationScore >= 12 || overrideRisk === 3
+            ? "Audit committee or board-level escalation"
+            : escalationScore >= 9
+                ? "Executive, compliance, or internal-audit escalation"
+                : "Control-owner and management escalation",
+        recommendedMove: escalationScore >= 12 || overrideRisk === 3
+            ? "Preserve evidence, document the issue clearly, and escalate outside the normal operating chain if management override risk is part of the case."
+            : escalationScore >= 9
+                ? "Document the issue, identify affected stakeholders, and move it into formal compliance, governance, or internal-audit review."
+                : "Record the issue, assign accountable follow-up, and confirm whether governance oversight needs to monitor the remediation plan.",
+        governanceSignal: oversightReadiness <= 1
+            ? "Oversight readiness is weak, so even a well-documented concern may stall without a stronger escalation path."
+            : documentationStrength <= 1
+                ? "Documentation is thin, so evidence preservation should happen before the issue is challenged."
+                : "Oversight and documentation are more usable, so the main decision is how high and how fast the escalation should go.",
     };
 }
 export function computeBusinessCaseScore({ marketAttractiveness, costAdvantage, controlReadiness, executionCapacity, riskPenalty, }) {

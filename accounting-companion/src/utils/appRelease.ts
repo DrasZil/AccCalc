@@ -3,38 +3,42 @@ export const APP_RELEASE_DATE = "2026-04-24";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 12.4.0 expands the theme families cleanly",
-        body: "Classic stays intact, but the palette system now adds Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey as more intentional light-and-dark theme families.",
+        title: "AccCalc 12.4.0 adds academic depth in weaker tracks",
+        body: "Audit Misstatement Evaluation, Segregation of Duties Conflict Matrix, and Governance Escalation Planner now extend weak-track coverage with practical classroom workspaces instead of filler tools.",
     },
     {
-        title: "Appearance is compact by default now",
-        body: "Settings no longer spends the main scroll path on a wall of theme cards. Appearance starts with a tighter summary, a compact family strip, and an on-demand gallery.",
+        title: "Lessons, quizzes, and calculators are connected more tightly",
+        body: "Study Hub, Practice Hub, and quiz results now point students into the nearest linked tool or lesson so the learn-practice-solve loop feels more like one system.",
+    },
+    {
+        title: "Smart Solver discovery recognizes the new academic routes",
+        body: "The route catalog and Smart Solver evaluation pack now cover the new audit, AIS, and governance tools, including stronger segregation-of-duties routing behavior.",
+    },
+    {
+        title: "Appearance stays compact while themes stay richer",
+        body: "Settings still uses the lighter summary-plus-gallery model, but the familiar working theme families remain available alongside the newer palette-led families.",
     },
     {
         title: "Theme state applies earlier and more reliably",
         body: "Theme, family, contrast, motion, and theme-color metadata are applied before React mounts, which reduces personalization flicker and keeps reload behavior more consistent.",
     },
     {
-        title: "The token system is more disciplined",
-        body: "Theme families now map through cleaner shared tokens for accents, chrome, chips, charts, and workspace atmosphere instead of relying on ad hoc family swaps.",
-    },
-    {
-        title: "Legacy theme picks migrate safely",
-        body: "Older stored family names are mapped forward to the closest new palette family so personalization survives the upgrade without breaking settings persistence.",
-    },
-    {
-        title: "The handoff story is updated for 12.4.0",
-        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe the new theme families, compact appearance layout, token rules, and early theme boot behavior.",
+        title: "The handoff story is updated for the combined 12.4.0 release",
+        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe both the compact personalization model and the new academic coverage.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "12.4.0: Added Audit Misstatement Evaluation Workspace, Segregation of Duties Conflict Matrix, and Governance Escalation Planner to strengthen weaker Audit, AIS, and Governance coverage with practical classroom decision tools.",
+    "12.4.0: Added new FAR and managerial study topics for receivables estimation, cash discount discipline, cost behavior, and margin of safety, each with topic-specific quiz support and linked calculators.",
+    "12.4.0: Tightened the lesson, quiz, and calculator loop so Study Hub topic cards, Practice Hub cards, weak-topic review panels, and quiz results now route students into the closest linked lesson or tool.",
+    "12.4.0: Expanded Smart Solver and route discovery coverage for the new audit, AIS, and governance tools and sharpened segregation-of-duties prompts so they beat the broader access-control review when the prompt is really about incompatible duties.",
     "12.4.0: Expanded the theme system with palette-led families for Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey while preserving Classic as the default baseline.",
     "12.4.0: Reorganized Settings so Appearance now opens with a compact summary card, a smaller mode selector, a quick family strip, and a discoverable theme gallery instead of a large always-visible theme wall.",
-    "12.4.0: Added safer theme-family normalization so legacy stored family values migrate to the closest new palette family without losing persistence.",
+    "12.4.0: Kept the earlier working theme families available so familiar Ocean, Slate, Rose, Blossom, Lavender, and Emerald selections continue to work alongside the newer palette families.",
     "12.4.0: Applied theme, family, contrast, motion, and meta theme-color state before React mounts to reduce visual flicker and make reload behavior more consistent.",
     "12.4.0: Strengthened the shared theme-token structure with cleaner family-driven chrome, accent, chip, chart, and workspace atmosphere variables.",
-    "12.4.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the personalization and settings cleanup release.",
+    "12.4.0: Updated README, release notes, system overview, maintenance guidance, and generated documentation for the combined personalization and academic-expansion release.",
     "12.3.0: Rebuilt Smart Solver around topic-first routing so route families are classified before extraction and generic vocabulary no longer dominates calculator choice.",
     "12.3.0: Added route-family gating, contradiction pressure, and cleaner secondary-route separation so multi-concept prompts stop contaminating the primary prepared inputs.",
     "12.3.0: Moved Smart Solver UI summaries onto a selected-route source of truth so Best Match, confidence, interpreter feedback, prepared inputs, and open/apply actions stay aligned.",

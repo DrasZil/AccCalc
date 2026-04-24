@@ -4,12 +4,14 @@ import GuidedStartPanel from "../../components/GuidedStartPanel";
 import PageBackButton from "../../components/PageBackButton";
 import PageHeader from "../../components/PageHeader";
 import SectionCard from "../../components/SectionCard";
+import { getRouteMeta } from "../../utils/appCatalog";
 import {
     buildStudyQuizPath,
     buildStudyTopicPath,
     getAllStudyTopics,
     getStudyCategoryTrack,
     searchStudyTopics,
+    type StudyTopic,
 } from "./studyContent";
 import { useStudyProgress } from "../../utils/studyProgress";
 
@@ -38,6 +40,41 @@ export default function StudyPracticeHubPage() {
                 .slice(0, 4)
                 .map((quiz) => topics.find((topic) => topic.id === quiz.topicId))
                 .filter((topic): topic is (typeof topics)[number] => Boolean(topic)),
+        [studyProgress.quizzes, topics]
+    );
+    const weakQuizTopics = useMemo(
+        () =>
+            Object.values(studyProgress.quizzes)
+                .map((quiz) => {
+                    const topic = topics.find((entry) => entry.id === quiz.topicId);
+                    if (!topic) return null;
+
+                    const strongestScore = Math.max(quiz.bestScore, quiz.lastScore);
+                    const strongestPercent =
+                        quiz.totalQuestions > 0
+                            ? (strongestScore / quiz.totalQuestions) * 100
+                            : 0;
+
+                    return {
+                        topic,
+                        strongestPercent,
+                        lastPercent:
+                            quiz.totalQuestions > 0
+                                ? (quiz.lastScore / quiz.totalQuestions) * 100
+                                : 0,
+                    };
+                })
+                .filter(
+                    (
+                        entry
+                    ): entry is {
+                        topic: StudyTopic;
+                        strongestPercent: number;
+                        lastPercent: number;
+                    } => entry !== null && entry.strongestPercent < 75
+                )
+                .sort((left, right) => left.strongestPercent - right.strongestPercent)
+                .slice(0, 4),
         [studyProgress.quizzes, topics]
     );
 
@@ -136,6 +173,74 @@ export default function StudyPracticeHubPage() {
                 </SectionCard>
             </section>
 
+            {weakQuizTopics.length > 0 ? (
+                <SectionCard>
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="app-section-kicker text-[0.68rem]">Return to weak topics</p>
+                            <h2 className="app-section-title mt-2">Practice where scores still slip</h2>
+                        </div>
+                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                            {weakQuizTopics.length} review set{weakQuizTopics.length === 1 ? "" : "s"}
+                        </span>
+                    </div>
+
+                    <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                        {weakQuizTopics.map(({ topic, strongestPercent, lastPercent }) => {
+                            const firstToolMeta = topic.relatedCalculatorPaths[0]
+                                ? getRouteMeta(topic.relatedCalculatorPaths[0])
+                                : null;
+
+                            return (
+                                <div
+                                    key={`weak-${topic.id}`}
+                                    className="app-subtle-surface rounded-[1rem] px-4 py-4"
+                                >
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="app-chip-accent rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            {getStudyCategoryTrack(topic.category)}
+                                        </span>
+                                        <span className="app-chip rounded-full px-2.5 py-1 text-[0.62rem]">
+                                            Best {Math.round(strongestPercent)}%
+                                        </span>
+                                    </div>
+
+                                    <h3 className="mt-3 text-[1rem] font-semibold tracking-[var(--app-letter-tight)] text-[color:var(--app-text)]">
+                                        {topic.shortTitle}
+                                    </h3>
+                                    <p className="app-helper mt-1.5 text-xs leading-5">
+                                        Last attempt {Math.round(lastPercent)}%. Revisit the lesson, then retry the quiz while the weak spot is still fresh.
+                                    </p>
+
+                                    <div className="app-card-grid-readable--compact mt-4">
+                                        <Link
+                                            to={buildStudyTopicPath(topic.id)}
+                                            className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                                        >
+                                            Review lesson
+                                        </Link>
+                                        <Link
+                                            to={buildStudyQuizPath(topic.id)}
+                                            className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                                        >
+                                            Retry quiz
+                                        </Link>
+                                        {firstToolMeta ? (
+                                            <Link
+                                                to={firstToolMeta.path}
+                                                className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                                            >
+                                                Open {firstToolMeta.shortLabel ?? "tool"}
+                                            </Link>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </SectionCard>
+            ) : null}
+
             <section className="space-y-4">
                 <div>
                     <p className="app-section-kicker text-[0.68rem]">Available quiz sets</p>
@@ -196,6 +301,16 @@ export default function StudyPracticeHubPage() {
                     <div className="grid gap-4 xl:grid-cols-2">
                         {visibleTopics.map((topic) => {
                             const quizRecord = studyProgress.quizzes[topic.id];
+                            const firstToolMeta = topic.relatedCalculatorPaths[0]
+                                ? getRouteMeta(topic.relatedCalculatorPaths[0])
+                                : null;
+                            const linkedToolCount = topic.relatedCalculatorPaths.length;
+                            const bestPercent =
+                                quizRecord && quizRecord.totalQuestions > 0
+                                    ? Math.round(
+                                          (quizRecord.bestScore / quizRecord.totalQuestions) * 100
+                                      )
+                                    : null;
 
                             return (
                                 <SectionCard key={topic.id}>
@@ -214,12 +329,17 @@ export default function StudyPracticeHubPage() {
                                     <p className="app-helper mt-1.5 text-xs leading-5">
                                         {topic.quiz.intro}
                                     </p>
+                                    <p className="app-helper mt-3 text-xs leading-5">
+                                        {linkedToolCount > 0
+                                            ? `${linkedToolCount} linked tool${linkedToolCount === 1 ? "" : "s"}${firstToolMeta ? ` · Start with ${firstToolMeta.shortLabel ?? firstToolMeta.label}` : ""}`
+                                            : "Lesson-first topic with short practice support."}
+                                    </p>
 
                                     {quizRecord ? (
                                         <div className="app-tone-info mt-4 rounded-[1rem] px-4 py-3.5">
                                             <p className="app-card-title text-sm">Progress so far</p>
                                             <p className="app-body-md mt-2 text-sm">
-                                                Last score {quizRecord.lastScore}/{quizRecord.totalQuestions}. Best score {quizRecord.bestScore}/{quizRecord.totalQuestions}.
+                                                Last score {quizRecord.lastScore}/{quizRecord.totalQuestions}. Best score {quizRecord.bestScore}/{quizRecord.totalQuestions}{bestPercent !== null ? ` (${bestPercent}%)` : ""}.
                                             </p>
                                         </div>
                                     ) : null}
@@ -237,6 +357,14 @@ export default function StudyPracticeHubPage() {
                                         >
                                             Start practice
                                         </Link>
+                                        {firstToolMeta ? (
+                                            <Link
+                                                to={firstToolMeta.path}
+                                                className="app-button-ghost rounded-xl px-4 py-2.5 text-sm font-semibold text-center"
+                                            >
+                                                Open {firstToolMeta.shortLabel ?? "tool"}
+                                            </Link>
+                                        ) : null}
                                     </div>
                                 </SectionCard>
                             );

@@ -274,4 +274,436 @@ export const STUDY_HUB_EXPANSION_1100_TOPICS: StudyTopic[] = [
         relatedCalculatorPaths: ["/strategic/business-case-analysis", "/strategic/strategic-business-analysis", "/strategic/balanced-scorecard-workspace"],
         relatedTopicIds: ["strategic-business-analysis-and-cost-management", "integrative-review-routing-and-case-prioritization"],
     }),
+    {
+        id: "far-receivables-estimation-and-cash-discount-discipline",
+        title: "FAR: Receivables Estimation, Cash Discounts, and Notes Discipline",
+        shortTitle: "Receivables and Discounts",
+        category: "Financial Accounting",
+        summary:
+            "Connect allowance estimation, cash discounts, discounted notes, and related cash-control reading so receivables topics feel like one working family instead of isolated formulas.",
+        intro:
+            "Receivables problems often mix valuation, timing, and settlement language. This module keeps bad-debt estimation, cash-discount reading, and notes handling connected so students can classify the issue before choosing the tool.",
+        whyItMatters: [
+            "It ties receivables quality and collection incentives back to measurement and control.",
+            "It helps students distinguish valuation estimates from collection-timing discounts and from note-discounting decisions.",
+            "It reduces the common mistake of opening the wrong calculator just because the prompt mentions cash or interest.",
+        ],
+        classContexts: [
+            "Allowance-for-doubtful-accounts problems",
+            "Cash-discount and collection-terms drills",
+            "Notes receivable and discounting reviewer cases",
+        ],
+        whenToUse: [
+            "Use it when the case is really about collectibility, settlement terms, or note handling rather than a full bank reconciliation.",
+            "Use it when the prompt mixes sales terms, bad-debt estimates, maturity value, or proceeds from discounting.",
+            "Return here after a wrong calculator choice when the issue was receivable quality or settlement structure.",
+        ],
+        formulaOverview: [
+            {
+                label: "Required ending allowance",
+                expression: "Required ending allowance = Receivable balance x estimated uncollectible rate",
+                explanation:
+                    "Use this when the case asks for the target allowance or the needed adjustment based on expected collectibility.",
+            },
+            {
+                label: "Cash discount amount",
+                expression: "Cash discount = Invoice amount x discount rate",
+                explanation:
+                    "Use this when the customer pays within the discount period and the issue is settlement terms, not note discounting.",
+            },
+            {
+                label: "Bank discount",
+                expression: "Bank discount = Maturity value x bank discount rate x time",
+                explanation:
+                    "Use this when a note is discounted before maturity and the question asks for proceeds or discount withheld.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Allowance", meaning: "The contra-asset estimate for expected uncollectibility" },
+            { symbol: "Discount terms", meaning: "Early-payment incentive such as 2/10, n/30" },
+            { symbol: "Maturity value", meaning: "Face value plus note interest at maturity" },
+            { symbol: "Bank discount", meaning: "Amount withheld by the bank when a note is discounted" },
+        ],
+        procedure: [
+            "Decide first whether the case is about valuation, settlement timing, or note discounting.",
+            "If the issue is collectibility, estimate the required allowance or adjustment and explain the receivables-quality implication.",
+            "If the issue is cash discount, confirm whether payment happened within the discount window before computing the discount amount.",
+            "If the issue is note discounting, compute maturity value first, then the bank discount and proceeds.",
+            "End with the business meaning: better collection, tighter valuation, or financing through note discounting.",
+        ],
+        workedExample: {
+            title: "Receivables family worked example",
+            scenario:
+                "A company estimates 4% of a 900,000 receivable balance as uncollectible, offers 2/10, n/30 terms on a 120,000 invoice, and later discounts a note with maturity value of 210,000.",
+            steps: [
+                "Separate the three issues: allowance estimation, cash discount terms, and note discounting.",
+                "Required allowance is 900,000 x 4% = 36,000.",
+                "Cash discount on the invoice is 120,000 x 2% = 2,400 if payment is within the discount period.",
+                "For the note, compute the bank discount from the maturity value and discount rate, then subtract it from maturity value to get proceeds.",
+            ],
+            result:
+                "The lesson is not one single number. It is the ability to route allowance, discount-terms, and discounted-note questions correctly.",
+            interpretation:
+                "Receivables topics are safer when students stop treating every cash-related prompt as the same problem type.",
+        },
+        checkpointExample: {
+            title: "Receivables routing checkpoint",
+            scenario:
+                "A student uses a cash-discount formula on a note-discounting problem because both mention a discount.",
+            steps: [
+                "Check whether the discount comes from customer payment terms or from discounting a note before maturity.",
+                "If the case involves maturity value and bank withholding, switch to note-discounting logic.",
+                "Recompute using the correct route.",
+            ],
+            result:
+                "The correct route is note discounting, not customer cash-discount terms.",
+            interpretation:
+                "Terminology overlap is one of the main reasons students choose the wrong calculator for receivables problems.",
+        },
+        interpretation: [
+            "Allowance estimation is about receivable quality and expected credit loss.",
+            "Cash discounts are about collection incentives and settlement timing.",
+            "Discounted notes are financing transactions that must be read through maturity value and bank discount.",
+        ],
+        commonMistakes: [
+            "Confusing cash discounts with bank discounting of notes.",
+            "Computing the allowance without stating what balance or rate was used.",
+            "Opening a bank-reconciliation route when the actual issue is receivables valuation or note handling.",
+        ],
+        examTraps: [
+            "The word discount may point to customer terms or to note discounting, and they are not solved the same way.",
+            "A receivables case can ask for the needed adjustment, not just the required ending allowance.",
+            "The strongest answer usually explains what the number says about collectibility or settlement, not just the arithmetic.",
+        ],
+        selfCheck: [
+            "How do you tell a cash-discount question from a note-discounting question?",
+            "What does the allowance estimate say about receivables quality?",
+            "Why should maturity value be computed before bank discount on a note?",
+        ],
+        practiceCues: [
+            "State whether the case is valuation, settlement timing, or note discounting before solving.",
+            "Say which tool best fits the prompt and why.",
+            "Explain the business meaning of the result in one sentence.",
+        ],
+        deepDiveSections: [
+            {
+                id: "receivables-routing",
+                title: "Routing discipline",
+                summary:
+                    "Use this section when several receivable-related terms appear in one prompt and the correct route is getting blurry.",
+                points: [
+                    "Allowance problems are estimation and valuation issues.",
+                    "Cash-discount problems are settlement-term issues.",
+                    "Discounted-note problems are financing and proceeds issues.",
+                ],
+                tone: "info",
+            },
+        ],
+        nextStepPrompts: [
+            "Which receivables tool should open first for this case?",
+            "Does the prompt really ask for valuation, settlement, or note-discounting logic?",
+            "What part of the result should be explained after the number is computed?",
+        ],
+        keywords: [
+            "allowance method",
+            "cash discount",
+            "notes receivable",
+            "bank discount",
+            "receivables quality",
+        ],
+        scanSignals: [
+            "estimated uncollectible rate",
+            "2/10 n/30",
+            "maturity value",
+            "bank discount",
+            "discounted note",
+        ],
+        relatedCalculatorPaths: [
+            "/accounting/allowance-doubtful-accounts",
+            "/accounting/cash-discount",
+            "/accounting/notes-receivable-discounting",
+            "/accounting/bank-reconciliation",
+        ],
+        relatedTopicIds: [
+            "bank-reconciliation-review",
+            "working-capital-and-control-review",
+            "accounting-foundations-review",
+        ],
+        quiz: {
+            title: "Receivables and Discounting Check",
+            intro:
+                "Use this set to verify whether you can separate receivable valuation, settlement discounts, and note discounting before computing.",
+            questions: [
+                {
+                    id: "receivables-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which issue is most likely being tested when the prompt gives a receivable balance and an estimated uncollectible rate?",
+                    choices: [
+                        "Allowance estimation",
+                        "Bank reconciliation timing",
+                        "Cash budget financing",
+                        "Price elasticity",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "A receivable balance with an estimated uncollectible rate usually points to allowance estimation or the needed bad-debt adjustment.",
+                },
+                {
+                    id: "receivables-q2",
+                    kind: "multiple-choice",
+                    prompt:
+                        "The phrase 2/10, n/30 most directly points to which route?",
+                    choices: [
+                        "Customer cash discount terms",
+                        "Bond premium amortization",
+                        "Inventory write-down",
+                        "Corporate liquidation",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Terms such as 2/10, n/30 describe an early-payment discount for the customer, not a bank discount on a note.",
+                },
+                {
+                    id: "receivables-q3",
+                    kind: "true-false",
+                    prompt:
+                        "A bank discount on a note is usually computed after maturity value is identified.",
+                    answer: true,
+                    explanation:
+                        "The note-discounting workflow typically computes maturity value first, then determines the bank discount and proceeds.",
+                },
+                {
+                    id: "receivables-q4",
+                    kind: "short-answer",
+                    prompt:
+                        "What should a student confirm first when both the words discount and note appear in the same problem?",
+                    acceptedAnswers: [
+                        "whether it is cash discount or note discounting",
+                        "whether the discount is customer terms or bank discount",
+                        "the type of discount",
+                    ],
+                    explanation:
+                        "The first routing question is whether the discount comes from customer settlement terms or from discounting a note before maturity.",
+                    placeholder: "Type of discount / route",
+                },
+            ],
+        },
+    },
+    {
+        id: "managerial-cost-behavior-and-margin-safety",
+        title: "Managerial: Cost Behavior, Margin of Safety, and High-Low Estimation",
+        shortTitle: "Cost Behavior and Safety",
+        category: "Managerial & Cost Accounting",
+        summary:
+            "Connect high-low estimation, contribution thinking, margin of safety, and target-profit planning so cost-behavior problems lead into better managerial decisions.",
+        intro:
+            "Cost-behavior problems become more useful when students move from estimating the mixed-cost pattern into break-even, target-profit, and margin-of-safety interpretation instead of stopping at one formula.",
+        whyItMatters: [
+            "It ties estimation and planning together in a way that mirrors classroom managerial cases.",
+            "It strengthens the link between cost-behavior assumptions and later CVP answers.",
+            "It helps students explain whether the current sales plan is fragile or resilient after the estimate is made.",
+        ],
+        classContexts: [
+            "High-low cost estimation exercises",
+            "Margin-of-safety and target-profit drills",
+            "Managerial planning cases that start with mixed-cost behavior",
+        ],
+        whenToUse: [
+            "Use it when the case starts with mixed cost data and then asks for planning interpretation.",
+            "Use it when you need to estimate variable and fixed cost before a CVP or margin-of-safety answer.",
+            "Use it after a weak planning answer when the real problem was a shaky cost-behavior estimate.",
+        ],
+        formulaOverview: [
+            {
+                label: "Variable cost per unit from high-low",
+                expression: "Variable cost per unit = Change in total cost / Change in activity",
+                explanation:
+                    "This estimate is the first step before building the fixed-cost portion of the mixed cost.",
+            },
+            {
+                label: "Margin of safety",
+                expression: "Margin of safety = Actual or expected sales - Break-even sales",
+                explanation:
+                    "This measures the buffer before sales fall to the break-even threshold.",
+            },
+            {
+                label: "Target-profit units",
+                expression: "Required units = (Fixed costs + Target profit) / Contribution margin per unit",
+                explanation:
+                    "Use this after the cost behavior and contribution margin have been clarified.",
+            },
+        ],
+        variableDefinitions: [
+            { symbol: "Mixed cost", meaning: "A cost that contains both fixed and variable components" },
+            { symbol: "Contribution margin", meaning: "Selling price less variable cost per unit" },
+            { symbol: "Break-even sales", meaning: "The sales level where operating income is zero" },
+            { symbol: "Margin of safety", meaning: "The gap between expected sales and break-even sales" },
+        ],
+        procedure: [
+            "Estimate the variable portion first if the case begins with mixed-cost observations.",
+            "Back into the fixed-cost component from either the high or low activity point.",
+            "Use the estimated cost behavior to compute contribution margin and break-even structure.",
+            "Translate the result into margin-of-safety or target-profit language as requested.",
+            "Interpret whether the plan is comfortably above break-even or still exposed.",
+        ],
+        workedExample: {
+            title: "Cost behavior into planning example",
+            scenario:
+                "A mixed cost rises from 120,000 at 8,000 units to 156,000 at 14,000 units. The product sells for 45 per unit, and management wants to know whether expected sales leave enough safety margin.",
+            steps: [
+                "High-low variable cost = (156,000 - 120,000) / (14,000 - 8,000) = 6 per unit.",
+                "Fixed cost = 120,000 - (8,000 x 6) = 72,000.",
+                "Use the estimated cost behavior inside the CVP model to compute break-even and the margin-of-safety buffer.",
+                "Interpret whether expected sales are comfortably above the break-even line or only slightly above it.",
+            ],
+            result:
+                "The value of the lesson is the bridge from estimation into planning, not the estimate by itself.",
+            interpretation:
+                "Students should explain how a mixed-cost estimate changes the later planning answer instead of treating the topics separately.",
+        },
+        checkpointExample: {
+            title: "Planning checkpoint",
+            scenario:
+                "A student computes the high-low estimate but never uses it to comment on margin of safety or target-profit pressure.",
+            steps: [
+                "Ask what managerial decision the estimate was supposed to support.",
+                "Move from estimated fixed and variable cost into break-even or target-profit analysis.",
+                "State whether the sales plan still has enough buffer.",
+            ],
+            result:
+                "A high-low answer is incomplete if it never reaches the planning implication.",
+            interpretation:
+                "Managerial questions usually reward the decision meaning of the estimate, not just the estimate itself.",
+        },
+        interpretation: [
+            "High-low estimation is a means to planning, not the final destination.",
+            "Margin of safety is one of the clearest ways to explain whether a plan is fragile.",
+            "A shaky cost estimate can contaminate every later CVP answer, so assumptions should be stated honestly.",
+        ],
+        commonMistakes: [
+            "Stopping at the variable-cost estimate and forgetting to compute the fixed portion.",
+            "Using the high-low estimate without explaining its assumption limits.",
+            "Treating a small positive margin of safety as if it guarantees a strong plan.",
+        ],
+        examTraps: [
+            "The data may ask for estimation first and then quietly shift into planning.",
+            "A case can ask for units in one part and sales peso interpretation in another.",
+            "A small buffer above break-even can still imply high operating pressure.",
+        ],
+        selfCheck: [
+            "Why does a mixed-cost estimate matter to CVP analysis?",
+            "What does margin of safety say that break-even alone does not?",
+            "When should a student be cautious about a high-low estimate?",
+        ],
+        practiceCues: [
+            "Estimate the cost behavior, then say which planning question it unlocks.",
+            "Explain whether the plan is only barely safe or comfortably above break-even.",
+            "State one assumption weakness in the estimate before trusting the result.",
+        ],
+        deepDiveSections: [
+            {
+                id: "cost-behavior-link",
+                title: "Estimation to planning link",
+                summary:
+                    "Use this section when the problem feels split between cost-behavior estimation and later planning interpretation.",
+                points: [
+                    "High-low creates the cost structure used by later CVP analysis.",
+                    "Margin of safety explains buffer, not just break-even.",
+                    "Target-profit planning only becomes meaningful after contribution margin is grounded in a defensible cost estimate.",
+                ],
+                tone: "accent",
+            },
+        ],
+        nextStepPrompts: [
+            "Does the case stop at estimation, or is the estimate meant to support a CVP answer?",
+            "How fragile is the sales plan after the estimate is used?",
+            "Which managerial tool should open next: high-low, break-even, target profit, or margin of safety?",
+        ],
+        keywords: [
+            "high-low method",
+            "margin of safety",
+            "mixed cost",
+            "cost behavior",
+            "target profit",
+        ],
+        scanSignals: [
+            "highest activity level",
+            "lowest activity level",
+            "mixed cost",
+            "margin of safety",
+            "target profit",
+        ],
+        relatedCalculatorPaths: [
+            "/business/high-low-cost-estimation",
+            "/business/margin-of-safety",
+            "/business/break-even",
+            "/business/target-profit",
+        ],
+        relatedTopicIds: [
+            "cvp-core",
+            "budgeting-and-planning-review",
+            "managerial-performance-reports-and-budget-variance",
+        ],
+        quiz: {
+            title: "Cost Behavior and Margin Safety Check",
+            intro:
+                "Use this set to verify whether you can connect mixed-cost estimation to break-even and planning interpretation.",
+            questions: [
+                {
+                    id: "cost-behavior-q1",
+                    kind: "multiple-choice",
+                    prompt:
+                        "What is usually computed first in the high-low method?",
+                    choices: [
+                        "Variable cost per unit",
+                        "Margin of safety percentage",
+                        "Allowance for doubtful accounts",
+                        "Net present value",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "The high-low method first estimates the variable portion per unit from the cost change over the activity change.",
+                },
+                {
+                    id: "cost-behavior-q2",
+                    kind: "multiple-choice",
+                    prompt:
+                        "Which statement best describes margin of safety?",
+                    choices: [
+                        "The sales buffer above break-even",
+                        "The fixed cost per unit",
+                        "The amount of bank discount on a note",
+                        "The total expected uncollectible amount",
+                    ],
+                    answerIndex: 0,
+                    explanation:
+                        "Margin of safety measures how far expected or actual sales sit above the break-even threshold.",
+                },
+                {
+                    id: "cost-behavior-q3",
+                    kind: "true-false",
+                    prompt:
+                        "A weak cost-behavior estimate can distort later target-profit planning.",
+                    answer: true,
+                    explanation:
+                        "CVP and target-profit answers rely on the estimated fixed and variable cost pattern, so a weak estimate can contaminate the later planning result.",
+                },
+                {
+                    id: "cost-behavior-q4",
+                    kind: "short-answer",
+                    prompt:
+                        "Why should a student move past the high-low estimate into a planning interpretation?",
+                    acceptedAnswers: [
+                        "because the estimate supports break-even or target profit",
+                        "because it helps planning",
+                        "because it shows margin of safety",
+                    ],
+                    explanation:
+                        "Managerial cases usually use the estimate to support a planning judgment such as break-even, target profit, or margin-of-safety reading.",
+                    placeholder: "Planning use of the estimate",
+                },
+            ],
+        },
+    },
 ];

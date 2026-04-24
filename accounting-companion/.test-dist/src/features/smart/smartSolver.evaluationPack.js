@@ -62,6 +62,27 @@ export const SMART_SOLVER_EVALUATION_PACK = [
         },
     },
     {
+        id: "audit-misstatement-evaluation-l2",
+        area: "Audit",
+        level: "L2",
+        prompt: "Our audit case shows tolerable misstatement of 250000, projected misstatement of 180000, allowance for sampling risk of 45000, clearly trivial threshold of 10000, and several qualitative concerns. Which audit route fits best?",
+        expectedPrimaryRoute: "audit-misstatement-evaluation",
+    },
+    {
+        id: "ais-sod-conflict-l2",
+        area: "Study",
+        level: "L2",
+        prompt: "Evaluate segregation of duties when the same user can authorize purchases, record supplier invoices, and maintain privileged access while compensating review is weak.",
+        expectedPrimaryRoute: "segregation-of-duties-conflict",
+    },
+    {
+        id: "governance-escalation-l2",
+        area: "Study",
+        level: "L2",
+        prompt: "Management override risk is high, stakeholder exposure is high, documentation is weak, and the issue may need audit committee escalation. What governance tool should I open?",
+        expectedPrimaryRoute: "governance-escalation-planner",
+    },
+    {
         id: "study-routing-l2",
         area: "Study",
         level: "L2",

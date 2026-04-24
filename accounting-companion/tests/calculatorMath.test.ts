@@ -123,13 +123,16 @@ import {
     computeConstrainedResourceProductMix,
     computeSegmentMargin,
     computeAuditSamplingPlan,
+    computeAuditMisstatementEvaluation,
     computePertEstimate,
     computeQuasiReorganization,
     computeCorporateLiquidation,
     computeBusinessContinuityReadiness,
     computeBusinessCaseScore,
     computeActivityBasedCosting,
+    computeSegregationOfDutiesConflict,
     computeControlEnvironmentStrength,
+    computeGovernanceEscalationPlan,
     computeFinancialAssetAmortizedCost,
     computeInvestmentPropertyMeasurement,
     computeJointArrangementShare,
@@ -2196,7 +2199,7 @@ runTest("v10.1 FAR and AFAR completion helpers keep deficit and recovery logic v
 
 runTest("v10.1 discovery and workpapers reach completion-pass additions", () => {
     assert.equal(searchAppRoutes("segment margin traceable fixed costs")[0]?.path, "/business/segmented-income-statement");
-    assert.equal(searchAppRoutes("audit sampling tolerable misstatement")[0]?.path, "/audit/audit-sampling-planner");
+    assert.equal(searchAppRoutes("audit sampling sample size confidence factor")[0]?.path, "/audit/audit-sampling-planner");
     assert.equal(searchAppRoutes("pert optimistic most likely pessimistic")[0]?.path, "/operations/pert-project-estimate");
     assert.equal(searchAppRoutes("quasi reorganization deficit cleanup")[0]?.path, "/far/quasi-reorganization");
     assert.equal(searchAppRoutes("corporate liquidation statement of affairs")[0]?.path, "/afar/corporate-liquidation");
@@ -2301,6 +2304,66 @@ runTest("v11 shared governance, continuity, and strategic helpers stay coherent"
     });
     assert.equal(businessCase.weightedScore, 3.46);
     assert.equal(businessCase.recommendation, "Proceed only with tighter assumptions");
+});
+
+runTest("v12.4 academic expansion helpers guide audit, AIS, and governance follow-up", () => {
+    const audit = computeAuditMisstatementEvaluation({
+        tolerableMisstatement: 500_000,
+        projectedMisstatement: 330_000,
+        allowanceForSamplingRisk: 140_000,
+        clearlyTrivialThreshold: 50_000,
+        qualitativeConcernCount: 1,
+    });
+    assert.equal(audit.upperMisstatementLimit, 470_000);
+    assert.equal(audit.headroom, 30_000);
+    assertClose(audit.utilizationRate, 0.94);
+    assertClose(audit.qualitativePenalty, 0.08);
+    assertClose(audit.adjustedRiskIndex, 1.02);
+    assert.equal(audit.aboveClearlyTrivial, true);
+    assert.match(audit.conclusion, /close enough to tolerable misstatement/i);
+
+    const ais = computeSegregationOfDutiesConflict({
+        authorizationCustodyConflict: 3,
+        custodyRecordingConflict: 2,
+        recordingReconciliationConflict: 4,
+        privilegedAccessConflict: 1,
+        compensatingReviewStrength: 2,
+    });
+    assert.equal(ais.rawConflictScore, 10);
+    assertClose(ais.mitigationCredit, 0.9);
+    assertClose(ais.netConflictScore, 9.1);
+    assert.equal(ais.dominantConflict, "Recording with reconciliation");
+    assert.equal(ais.riskLabel, "Severe segregation-of-duties exposure");
+    assert.match(ais.recommendedResponse, /separate incompatible duties/i);
+
+    const governance = computeGovernanceEscalationPlan({
+        issueSeverity: 4,
+        overrideRisk: 3,
+        stakeholderExposure: 3,
+        documentationStrength: 1,
+        oversightReadiness: 2,
+    });
+    assert.equal(governance.escalationScore, 15);
+    assert.equal(governance.preserveEvidence, true);
+    assert.equal(governance.urgency, "Immediate");
+    assert.equal(governance.escalationTier, "Audit committee or board-level escalation");
+    assert.match(governance.recommendedMove, /preserve evidence/i);
+    assert.match(governance.governanceSignal, /documentation is thin/i);
+});
+
+runTest("v12.4 academic expansion routes are discoverable through the catalog", () => {
+    assert.equal(
+        searchAppRoutes("audit projected misstatement allowance sampling risk")[0]?.path,
+        "/audit/misstatement-evaluation-workspace"
+    );
+    assert.equal(
+        searchAppRoutes("segregation of duties custody recording privileged access")[0]?.path,
+        "/ais/segregation-of-duties-conflict-matrix"
+    );
+    assert.equal(
+        searchAppRoutes("governance escalation management override audit committee")[0]?.path,
+        "/governance/governance-escalation-planner"
+    );
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

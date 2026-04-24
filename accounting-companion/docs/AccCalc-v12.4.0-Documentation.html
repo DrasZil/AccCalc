@@ -79,47 +79,53 @@
     <main>
       <header>
         <span class="eyebrow">AccCalc v12.4.0</span>
-        <h1>Compact Personalization And Theme System</h1>
+        <h1>Compact Personalization And Academic Expansion</h1>
         <p class="muted">
-          Version 12.4.0 expands the theme families, keeps Appearance compact by default,
-          and applies personalization state earlier so customization feels cleaner and more reliable.
+          Version 12.4.0 keeps Appearance compact and polished while expanding
+          calculators, study topics, practice support, and the learn-practice-solve loop.
         </p>
       </header>
 
       <section>
         <h2>Main Changes</h2>
         <ul>
-          <li>Added Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey while keeping Classic.</li>
-          <li>Rebuilt Settings Appearance around a compact summary and a discoverable gallery.</li>
-          <li>Applied theme, family, contrast, motion, and meta theme-color before React mounts.</li>
-          <li>Added safe migration from older family names to the new palette-led set.</li>
+          <li>Added Audit Misstatement Evaluation Workspace, Segregation of Duties Conflict Matrix, and Governance Escalation Planner.</li>
+          <li>Added new study and quiz coverage for receivables estimation, cash discounts, cost behavior, and margin of safety.</li>
+          <li>Updated Study Hub, Practice Hub, and quiz results so lessons, quizzes, and tools link together more directly.</li>
+          <li>Kept Settings Appearance compact while preserving familiar themes and extending the palette families.</li>
         </ul>
       </section>
 
       <section>
-        <h2>Palette Families</h2>
+        <h2>Academic Depth</h2>
         <div class="grid two">
-          <div class="card"><strong>Warm families</strong><p class="muted">Butter, Guava, Sunset, and Sangria bring warmer editorial and coral-led atmospheres.</p></div>
-          <div class="card"><strong>Cool families</strong><p class="muted">Seabreeze, Lagoon, and Odyssey bring calmer chrome, stronger analytical contrast, and more premium depth.</p></div>
+          <div class="card">
+            <strong>New weak-track tools</strong>
+            <p class="muted">Audit, AIS, and Governance now have more practical classroom workspaces instead of relying on generic reviewer surfaces alone.</p>
+          </div>
+          <div class="card">
+            <strong>Tighter study loop</strong>
+            <p class="muted">Students can move from lesson to quiz to calculator faster, and weak quiz topics now have clearer return paths.</p>
+          </div>
         </div>
       </section>
 
       <section>
-        <h2>Appearance IA</h2>
+        <h2>Theme And Appearance</h2>
         <ul>
-          <li>Mode switching stays visible first.</li>
-          <li>Current theme summary stays visible first.</li>
-          <li>Quick family switching happens in a compact strip.</li>
-          <li>Full gallery browsing is secondary and on demand.</li>
+          <li>Appearance stays summary-first with quick family switching and a discoverable gallery.</li>
+          <li>Classic, Ocean, Slate, Rose, Blossom, Lavender, and Emerald remain available.</li>
+          <li>Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey extend the palette.</li>
+          <li>Theme state still applies before React mounts to reduce flicker.</li>
         </ul>
       </section>
 
       <section>
-        <h2>Reliability</h2>
+        <h2>Validation</h2>
         <ul>
-          <li>Theme state persists through the shared app settings store.</li>
-          <li>Legacy stored families map forward safely.</li>
-          <li>Pre-mount theme application reduces flicker during startup and reload.</li>
+          <li><code>npm test</code></li>
+          <li><code>npm run build</code></li>
+          <li>Bounded <code>npm run dev -- --host 127.0.0.1</code> probe</li>
         </ul>
       </section>
     </main>
