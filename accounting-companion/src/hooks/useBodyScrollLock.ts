@@ -48,7 +48,7 @@ export default function useBodyScrollLock(locked: boolean) {
             body.style.right = "0";
             body.style.width = "100%";
             body.style.overflow = "hidden";
-            body.style.touchAction = "none";
+            body.style.touchAction = "pan-y";
             body.style.overscrollBehavior = "none";
             documentElement.style.overflow = "hidden";
             documentElement.style.overscrollBehavior = "none";

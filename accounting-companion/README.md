@@ -1,18 +1,34 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.4.0` is a combined personalization and academic-expansion release: it keeps Settings compact while expanding calculator coverage, lesson depth, quiz support, and the learn-practice-solve loop across weaker curriculum tracks.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.5.0` is a focused mobile shell reliability release: it makes navigation and settings feel like true app panels on phones and tablets instead of cramped cards inside the page.
 
-## What 12.4.0 Changes
+## What 12.5.0 Changes
 
-- adds three new academically useful workspaces in weaker tracks:
-  - Audit Misstatement Evaluation Workspace
-  - Segregation of Duties Conflict Matrix
-  - Governance Escalation Planner
-- expands study coverage with new receivables/discounting and managerial cost-behavior modules plus topic-specific quiz sets
-- tightens the lesson -> practice -> solve loop so Study Hub, Practice Hub, and quiz results now surface the nearest linked calculator directly
-- improves Smart Solver discovery so segregation-of-duties prompts route to the conflict matrix instead of the broader access-control review when the prompt is really about incompatible duties
-- keeps Appearance compact with a summary card, a small mode selector, a quick family strip, and a discoverable theme gallery
-- preserves the familiar working themes while also supporting the newer palette-led families
+- makes the mobile menu a true full-screen viewport panel with safe-area-aware top and bottom spacing
+- makes Settings full-screen on mobile and non-desktop shell widths, removing the side-sheet card constraints
+- keeps menu and settings content internally scrollable while the page behind the panel stays locked
+- updates contextual page menus and mobile search to follow the same small-screen overlay sizing rules
+- prevents menu, search, and settings from stacking into confusing transient states
+- documents the mobile overlay contract for future shell work
+
+## Mobile Overlay System
+
+Important files:
+
+- `src/features/layout/AppLayout.tsx`
+- `src/features/meta/SettingsDrawer.tsx`
+- `src/components/ContextualPageMenu.tsx`
+- `src/hooks/useBodyScrollLock.ts`
+- `src/index.css`
+
+Overlay rules in `12.5.0`:
+
+- mobile menu, mobile settings, mobile search, and phone page menus are portaled to `document.body`
+- full-screen mobile panels use `--app-mobile-panel-height`, backed by the live viewport metric
+- safe-area insets are applied inside the panel instead of creating outer margins
+- bottom navigation and sticky shell chrome are hidden or covered while transient panels are active
+- long panel content scrolls inside the panel while `useBodyScrollLock` freezes the background page
+- larger desktop settings still use the existing side panel where it fits the shell
 
 ## Theme System
 
@@ -20,42 +36,16 @@ Important files:
 
 - `src/utils/themePreferences.ts`
 - `src/utils/appSettings.ts`
-- `src/features/layout/AppLayout.tsx`
+- `src/features/meta/SettingsContent.tsx`
 - `src/main.tsx`
 - `src/index.css`
 
-Theme-system rules in `12.4.0`:
+Theme-system rules remain:
 
 - Classic remains the safe default.
-- Ocean, Slate, Rose, Blossom, Lavender, and Emerald remain available for students who already rely on the earlier color families.
-- Butter, Moss, Palm, Guava, Sunset, Sangria, Seabreeze, Lagoon, and Odyssey extend the palette with more editorial families.
+- Familiar and palette-led families stay available.
 - Every family works in light, dark, and system mode.
-- Theme families are palette-led, not random one-off color swaps.
-- Legacy stored families migrate safely.
 - Theme state applies before React mounts to reduce flicker.
-
-## Academic Expansion
-
-Important files:
-
-- `src/utils/calculatorMath.ts`
-- `src/features/audit/AuditMisstatementEvaluationPage.tsx`
-- `src/features/ais/SegregationOfDutiesConflictPage.tsx`
-- `src/features/governance/GovernanceEscalationPlannerPage.tsx`
-- `src/features/study/studyExpansion450.ts`
-- `src/features/study/studyExpansion1100.ts`
-- `src/features/study/StudyHubPage.tsx`
-- `src/features/study/StudyPracticeHubPage.tsx`
-- `src/features/study/TopicQuizPage.tsx`
-- `src/features/smart/smartSolver.engine.ts`
-
-Academic rules in `12.4.0`:
-
-- Prefer academically useful tools over toy formulas.
-- Strengthen weaker tracks before adding more density to already strong ones.
-- Every added or touched topic should answer how to learn it, practice it, and solve it.
-- Study and practice surfaces should recommend the right tool, not a generic hub when a closer next step exists.
-- Smart Solver and app discovery should recognize new academic tools as first-class routes, not dead-end additions.
 
 ## Appearance Settings Direction
 
@@ -79,7 +69,7 @@ Practical application:
 
 ## Learn, Practice, Solve
 
-The academic loop is tighter in `12.4.0`:
+The academic loop remains the working product spine:
 
 - lessons now link more deliberately to the most relevant calculators and quizzes
 - practice cards surface linked tools so students can move from a weak quiz score into the exact workspace they need
@@ -131,13 +121,13 @@ accounting-companion/
 2. Keep the main action and main result visible before secondary help.
 3. Remove redundant labels and explanation chrome that only describe the system itself.
 4. Move optional details into disclosures, menus, or secondary panels when they are not needed immediately.
-5. When adding overlays, use the shared viewport portal and shell metrics instead of inventing a new sizing model.
+5. When adding overlays, use the shared viewport portal, `--app-mobile-panel-height`, and safe-area-aware internal padding instead of inventing a new sizing model.
 6. Prefer small, safe responsiveness wins over flashy but fragile layout tricks.
 7. Add regression coverage when shared logic changes.
 
-## Validation Status For 12.4.0
+## Validation Status For 12.5.0
 
-The final `12.4.0` release is validated with:
+The final `12.5.0` release is validated with:
 
 ```bash
 npm test
@@ -145,10 +135,10 @@ npm run build
 npm run dev
 ```
 
-The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.4.0` should include:
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.5.0` should include:
 
-- light, dark, and system switching
-- theme persistence and restored familiar family coverage
-- narrow-screen review of the Appearance section
-- Study Hub and Practice Hub checks for lesson/tool/quiz linkage
-- Smart Solver checks for the new audit, AIS, and governance routes
+- mobile menu full-screen behavior at phone widths
+- mobile settings full-screen behavior at phone and tablet widths
+- safe-area spacing around panel headers and bottom scroll areas
+- body scroll lock with long menu/settings content
+- no visible competition with sticky top chrome or bottom navigation while panels are open

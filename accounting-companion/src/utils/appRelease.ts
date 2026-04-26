@@ -1,34 +1,40 @@
-export const APP_VERSION = "12.4.0";
-export const APP_RELEASE_DATE = "2026-04-24";
+export const APP_VERSION = "12.5.0";
+export const APP_RELEASE_DATE = "2026-04-26";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 12.4.0 adds academic depth in weaker tracks",
-        body: "Audit Misstatement Evaluation, Segregation of Duties Conflict Matrix, and Governance Escalation Planner now extend weak-track coverage with practical classroom workspaces instead of filler tools.",
+        title: "AccCalc 12.5.0 makes mobile navigation feel app-native",
+        body: "The mobile menu now opens as a true viewport-owned panel with safe-area padding, internal scrolling, and no narrow card constraints.",
     },
     {
-        title: "Lessons, quizzes, and calculators are connected more tightly",
-        body: "Study Hub, Practice Hub, and quiz results now point students into the nearest linked tool or lesson so the learn-practice-solve loop feels more like one system.",
+        title: "Settings now uses a full-screen mobile surface",
+        body: "Settings no longer inherits the cramped side-sheet offsets on phones and tablets, so controls get the full available height and stay easier to scan.",
     },
     {
-        title: "Smart Solver discovery recognizes the new academic routes",
-        body: "The route catalog and Smart Solver evaluation pack now cover the new audit, AIS, and governance tools, including stronger segregation-of-duties routing behavior.",
+        title: "Overlay sizing is cleaner and safer",
+        body: "Mobile overlays now own the viewport, respect notches and gesture areas internally, and avoid competing with sticky top chrome or the bottom navigation.",
     },
     {
-        title: "Appearance stays compact while themes stay richer",
-        body: "Settings still uses the lighter summary-plus-gallery model, but the familiar working theme families remain available alongside the newer palette-led families.",
+        title: "Transient panel state is harder to confuse",
+        body: "Opening menu, search, or settings now clears the other transient surfaces so users do not end up with stacked mobile panels after route or chrome changes.",
     },
     {
-        title: "Theme state applies earlier and more reliably",
-        body: "Theme, family, contrast, motion, and theme-color metadata are applied before React mounts, which reduces personalization flicker and keeps reload behavior more consistent.",
+        title: "Panel scrolling is more reliable",
+        body: "The shared body scroll lock still freezes the background, but now preserves vertical panning inside open overlay panels for long settings and navigation lists.",
     },
     {
-        title: "The handoff story is updated for the combined 12.4.0 release",
-        body: "README, release notes, system overview, maintenance guidance, and generated docs now describe both the compact personalization model and the new academic coverage.",
+        title: "The maintenance notes document the overlay contract",
+        body: "README, release notes, system overview, and maintenance guidance now describe the full-screen mobile panel behavior and the viewport-token responsibilities.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "12.5.0: Reworked the mobile menu into a true full-screen viewport panel with safe-area padding, internal navigation scrolling, and no narrow drawer width cap.",
+    "12.5.0: Reworked mobile settings into a full-screen panel for all non-desktop shell widths, removing side-sheet offsets, max-width constraints, and chrome-subtracted height math.",
+    "12.5.0: Updated contextual page menus and mobile search overlay sizing so small-screen overlays use viewport-owned full-screen behavior instead of clipped page-remaining space.",
+    "12.5.0: Tightened transient panel state so opening menu, search, or settings clears the other mobile surfaces instead of allowing awkward stacked overlay states.",
+    "12.5.0: Adjusted the shared scroll lock to keep the background fixed while allowing vertical panning inside long overlay panels.",
+    "12.5.0: Updated README, release notes, system overview, and maintenance guidance for the focused mobile overlay and shell reliability release.",
     "12.4.0: Added Audit Misstatement Evaluation Workspace, Segregation of Duties Conflict Matrix, and Governance Escalation Planner to strengthen weaker Audit, AIS, and Governance coverage with practical classroom decision tools.",
     "12.4.0: Added new FAR and managerial study topics for receivables estimation, cash discount discipline, cost behavior, and margin of safety, each with topic-specific quiz support and linked calculators.",
     "12.4.0: Tightened the lesson, quiz, and calculator loop so Study Hub topic cards, Practice Hub cards, weak-topic review panels, and quiz results now route students into the closest linked lesson or tool.",

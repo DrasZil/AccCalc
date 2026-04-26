@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import SettingsContent from "./SettingsContent";
 import ViewportPortal from "../../components/ViewportPortal";
 import useBodyScrollLock from "../../hooks/useBodyScrollLock";
@@ -70,6 +71,19 @@ export default function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
         window.matchMedia("(max-width: 1279px)").matches;
     useBodyScrollLock(shouldLockBody);
 
+    useEffect(() => {
+        if (!open) return;
+
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [onClose, open]);
+
     return (
         <ViewportPortal>
             <>
@@ -85,15 +99,17 @@ export default function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
 
                 <aside
                     aria-hidden={!open}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="App settings"
                     className={[
-                        "app-panel-elevated fixed z-[101] flex w-full flex-col border transition-transform duration-300 xl:hidden",
+                        "app-settings-drawer app-panel-elevated fixed inset-0 z-[101] flex w-screen flex-col border-0 transition-transform duration-300 xl:hidden",
                         open ? "translate-x-0" : "translate-x-full",
                     ].join(" ")}
                     style={{
-                        top: "var(--app-shell-overlay-top, 0.75rem)",
-                        right: "0.5rem",
-                        width: "min(34rem, calc(100vw - 1rem))",
-                        height: "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                        height: "var(--app-mobile-panel-height, var(--app-viewport-height, 100dvh))",
+                        paddingTop: "env(safe-area-inset-top, 0px)",
+                        paddingBottom: "env(safe-area-inset-bottom, 0px)",
                     }}
                 >
                     <SettingsPanelBody onClose={onClose} />

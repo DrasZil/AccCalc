@@ -5,6 +5,7 @@
     --app-mobile-nav-height: 0px;
     --app-keyboard-inset: 0px;
     --app-viewport-height: 100vh;
+    --app-mobile-panel-height: var(--app-viewport-height, 100vh);
     --app-shell-overlay-top: calc(env(safe-area-inset-top, 0px) + var(--app-header-height) + 0.55rem);
     --app-shell-overlay-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--app-mobile-nav-height) + 0.55rem);
     --app-shell-overlay-height: calc(var(--app-viewport-height, 100vh) - var(--app-shell-overlay-top) - var(--app-shell-overlay-bottom));
@@ -924,13 +925,9 @@ a:active {
     inset: 0;
     z-index: 110;
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding:
-        var(--app-shell-overlay-top)
-        0.75rem
-        var(--app-shell-overlay-bottom)
-        0.75rem;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
     pointer-events: none;
 }
 
@@ -948,11 +945,11 @@ a:active {
     z-index: 1;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    width: min(100%, 31rem);
-    height: min(var(--app-shell-overlay-height), 52rem);
-    max-height: min(var(--app-shell-overlay-height), 52rem);
-    border: 1px solid var(--app-border-subtle);
-    border-radius: 1.4rem 1.4rem 0 0;
+    width: 100%;
+    height: var(--app-mobile-panel-height, 100dvh);
+    max-height: none;
+    border: 0;
+    border-radius: 0;
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
         linear-gradient(180deg, var(--app-panel-bg), var(--app-panel-bg-soft));
@@ -965,7 +962,10 @@ a:active {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 1rem 0.95rem;
+    padding:
+        max(1rem, env(safe-area-inset-top, 0px))
+        1rem
+        0.95rem;
     border-bottom: 1px solid var(--app-border-subtle);
 }
 
@@ -973,6 +973,21 @@ a:active {
     min-height: 0;
     overflow: auto;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+.app-mobile-menu-panel,
+.app-settings-drawer {
+    max-width: none;
+    max-height: none;
+    overflow: hidden;
+    border-radius: 0 !important;
+    box-shadow: none;
+}
+
+.app-mobile-search-layer .app-search-panel {
+    height: 100%;
+    max-height: none;
 }
 
 .app-page-header__actions {
@@ -3617,8 +3632,8 @@ html[data-contrast="high"] .app-sidebar-link {
 
     .app-page-menu-panel {
         width: 100%;
-        height: min(var(--app-shell-overlay-height), 52rem);
-        max-height: min(var(--app-shell-overlay-height), 52rem);
+        height: var(--app-mobile-panel-height, 100dvh);
+        max-height: none;
     }
 }
 
@@ -3644,6 +3659,7 @@ html[data-contrast="high"] .app-sidebar-link {
 @media (min-width: 48rem) {
     .app-page-menu-layer {
         align-items: stretch;
+        justify-content: flex-end;
         padding:
             max(1rem, var(--app-shell-overlay-top))
             1rem
@@ -3652,8 +3668,10 @@ html[data-contrast="high"] .app-sidebar-link {
     }
 
     .app-page-menu-panel {
+        width: min(100%, 31rem);
         height: var(--app-shell-overlay-height);
         max-height: none;
+        border: 1px solid var(--app-border-subtle);
         border-radius: 1.45rem;
     }
 }

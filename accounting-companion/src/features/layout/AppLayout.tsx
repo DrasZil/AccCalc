@@ -1510,6 +1510,7 @@ export default function AppLayout() {
 
     function toggleMobileSidebar() {
         setMobileSearchRoute(null);
+        setSettingsPanelRoute(null);
         setMobileSidebarRoute((current) =>
             current === location.pathname ? null : location.pathname
         );
@@ -1517,6 +1518,7 @@ export default function AppLayout() {
 
     function toggleMobileSearch() {
         setMobileSidebarRoute(null);
+        setSettingsPanelRoute(null);
         setMobileSearchRoute((current) =>
             current === location.pathname ? null : location.pathname
         );
@@ -1845,17 +1847,20 @@ export default function AppLayout() {
                 <>
                     <aside
                         aria-hidden={!mobileSidebarOpen}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="AccCalc navigation menu"
                         className={[
-                            "fixed z-[98] w-[min(88vw,22rem)] border app-divider backdrop-blur-xl transition duration-300 xl:hidden",
+                            "app-mobile-menu-panel fixed inset-0 z-[102] flex w-screen flex-col border-0 app-divider backdrop-blur-xl transition duration-300 xl:hidden",
                             mobileSidebarOpen
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full pointer-events-none opacity-0",
                         ].join(" ")}
                         style={{
-                            left: "0.5rem",
-                            top: "var(--app-shell-overlay-top, 0.75rem)",
                             background: "var(--app-sidebar-bg)",
-                            height: "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                            height: "var(--app-mobile-panel-height, var(--app-viewport-height, 100dvh))",
+                            paddingTop: "env(safe-area-inset-top, 0px)",
+                            paddingBottom: "env(safe-area-inset-bottom, 0px)",
                         }}
                     >
                         <SidebarContent
@@ -1881,7 +1886,7 @@ export default function AppLayout() {
                         onClick={closeTransientPanels}
                         aria-label="Close sidebar overlay"
                         className={[
-                            "app-backdrop fixed inset-0 z-[97] transition duration-300 xl:hidden",
+                            "app-backdrop fixed inset-0 z-[100] transition duration-300 xl:hidden",
                             mobileTransientPanelOpen
                                 ? "pointer-events-auto opacity-100"
                                 : "pointer-events-none opacity-0",
@@ -1890,17 +1895,17 @@ export default function AppLayout() {
 
                     <div
                         className={[
-                            settings.compactMobileChrome
-                                ? "fixed inset-x-2.5 z-[99] transition duration-300 md:hidden"
-                                : "fixed inset-x-3 z-[99] transition duration-300 md:hidden",
+                            "app-mobile-search-layer fixed inset-0 z-[103] transition duration-300 md:hidden",
                             mobileSearchOpen
                                 ? "pointer-events-auto opacity-100"
                                 : "pointer-events-none opacity-0",
                         ].join(" ")}
                         style={{
-                            top: "var(--app-shell-overlay-top, 0.75rem)",
-                            maxHeight:
-                                "var(--app-shell-overlay-height, calc(100dvh - 1.5rem))",
+                            height: "var(--app-mobile-panel-height, var(--app-viewport-height, 100dvh))",
+                            paddingTop: "max(0.85rem, env(safe-area-inset-top, 0px))",
+                            paddingRight: settings.compactMobileChrome ? "0.65rem" : "0.8rem",
+                            paddingBottom: "max(0.85rem, env(safe-area-inset-bottom, 0px))",
+                            paddingLeft: settings.compactMobileChrome ? "0.65rem" : "0.8rem",
                         }}
                     >
                         <div
