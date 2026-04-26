@@ -1,34 +1,37 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.5.0` is a focused mobile shell reliability release: it makes navigation and settings feel like true app panels on phones and tablets instead of cramped cards inside the page.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.6.0` is a focused overlay and viewport-fit release: it extends the mobile shell fixes across page menus, contextual support, settings, media previews, scan previews, and support QR surfaces.
 
-## What 12.5.0 Changes
+## What 12.6.0 Changes
 
-- makes the mobile menu a true full-screen viewport panel with safe-area-aware top and bottom spacing
-- makes Settings full-screen on mobile and non-desktop shell widths, removing the side-sheet card constraints
-- keeps menu and settings content internally scrollable while the page behind the panel stays locked
-- updates contextual page menus and mobile search to follow the same small-screen overlay sizing rules
-- prevents menu, search, and settings from stacking into confusing transient states
-- documents the mobile overlay contract for future shell work
+- keeps mobile menu, settings, page menus, media previews, scan previews, and support QR surfaces viewport-owned instead of card-like
+- widens page menus on tablets, laptops, and desktops into proper full-height side sheets
+- upgrades media and scan/support preview modals to use the shared viewport portal and body scroll lock
+- makes desktop Settings roomier with a responsive full-height side panel
+- keeps substantial support surfaces internally scrollable while the page behind them stays locked
+- documents when to use full-screen panels, full-height side sheets, or lightweight dialogs
 
-## Mobile Overlay System
+## Overlay System
 
 Important files:
 
 - `src/features/layout/AppLayout.tsx`
 - `src/features/meta/SettingsDrawer.tsx`
 - `src/components/ContextualPageMenu.tsx`
+- `src/components/media/MediaViewerModal.tsx`
 - `src/hooks/useBodyScrollLock.ts`
 - `src/index.css`
 
-Overlay rules in `12.5.0`:
+Overlay rules in `12.6.0`:
 
-- mobile menu, mobile settings, mobile search, and phone page menus are portaled to `document.body`
+- mobile menu, mobile settings, mobile search, phone page menus, and media preview surfaces are portaled to `document.body`
 - full-screen mobile panels use `--app-mobile-panel-height`, backed by the live viewport metric
 - safe-area insets are applied inside the panel instead of creating outer margins
 - bottom navigation and sticky shell chrome are hidden or covered while transient panels are active
 - long panel content scrolls inside the panel while `useBodyScrollLock` freezes the background page
-- larger desktop settings still use the existing side panel where it fits the shell
+- tablet and desktop page menus use wider full-height side sheets instead of tiny floating cards
+- large media/support previews use full-screen mobile panels and large full-height desktop panels
+- lightweight prompts can stay dialog-like when their content is short
 
 ## Theme System
 
@@ -121,13 +124,13 @@ accounting-companion/
 2. Keep the main action and main result visible before secondary help.
 3. Remove redundant labels and explanation chrome that only describe the system itself.
 4. Move optional details into disclosures, menus, or secondary panels when they are not needed immediately.
-5. When adding overlays, use the shared viewport portal, `--app-mobile-panel-height`, and safe-area-aware internal padding instead of inventing a new sizing model.
+5. When adding substantial overlays, use the shared viewport portal, `--app-mobile-panel-height`, full-height desktop sizing, and safe-area-aware internal padding instead of inventing a new sizing model.
 6. Prefer small, safe responsiveness wins over flashy but fragile layout tricks.
 7. Add regression coverage when shared logic changes.
 
-## Validation Status For 12.5.0
+## Validation Status For 12.6.0
 
-The final `12.5.0` release is validated with:
+The final `12.6.0` release is validated with:
 
 ```bash
 npm test
@@ -135,10 +138,13 @@ npm run build
 npm run dev
 ```
 
-The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.5.0` should include:
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.6.0` should include:
 
 - mobile menu full-screen behavior at phone widths
 - mobile settings full-screen behavior at phone and tablet widths
+- page menu full-screen behavior on phones
+- page menu full-height side-sheet behavior on tablet/laptop/desktop
+- media, scan image, and support QR preview sizing
 - safe-area spacing around panel headers and bottom scroll areas
-- body scroll lock with long menu/settings content
+- body scroll lock with long support surfaces
 - no visible competition with sticky top chrome or bottom navigation while panels are open

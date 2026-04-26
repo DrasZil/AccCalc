@@ -1505,6 +1505,7 @@ export default function AppLayout() {
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
     const promptDockHidden = mobileSearchOpen || mobileSidebarOpen || settingsPanelOpen;
     const mobileTransientPanelOpen = mobileSidebarOpen || mobileSearchOpen;
+    const desktopSettingsPanelWidth = "clamp(34rem, 42vw, 48rem)";
 
     useBodyScrollLock(mobileTransientPanelOpen);
 
@@ -1772,7 +1773,7 @@ export default function AppLayout() {
                         settingsPanelOpen ? "border-l app-divider" : "pointer-events-none",
                     ].join(" ")}
                     style={{
-                        width: settingsPanelOpen ? "min(34rem, 38vw)" : "0px",
+                        width: settingsPanelOpen ? desktopSettingsPanelWidth : "0px",
                         opacity: settingsPanelOpen ? 1 : 0,
                     }}
                     aria-hidden={!settingsPanelOpen}
@@ -1780,7 +1781,7 @@ export default function AppLayout() {
                     <aside
                         className="app-panel-elevated h-screen rounded-none border-y-0 border-r-0 shadow-none"
                         style={{
-                            width: "min(34rem, 38vw)",
+                            width: desktopSettingsPanelWidth,
                             transform: settingsPanelOpen ? "translateX(0)" : "translateX(2rem)",
                             transition:
                                 "transform 280ms ease, opacity 220ms ease, width 280ms ease",

@@ -1,34 +1,40 @@
-export const APP_VERSION = "12.5.0";
+export const APP_VERSION = "12.6.0";
 export const APP_RELEASE_DATE = "2026-04-26";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 12.5.0 makes mobile navigation feel app-native",
-        body: "The mobile menu now opens as a true viewport-owned panel with safe-area padding, internal scrolling, and no narrow card constraints.",
+        title: "AccCalc 12.6.0 expands the support-surface overlay system",
+        body: "Page menus, settings, media previews, scan previews, and support QR views now follow a more consistent viewport-aware panel model.",
     },
     {
-        title: "Settings now uses a full-screen mobile surface",
-        body: "Settings no longer inherits the cramped side-sheet offsets on phones and tablets, so controls get the full available height and stay easier to scan.",
+        title: "Page menus use space more intentionally",
+        body: "Mobile page menus stay full-screen, while tablet and desktop menus now open as wider full-height side sheets instead of cramped narrow cards.",
     },
     {
-        title: "Overlay sizing is cleaner and safer",
-        body: "Mobile overlays now own the viewport, respect notches and gesture areas internally, and avoid competing with sticky top chrome or the bottom navigation.",
+        title: "Media and support previews stop behaving like inset cards",
+        body: "Scan image previews and support QR views now portal to the viewport, lock background scroll, and use full-screen mobile or large full-height desktop panels.",
     },
     {
-        title: "Transient panel state is harder to confuse",
-        body: "Opening menu, search, or settings now clears the other transient surfaces so users do not end up with stacked mobile panels after route or chrome changes.",
+        title: "Desktop settings gets a roomier side panel",
+        body: "The desktop settings surface now uses a wider full-height side sheet so dense settings groups are less cramped on laptop and desktop screens.",
     },
     {
-        title: "Panel scrolling is more reliable",
-        body: "The shared body scroll lock still freezes the background, but now preserves vertical panning inside open overlay panels for long settings and navigation lists.",
+        title: "Shared scroll locking covers more overlays",
+        body: "Substantial support surfaces now use the same reference-counted body scroll lock instead of one-off body overflow changes.",
     },
     {
-        title: "The maintenance notes document the overlay contract",
-        body: "README, release notes, system overview, and maintenance guidance now describe the full-screen mobile panel behavior and the viewport-token responsibilities.",
+        title: "The overlay maintenance contract is documented",
+        body: "README, release notes, system overview, and maintenance guidance now describe when to use full-screen, full-height side-sheet, or lightweight dialog behavior.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "12.6.0: Expanded the overlay fix from mobile menu/settings into the shared support-surface system for page menus, media previews, scan previews, support QR views, and desktop settings.",
+    "12.6.0: Widened tablet/laptop/desktop page menus into proper full-height side sheets so contextual page help no longer feels like a tiny card floating in unused space.",
+    "12.6.0: Upgraded MediaViewerModal to use ViewportPortal, shared body scroll locking, safe-area-aware full-screen mobile layout, and large full-height desktop sizing.",
+    "12.6.0: Improved support QR and scan image previews automatically through the shared media viewer overlay.",
+    "12.6.0: Increased the desktop settings side-panel width with a responsive clamp so settings groups have more usable room on laptop and desktop screens.",
+    "12.6.0: Updated README, release notes, system overview, and maintenance guidance for the broader support-surface viewport-fit contract.",
     "12.5.0: Reworked the mobile menu into a true full-screen viewport panel with safe-area padding, internal navigation scrolling, and no narrow drawer width cap.",
     "12.5.0: Reworked mobile settings into a full-screen panel for all non-desktop shell widths, removing side-sheet offsets, max-width constraints, and chrome-subtracted height math.",
     "12.5.0: Updated contextual page menus and mobile search overlay sizing so small-screen overlays use viewport-owned full-screen behavior instead of clipped page-remaining space.",
