@@ -16,6 +16,9 @@ import InstallPrompt from "../../components/InstallPrompt";
 import ReturnToTopButton from "../../components/ReturnToTopButton";
 import ShareAppButton from "../../components/ShareAppButton";
 import ViewportPortal from "../../components/ViewportPortal";
+import OnboardingCoach from "../onboarding/OnboardingCoach";
+import { emitOnboardingAction } from "../onboarding/onboardingEvents";
+import { useOnboardingState } from "../onboarding/onboardingState";
 import {
     getMostUsedRoutes,
     getPinnedRoutes,
@@ -403,7 +406,11 @@ function SidebarContent({
     }
 
     return (
-        <div className="flex h-full flex-col" style={{ background: "var(--app-sidebar-bg)" }}>
+        <div
+            className="flex h-full flex-col"
+            style={{ background: "var(--app-sidebar-bg)" }}
+            data-onboarding-target="sidebar"
+        >
             <div className="border-b app-divider px-3 py-2.5">
                 <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -700,16 +707,22 @@ function MobileNavButton({
     label,
     icon,
     onClick,
+    onboardingTarget,
+    onboardingAction,
 }: {
     active?: boolean;
     label: string;
     icon: ReactNode;
     onClick: () => void;
+    onboardingTarget?: string;
+    onboardingAction?: string;
 }) {
     return (
         <button
             type="button"
             onClick={onClick}
+            data-onboarding-target={onboardingTarget}
+            data-onboarding-action={onboardingAction}
             className={[
                 "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-xs font-semibold transition",
                 active
@@ -804,6 +817,7 @@ export default function AppLayout() {
     const location = useLocation();
     const settings = useAppSettings();
     const activity = useAppActivity();
+    const onboarding = useOnboardingState();
     const install = useInstallExperience();
     const network = useNetworkStatus();
     const offlineBundle = useOfflineBundleStatus();
@@ -1503,7 +1517,11 @@ export default function AppLayout() {
     );
     const themeButtonLabel =
         resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-    const promptDockHidden = mobileSearchOpen || mobileSidebarOpen || settingsPanelOpen;
+    const promptDockHidden =
+        mobileSearchOpen ||
+        mobileSidebarOpen ||
+        settingsPanelOpen ||
+        Boolean(onboarding.activeTourId);
     const mobileTransientPanelOpen = mobileSidebarOpen || mobileSearchOpen;
     const desktopSettingsPanelWidth = "clamp(34rem, 42vw, 48rem)";
 
@@ -1512,6 +1530,7 @@ export default function AppLayout() {
     function toggleMobileSidebar() {
         setMobileSearchRoute(null);
         setSettingsPanelRoute(null);
+        emitOnboardingAction("navigation-opened");
         setMobileSidebarRoute((current) =>
             current === location.pathname ? null : location.pathname
         );
@@ -1520,6 +1539,7 @@ export default function AppLayout() {
     function toggleMobileSearch() {
         setMobileSidebarRoute(null);
         setSettingsPanelRoute(null);
+        emitOnboardingAction("search-opened");
         setMobileSearchRoute((current) =>
             current === location.pathname ? null : location.pathname
         );
@@ -1527,9 +1547,38 @@ export default function AppLayout() {
 
     function toggleSettingsPanel() {
         closeTransientPanels();
+        emitOnboardingAction("settings-opened");
         setSettingsPanelRoute((current) =>
             current === location.pathname ? null : location.pathname
         );
+    }
+
+    function handleOnboardingShellAction(
+        action: "open-navigation" | "open-search" | "open-settings"
+    ) {
+        if (action === "open-navigation") {
+            setMobileSearchRoute(null);
+            setSettingsPanelRoute(null);
+            if (typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches) {
+                setDesktopSidebarVisible(true);
+            } else {
+                setMobileSidebarRoute(location.pathname);
+            }
+            emitOnboardingAction("navigation-opened");
+            return;
+        }
+
+        if (action === "open-search") {
+            setMobileSidebarRoute(null);
+            setSettingsPanelRoute(null);
+            setMobileSearchRoute(location.pathname);
+            emitOnboardingAction("search-opened");
+            return;
+        }
+
+        closeTransientPanels();
+        setSettingsPanelRoute(location.pathname);
+        emitOnboardingAction("settings-opened");
     }
 
     return (
@@ -1625,7 +1674,11 @@ export default function AppLayout() {
                             </div>
 
                             <div className="app-shell-header__actions flex items-center gap-2">
-                                <div className="app-shell-header__search hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]">
+                                <div
+                                    className="app-shell-header__search hidden min-w-[12rem] flex-1 max-w-[18rem] md:block xl:max-w-[20rem]"
+                                    data-onboarding-target="global-search"
+                                    data-onboarding-action="search-opened"
+                                >
                                     <FeatureSearch key={location.pathname} className="w-full" placeholder="Search" />
                                 </div>
 
@@ -1683,6 +1736,8 @@ export default function AppLayout() {
                                         effectiveDesktopSidebarVisible ? "Hide sidebar" : "Show sidebar"
                                     }
                                     className="app-icon-button hidden rounded-xl p-2.25 xl:inline-flex"
+                                    data-onboarding-target="desktop-sidebar-toggle"
+                                    data-onboarding-action="navigation-opened"
                                 >
                                     <ShellIcon
                                         kind={
@@ -1716,6 +1771,8 @@ export default function AppLayout() {
                                     aria-label={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     title={settingsPanelOpen ? "Close settings" : "Open settings"}
                                     className={settingsButtonClass}
+                                    data-onboarding-target="settings"
+                                    data-onboarding-action="settings-opened"
                                 >
                                     <ShellIcon kind="settings" />
                                 </button>
@@ -1823,11 +1880,14 @@ export default function AppLayout() {
                             label="Solver"
                             icon={<ShellIcon kind="spark" className="h-5 w-5" />}
                             onClick={() => navigate("/smart/solver")}
+                            onboardingTarget="smart-solver-entry"
                         />
                         <MobileNavButton
                             label="Search"
                             icon={<ShellIcon kind="search" className="h-5 w-5" />}
                             onClick={toggleMobileSearch}
+                            onboardingTarget="mobile-search"
+                            onboardingAction="search-opened"
                         />
                         <MobileNavButton
                             active={location.pathname === "/history"}
@@ -1839,6 +1899,8 @@ export default function AppLayout() {
                             label="Menu"
                             icon={<ShellIcon kind="menu" className="h-5 w-5" />}
                             onClick={toggleMobileSidebar}
+                            onboardingTarget="mobile-menu"
+                            onboardingAction="navigation-opened"
                         />
                     </div>
                 </div>
@@ -1949,6 +2011,11 @@ export default function AppLayout() {
 
             <ReturnToTopButton />
             <SettingsDrawer open={settingsPanelOpen} onClose={() => setSettingsPanelRoute(null)} />
+            <OnboardingCoach
+                launches={activity.launches}
+                disabled={settings.showOpeningAnimation && bootVisible}
+                onRequestShellAction={handleOnboardingShellAction}
+            />
         </div>
     );
 }

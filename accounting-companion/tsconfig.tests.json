@@ -11,7 +11,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "outDir": ".test-dist",
+    "outDir": "node_modules/.cache/accalc-test-dist",
     "rootDir": "."
   },
   "include": ["tests/**/*.ts", "src/utils/calculatorMath.ts", "src/utils/networkStatus.ts"]

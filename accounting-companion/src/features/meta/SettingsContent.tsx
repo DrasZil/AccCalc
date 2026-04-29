@@ -24,6 +24,10 @@ import {
 import { useLocalNotifications } from "../../hooks/useLocalNotifications";
 import { usePermissionState } from "../../hooks/usePermissionState";
 import { updateScanRetentionConsent } from "../../services/storage/storageConsent";
+import {
+    resetOnboardingState,
+    startOnboardingTour,
+} from "../onboarding/onboardingState";
 
 type SettingsContentProps = {
     compact?: boolean;
@@ -87,7 +91,7 @@ const SETTINGS_CATEGORY_LINKS = [
     {
         id: "settings-workflow",
         label: "Workflow",
-        description: "Calculator defaults, Smart Solver, and prompts.",
+        description: "Calculator defaults, Smart Solver, prompts, and tutorials.",
     },
     {
         id: "settings-data",
@@ -819,6 +823,62 @@ export default function SettingsContent({
                             label: String(value),
                         }))}
                     />
+                </div>
+            </DisclosurePanel>
+
+            <DisclosurePanel
+                title="Guided tutorial"
+                summary="Replay onboarding, run the short tour, or reset tutorial progress."
+                badge="Help"
+                compact={compact}
+            >
+                <div className="space-y-4">
+                    <div className="app-subtle-surface rounded-[1rem] px-4 py-3.5">
+                        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                            <div className="min-w-0 max-w-3xl">
+                                <h3 className="app-card-title text-sm">Replay the full tutorial</h3>
+                                <p className="app-body-md mt-1 text-sm">
+                                    Walk through Home, navigation, search, Smart Solver, calculators, Study Hub, Workpapers, and replay controls again.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    startOnboardingTour("first-run", { replay: true });
+                                    onNavigate?.();
+                                }}
+                                className="app-button-primary w-full rounded-xl px-4 py-2 text-sm font-medium sm:w-auto lg:justify-self-end"
+                            >
+                                Replay tutorial
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-3 lg:grid-cols-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                startOnboardingTour("quick", { replay: true });
+                                onNavigate?.();
+                            }}
+                            className="app-link-card rounded-[1rem] px-4 py-3.5 text-left"
+                        >
+                            <h3 className="app-card-title text-sm">Run quick tour</h3>
+                            <p className="app-body-md mt-1 text-sm">
+                                Reopen the compact returning-user walkthrough.
+                            </p>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={resetOnboardingState}
+                            className="app-link-card rounded-[1rem] px-4 py-3.5 text-left"
+                        >
+                            <h3 className="app-card-title text-sm">Reset tutorial state</h3>
+                            <p className="app-body-md mt-1 text-sm">
+                                Clear local onboarding progress so the next launch can show the appropriate prompt again.
+                            </p>
+                        </button>
+                    </div>
                 </div>
             </DisclosurePanel>
 

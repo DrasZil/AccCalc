@@ -181,6 +181,7 @@ import {
 } from "../src/utils/resultDisplay.js";
 import { evaluateCellInput } from "../src/features/workpapers/workpaperFormula.js";
 import { getWorkpaperTemplate } from "../src/features/workpapers/workpaperTemplates.js";
+import { getOnboardingTour } from "../src/features/onboarding/onboardingTours.js";
 import {
     applyStyleToRange,
     clearRangeCells,
@@ -2544,6 +2545,31 @@ runTest("v13.1 final academic expansion links tools, study, search, solver, OCR,
             "find the final tax payable after withholding credits"
         ),
         "finalTaxPayable"
+    );
+});
+
+runTest("v13.2 onboarding tours define action-aware first-run and quick flows", () => {
+    const firstRun = getOnboardingTour("first-run");
+    const quick = getOnboardingTour("quick");
+
+    assert.ok(firstRun.steps.length >= 8);
+    assert.ok(quick.steps.length >= 4);
+    assert.ok(firstRun.steps.some((step) => step.completion.type === "action"));
+    assert.ok(firstRun.steps.some((step) => step.completion.type === "route"));
+    assert.ok(firstRun.steps.some((step) => step.completion.type === "input"));
+    assert.ok(
+        firstRun.steps.some(
+            (step) =>
+                step.targetSelector?.includes("settings") &&
+                step.requestAction === "open-settings"
+        )
+    );
+    assert.ok(
+        quick.steps.some(
+            (step) =>
+                step.completion.type === "action" &&
+                step.completion.action === "search-opened"
+        )
     );
 });
 

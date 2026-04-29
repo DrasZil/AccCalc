@@ -1,8 +1,19 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.1.0` is the final high-value academic completion pass focused on weak-but-core curriculum families: audit, taxation, AIS, governance, RFBT, and intermediate-accounting route discipline.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.2.0` adds a polished, action-aware onboarding system and cleans up educational-use boundaries and generated test artifacts.
 
-## What 13.1.0 Changes
+## What 13.2.0 Changes
+
+- adds a first-time tutorial for Home, navigation, search, Smart Solver, calculators, Study Hub, Workpapers, and Settings replay
+- adds a returning-user quick tour prompt for the first open after this release, with skip and do-not-show-again choices
+- detects real tutorial actions such as opening navigation, using search, reaching routes, opening Settings, and interacting with calculator inputs
+- adds Settings controls to replay the full tutorial, replay the quick tour, or reset tutorial progress
+- adds contextual educational-use notices for tax, audit, legal/RFBT, governance, and AIS reviewer pages
+- moves test compilation output into an ignored cache and removes tracked `.test-dist` artifacts from the repository index
+
+## Academic Expansion Tracks
+
+The 13.1.0 academic completion pass remains included:
 
 - adds an Audit Materiality and Misstatement Planner for planning thresholds, clearly trivial amounts, and completion-stage pressure
 - adds an Income Tax Payable and Credits Review for gross tax due, credits, payments, final payable, and overpayment signals
@@ -13,10 +24,15 @@ AccCalc is a browser-first accounting learning and productivity system for solvi
 - wires the new academic routes into app search, Smart Solver, OCR routing, related panels, category hubs, and a v13.1 workpaper template
 - keeps the book-inspired expansion original: visible book/photo subject areas guide priorities, but no book text is copied
 
-## Academic Expansion Tracks
-
 Important files:
 
+- `src/features/onboarding/OnboardingCoach.tsx`
+- `src/features/onboarding/onboardingState.ts`
+- `src/features/onboarding/onboardingTours.ts`
+- `src/features/onboarding/onboardingEvents.ts`
+- `src/components/EducationalUseNotice.tsx`
+- `src/components/CalculatorPageLayout.tsx`
+- `src/features/meta/SettingsContent.tsx`
 - `src/features/audit/AuditMaterialityPlannerPage.tsx`
 - `src/features/tax/IncomeTaxPayableReviewPage.tsx`
 - `src/features/ais/RevenueCycleControlReviewPage.tsx`
@@ -28,8 +44,9 @@ Important files:
 - `src/features/scan-check/services/ocr/ocrRouting.ts`
 - `src/features/workpapers/workpaperTemplates.ts`
 
-Coverage priorities in `13.1.0`:
+Coverage priorities in `13.2.0`:
 
+- Onboarding: first-run tutorial, returning quick tour, replay, reset, route/action/input completion checks
 - Auditing: materiality, performance materiality, clearly trivial thresholds, misstatement pressure, evidence response
 - Taxation: taxable-income bridge plus final payable, credits, payments, overpayment, and compliance review
 - AIS: revenue-cycle controls, order-to-cash walkthroughs, assertion mapping, access/control follow-up
@@ -83,6 +100,7 @@ The academic loop is the working product spine:
 - quizzes explain route choice and send students back to the lesson or forward into the solving workspace
 - Smart Solver and OCR route scanned or typed prompts toward the new v13.1 academic tools
 - Workpaper Studio includes a v13.1 support template for mixed audit, tax, AIS, governance, and RFBT review
+- tutorial state is local, version-aware, replayable from Settings, and resilient to missing or corrupted storage
 
 ## Main Product Areas
 

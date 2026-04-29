@@ -2295,6 +2295,76 @@ html[data-contrast="high"] .app-sidebar-link {
     color: var(--app-text);
 }
 
+.acc-onboarding-layer {
+    isolation: isolate;
+}
+
+.acc-onboarding-spotlight {
+    position: fixed;
+    z-index: 126;
+    border-radius: 1.25rem;
+    border: 2px solid color-mix(in srgb, var(--app-accent) 72%, white 10%);
+    box-shadow:
+        0 0 0 9999px rgba(7, 12, 22, 0.38),
+        0 18px 48px rgba(7, 12, 22, 0.22),
+        0 0 0 8px color-mix(in srgb, var(--app-accent) 13%, transparent);
+    pointer-events: none;
+    transition:
+        inset 180ms ease,
+        width 180ms ease,
+        height 180ms ease,
+        opacity 180ms ease;
+}
+
+.acc-onboarding-card {
+    z-index: 128;
+    max-width: min(26.25rem, calc(100vw - 2rem));
+    color: var(--app-text);
+}
+
+.acc-onboarding-card--bottom {
+    max-height: min(70dvh, 30rem);
+    overflow-y: auto;
+}
+
+.acc-onboarding-prompt {
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    bottom: calc(
+        var(--app-mobile-nav-height, 0px) + max(1rem, env(safe-area-inset-bottom, 0px))
+    );
+    width: min(27rem, calc(100vw - 2rem));
+}
+
+@media (min-width: 48rem) {
+    .acc-onboarding-prompt {
+        right: 1.25rem;
+        bottom: 1.25rem;
+    }
+}
+
+@media (max-width: 47.99rem) {
+    .acc-onboarding-spotlight {
+        display: none;
+    }
+
+    .acc-onboarding-card {
+        box-sizing: border-box;
+        max-width: none;
+        width: auto;
+        overflow-wrap: anywhere;
+    }
+
+    .acc-onboarding-card--bottom {
+        left: max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+        right: auto !important;
+    }
+
+    .acc-onboarding-actions {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+}
+
 .app-hero-panel {
     position: relative;
     overflow: hidden;

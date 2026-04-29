@@ -267,7 +267,10 @@ export default function HomePage() {
 
     return (
         <div className="app-page-stack">
-            <section className="app-panel app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-6">
+            <section
+                className="app-panel app-hero-panel rounded-[var(--app-radius-xl)] p-5 md:p-6"
+                data-onboarding-target="home-hero"
+            >
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
                     <div className="max-w-3xl">
                         <div className="flex flex-wrap items-center gap-2">
@@ -290,6 +293,7 @@ export default function HomePage() {
                             <Link
                                 to="/smart/solver"
                                 className="app-button-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                data-onboarding-target="smart-solver-entry"
                             >
                                 Quick solve
                             </Link>
@@ -302,12 +306,14 @@ export default function HomePage() {
                             <Link
                                 to="/workpapers"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                data-onboarding-target="workpapers-entry"
                             >
                                 Workpapers
                             </Link>
                             <Link
                                 to="/study"
                                 className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+                                data-onboarding-target="study-entry"
                             >
                                 Continue study
                             </Link>
@@ -316,10 +322,12 @@ export default function HomePage() {
                     </div>
 
                     <div className="space-y-4">
-                        <FeatureSearch
-                            variant="hero"
-                            placeholder="Search only when you already know the tool or topic"
-                        />
+                        <div data-onboarding-target="home-search" data-onboarding-action="search-opened">
+                            <FeatureSearch
+                                variant="hero"
+                                placeholder="Search only when you already know the tool or topic"
+                            />
+                        </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">
                             {homeStats.map((stat) => (

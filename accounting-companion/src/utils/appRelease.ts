@@ -1,7 +1,23 @@
-export const APP_VERSION = "13.1.0";
-export const APP_RELEASE_DATE = "2026-04-29";
+export const APP_VERSION = "13.2.0";
+export const APP_RELEASE_DATE = "2026-04-30";
 
 export const APP_RELEASE_HIGHLIGHTS = [
+    {
+        title: "AccCalc 13.2.0 adds guided onboarding",
+        body: "First-time users now get an action-aware tutorial, while returning users get a lighter reintroduction prompt that can be skipped or replayed later.",
+    },
+    {
+        title: "Tutorial steps respond to real actions",
+        body: "The walkthrough can detect navigation, search, route changes, settings access, and calculator input interaction instead of behaving like a fixed slideshow.",
+    },
+    {
+        title: "Settings becomes the help replay hub",
+        body: "Settings now includes full tutorial replay, quick tour replay, and tutorial-state reset controls.",
+    },
+    {
+        title: "Educational-use boundaries are clearer",
+        body: "Tax, audit, legal/RFBT, AIS, and governance pages now surface integrated reminders that the tools are educational support and not current professional advice.",
+    },
     {
         title: "AccCalc 13.1.0 completes a final high-value academic pass",
         body: "New audit, tax, AIS, governance, and RFBT routes strengthen weak core curriculum families with original lessons, quizzes, Smart Solver routing, OCR discovery, and workpaper support.",
@@ -29,6 +45,12 @@ export const APP_RELEASE_HIGHLIGHTS = [
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "13.2.0: Added a first-time-user tutorial that teaches Home, navigation, search, Smart Solver, calculator inputs, Study Hub, Workpapers, and Settings replay.",
+    "13.2.0: Added a returning-user quick reintroduction prompt for the first open after this release, with skip and do-not-show-again controls.",
+    "13.2.0: Added an action-aware onboarding engine with route, shell-action, search, settings, and input-interaction completion checks plus timeout fallback.",
+    "13.2.0: Added Settings controls to replay the full tutorial, replay the quick tour, and reset local tutorial state.",
+    "13.2.0: Added contextual educational-use notices for tax, audit, legal/RFBT, governance, and AIS reviewer surfaces.",
+    "13.2.0: Moved test compilation output into an ignored cache path and removed tracked .test-dist generated files from the repository index.",
     "13.1.0: Added Audit Materiality and Misstatement Planner for planning materiality, performance materiality, clearly trivial thresholds, and misstatement cushion review.",
     "13.1.0: Added Income Tax Payable and Credits Review for taxable income, gross tax due, withholding credits, quarterly payments, refundable credits, penalties, payable, and overpayment signals.",
     "13.1.0: Added Revenue Cycle Control Review for AIS order-to-cash controls, assertion mapping, walkthrough evidence, weak control gaps, and audit follow-up.",

@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import ContextualPageMenu from "./ContextualPageMenu";
 import DisclosurePanel from "./DisclosurePanel";
+import EducationalUseNotice from "./EducationalUseNotice";
 import GuidedStartPanel, { type GuidedStartStep } from "./GuidedStartPanel";
 import OfflineCapabilityBadge from "./OfflineCapabilityBadge";
 import PageBackButton from "./PageBackButton";
@@ -49,6 +50,7 @@ type CalculatorPageLayoutProps = {
 };
 
 type SectionKey = "inputs" | "results";
+type EducationalNoticeArea = "tax" | "audit" | "legal" | "governance";
 
 function LayoutSection({
     label,
@@ -67,6 +69,15 @@ function LayoutSection({
             {children}
         </section>
     );
+}
+
+function getEducationalNoticeArea(category: string | undefined): EducationalNoticeArea | null {
+    if (category === "Taxation") return "tax";
+    if (category === "Audit & Assurance") return "audit";
+    if (category === "RFBT & Law") return "legal";
+    if (category === "Governance & Ethics") return "governance";
+    if (category === "AIS & IT Controls") return "governance";
+    return null;
 }
 
 export default function CalculatorPageLayout({
@@ -367,6 +378,7 @@ export default function CalculatorPageLayout({
     const shouldShowAvailabilityBanner =
         routeAvailability !== null &&
         (!routeAvailability.canOpen || routeAvailability.support !== "full");
+    const educationalNoticeArea = getEducationalNoticeArea(currentMeta?.category);
 
     return (
         <div className={["app-page-stack", pageWidthClass].join(" ").trim()}>
@@ -403,6 +415,10 @@ export default function CalculatorPageLayout({
                 >
                     {routeAvailability.reason}
                 </div>
+            ) : null}
+
+            {educationalNoticeArea ? (
+                <EducationalUseNotice area={educationalNoticeArea} />
             ) : null}
 
             {sections.length > 1 ? (

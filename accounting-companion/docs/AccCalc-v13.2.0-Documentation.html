@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AccCalc v13.2.0 Documentation</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.55; max-width: 980px; margin: 0 auto; padding: 40px 24px; color: #172033; }
+    h1, h2 { color: #0f5132; }
+    code { background: #eef3f0; padding: 2px 5px; border-radius: 4px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <h1>AccCalc v13.2.0 Documentation</h1>
+  <p>AccCalc 13.2.0 adds a focused onboarding and tutorial layer, plus cleanup for educational-use boundaries and generated test artifacts.</p>
+
+  <h2>Tutorial System</h2>
+  <ul>
+    <li>First-time tutorial for Home, navigation, search, Smart Solver, calculators, Study Hub, Workpapers, and Settings.</li>
+    <li>Returning-user quick tour prompt for the first open after this release.</li>
+    <li>Replay controls in Settings for the full tutorial, quick tour, and tutorial state reset.</li>
+    <li>Responsive spotlight and coach-card behavior across mobile, tablet, laptop, and desktop.</li>
+  </ul>
+
+  <h2>Action-Aware Logic</h2>
+  <p>The tutorial can complete steps from real route changes, navigation/search/settings actions, and calculator input interaction. Missing targets and long waits expose fallback guidance so users are not trapped.</p>
+
+  <h2>Educational-Use Notices</h2>
+  <p>Tax, audit, legal/RFBT, governance, and AIS reviewer pages now show contextual notices explaining that the pages are educational support and not current professional, legal, tax, audit, or organizational guidance.</p>
+
+  <h2>Generated Artifacts</h2>
+  <p>Test output now compiles into <code>node_modules/.cache/accalc-test-dist</code>. The old <code>.test-dist/</code> tree is ignored and removed from the Git index.</p>
+
+  <h2>Validation</h2>
+  <ul>
+    <li><code>npm test</code></li>
+    <li><code>npm run build</code></li>
+    <li>bounded dev-server probe when practical</li>
+  </ul>
+</body>
+</html>

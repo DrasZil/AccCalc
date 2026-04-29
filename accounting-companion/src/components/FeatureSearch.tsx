@@ -14,6 +14,7 @@ import { getRouteAvailability } from "../utils/appCatalog";
 import { useNetworkStatus } from "../utils/networkStatus";
 import { useOfflineBundleStatus } from "../utils/offlineStatus";
 import { getSuggestedRoutes, searchAppRoutes, type AppSearchResult } from "../utils/appSearch";
+import { emitOnboardingAction } from "../features/onboarding/onboardingEvents";
 
 type FeatureSearchProps = {
     variant?: "header" | "hero";
@@ -174,8 +175,12 @@ export default function FeatureSearch({
                             setQuery(event.target.value);
                             setOpen(true);
                             setActiveIndex(0);
+                            emitOnboardingAction("search-opened");
                         }}
-                        onFocus={() => setOpen(true)}
+                        onFocus={() => {
+                            setOpen(true);
+                            emitOnboardingAction("search-opened");
+                        }}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
                         className="w-full bg-transparent text-sm text-[color:var(--app-text)] outline-none placeholder:text-[color:var(--app-text-muted)] md:text-[0.95rem]"
