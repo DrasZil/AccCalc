@@ -1,37 +1,38 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `12.6.0` is a focused overlay and viewport-fit release: it extends the mobile shell fixes across page menus, contextual support, settings, media previews, scan previews, and support QR surfaces.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.0.0` is a major academic expansion release focused on calculators, reviewer material, quizzes, and study-to-solve integration across the accounting curriculum.
 
-## What 12.6.0 Changes
+## What 13.0.0 Changes
 
-- keeps mobile menu, settings, page menus, media previews, scan previews, and support QR surfaces viewport-owned instead of card-like
-- widens page menus on tablets, laptops, and desktops into proper full-height side sheets
-- upgrades media and scan/support preview modals to use the shared viewport portal and body scroll lock
-- makes desktop Settings roomier with a responsive full-height side panel
-- keeps substantial support surfaces internally scrollable while the page behind them stays locked
-- documents when to use full-screen panels, full-height side sheets, or lightweight dialogs
+- adds FAR conceptual-framework recognition and revenue-allocation workspaces
+- adds an income-tax taxable-income bridge with permanent, temporary, current-tax, and deferred-tax signals
+- adds an audit evidence-program builder for assertion risk, reliability, relevance, coverage, and contradiction pressure
+- adds a strategic cost-management target-costing workspace for allowable cost and cost-gap analysis
+- adds original Study Hub lessons and quizzes for the new FAR, tax, audit, strategic, and integrated CPA-review tracks
+- wires the new academic routes into app search, Smart Solver, OCR routing, related panels, category hubs, and a v13 workpaper template
+- keeps the book-inspired expansion original: visible book/photo subject areas guide priorities, but no book text is copied
 
-## Overlay System
+## Academic Expansion Tracks
 
 Important files:
 
-- `src/features/layout/AppLayout.tsx`
-- `src/features/meta/SettingsDrawer.tsx`
-- `src/components/ContextualPageMenu.tsx`
-- `src/components/media/MediaViewerModal.tsx`
-- `src/hooks/useBodyScrollLock.ts`
-- `src/index.css`
+- `src/features/far/ConceptualFrameworkRecognitionPage.tsx`
+- `src/features/far/RevenueAllocationWorkspacePage.tsx`
+- `src/features/tax/TaxableIncomeBridgePage.tsx`
+- `src/features/audit/AuditEvidenceProgramPage.tsx`
+- `src/features/strategic/TargetCostingWorkspacePage.tsx`
+- `src/features/study/studyExpansion1300.ts`
+- `src/utils/appCatalog.ts`
+- `src/features/smart/smartSolver.engine.ts`
+- `src/features/scan-check/services/ocr/ocrRouting.ts`
 
-Overlay rules in `12.6.0`:
+Coverage priorities in `13.0.0`:
 
-- mobile menu, mobile settings, mobile search, phone page menus, and media preview surfaces are portaled to `document.body`
-- full-screen mobile panels use `--app-mobile-panel-height`, backed by the live viewport metric
-- safe-area insets are applied inside the panel instead of creating outer margins
-- bottom navigation and sticky shell chrome are hidden or covered while transient panels are active
-- long panel content scrolls inside the panel while `useBodyScrollLock` freezes the background page
-- tablet and desktop page menus use wider full-height side sheets instead of tiny floating cards
-- large media/support previews use full-screen mobile panels and large full-height desktop panels
-- lightweight prompts can stay dialog-like when their content is short
+- Intermediate Accounting / FAR: conceptual framework, recognition, revenue allocation, contract balances, measurement routing
+- Taxation: income-tax bridge from accounting income to taxable income, plus current and deferred tax signals
+- Auditing: evidence sufficiency, procedure design, assertion risk, and contradictory evidence follow-up
+- Strategic Cost Management: target costing, allowable cost, kaizen-style savings, and cost-gap interpretation
+- CPA-review integration: practical financial accounting cases that map FAR, tax, audit, and strategic routes before solving
 
 ## Theme System
 
@@ -72,12 +73,13 @@ Practical application:
 
 ## Learn, Practice, Solve
 
-The academic loop remains the working product spine:
+The academic loop is the working product spine:
 
-- lessons now link more deliberately to the most relevant calculators and quizzes
-- practice cards surface linked tools so students can move from a weak quiz score into the exact workspace they need
-- quiz results point back to the lesson and forward into related calculators instead of only sending students to a generic study hub
-- calculator discovery covers the new audit, AIS, and governance workspaces in the app catalog and Smart Solver
+- lessons recommend related calculators and quizzes
+- calculators surface related lessons and practice through page menus and related panels
+- quizzes explain route choice and send students back to the lesson or forward into the solving workspace
+- Smart Solver and OCR route scanned or typed prompts toward the new v13 academic tools
+- Workpaper Studio includes a v13 support template for mixed revenue, tax, audit, and target-costing review
 
 ## Main Product Areas
 
@@ -128,9 +130,9 @@ accounting-companion/
 6. Prefer small, safe responsiveness wins over flashy but fragile layout tricks.
 7. Add regression coverage when shared logic changes.
 
-## Validation Status For 12.6.0
+## Validation Status For 13.0.0
 
-The final `12.6.0` release is validated with:
+The final `13.0.0` release is validated with:
 
 ```bash
 npm test
@@ -138,13 +140,12 @@ npm run build
 npm run dev
 ```
 
-The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `12.6.0` should include:
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `13.0.0` should include:
 
-- mobile menu full-screen behavior at phone widths
-- mobile settings full-screen behavior at phone and tablet widths
-- page menu full-screen behavior on phones
-- page menu full-height side-sheet behavior on tablet/laptop/desktop
-- media, scan image, and support QR preview sizing
-- safe-area spacing around panel headers and bottom scroll areas
-- body scroll lock with long support surfaces
-- no visible competition with sticky top chrome or bottom navigation while panels are open
+- new FAR conceptual framework and revenue-allocation pages
+- new taxable-income bridge
+- new audit evidence-program builder
+- new target-costing workspace
+- Study Hub lessons and quizzes for the v13 topics
+- Smart Solver/search/OCR discovery for the new academic routes
+- v13 integrated workpaper template

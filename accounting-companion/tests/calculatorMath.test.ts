@@ -137,6 +137,10 @@ import {
     computeInvestmentPropertyMeasurement,
     computeJointArrangementShare,
     computeQualityControlChart,
+    computeRevenueAllocationAnalysis,
+    computeTaxableIncomeBridge,
+    computeTargetCostingGap,
+    computeAuditEvidenceProgram,
 } from "../src/utils/calculatorMath.js";
 import {
     budgetVarianceAnalysisSolveDefinition,
@@ -163,6 +167,7 @@ import {
 import { SMART_SOLVER_EVALUATION_PACK } from "../src/features/smart/smartSolver.evaluationPack.js";
 import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
 import { parseOcrText } from "../src/features/scan-check/services/ocr/ocrParser.js";
+import { recommendScanRoutes } from "../src/features/scan-check/services/ocr/ocrRouting.js";
 import { parseNumberList } from "../src/utils/listParsers.js";
 import { parseLooseNumber } from "../src/utils/numberParsing.js";
 import { getNetworkStatusSnapshot } from "../src/utils/networkStatus.js";
@@ -224,6 +229,68 @@ runTest("compound interest handles quarterly compounding", () => {
 
     assertClose(result.totalAmount, 12667.700306, 1e-3);
     assertClose(result.compoundInterest, 2667.700306, 1e-3);
+});
+
+runTest("revenue allocation separates satisfaction and contract balance", () => {
+    const result = computeRevenueAllocationAnalysis({
+        transactionPrice: 120000,
+        standaloneSellingPriceA: 90000,
+        standaloneSellingPriceB: 60000,
+        percentSatisfiedA: 100,
+        percentSatisfiedB: 40,
+        considerationReceived: 100000,
+    });
+
+    assertClose(result.allocationA, 72000);
+    assertClose(result.allocationB, 48000);
+    assertClose(result.revenueRecognized, 91200);
+    assertClose(result.contractLiability, 8800);
+});
+
+runTest("taxable income bridge separates current and deferred tax signals", () => {
+    const result = computeTaxableIncomeBridge({
+        accountingIncome: 1500000,
+        permanentAdditions: 80000,
+        permanentDeductions: 30000,
+        taxableTemporaryDifferences: 120000,
+        deductibleTemporaryDifferences: 50000,
+        nolDeduction: 0,
+        taxRatePercent: 25,
+    });
+
+    assertClose(result.taxableIncome, 1620000);
+    assertClose(result.currentTaxExpense, 405000);
+    assertClose(result.deferredTaxLiability, 30000);
+    assertClose(result.deferredTaxAsset, 12500);
+});
+
+runTest("target costing identifies remaining cost gap", () => {
+    const result = computeTargetCostingGap({
+        targetSellingPrice: 950,
+        targetProfitMarginPercent: 28,
+        expectedUnitVolume: 5000,
+        currentEstimatedCostPerUnit: 760,
+        committedCostReductionPerUnit: 35,
+    });
+
+    assertClose(result.allowableCostPerUnit, 684);
+    assertClose(result.revisedCostPerUnit, 725);
+    assertClose(result.remainingCostGapPerUnit, 41);
+    assertClose(result.totalCostGap, 205000);
+});
+
+runTest("audit evidence program scores contradiction pressure", () => {
+    const result = computeAuditEvidenceProgram({
+        assertionRisk: 4.2,
+        evidenceReliability: 3.5,
+        evidenceRelevance: 3.2,
+        coverageDepth: 2.8,
+        contradictionCount: 1,
+    });
+
+    assertClose(result.evidenceStrengthAverage, 3.1666666667);
+    assertClose(result.contradictionPenalty, 0.6);
+    assertClose(result.residualEvidenceGap, 1.63);
 });
 
 runTest("present and future value are inverse-style companions", () => {
@@ -2364,6 +2431,37 @@ runTest("v12.4 academic expansion routes are discoverable through the catalog", 
         searchAppRoutes("governance escalation management override audit committee")[0]?.path,
         "/governance/governance-escalation-planner"
     );
+});
+
+runTest("v13 academic expansion routes are discoverable and routed", () => {
+    assert.equal(
+        searchAppRoutes("conceptual framework recognition measurement basis")[0]?.path,
+        "/far/conceptual-framework-recognition"
+    );
+    assert.equal(
+        searchAppRoutes("standalone selling price performance obligation contract liability")[0]?.path,
+        "/far/revenue-allocation-workspace"
+    );
+    assert.equal(
+        searchAppRoutes("taxable income permanent temporary difference deferred tax")[0]?.path,
+        "/tax/taxable-income-bridge"
+    );
+    assert.equal(
+        searchAppRoutes("target costing")[0]?.path,
+        "/strategic/target-costing-workspace"
+    );
+
+    const smart = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "The case asks for revenue recognition using standalone selling prices and performance obligations, then whether a contract liability remains."
+    );
+    assert.equal(smart.best?.route, "/far/revenue-allocation-workspace");
+
+    const scanRoutes = recommendScanRoutes(
+        "Taxable income bridge: accounting income, permanent difference, temporary difference, current tax and deferred tax.",
+        "word-problem"
+    );
+    assert.equal(scanRoutes[0]?.path, "/tax/taxable-income-bridge");
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

@@ -1,34 +1,42 @@
-export const APP_VERSION = "12.6.0";
-export const APP_RELEASE_DATE = "2026-04-26";
+export const APP_VERSION = "13.0.0";
+export const APP_RELEASE_DATE = "2026-04-29";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 12.6.0 expands the support-surface overlay system",
-        body: "Page menus, settings, media previews, scan previews, and support QR views now follow a more consistent viewport-aware panel model.",
+        title: "AccCalc 13.0.0 expands the academic accounting system",
+        body: "New FAR, tax, audit, and strategic cost-management workspaces connect original lessons, quizzes, Smart Solver routing, OCR discovery, and workpaper support.",
     },
     {
-        title: "Page menus use space more intentionally",
-        body: "Mobile page menus stay full-screen, while tablet and desktop menus now open as wider full-height side sheets instead of cramped narrow cards.",
+        title: "Intermediate accounting and FAR get stronger recognition support",
+        body: "Conceptual-framework recognition and revenue allocation now help students move from classification to measurement to contract-balance review.",
     },
     {
-        title: "Media and support previews stop behaving like inset cards",
-        body: "Scan image previews and support QR views now portal to the viewport, lock background scroll, and use full-screen mobile or large full-height desktop panels.",
+        title: "Taxation now includes an income-tax bridge",
+        body: "The new taxable-income workspace separates accounting income, permanent items, temporary differences, loss deductions, current tax, and deferred-tax signals.",
     },
     {
-        title: "Desktop settings gets a roomier side panel",
-        body: "The desktop settings surface now uses a wider full-height side sheet so dense settings groups are less cramped on laptop and desktop screens.",
+        title: "Audit and strategic cost practice become more practical",
+        body: "Audit evidence-program planning and target-costing analysis add procedure judgment and strategic cost-gap computation to the academic toolset.",
     },
     {
-        title: "Shared scroll locking covers more overlays",
-        body: "Substantial support surfaces now use the same reference-counted body scroll lock instead of one-off body overflow changes.",
+        title: "Study coverage now follows the learn-practice-solve loop",
+        body: "Version 13.0.0 adds original topic modules and quizzes tied directly to the new calculators and reviewer workspaces.",
     },
     {
-        title: "The overlay maintenance contract is documented",
-        body: "README, release notes, system overview, and maintenance guidance now describe when to use full-screen, full-height side-sheet, or lightweight dialog behavior.",
+        title: "Discovery, OCR, and workpapers know the new academic routes",
+        body: "Search, Smart Solver, Scan & Check routing, related panels, and a mixed CPA-review workpaper template now surface the new release coverage.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "13.0.0: Added Conceptual Framework Recognition Helper for element classification, recognition support, measurement-basis selection, and disclosure cautions.",
+    "13.0.0: Added Revenue Allocation Workspace for bundled transaction-price allocation, performance-obligation satisfaction, and contract asset or liability review.",
+    "13.0.0: Added Taxable Income Bridge for accounting-income reconciliation, permanent and temporary differences, loss deductions, current tax, and deferred-tax signals.",
+    "13.0.0: Added Audit Evidence Program Builder for assertion risk, evidence reliability, relevance, coverage, contradictory evidence, and procedure-intensity planning.",
+    "13.0.0: Added Target Costing Workspace for market price, required profit, allowable cost, committed savings, and remaining cost-gap analysis.",
+    "13.0.0: Added original Study Hub modules and quizzes for conceptual framework, revenue allocation, taxable income, target costing, audit evidence, and CPA practical financial accounting integration.",
+    "13.0.0: Wired the new academic routes into app catalog/search, calculator related panels, Smart Solver routing, OCR routing, and an integrated v13 workpaper support template.",
+    "13.0.0: Updated README, release notes, system overview, and maintenance guidance for the book-inspired academic expansion release.",
     "12.6.0: Expanded the overlay fix from mobile menu/settings into the shared support-surface system for page menus, media previews, scan previews, support QR views, and desktop settings.",
     "12.6.0: Widened tablet/laptop/desktop page menus into proper full-height side sheets so contextual page help no longer feels like a tiny card floating in unused space.",
     "12.6.0: Upgraded MediaViewerModal to use ViewportPortal, shared body scroll locking, safe-area-aware full-screen mobile layout, and large full-height desktop sizing.",

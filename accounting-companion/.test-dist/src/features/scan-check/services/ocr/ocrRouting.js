@@ -65,6 +65,22 @@ const ROUTE_RULES = [
         kindBoosts: { "word-problem": 4, "worked-solution": 3, "accounting-worksheet": 3 },
     },
     {
+        path: "/far/conceptual-framework-recognition",
+        label: "Conceptual Framework Recognition Helper",
+        category: "FAR",
+        patterns: [/\bconceptual framework\b/i, /\brecognition criteria\b/i, /\bmeasurement basis\b/i, /\bpresent obligation\b/i],
+        bonus: [/\basset definition\b/i, /\bliability definition\b/i, /\bdisclosure\b/i],
+        kindBoosts: { "textbook-page": 5, "notes-reference": 5, "word-problem": 2 },
+    },
+    {
+        path: "/far/revenue-allocation-workspace",
+        label: "Revenue Allocation Workspace",
+        category: "FAR",
+        patterns: [/\brevenue recognition\b/i, /\bperformance obligation\b/i, /\bstandalone selling price\b/i, /\btransaction price\b/i],
+        bonus: [/\bcontract asset\b/i, /\bcontract liability\b/i, /\bbundled contract\b/i],
+        kindBoosts: { "word-problem": 5, "worked-solution": 4, "accounting-worksheet": 3 },
+    },
+    {
         path: "/far/investment-property-measurement",
         label: "Investment Property Measurement Helper",
         category: "FAR",
@@ -481,6 +497,14 @@ const ROUTE_RULES = [
         kindBoosts: { "textbook-page": 4, "notes-reference": 4, "word-problem": 2 },
     },
     {
+        path: "/audit/evidence-program-builder",
+        label: "Audit Evidence Program Builder",
+        category: "Audit & Assurance",
+        patterns: [/\bsufficient appropriate evidence\b/i, /\bevidence reliability\b/i, /\bevidence relevance\b/i, /\bcontradictory evidence\b/i],
+        bonus: [/\bassertion risk\b/i, /\bsubstantive procedures\b/i, /\bcoverage depth\b/i],
+        kindBoosts: { "textbook-page": 4, "notes-reference": 4, "word-problem": 3 },
+    },
+    {
         path: "/far/lease-measurement-workspace",
         label: "Lease Measurement Workspace",
         category: "FAR",
@@ -599,6 +623,14 @@ const ROUTE_RULES = [
         patterns: [/\bwithholding tax\b/i, /\bestate tax\b/i, /\bdonor'?s tax\b/i, /\btax treaty\b/i],
         bonus: [/\bdocumentary stamp\b/i, /\bexcise tax\b/i, /\bpeza|boi|bcda|bmbe\b/i],
         kindBoosts: { "notes-reference": 4, "textbook-page": 3 },
+    },
+    {
+        path: "/tax/taxable-income-bridge",
+        label: "Taxable Income Bridge",
+        category: "Taxation",
+        patterns: [/\btaxable income\b/i, /\bincome tax\b/i, /\bpermanent difference\b/i, /\btemporary difference\b/i],
+        bonus: [/\bdeferred tax\b/i, /\bnolco\b/i, /\baccounting income\b/i],
+        kindBoosts: { "word-problem": 5, "worked-solution": 4, "textbook-page": 3 },
     },
     {
         path: "/tax/excise-local-and-incentive-review",
@@ -847,6 +879,14 @@ const ROUTE_RULES = [
         patterns: [/\bstrategic business analysis\b/i, /\bstrategic cost management\b/i, /\bindustry analysis\b/i],
         bonus: [/\bconsultancy\b/i, /\bresearch methods\b/i, /\bcompetition analysis\b/i],
         kindBoosts: { "notes-reference": 4, "textbook-page": 3 },
+    },
+    {
+        path: "/strategic/target-costing-workspace",
+        label: "Target Costing Workspace",
+        category: "Strategic & Integrative",
+        patterns: [/\btarget costing\b/i, /\btarget cost\b/i, /\ballowable cost\b/i, /\bstrategic cost management\b/i],
+        bonus: [/\btarget profit\b/i, /\bcost gap\b/i, /\bkaizen\b/i],
+        kindBoosts: { "notes-reference": 3, "textbook-page": 3, "word-problem": 5 },
     },
     {
         path: "/strategic/business-case-analysis",

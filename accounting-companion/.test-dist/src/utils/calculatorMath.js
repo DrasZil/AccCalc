@@ -2728,3 +2728,82 @@ export function computeBusinessCaseScore({ marketAttractiveness, costAdvantage, 
                 : "Strategic enthusiasm is outrunning the underlying economics or control readiness.",
     };
 }
+export function computeRevenueAllocationAnalysis({ transactionPrice, standaloneSellingPriceA, standaloneSellingPriceB, percentSatisfiedA, percentSatisfiedB, considerationReceived, }) {
+    const totalStandaloneSellingPrice = safeAdd(standaloneSellingPriceA, standaloneSellingPriceB);
+    const allocationA = safeMultiply(transactionPrice, safeDivide(standaloneSellingPriceA, totalStandaloneSellingPrice));
+    const allocationB = safeMultiply(transactionPrice, safeDivide(standaloneSellingPriceB, totalStandaloneSellingPrice));
+    const revenueA = safeMultiply(allocationA, percentToDecimal(percentSatisfiedA));
+    const revenueB = safeMultiply(allocationB, percentToDecimal(percentSatisfiedB));
+    const revenueRecognized = safeAdd(revenueA, revenueB);
+    const contractLiability = Math.max(safeSubtract(considerationReceived, revenueRecognized), 0);
+    const contractAsset = Math.max(safeSubtract(revenueRecognized, considerationReceived), 0);
+    return {
+        totalStandaloneSellingPrice,
+        allocationA,
+        allocationB,
+        revenueA,
+        revenueB,
+        revenueRecognized,
+        contractLiability,
+        contractAsset,
+        recognitionSignal: contractLiability > 0
+            ? "Cash or billings exceed revenue recognized, so the unsatisfied portion is presented as a contract liability under the stated facts."
+            : contractAsset > 0
+                ? "Revenue recognized exceeds consideration received, so the case needs a contract-asset or receivable analysis depending on billing rights."
+                : "Revenue recognized and consideration received are aligned under the entered assumptions.",
+    };
+}
+export function computeTaxableIncomeBridge({ accountingIncome, permanentAdditions, permanentDeductions, taxableTemporaryDifferences, deductibleTemporaryDifferences, nolDeduction, taxRatePercent, }) {
+    const taxableIncomeBeforeNol = safeSubtract(safeAdd(accountingIncome, safeAdd(permanentAdditions, taxableTemporaryDifferences)), safeAdd(permanentDeductions, deductibleTemporaryDifferences));
+    const taxableIncome = Math.max(safeSubtract(taxableIncomeBeforeNol, nolDeduction), 0);
+    const currentTaxExpense = safeMultiply(taxableIncome, percentToDecimal(taxRatePercent));
+    const deferredTaxLiability = safeMultiply(Math.max(taxableTemporaryDifferences, 0), percentToDecimal(taxRatePercent));
+    const deferredTaxAsset = safeMultiply(Math.max(deductibleTemporaryDifferences, 0), percentToDecimal(taxRatePercent));
+    return {
+        taxableIncomeBeforeNol,
+        taxableIncome,
+        currentTaxExpense,
+        deferredTaxLiability,
+        deferredTaxAsset,
+        bridgeSignal: taxableIncome <= 0
+            ? "The bridge produces no current taxable income after the entered deductions; confirm whether carryover or minimum-tax rules are relevant to the classroom problem."
+            : "The bridge separates permanent items, temporary items, and loss deductions so income-tax computation does not get mixed with financial-reporting income.",
+    };
+}
+export function computeTargetCostingGap({ targetSellingPrice, targetProfitMarginPercent, expectedUnitVolume, currentEstimatedCostPerUnit, committedCostReductionPerUnit, }) {
+    const targetProfitPerUnit = safeMultiply(targetSellingPrice, percentToDecimal(targetProfitMarginPercent));
+    const allowableCostPerUnit = safeSubtract(targetSellingPrice, targetProfitPerUnit);
+    const revisedCostPerUnit = safeSubtract(currentEstimatedCostPerUnit, committedCostReductionPerUnit);
+    const remainingCostGapPerUnit = safeSubtract(revisedCostPerUnit, allowableCostPerUnit);
+    const totalCostGap = safeMultiply(remainingCostGapPerUnit, expectedUnitVolume);
+    const requiredReductionPercent = safeMultiply(safeDivide(Math.max(remainingCostGapPerUnit, 0), revisedCostPerUnit), 100);
+    return {
+        targetProfitPerUnit,
+        allowableCostPerUnit,
+        revisedCostPerUnit,
+        remainingCostGapPerUnit,
+        totalCostGap,
+        requiredReductionPercent,
+        targetCostSignal: remainingCostGapPerUnit <= 0
+            ? "The revised estimated cost is within the allowable target cost under the entered assumptions."
+            : "The product still exceeds allowable cost, so design, process, supplier, or feature trade-off work is needed before launch.",
+    };
+}
+export function computeAuditEvidenceProgram({ assertionRisk, evidenceReliability, evidenceRelevance, coverageDepth, contradictionCount, }) {
+    const evidenceStrengthAverage = safeDivide(safeAdd(safeAdd(evidenceReliability, evidenceRelevance), coverageDepth), 3);
+    const contradictionPenalty = safeMultiply(contradictionCount, 0.6);
+    const residualEvidenceGap = roundTo(Math.max(safeSubtract(assertionRisk, safeSubtract(evidenceStrengthAverage, contradictionPenalty)), 0), 2);
+    return {
+        evidenceStrengthAverage,
+        contradictionPenalty,
+        residualEvidenceGap,
+        procedureIntensity: residualEvidenceGap >= 2.5
+            ? "Expand substantive procedures and obtain stronger external or independently generated evidence."
+            : residualEvidenceGap >= 1
+                ? "Add targeted follow-up procedures around the weakest assertion or contradictory item."
+                : "Evidence coverage appears directionally adequate for the entered classroom risk level.",
+        evidenceSignal: contradictionCount > 0
+            ? "Contradictory evidence prevents a clean conclusion until it is explained, corroborated, or resolved."
+            : "No contradiction count was entered, so the main issue is whether relevance, reliability, and coverage match assertion risk.",
+    };
+}

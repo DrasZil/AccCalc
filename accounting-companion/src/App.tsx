@@ -421,6 +421,12 @@ const StatementOfChangesInEquityBuilderPage = lazy(
 const DividendAllocationPage = lazy(
     () => import("./features/far/DividendAllocationPage")
 );
+const ConceptualFrameworkRecognitionPage = lazy(
+    () => import("./features/far/ConceptualFrameworkRecognitionPage")
+);
+const RevenueAllocationWorkspacePage = lazy(
+    () => import("./features/far/RevenueAllocationWorkspacePage")
+);
 const EoqReorderPointPage = lazy(
     () => import("./features/operations/EoqReorderPointPage")
 );
@@ -460,8 +466,14 @@ const AuditCycleReviewerPage = lazy(
 const AuditCompletionOpinionPage = lazy(
     () => import("./features/audit/AuditCompletionOpinionPage")
 );
+const AuditEvidenceProgramPage = lazy(
+    () => import("./features/audit/AuditEvidenceProgramPage")
+);
 const BookTaxDifferenceWorkspacePage = lazy(
     () => import("./features/tax/BookTaxDifferenceWorkspacePage")
+);
+const TaxableIncomeBridgePage = lazy(
+    () => import("./features/tax/TaxableIncomeBridgePage")
 );
 const TaxComplianceReviewPage = lazy(
     () => import("./features/tax/TaxComplianceReviewPage")
@@ -570,6 +582,9 @@ const BusinessCaseAnalysisPage = lazy(
 );
 const BalancedScorecardWorkspacePage = lazy(
     () => import("./features/strategic/BalancedScorecardWorkspacePage")
+);
+const TargetCostingWorkspacePage = lazy(
+    () => import("./features/strategic/TargetCostingWorkspacePage")
 );
 const SettingsPage = lazy(() => import("./features/meta/SettingsPage"));
 const StandardDeviationPage = lazy(
@@ -750,6 +765,8 @@ export default function App() {
                         <Route path="far/cash-flow-statement-builder" element={renderRoute("/far/cash-flow-statement-builder", <CashFlowStatementBuilderPage />)} />
                         <Route path="far/statement-of-changes-in-equity-builder" element={renderRoute("/far/statement-of-changes-in-equity-builder", <StatementOfChangesInEquityBuilderPage />)} />
                         <Route path="far/dividend-allocation" element={renderRoute("/far/dividend-allocation", <DividendAllocationPage />)} />
+                        <Route path="far/conceptual-framework-recognition" element={renderRoute("/far/conceptual-framework-recognition", <ConceptualFrameworkRecognitionPage />)} />
+                        <Route path="far/revenue-allocation-workspace" element={renderRoute("/far/revenue-allocation-workspace", <RevenueAllocationWorkspacePage />)} />
                         <Route path="operations/eoq-and-reorder-point" element={renderRoute("/operations/eoq-and-reorder-point", <EoqReorderPointPage />)} />
                         <Route path="operations/moving-average-forecast" element={renderRoute("/operations/moving-average-forecast", <MovingAverageForecastPage />)} />
                         <Route path="operations/safety-stock-planner" element={renderRoute("/operations/safety-stock-planner", <SafetyStockPlannerPage />)} />
@@ -763,7 +780,9 @@ export default function App() {
                         <Route path="audit/assertion-evidence-planner" element={renderRoute("/audit/assertion-evidence-planner", <AuditAssertionEvidencePlannerPage />)} />
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
+                        <Route path="audit/evidence-program-builder" element={renderRoute("/audit/evidence-program-builder", <AuditEvidenceProgramPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
+                        <Route path="tax/taxable-income-bridge" element={renderRoute("/tax/taxable-income-bridge", <TaxableIncomeBridgePage />)} />
                         <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
                         <Route path="tax/vat-reconciliation" element={renderRoute("/tax/vat-reconciliation", <VatReconciliationPage />)} />
                         <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
@@ -802,6 +821,7 @@ export default function App() {
                         <Route path="strategic/strategic-business-analysis" element={renderRoute("/strategic/strategic-business-analysis", <StrategicBusinessAnalysisPage />)} />
                         <Route path="strategic/business-case-analysis" element={renderRoute("/strategic/business-case-analysis", <BusinessCaseAnalysisPage />)} />
                         <Route path="strategic/balanced-scorecard-workspace" element={renderRoute("/strategic/balanced-scorecard-workspace", <BalancedScorecardWorkspacePage />)} />
+                        <Route path="strategic/target-costing-workspace" element={renderRoute("/strategic/target-costing-workspace", <TargetCostingWorkspacePage />)} />
 
                         <Route path="accounting/accounting-equation" element={renderRoute("/accounting/accounting-equation", <AccountingEquationPage />)} />
                         <Route path="accounting/account-classification" element={renderRoute("/accounting/account-classification", <AccountClassificationPage />)} />
