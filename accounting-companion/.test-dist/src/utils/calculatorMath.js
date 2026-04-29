@@ -2807,3 +2807,47 @@ export function computeAuditEvidenceProgram({ assertionRisk, evidenceReliability
             : "No contradiction count was entered, so the main issue is whether relevance, reliability, and coverage match assertion risk.",
     };
 }
+export function computeAuditMaterialityPlan({ benchmarkAmount, planningMaterialityPercent, performanceMaterialityPercent, clearlyTrivialPercent, expectedMisstatement, identifiedUncorrectedMisstatement, }) {
+    const planningMateriality = safeMultiply(benchmarkAmount, percentToDecimal(planningMaterialityPercent));
+    const performanceMateriality = safeMultiply(planningMateriality, percentToDecimal(performanceMaterialityPercent));
+    const clearlyTrivialThreshold = safeMultiply(planningMateriality, percentToDecimal(clearlyTrivialPercent));
+    const aggregateMisstatementPressure = safeAdd(expectedMisstatement, identifiedUncorrectedMisstatement);
+    const remainingPerformanceCushion = safeSubtract(performanceMateriality, aggregateMisstatementPressure);
+    const pressureRatio = safeMultiply(safeDivide(aggregateMisstatementPressure, performanceMateriality), 100);
+    return {
+        planningMateriality,
+        performanceMateriality,
+        clearlyTrivialThreshold,
+        aggregateMisstatementPressure,
+        remainingPerformanceCushion,
+        pressureRatio,
+        responseSignal: remainingPerformanceCushion < 0
+            ? "Aggregate expected and identified misstatements exceed performance materiality. Expand testing, request corrections, and reassess risk before concluding."
+            : pressureRatio >= 75
+                ? "Misstatement pressure is close to performance materiality. Treat this as a heightened review zone and tighten follow-up procedures."
+                : "Misstatement pressure remains below performance materiality under the entered assumptions, but qualitative factors still need review.",
+    };
+}
+export function computeIncomeTaxPayableReview({ taxableIncome, incomeTaxRatePercent, withholdingCredits, quarterlyPayments, refundableCredits, penaltiesAndInterest, }) {
+    const grossIncomeTaxDue = safeMultiply(Math.max(taxableIncome, 0), percentToDecimal(incomeTaxRatePercent));
+    const totalCreditsAndPayments = safeAdd(safeAdd(withholdingCredits, quarterlyPayments), refundableCredits);
+    const netTaxBeforePenalties = safeSubtract(grossIncomeTaxDue, totalCreditsAndPayments);
+    const finalTaxPayable = Math.max(safeAdd(netTaxBeforePenalties, penaltiesAndInterest), 0);
+    const overpayment = Math.max(safeMultiply(netTaxBeforePenalties, -1), 0);
+    const effectiveTaxRate = taxableIncome > 0
+        ? safeMultiply(safeDivide(grossIncomeTaxDue, taxableIncome), 100)
+        : 0;
+    return {
+        grossIncomeTaxDue,
+        totalCreditsAndPayments,
+        netTaxBeforePenalties,
+        finalTaxPayable,
+        overpayment,
+        effectiveTaxRate,
+        reviewSignal: finalTaxPayable > 0
+            ? "Tax due remains after credits and payments. Check whether the classroom case also asks for penalties, interest, or filing classification."
+            : overpayment > 0
+                ? "Credits and payments exceed gross tax due. The next review question is whether the overpayment is refundable, creditable, or subject to limitation."
+                : "Credits and payments exactly cover gross tax due under the entered assumptions.",
+    };
+}

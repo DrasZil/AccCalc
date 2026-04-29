@@ -141,6 +141,8 @@ import {
     computeTaxableIncomeBridge,
     computeTargetCostingGap,
     computeAuditEvidenceProgram,
+    computeAuditMaterialityPlan,
+    computeIncomeTaxPayableReview,
 } from "../src/utils/calculatorMath.js";
 import {
     budgetVarianceAnalysisSolveDefinition,
@@ -164,6 +166,7 @@ import {
     analyzeSmartInput,
     INITIAL_FIELDS,
 } from "../src/features/smart/smartSolver.engine.js";
+import { getStudyTopic } from "../src/features/study/studyContent.js";
 import { SMART_SOLVER_EVALUATION_PACK } from "../src/features/smart/smartSolver.evaluationPack.js";
 import { suggestSolveTarget } from "../src/features/smart/smartSolver.targets.js";
 import { parseOcrText } from "../src/features/scan-check/services/ocr/ocrParser.js";
@@ -262,6 +265,40 @@ runTest("taxable income bridge separates current and deferred tax signals", () =
     assertClose(result.currentTaxExpense, 405000);
     assertClose(result.deferredTaxLiability, 30000);
     assertClose(result.deferredTaxAsset, 12500);
+});
+
+runTest("audit materiality planner separates thresholds and cushion", () => {
+    const result = computeAuditMaterialityPlan({
+        benchmarkAmount: 5000000,
+        planningMaterialityPercent: 5,
+        performanceMaterialityPercent: 75,
+        clearlyTrivialPercent: 5,
+        expectedMisstatement: 120000,
+        identifiedUncorrectedMisstatement: 90000,
+    });
+
+    assertClose(result.planningMateriality, 250000);
+    assertClose(result.performanceMateriality, 187500);
+    assertClose(result.clearlyTrivialThreshold, 12500);
+    assertClose(result.aggregateMisstatementPressure, 210000);
+    assertClose(result.remainingPerformanceCushion, -22500);
+});
+
+runTest("income tax payable review nets credits before penalties", () => {
+    const result = computeIncomeTaxPayableReview({
+        taxableIncome: 1800000,
+        incomeTaxRatePercent: 25,
+        withholdingCredits: 160000,
+        quarterlyPayments: 180000,
+        refundableCredits: 20000,
+        penaltiesAndInterest: 5000,
+    });
+
+    assertClose(result.grossIncomeTaxDue, 450000);
+    assertClose(result.totalCreditsAndPayments, 360000);
+    assertClose(result.netTaxBeforePenalties, 90000);
+    assertClose(result.finalTaxPayable, 95000);
+    assertClose(result.overpayment, 0);
 });
 
 runTest("target costing identifies remaining cost gap", () => {
@@ -2462,6 +2499,52 @@ runTest("v13 academic expansion routes are discoverable and routed", () => {
         "word-problem"
     );
     assert.equal(scanRoutes[0]?.path, "/tax/taxable-income-bridge");
+});
+
+runTest("v13.1 final academic expansion links tools, study, search, solver, OCR, and workpapers", () => {
+    assert.equal(
+        searchAppRoutes("planning materiality clearly trivial uncorrected misstatement")[0]?.path,
+        "/audit/materiality-and-misstatement-planner"
+    );
+    assert.equal(
+        searchAppRoutes("income tax payable withholding credits quarterly payments")[0]?.path,
+        "/tax/income-tax-payable-review"
+    );
+    assert.equal(
+        searchAppRoutes("revenue cycle order to cash invoice sequence")[0]?.path,
+        "/ais/revenue-cycle-control-review"
+    );
+    assert.equal(
+        searchAppRoutes("fraud triangle management override professional skepticism")[0]?.path,
+        "/governance/fraud-risk-response-planner"
+    );
+    assert.equal(
+        searchAppRoutes("negotiable instruments holder in due course notice of dishonor")[0]?.path,
+        "/rfbt/negotiable-instruments-issue-spotter"
+    );
+
+    const smart = analyzeSmartInput(
+        { ...INITIAL_FIELDS },
+        "Plan audit materiality using performance materiality, clearly trivial threshold, and uncorrected misstatement pressure."
+    );
+    assert.equal(smart.best?.route, "/audit/materiality-and-misstatement-planner");
+
+    const scanRoutes = recommendScanRoutes(
+        "Revenue cycle controls: sales order approval, invoice sequence, cash application, and exception report follow-up.",
+        "notes-reference"
+    );
+    assert.equal(scanRoutes[0]?.path, "/ais/revenue-cycle-control-review");
+
+    assert.ok(getWorkpaperTemplate("v13-1-academic-review-support"));
+    assert.ok(getStudyTopic("audit-materiality-and-misstatement-response"));
+    assert.ok(getStudyTopic("fraud-risk-governance-and-audit-response"));
+    assert.equal(
+        suggestSolveTarget(
+            "income-tax-payable-review",
+            "find the final tax payable after withholding credits"
+        ),
+        "finalTaxPayable"
+    );
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

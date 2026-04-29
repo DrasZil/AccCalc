@@ -1,38 +1,41 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.0.0` is a major academic expansion release focused on calculators, reviewer material, quizzes, and study-to-solve integration across the accounting curriculum.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.1.0` is the final high-value academic completion pass focused on weak-but-core curriculum families: audit, taxation, AIS, governance, RFBT, and intermediate-accounting route discipline.
 
-## What 13.0.0 Changes
+## What 13.1.0 Changes
 
-- adds FAR conceptual-framework recognition and revenue-allocation workspaces
-- adds an income-tax taxable-income bridge with permanent, temporary, current-tax, and deferred-tax signals
-- adds an audit evidence-program builder for assertion risk, reliability, relevance, coverage, and contradiction pressure
-- adds a strategic cost-management target-costing workspace for allowable cost and cost-gap analysis
-- adds original Study Hub lessons and quizzes for the new FAR, tax, audit, strategic, and integrated CPA-review tracks
-- wires the new academic routes into app search, Smart Solver, OCR routing, related panels, category hubs, and a v13 workpaper template
+- adds an Audit Materiality and Misstatement Planner for planning thresholds, clearly trivial amounts, and completion-stage pressure
+- adds an Income Tax Payable and Credits Review for gross tax due, credits, payments, final payable, and overpayment signals
+- adds an AIS Revenue Cycle Control Review for order-to-cash controls, assertions, walkthrough evidence, and weak-control gaps
+- adds a Governance Fraud Risk Response Planner for fraud-triangle, management-override, evidence-quality, and escalation review
+- adds an RFBT Negotiable Instruments Issue Spotter for holder status, defenses, party liability, presentment, dishonor, and notice
+- adds original Study Hub lessons and quizzes for the new weak-track routes plus intermediate-accounting route discipline
+- wires the new academic routes into app search, Smart Solver, OCR routing, related panels, category hubs, and a v13.1 workpaper template
 - keeps the book-inspired expansion original: visible book/photo subject areas guide priorities, but no book text is copied
 
 ## Academic Expansion Tracks
 
 Important files:
 
-- `src/features/far/ConceptualFrameworkRecognitionPage.tsx`
-- `src/features/far/RevenueAllocationWorkspacePage.tsx`
-- `src/features/tax/TaxableIncomeBridgePage.tsx`
-- `src/features/audit/AuditEvidenceProgramPage.tsx`
-- `src/features/strategic/TargetCostingWorkspacePage.tsx`
-- `src/features/study/studyExpansion1300.ts`
+- `src/features/audit/AuditMaterialityPlannerPage.tsx`
+- `src/features/tax/IncomeTaxPayableReviewPage.tsx`
+- `src/features/ais/RevenueCycleControlReviewPage.tsx`
+- `src/features/governance/FraudRiskResponsePlannerPage.tsx`
+- `src/features/rfbt/NegotiableInstrumentsIssueSpotterPage.tsx`
+- `src/features/study/studyExpansion1310.ts`
 - `src/utils/appCatalog.ts`
 - `src/features/smart/smartSolver.engine.ts`
 - `src/features/scan-check/services/ocr/ocrRouting.ts`
+- `src/features/workpapers/workpaperTemplates.ts`
 
-Coverage priorities in `13.0.0`:
+Coverage priorities in `13.1.0`:
 
-- Intermediate Accounting / FAR: conceptual framework, recognition, revenue allocation, contract balances, measurement routing
-- Taxation: income-tax bridge from accounting income to taxable income, plus current and deferred tax signals
-- Auditing: evidence sufficiency, procedure design, assertion risk, and contradictory evidence follow-up
-- Strategic Cost Management: target costing, allowable cost, kaizen-style savings, and cost-gap interpretation
-- CPA-review integration: practical financial accounting cases that map FAR, tax, audit, and strategic routes before solving
+- Auditing: materiality, performance materiality, clearly trivial thresholds, misstatement pressure, evidence response
+- Taxation: taxable-income bridge plus final payable, credits, payments, overpayment, and compliance review
+- AIS: revenue-cycle controls, order-to-cash walkthroughs, assertion mapping, access/control follow-up
+- Governance / Ethics / Risk: fraud-risk cues, management override, evidence quality, escalation, oversight response
+- RFBT / Law: negotiable-instrument holder status, defenses, party liability, presentment, dishonor, and notice
+- Intermediate Accounting / FAR: route discipline across recognition, measurement, presentation, disclosure, and schedules
 
 ## Theme System
 
@@ -78,8 +81,8 @@ The academic loop is the working product spine:
 - lessons recommend related calculators and quizzes
 - calculators surface related lessons and practice through page menus and related panels
 - quizzes explain route choice and send students back to the lesson or forward into the solving workspace
-- Smart Solver and OCR route scanned or typed prompts toward the new v13 academic tools
-- Workpaper Studio includes a v13 support template for mixed revenue, tax, audit, and target-costing review
+- Smart Solver and OCR route scanned or typed prompts toward the new v13.1 academic tools
+- Workpaper Studio includes a v13.1 support template for mixed audit, tax, AIS, governance, and RFBT review
 
 ## Main Product Areas
 

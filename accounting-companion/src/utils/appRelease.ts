@@ -1,34 +1,42 @@
-export const APP_VERSION = "13.0.0";
+export const APP_VERSION = "13.1.0";
 export const APP_RELEASE_DATE = "2026-04-29";
 
 export const APP_RELEASE_HIGHLIGHTS = [
     {
-        title: "AccCalc 13.0.0 expands the academic accounting system",
-        body: "New FAR, tax, audit, and strategic cost-management workspaces connect original lessons, quizzes, Smart Solver routing, OCR discovery, and workpaper support.",
+        title: "AccCalc 13.1.0 completes a final high-value academic pass",
+        body: "New audit, tax, AIS, governance, and RFBT routes strengthen weak core curriculum families with original lessons, quizzes, Smart Solver routing, OCR discovery, and workpaper support.",
     },
     {
-        title: "Intermediate accounting and FAR get stronger recognition support",
-        body: "Conceptual-framework recognition and revenue allocation now help students move from classification to measurement to contract-balance review.",
+        title: "Audit and tax review become more complete",
+        body: "Materiality, misstatement pressure, income-tax payable, credits, payments, and overpayment review now connect computation with classroom response signals.",
     },
     {
-        title: "Taxation now includes an income-tax bridge",
-        body: "The new taxable-income workspace separates accounting income, permanent items, temporary differences, loss deductions, current tax, and deferred-tax signals.",
+        title: "AIS, governance, and RFBT get stronger reviewer workspaces",
+        body: "Revenue-cycle controls, fraud-risk response, and negotiable-instrument issue spotting fill practical non-formula gaps in the academic system.",
     },
     {
-        title: "Audit and strategic cost practice become more practical",
-        body: "Audit evidence-program planning and target-costing analysis add procedure judgment and strategic cost-gap computation to the academic toolset.",
+        title: "Study Hub adds a final integrated practice layer",
+        body: "New original lessons and quizzes teach route discipline across audit, tax, AIS, governance, RFBT, and intermediate-accounting review.",
     },
     {
-        title: "Study coverage now follows the learn-practice-solve loop",
-        body: "Version 13.0.0 adds original topic modules and quizzes tied directly to the new calculators and reviewer workspaces.",
+        title: "Workpapers support mixed CPA-review documentation",
+        body: "The v13.1 academic review support template gives students a place to record issue, route, result, limitation, practice follow-up, and status.",
     },
     {
-        title: "Discovery, OCR, and workpapers know the new academic routes",
-        body: "Search, Smart Solver, Scan & Check routing, related panels, and a mixed CPA-review workpaper template now surface the new release coverage.",
+        title: "Discovery remains connected across learn, practice, solve, and review",
+        body: "App catalog/search, Smart Solver, Scan & Check, Study Hub, calculator page menus, and tests now know the new academic routes.",
     },
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "13.1.0: Added Audit Materiality and Misstatement Planner for planning materiality, performance materiality, clearly trivial thresholds, and misstatement cushion review.",
+    "13.1.0: Added Income Tax Payable and Credits Review for taxable income, gross tax due, withholding credits, quarterly payments, refundable credits, penalties, payable, and overpayment signals.",
+    "13.1.0: Added Revenue Cycle Control Review for AIS order-to-cash controls, assertion mapping, walkthrough evidence, weak control gaps, and audit follow-up.",
+    "13.1.0: Added Fraud Risk Response Planner for fraud triangle, management override, evidence-quality concerns, audit response, and governance escalation.",
+    "13.1.0: Added Negotiable Instruments Issue Spotter for holder status, defenses, party liability, presentment, dishonor, and notice review.",
+    "13.1.0: Added original Study Hub lessons and quizzes for audit materiality, tax payable, AIS revenue controls, RFBT negotiable instruments, fraud-risk response, and intermediate-accounting route discipline.",
+    "13.1.0: Wired the final academic expansion into app catalog/search, Smart Solver, OCR routing, related page menus, Study Hub recommendations, and a v13.1 workpaper template.",
+    "13.1.0: Updated README, release notes, system overview, maintenance guidance, generated HTML/PDF documentation, and regression coverage for the final academic-completion pass.",
     "13.0.0: Added Conceptual Framework Recognition Helper for element classification, recognition support, measurement-basis selection, and disclosure cautions.",
     "13.0.0: Added Revenue Allocation Workspace for bundled transaction-price allocation, performance-obligation satisfaction, and contract asset or liability review.",
     "13.0.0: Added Taxable Income Bridge for accounting-income reconciliation, permanent and temporary differences, loss deductions, current tax, and deferred-tax signals.",

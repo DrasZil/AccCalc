@@ -237,6 +237,16 @@ const SOLVE_TARGET_RULES: Record<
         { target: "samplingInterval", patterns: [/sampling interval/i, /selection interval/i] },
         { target: "allowanceForSamplingRisk", patterns: [/allowance for sampling risk/i, /sampling risk/i] },
     ],
+    "audit-materiality-and-misstatement-planner": [
+        { target: "planningMateriality", patterns: [/planning materiality/i, /overall materiality/i] },
+        { target: "performanceMateriality", patterns: [/performance materiality/i, /tolerable misstatement/i] },
+        { target: "clearlyTrivialThreshold", patterns: [/clearly trivial/i, /trivial threshold/i] },
+    ],
+    "income-tax-payable-review": [
+        { target: "finalTaxPayable", patterns: [/tax payable/i, /income tax due/i, /final payable/i] },
+        { target: "overpayment", patterns: [/overpayment/i, /tax refund/i, /refundable/i] },
+        { target: "totalCreditsAndPayments", patterns: [/tax credits/i, /withholding credits/i, /quarterly payments/i] },
+    ],
     "pert-project-estimate": [
         { target: "expectedTime", patterns: [/expected time/i, /expected project time/i, /pert estimate/i] },
         { target: "standardDeviation", patterns: [/standard deviation/i, /\bsd\b/i] },
@@ -255,9 +265,22 @@ const SOLVE_TARGET_RULES: Record<
         { target: "contractClassification", patterns: [/classify/i, /voidable/i, /unenforceable/i, /void contract/i] },
         { target: "remedyFrame", patterns: [/remedy/i, /damages/i, /rescission/i] },
     ],
+    "negotiable-instruments-issue-spotter": [
+        { target: "holderStatus", patterns: [/holder in due course/i, /\bhdc\b/i, /holder status/i] },
+        { target: "dishonorNotice", patterns: [/dishonor/i, /notice of dishonor/i, /presentment/i] },
+        { target: "defenseType", patterns: [/real defense/i, /personal defense/i, /forgery/i, /failure of consideration/i] },
+    ],
     "access-control-review": [
         { target: "accessRiskScore", patterns: [/access risk/i, /logical access/i, /privileged access/i] },
         { target: "evidenceChecklist", patterns: [/evidence checklist/i, /access review evidence/i] },
+    ],
+    "revenue-cycle-control-review": [
+        { target: "controlGap", patterns: [/revenue cycle/i, /sales cycle/i, /order to cash/i] },
+        { target: "assertionFocus", patterns: [/occurrence/i, /completeness/i, /cutoff/i, /cash application/i] },
+    ],
+    "fraud-risk-response-planner": [
+        { target: "fraudResponse", patterns: [/fraud risk/i, /fraud response/i, /fraud triangle/i] },
+        { target: "governanceEscalation", patterns: [/management override/i, /audit committee/i, /professional skepticism/i] },
     ],
     "budget-variance-analysis": [
         { target: "totalBudgetVariance", patterns: [/total budget variance/i, /overall variance/i] },

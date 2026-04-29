@@ -469,11 +469,17 @@ const AuditCompletionOpinionPage = lazy(
 const AuditEvidenceProgramPage = lazy(
     () => import("./features/audit/AuditEvidenceProgramPage")
 );
+const AuditMaterialityPlannerPage = lazy(
+    () => import("./features/audit/AuditMaterialityPlannerPage")
+);
 const BookTaxDifferenceWorkspacePage = lazy(
     () => import("./features/tax/BookTaxDifferenceWorkspacePage")
 );
 const TaxableIncomeBridgePage = lazy(
     () => import("./features/tax/TaxableIncomeBridgePage")
+);
+const IncomeTaxPayableReviewPage = lazy(
+    () => import("./features/tax/IncomeTaxPayableReviewPage")
 );
 const TaxComplianceReviewPage = lazy(
     () => import("./features/tax/TaxComplianceReviewPage")
@@ -544,6 +550,9 @@ const SegregationOfDutiesConflictPage = lazy(
 const BusinessContinuityPlannerPage = lazy(
     () => import("./features/ais/BusinessContinuityPlannerPage")
 );
+const RevenueCycleControlReviewPage = lazy(
+    () => import("./features/ais/RevenueCycleControlReviewPage")
+);
 const RiskControlMatrixPage = lazy(
     () => import("./features/governance/RiskControlMatrixPage")
 );
@@ -556,11 +565,17 @@ const EthicsDecisionWorkspacePage = lazy(
 const GovernanceEscalationPlannerPage = lazy(
     () => import("./features/governance/GovernanceEscalationPlannerPage")
 );
+const FraudRiskResponsePlannerPage = lazy(
+    () => import("./features/governance/FraudRiskResponsePlannerPage")
+);
 const BusinessLawReviewPage = lazy(
     () => import("./features/rfbt/BusinessLawReviewPage")
 );
 const ObligationsContractsFlowPage = lazy(
     () => import("./features/rfbt/ObligationsContractsFlowPage")
+);
+const NegotiableInstrumentsIssueSpotterPage = lazy(
+    () => import("./features/rfbt/NegotiableInstrumentsIssueSpotterPage")
 );
 const DefectiveContractsClassifierPage = lazy(
     () => import("./features/rfbt/DefectiveContractsClassifierPage")
@@ -781,8 +796,10 @@ export default function App() {
                         <Route path="audit/audit-cycle-reviewer" element={renderRoute("/audit/audit-cycle-reviewer", <AuditCycleReviewerPage />)} />
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="audit/evidence-program-builder" element={renderRoute("/audit/evidence-program-builder", <AuditEvidenceProgramPage />)} />
+                        <Route path="audit/materiality-and-misstatement-planner" element={renderRoute("/audit/materiality-and-misstatement-planner", <AuditMaterialityPlannerPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
                         <Route path="tax/taxable-income-bridge" element={renderRoute("/tax/taxable-income-bridge", <TaxableIncomeBridgePage />)} />
+                        <Route path="tax/income-tax-payable-review" element={renderRoute("/tax/income-tax-payable-review", <IncomeTaxPayableReviewPage />)} />
                         <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
                         <Route path="tax/vat-reconciliation" element={renderRoute("/tax/vat-reconciliation", <VatReconciliationPage />)} />
                         <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
@@ -808,12 +825,15 @@ export default function App() {
                         <Route path="ais/access-control-review" element={renderRoute("/ais/access-control-review", <AccessControlReviewPage />)} />
                         <Route path="ais/segregation-of-duties-conflict-matrix" element={renderRoute("/ais/segregation-of-duties-conflict-matrix", <SegregationOfDutiesConflictPage />)} />
                         <Route path="ais/business-continuity-planner" element={renderRoute("/ais/business-continuity-planner", <BusinessContinuityPlannerPage />)} />
+                        <Route path="ais/revenue-cycle-control-review" element={renderRoute("/ais/revenue-cycle-control-review", <RevenueCycleControlReviewPage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
                         <Route path="governance/control-environment-review" element={renderRoute("/governance/control-environment-review", <ControlEnvironmentReviewPage />)} />
                         <Route path="governance/ethics-decision-workspace" element={renderRoute("/governance/ethics-decision-workspace", <EthicsDecisionWorkspacePage />)} />
                         <Route path="governance/governance-escalation-planner" element={renderRoute("/governance/governance-escalation-planner", <GovernanceEscalationPlannerPage />)} />
+                        <Route path="governance/fraud-risk-response-planner" element={renderRoute("/governance/fraud-risk-response-planner", <FraudRiskResponsePlannerPage />)} />
                         <Route path="rfbt/business-law-review" element={renderRoute("/rfbt/business-law-review", <BusinessLawReviewPage />)} />
                         <Route path="rfbt/obligations-contracts-flow" element={renderRoute("/rfbt/obligations-contracts-flow", <ObligationsContractsFlowPage />)} />
+                        <Route path="rfbt/negotiable-instruments-issue-spotter" element={renderRoute("/rfbt/negotiable-instruments-issue-spotter", <NegotiableInstrumentsIssueSpotterPage />)} />
                         <Route path="rfbt/defective-contracts-classifier" element={renderRoute("/rfbt/defective-contracts-classifier", <DefectiveContractsClassifierPage />)} />
                         <Route path="rfbt/commercial-transactions-reviewer" element={renderRoute("/rfbt/commercial-transactions-reviewer", <CommercialTransactionsReviewerPage />)} />
                         <Route path="rfbt/securities-and-governance-review" element={renderRoute("/rfbt/securities-and-governance-review", <SecuritiesGovernanceReviewPage />)} />
