@@ -472,6 +472,9 @@ const AuditEvidenceProgramPage = lazy(
 const AuditMaterialityPlannerPage = lazy(
     () => import("./features/audit/AuditMaterialityPlannerPage")
 );
+const GoingConcernReviewPage = lazy(
+    () => import("./features/audit/GoingConcernReviewPage")
+);
 const BookTaxDifferenceWorkspacePage = lazy(
     () => import("./features/tax/BookTaxDifferenceWorkspacePage")
 );
@@ -480,6 +483,9 @@ const TaxableIncomeBridgePage = lazy(
 );
 const IncomeTaxPayableReviewPage = lazy(
     () => import("./features/tax/IncomeTaxPayableReviewPage")
+);
+const TaxRemedyTimelineReviewPage = lazy(
+    () => import("./features/tax/TaxRemedyTimelineReviewPage")
 );
 const TaxComplianceReviewPage = lazy(
     () => import("./features/tax/TaxComplianceReviewPage")
@@ -515,6 +521,9 @@ const ConstructionRevenuePage = lazy(
 );
 const FranchiseRevenueWorkspacePage = lazy(
     () => import("./features/afar/FranchiseRevenueWorkspacePage")
+);
+const InstallmentSalesReviewPage = lazy(
+    () => import("./features/afar/InstallmentSalesReviewPage")
 );
 const CorporateLiquidationPage = lazy(
     () => import("./features/afar/CorporateLiquidationPage")
@@ -552,6 +561,9 @@ const BusinessContinuityPlannerPage = lazy(
 );
 const RevenueCycleControlReviewPage = lazy(
     () => import("./features/ais/RevenueCycleControlReviewPage")
+);
+const IncidentResponseTriagePage = lazy(
+    () => import("./features/ais/IncidentResponseTriagePage")
 );
 const RiskControlMatrixPage = lazy(
     () => import("./features/governance/RiskControlMatrixPage")
@@ -797,9 +809,11 @@ export default function App() {
                         <Route path="audit/audit-completion-and-opinion" element={renderRoute("/audit/audit-completion-and-opinion", <AuditCompletionOpinionPage />)} />
                         <Route path="audit/evidence-program-builder" element={renderRoute("/audit/evidence-program-builder", <AuditEvidenceProgramPage />)} />
                         <Route path="audit/materiality-and-misstatement-planner" element={renderRoute("/audit/materiality-and-misstatement-planner", <AuditMaterialityPlannerPage />)} />
+                        <Route path="audit/going-concern-review" element={renderRoute("/audit/going-concern-review", <GoingConcernReviewPage />)} />
                         <Route path="tax/book-tax-difference-workspace" element={renderRoute("/tax/book-tax-difference-workspace", <BookTaxDifferenceWorkspacePage />)} />
                         <Route path="tax/taxable-income-bridge" element={renderRoute("/tax/taxable-income-bridge", <TaxableIncomeBridgePage />)} />
                         <Route path="tax/income-tax-payable-review" element={renderRoute("/tax/income-tax-payable-review", <IncomeTaxPayableReviewPage />)} />
+                        <Route path="tax/tax-remedy-timeline-review" element={renderRoute("/tax/tax-remedy-timeline-review", <TaxRemedyTimelineReviewPage />)} />
                         <Route path="tax/percentage-tax" element={renderRoute("/tax/percentage-tax", <PercentageTaxPage />)} />
                         <Route path="tax/vat-reconciliation" element={renderRoute("/tax/vat-reconciliation", <VatReconciliationPage />)} />
                         <Route path="tax/withholding-tax" element={renderRoute("/tax/withholding-tax", <WithholdingTaxPage />)} />
@@ -815,6 +829,7 @@ export default function App() {
                         <Route path="afar/foreign-currency-translation" element={renderRoute("/afar/foreign-currency-translation", <ForeignCurrencyTranslationPage />)} />
                         <Route path="afar/construction-revenue-workspace" element={renderRoute("/afar/construction-revenue-workspace", <ConstructionRevenuePage />)} />
                         <Route path="afar/franchise-revenue-workspace" element={renderRoute("/afar/franchise-revenue-workspace", <FranchiseRevenueWorkspacePage />)} />
+                        <Route path="afar/installment-sales-review" element={renderRoute("/afar/installment-sales-review", <InstallmentSalesReviewPage />)} />
                         <Route path="afar/corporate-liquidation" element={renderRoute("/afar/corporate-liquidation", <CorporateLiquidationPage />)} />
                         <Route path="afar/joint-arrangement-analyzer" element={renderRoute("/afar/joint-arrangement-analyzer", <JointArrangementAnalyzerPage />)} />
                         <Route path="afar/consignment-settlement" element={renderRoute("/afar/consignment-settlement", <ConsignmentSettlementPage />)} />
@@ -826,6 +841,7 @@ export default function App() {
                         <Route path="ais/segregation-of-duties-conflict-matrix" element={renderRoute("/ais/segregation-of-duties-conflict-matrix", <SegregationOfDutiesConflictPage />)} />
                         <Route path="ais/business-continuity-planner" element={renderRoute("/ais/business-continuity-planner", <BusinessContinuityPlannerPage />)} />
                         <Route path="ais/revenue-cycle-control-review" element={renderRoute("/ais/revenue-cycle-control-review", <RevenueCycleControlReviewPage />)} />
+                        <Route path="ais/incident-response-triage" element={renderRoute("/ais/incident-response-triage", <IncidentResponseTriagePage />)} />
                         <Route path="governance/risk-control-matrix" element={renderRoute("/governance/risk-control-matrix", <RiskControlMatrixPage />)} />
                         <Route path="governance/control-environment-review" element={renderRoute("/governance/control-environment-review", <ControlEnvironmentReviewPage />)} />
                         <Route path="governance/ethics-decision-workspace" element={renderRoute("/governance/ethics-decision-workspace", <EthicsDecisionWorkspacePage />)} />

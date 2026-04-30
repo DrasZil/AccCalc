@@ -421,6 +421,37 @@ export default function CalculatorPageLayout({
                 <EducationalUseNotice area={educationalNoticeArea} />
             ) : null}
 
+            {currentMeta && !currentMeta.path.startsWith("/settings") ? (
+                <section className="app-panel rounded-[1.25rem] p-4">
+                    <div className="grid gap-3 md:grid-cols-3">
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                            <p className="app-section-kicker text-[0.64rem]">Use this when</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                {currentMeta.description}
+                            </p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                            <p className="app-section-kicker text-[0.64rem]">You will get</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                {resultSection
+                                    ? "A computed result, interpretation signal, and supporting method notes when opened."
+                                    : "A structured reviewer flow with next-step support instead of a loose note page."}
+                            </p>
+                        </div>
+                        <div className="app-subtle-surface rounded-[1rem] px-4 py-3">
+                            <p className="app-section-kicker text-[0.64rem]">Then continue</p>
+                            <p className="app-body-md mt-2 text-sm">
+                                {relatedStudyLinks.length > 0
+                                    ? "Use the page menu for the linked lesson or practice quiz after solving."
+                                    : relatedRoutes.length > 0
+                                      ? "Use related tools in the page menu when the prompt expands."
+                                      : "Record assumptions and move to the next assigned problem."}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            ) : null}
+
             {sections.length > 1 ? (
                 <div className="sticky z-20 -mt-1 top-[calc(var(--app-header-height)+0.35rem)] xl:static xl:mt-0">
                     <div

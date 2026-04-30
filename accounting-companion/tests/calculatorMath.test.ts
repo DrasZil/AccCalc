@@ -143,6 +143,10 @@ import {
     computeAuditEvidenceProgram,
     computeAuditMaterialityPlan,
     computeIncomeTaxPayableReview,
+    computeInstallmentSalesReview,
+    computeGoingConcernReview,
+    computeTaxRemedyTimelineReview,
+    computeIncidentResponseTriage,
 } from "../src/utils/calculatorMath.js";
 import {
     budgetVarianceAnalysisSolveDefinition,
@@ -2571,6 +2575,70 @@ runTest("v13.2 onboarding tours define action-aware first-run and quick flows", 
                 step.completion.action === "search-opened"
         )
     );
+});
+
+runTest("v13.3 super-completion workspaces compute and integrate across discovery", () => {
+    const installment = computeInstallmentSalesReview({
+        contractPrice: 500000,
+        costOfSales: 350000,
+        cashCollectedCurrent: 180000,
+        priorDeferredGrossProfit: 0,
+        repossessedFairValue: 0,
+    });
+    assertClose(installment.grossProfitRate, 30);
+    assertClose(installment.realizedGrossProfit, 54000);
+    assertClose(installment.deferredGrossProfitEnd, 96000);
+
+    const goingConcern = computeGoingConcernReview({
+        liquidityPressure: 4,
+        recurringLosses: 3,
+        debtCovenantPressure: 3,
+        managementPlanQuality: 2,
+        evidenceSupport: 2,
+    });
+    assertClose(goingConcern.residualDoubtScore, 6);
+    assert.match(goingConcern.conclusionBand, /high/i);
+
+    const remedy = computeTaxRemedyTimelineReview({
+        daysUntilDeadline: 10,
+        evidenceCompletenessPercent: 60,
+        amountMaterialityPercent: 40,
+        proceduralComplexity: 2,
+    });
+    assert.equal(remedy.urgencyScore, 3);
+    assert.ok(remedy.riskScore > 7);
+
+    const incident = computeIncidentResponseTriage({
+        confidentialityImpact: 4,
+        integrityImpact: 3,
+        availabilityImpact: 2,
+        controlContainment: 2,
+        evidenceReadiness: 2,
+    });
+    assertClose(incident.residualIncidentRisk, 5);
+    assert.match(incident.responseTier, /elevated/i);
+
+    assert.equal(searchAppRoutes("installment sales deferred gross profit")[0]?.path, "/afar/installment-sales-review");
+    assert.equal(searchAppRoutes("going concern substantial doubt management plan")[0]?.path, "/audit/going-concern-review");
+    assert.equal(searchAppRoutes("tax remedy protest deadline evidence")[0]?.path, "/tax/tax-remedy-timeline-review");
+    assert.equal(searchAppRoutes("incident response confidentiality integrity availability")[0]?.path, "/ais/incident-response-triage");
+
+    assert.equal(analyzeSmartInput({ ...INITIAL_FIELDS }, "installment sales deferred gross profit from collections").best?.route, "/afar/installment-sales-review");
+    assert.equal(analyzeSmartInput({ ...INITIAL_FIELDS }, "going concern substantial doubt and management plan evidence").best?.route, "/audit/going-concern-review");
+    assert.equal(analyzeSmartInput({ ...INITIAL_FIELDS }, "tax protest remedy deadline and evidence completeness").best?.route, "/tax/tax-remedy-timeline-review");
+    assert.equal(analyzeSmartInput({ ...INITIAL_FIELDS }, "incident response cia triad containment evidence readiness").best?.route, "/ais/incident-response-triage");
+
+    assert.equal(recommendScanRoutes("installment sales deferred gross profit cash collections", "word-problem")[0]?.path, "/afar/installment-sales-review");
+    assert.equal(recommendScanRoutes("going concern substantial doubt recurring losses management plans", "notes-reference")[0]?.path, "/audit/going-concern-review");
+    assert.equal(recommendScanRoutes("tax remedy protest deadline assessment evidence", "notes-reference")[0]?.path, "/tax/tax-remedy-timeline-review");
+    assert.equal(recommendScanRoutes("security incident cia triad containment evidence readiness", "notes-reference")[0]?.path, "/ais/incident-response-triage");
+
+    assert.ok(getWorkpaperTemplate("v13-3-super-completion-review"));
+    assert.ok(getStudyTopic("afar-installment-sales-deferred-gross-profit"));
+    assert.ok(getStudyTopic("audit-going-concern-completion-review"));
+    assert.ok(getStudyTopic("tax-remedies-and-deadline-triage"));
+    assert.ok(getStudyTopic("ais-incident-response-and-it-audit"));
+    assert.ok(getStudyTopic("integrated-cpa-case-method"));
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

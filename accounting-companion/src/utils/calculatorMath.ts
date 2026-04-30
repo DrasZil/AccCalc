@@ -5785,3 +5785,175 @@ export function computeIncomeTaxPayableReview({
                   : "Credits and payments exactly cover gross tax due under the entered assumptions.",
     };
 }
+
+export function computeInstallmentSalesReview({
+    contractPrice,
+    costOfSales,
+    cashCollectedCurrent,
+    priorDeferredGrossProfit,
+    repossessedFairValue,
+}: {
+    contractPrice: number;
+    costOfSales: number;
+    cashCollectedCurrent: number;
+    priorDeferredGrossProfit: number;
+    repossessedFairValue: number;
+}) {
+    const grossProfit = safeSubtract(contractPrice, costOfSales);
+    const grossProfitRate = contractPrice > 0
+        ? safeMultiply(safeDivide(grossProfit, contractPrice), 100)
+        : 0;
+    const realizedGrossProfit = safeMultiply(
+        cashCollectedCurrent,
+        percentToDecimal(grossProfitRate)
+    );
+    const deferredGrossProfitEnd = Math.max(
+        safeSubtract(safeAdd(grossProfit, priorDeferredGrossProfit), realizedGrossProfit),
+        0
+    );
+    const repossessionGainLoss = safeSubtract(
+        repossessedFairValue,
+        deferredGrossProfitEnd
+    );
+
+    return {
+        grossProfit,
+        grossProfitRate,
+        realizedGrossProfit,
+        deferredGrossProfitEnd,
+        repossessionGainLoss,
+        reviewSignal:
+            repossessedFairValue > 0
+                ? "A repossession value was entered, so compare fair value recovered with the remaining deferred gross profit before concluding on the recovery effect."
+                : "No repossession value was entered. Focus on the gross profit rate, realized gross profit from collections, and ending deferred gross profit.",
+    };
+}
+
+export function computeGoingConcernReview({
+    liquidityPressure,
+    recurringLosses,
+    debtCovenantPressure,
+    managementPlanQuality,
+    evidenceSupport,
+}: {
+    liquidityPressure: number;
+    recurringLosses: number;
+    debtCovenantPressure: number;
+    managementPlanQuality: number;
+    evidenceSupport: number;
+}) {
+    const adverseConditionScore = safeAdd(
+        safeAdd(liquidityPressure, recurringLosses),
+        debtCovenantPressure
+    );
+    const mitigationScore = safeAdd(managementPlanQuality, evidenceSupport);
+    const residualDoubtScore = roundTo(
+        Math.max(safeSubtract(adverseConditionScore, mitigationScore), 0),
+        2
+    );
+
+    return {
+        adverseConditionScore,
+        mitigationScore,
+        residualDoubtScore,
+        conclusionBand:
+            residualDoubtScore >= 6
+                ? "Substantial doubt remains high under the entered facts."
+                : residualDoubtScore >= 3
+                  ? "Substantial doubt needs focused disclosure and evidence review."
+                  : "Mitigating evidence appears directionally strong, but disclosure and period assessment still matter.",
+        procedureSignal:
+            residualDoubtScore >= 6
+                ? "Expand subsequent-event review, financing evidence, forecast stress testing, and disclosure evaluation."
+                : residualDoubtScore >= 3
+                  ? "Corroborate management plans and compare forecast assumptions with available evidence."
+                  : "Document the adverse conditions considered and why the mitigation evidence reduced the doubt signal.",
+    };
+}
+
+export function computeTaxRemedyTimelineReview({
+    daysUntilDeadline,
+    evidenceCompletenessPercent,
+    amountMaterialityPercent,
+    proceduralComplexity,
+}: {
+    daysUntilDeadline: number;
+    evidenceCompletenessPercent: number;
+    amountMaterialityPercent: number;
+    proceduralComplexity: number;
+}) {
+    const urgencyScore = daysUntilDeadline <= 0
+        ? 5
+        : daysUntilDeadline <= 7
+          ? 4
+          : daysUntilDeadline <= 30
+            ? 3
+            : daysUntilDeadline <= 90
+              ? 2
+              : 1;
+    const evidenceGapPercent = Math.max(safeSubtract(100, evidenceCompletenessPercent), 0);
+    const riskScore = roundTo(
+        safeAdd(
+            safeAdd(urgencyScore, safeDivide(evidenceGapPercent, 25)),
+            safeAdd(safeDivide(amountMaterialityPercent, 20), proceduralComplexity)
+        ),
+        2
+    );
+
+    return {
+        urgencyScore,
+        evidenceGapPercent,
+        riskScore,
+        actionBand:
+            daysUntilDeadline <= 0
+                ? "Deadline risk is already critical in the entered classroom timeline."
+                : riskScore >= 8
+                  ? "Treat this as a high-priority remedy review with evidence and procedural follow-up."
+                  : riskScore >= 5
+                    ? "Prepare the remedy file and verify the procedural route before the deadline tightens."
+                    : "The timeline appears manageable under the entered assumptions, but official deadlines still need verification.",
+        educationNotice:
+            "This is an educational timeline triage. It does not supply official tax deadlines, forms, legal advice, or authority guidance.",
+    };
+}
+
+export function computeIncidentResponseTriage({
+    confidentialityImpact,
+    integrityImpact,
+    availabilityImpact,
+    controlContainment,
+    evidenceReadiness,
+}: {
+    confidentialityImpact: number;
+    integrityImpact: number;
+    availabilityImpact: number;
+    controlContainment: number;
+    evidenceReadiness: number;
+}) {
+    const impactScore = safeAdd(
+        safeAdd(confidentialityImpact, integrityImpact),
+        availabilityImpact
+    );
+    const responseReadiness = safeAdd(controlContainment, evidenceReadiness);
+    const residualIncidentRisk = roundTo(Math.max(safeSubtract(impactScore, responseReadiness), 0), 2);
+
+    return {
+        impactScore,
+        responseReadiness,
+        residualIncidentRisk,
+        responseTier:
+            residualIncidentRisk >= 8
+                ? "Critical response tier"
+                : residualIncidentRisk >= 5
+                  ? "Elevated response tier"
+                  : residualIncidentRisk >= 2
+                    ? "Managed response tier"
+                    : "Contained response tier",
+        responseSignal:
+            residualIncidentRisk >= 8
+                ? "Escalate incident command, preserve evidence, contain affected systems, and prepare governance reporting."
+                : residualIncidentRisk >= 5
+                  ? "Tighten containment, validate logs, and assign owner-level follow-up before closing."
+                  : "Keep documentation complete and verify that the incident did not expose a broader control weakness.",
+    };
+}

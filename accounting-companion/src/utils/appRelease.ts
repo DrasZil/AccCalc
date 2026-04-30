@@ -1,7 +1,23 @@
-export const APP_VERSION = "13.2.0";
+export const APP_VERSION = "13.3.0";
 export const APP_RELEASE_DATE = "2026-04-30";
 
 export const APP_RELEASE_HIGHLIGHTS = [
+    {
+        title: "AccCalc 13.3.0 delivers a super-completion pass",
+        body: "New AFAR, audit, tax, and AIS workspaces fill remaining high-value curriculum gaps while Study Hub adds more original reviewer and quiz coverage.",
+    },
+    {
+        title: "Pages explain themselves faster",
+        body: "Calculator and reviewer pages now surface a compact use-this-when, output, and next-step strip so users can understand the page before opening deeper help.",
+    },
+    {
+        title: "Learn, practice, solve, and review are tighter",
+        body: "New topics connect lessons, quizzes, Smart Solver, OCR routing, related page menus, and a v13.3 workpaper template for long-term study continuity.",
+    },
+    {
+        title: "Completion coverage is more survivable",
+        body: "The 13.3 study expansion emphasizes route choice, assumptions, and mistake repair across AFAR, audit, tax, AIS, FAR disclosure, bookkeeping, RFBT, and integrated CPA cases.",
+    },
     {
         title: "AccCalc 13.2.0 adds guided onboarding",
         body: "First-time users now get an action-aware tutorial, while returning users get a lighter reintroduction prompt that can be skipped or replayed later.",
@@ -45,6 +61,14 @@ export const APP_RELEASE_HIGHLIGHTS = [
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "13.3.0: Added Installment Sales Gross Profit Review for gross profit rate, realized gross profit, deferred gross profit, and repossession recovery signals.",
+    "13.3.0: Added Going Concern Review Workspace for adverse conditions, management plans, evidence support, residual doubt, and completion-stage audit response.",
+    "13.3.0: Added Tax Remedy Timeline Review for educational deadline pressure, evidence completeness, materiality, and procedural-complexity triage.",
+    "13.3.0: Added Incident Response Triage for AIS confidentiality, integrity, availability, containment, evidence readiness, and IT-audit escalation support.",
+    "13.3.0: Added original Study Hub lessons and quizzes for installment sales, going concern, tax remedies, incident response, FAR disclosure, closing cycle, corporation-law lifecycle, and integrated CPA case routing.",
+    "13.3.0: Added a v13.3 Super-Completion Review Map workpaper template for recording lesson, quiz, workspace, result, limitation, next action, and status.",
+    "13.3.0: Added first-screen page clarity strips across calculator/reviewer pages so users can see when to use the page, what it returns, and where to continue.",
+    "13.3.0: Wired new workspaces into app catalog/search, Smart Solver, OCR routing, Study Hub links, related page menus, workpapers, and regression tests.",
     "13.2.0: Added a first-time-user tutorial that teaches Home, navigation, search, Smart Solver, calculator inputs, Study Hub, Workpapers, and Settings replay.",
     "13.2.0: Added a returning-user quick reintroduction prompt for the first open after this release, with skip and do-not-show-again controls.",
     "13.2.0: Added an action-aware onboarding engine with route, shell-action, search, settings, and input-interaction completion checks plus timeout fallback.",
