@@ -121,6 +121,14 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "textbook-page": 5, "notes-reference": 4, "word-problem": 3 },
     },
     {
+        path: "/audit/analytical-procedures-review",
+        label: "Analytical Procedures Review",
+        category: "Audit & Assurance",
+        patterns: [/\banalytical procedures?\b/i, /\bexpected amount\b/i, /\bunexplained difference\b/i, /\bunexpected fluctuation\b/i],
+        bonus: [/\btolerable difference\b/i, /\brisk assessment\b/i, /\bfollow[- ]up procedure\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 4, "notes-reference": 3 },
+    },
+    {
         path: "/tax/income-tax-payable-review",
         label: "Income Tax Payable and Credits Review",
         category: "Taxation",
@@ -137,6 +145,14 @@ const ROUTE_RULES: RouteRule[] = [
         kindBoosts: { "textbook-page": 4, "notes-reference": 4, "word-problem": 3 },
     },
     {
+        path: "/tax/deduction-substantiation-review",
+        label: "Deduction Substantiation Review",
+        category: "Taxation",
+        patterns: [/\bdeductions?\b/i, /\bsubstantiation\b/i, /\bdisallowed items?\b/i, /\ballowable deductions?\b/i],
+        bonus: [/\bdocumentation\b/i, /\btaxable income\b/i, /\bordinary and necessary\b/i],
+        kindBoosts: { "word-problem": 4, "worked-solution": 3, "notes-reference": 3 },
+    },
+    {
         path: "/ais/revenue-cycle-control-review",
         label: "Revenue Cycle Control Review",
         category: "AIS & IT Controls",
@@ -151,6 +167,22 @@ const ROUTE_RULES: RouteRule[] = [
         patterns: [/\bincident response\b/i, /\bsecurity incident\b/i, /\bcia triad\b/i, /\bavailability impact\b/i],
         bonus: [/\bcontainment\b/i, /\bevidence readiness\b/i, /\bit audit\b/i],
         kindBoosts: { "textbook-page": 4, "notes-reference": 4, "word-problem": 3 },
+    },
+    {
+        path: "/rfbt/security-contracts-remedy-review",
+        label: "Security Contracts Remedy Review",
+        category: "RFBT & Law",
+        patterns: [/\bsecurity contracts?\b/i, /\bcredit transactions?\b/i, /\bcollateral\b/i, /\bdeficiency\b/i],
+        bonus: [/\bpriority claims?\b/i, /\bpledge\b/i, /\bmortgage\b/i, /\bguaranty\b/i],
+        kindBoosts: { "textbook-page": 4, "notes-reference": 4, "word-problem": 3 },
+    },
+    {
+        path: "/strategic/cpa-integrated-review-studio",
+        label: "CPA Integrated Review Studio",
+        category: "Strategic & Integrative",
+        patterns: [/\bintegrated review\b/i, /\bmixed practice\b/i, /\bcpa review\b/i, /\bcase routing\b/i],
+        bonus: [/\btopic identification\b/i, /\bstudy plan\b/i, /\bfollow[- ]up\b/i],
+        kindBoosts: { "textbook-page": 3, "notes-reference": 4, "word-problem": 3 },
     },
     {
         path: "/governance/fraud-risk-response-planner",

@@ -1,8 +1,19 @@
 # AccCalc
 
-AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.3.0` is a super-completion release focused on curriculum coverage, reviewer depth, stronger practice loops, page clarity, and survivable integration across learn, practice, solve, and review.
+AccCalc is a browser-first accounting learning and productivity system for solving, checking, organizing, and reviewing accounting coursework in one place. Version `13.4.0` is a category-gap-closure and integrated-review release focused on balancing weaker curriculum families, strengthening CPA-style mixed review, and keeping learn, practice, solve, and review tightly connected.
 
-## What 13.3.0 Changes
+## What 13.4.0 Changes
+
+- adds Audit Analytical Procedures Review for expectation building, unexplained differences, tolerable difference, excess difference, and follow-up audit response signals
+- adds Tax Deduction Substantiation Review for disallowed items, support percentage, unsupported deduction exposure, taxable income after review, and educational tax-effect triage
+- adds RFBT Security Contracts Remedy Review for collateral coverage, priority claims, remedy costs, deficiency, recovery ratio, documentation strength, and remedy risk
+- adds CPA Integrated Review Studio for mixed-review readiness across topic identification, computation, explanation, assumption discipline, and follow-up completion
+- adds original Study Hub lessons and guided quizzes for analytical procedures, deduction support, security contracts/remedies, and integrated route repair
+- adds a v13.4 Category Gap and Mixed Review workpaper template for recording weak category, linked lesson, quiz, workspace, result, limitation, and next repair action
+- wires the new routes into app search, Smart Solver, Scan & Check OCR routing, Study Hub, related page menus, workpapers, and regression tests
+- continues the self-explanatory page pattern with concise purpose, best-use, inputs, outputs, next-step guidance, and professional-boundary notices where needed
+
+## What 13.3.0 Changed
 
 - adds Installment Sales Gross Profit Review for AFAR deferred gross profit, realized gross profit, collection-based recognition, and repossession signals
 - adds Going Concern Review Workspace for adverse conditions, management plans, evidence support, residual doubt, and audit completion response
@@ -26,13 +37,14 @@ The 13.2.0 onboarding and limitation-cleanup pass remains included:
 
 ## Academic Expansion Tracks
 
-The 13.3.0 and 13.1.0 academic completion passes now cover:
+The 13.4.0, 13.3.0, and 13.1.0 academic completion passes now cover:
 
+- audit analytical procedures, materiality, misstatement pressure, evidence programs, sampling, going concern, completion, opinion, and cycle review
+- tax deduction substantiation, tax payable, book-tax differences, VAT, withholding, transfer taxes, compliance, incentives, remedies, and educational-use boundaries
+- RFBT security contracts, remedies, corporation lifecycle, commercial transactions, negotiable instruments, obligations/contracts, defective contracts, and securities/governance review
+- integrated CPA-style route repair, mixed-case readiness, workpaper follow-up, and Study Hub quizzes that send students back to the right lesson or tool
 - AFAR installment-sales review, deferred gross profit, franchise revenue, consignment, branch loading, corporate liquidation, and joint arrangements
-- audit materiality, misstatement pressure, evidence programs, sampling, going concern, completion, opinion, and cycle review
-- tax payable, book-tax differences, VAT, withholding, transfer taxes, compliance, incentives, and remedy triage with educational-use boundaries
 - AIS revenue-cycle controls, access, segregation of duties, continuity, enterprise systems, and incident-response triage
-- RFBT corporation lifecycle, commercial transactions, negotiable instruments, obligations/contracts, defective contracts, and securities/governance review
 - adds an Audit Materiality and Misstatement Planner for planning thresholds, clearly trivial amounts, and completion-stage pressure
 - adds an Income Tax Payable and Credits Review for gross tax due, credits, payments, final payable, and overpayment signals
 - adds an AIS Revenue Cycle Control Review for order-to-cash controls, assertions, walkthrough evidence, and weak-control gaps
@@ -52,8 +64,12 @@ Important files:
 - `src/components/CalculatorPageLayout.tsx`
 - `src/features/meta/SettingsContent.tsx`
 - `src/features/afar/InstallmentSalesReviewPage.tsx`
+- `src/features/audit/AnalyticalProceduresReviewPage.tsx`
 - `src/features/audit/GoingConcernReviewPage.tsx`
+- `src/features/tax/DeductionSubstantiationReviewPage.tsx`
 - `src/features/tax/TaxRemedyTimelineReviewPage.tsx`
+- `src/features/rfbt/SecurityContractsRemedyReviewPage.tsx`
+- `src/features/strategic/IntegratedReviewStudioPage.tsx`
 - `src/features/ais/IncidentResponseTriagePage.tsx`
 - `src/features/audit/AuditMaterialityPlannerPage.tsx`
 - `src/features/tax/IncomeTaxPayableReviewPage.tsx`
@@ -62,21 +78,23 @@ Important files:
 - `src/features/rfbt/NegotiableInstrumentsIssueSpotterPage.tsx`
 - `src/features/study/studyExpansion1310.ts`
 - `src/features/study/studyExpansion1330.ts`
+- `src/features/study/studyExpansion1340.ts`
 - `src/utils/appCatalog.ts`
 - `src/features/smart/smartSolver.engine.ts`
 - `src/features/scan-check/services/ocr/ocrRouting.ts`
 - `src/features/workpapers/workpaperTemplates.ts`
 
-Coverage priorities in `13.3.0`:
+Coverage priorities in `13.4.0`:
 
-- Super-completion: weak but important curriculum areas receive lesson, quiz, workspace, discovery, and workpaper support
+- Category gap closure: audit, tax, RFBT/law, and integrated review receive lesson, quiz, workspace, discovery, and workpaper support
+- Integrated review: mixed CPA-style practice now has readiness scoring and route-repair guidance
 - Page clarity: important pages explain use case, expected output, and next action on the first screen
 - Onboarding: first-run tutorial, returning quick tour, replay, reset, route/action/input completion checks
 - Auditing: materiality, performance materiality, clearly trivial thresholds, misstatement pressure, evidence response
-- Taxation: taxable-income bridge plus final payable, credits, payments, overpayment, and compliance review
+- Taxation: deduction support, taxable-income bridge, final payable, credits, payments, overpayment, and compliance review
 - AIS: revenue-cycle controls, order-to-cash walkthroughs, assertion mapping, access/control follow-up
 - Governance / Ethics / Risk: fraud-risk cues, management override, evidence quality, escalation, oversight response
-- RFBT / Law: negotiable-instrument holder status, defenses, party liability, presentment, dishonor, and notice
+- RFBT / Law: security contracts, remedies, negotiable-instrument holder status, defenses, party liability, presentment, dishonor, and notice
 - Intermediate Accounting / FAR: route discipline across recognition, measurement, presentation, disclosure, and schedules
 
 ## Theme System
@@ -176,9 +194,9 @@ accounting-companion/
 6. Prefer small, safe responsiveness wins over flashy but fragile layout tricks.
 7. Add regression coverage when shared logic changes.
 
-## Validation Status For 13.3.0
+## Validation Status For 13.4.0
 
-The `13.3.0` release should be validated with:
+The `13.4.0` release should be validated with:
 
 ```bash
 npm test
@@ -186,10 +204,10 @@ npm run build
 npm run dev
 ```
 
-The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `13.3.0` should include:
+The dev check should remain a bounded probe so no long-running local server is left hanging in the terminal. The final manual pass for `13.4.0` should include:
 
-- new AFAR installment-sales, audit going-concern, tax-remedy, and AIS incident-response workspaces
-- Study Hub lessons and quizzes from `studyExpansion1330.ts`
-- Smart Solver/search/OCR discovery for the new 13.3 routes
-- calculator/reviewer page clarity strips on desktop and mobile
-- v13.3 Super-Completion Review Map workpaper template
+- new audit analytical-procedures, tax deduction-substantiation, RFBT security-contracts, and CPA integrated-review workspaces
+- Study Hub lessons and quizzes from `studyExpansion1340.ts`
+- Smart Solver/search/OCR discovery for the new 13.4 routes
+- calculator/reviewer page clarity strips and educational-boundary notices on desktop and mobile
+- v13.4 Category Gap and Mixed Review workpaper template

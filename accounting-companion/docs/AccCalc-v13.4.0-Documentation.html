@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AccCalc v13.4.0 Documentation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #526071;
+      --line: #d9e1ea;
+      --panel: #f7f9fc;
+      --accent: #2364aa;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 28px 72px;
+    }
+    h1, h2 {
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2.2rem;
+    }
+    h2 {
+      margin: 34px 0 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 1.35rem;
+    }
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+    ul, ol {
+      padding-left: 1.4rem;
+    }
+    li {
+      margin: 7px 0;
+    }
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: var(--panel);
+      color: var(--accent);
+    }
+    .summary {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 24px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AccCalc v13.4.0 Documentation</h1>
+    <p>Category gap closure and integrated CPA-style review release.</p>
+
+    <section class="summary">
+      <p>AccCalc 13.4.0 closes weaker academic tracks with four connected additions: audit analytical procedures, tax deduction substantiation, RFBT security-contract remedies, and a CPA Integrated Review Studio. Each addition is wired into lessons, quizzes, search, Smart Solver, OCR routing, and workpapers.</p>
+    </section>
+
+    <h2>New Workspaces</h2>
+    <div class="grid">
+      <div class="card"><strong>Audit Analytical Procedures Review</strong>Compares prior, current, and expected amounts to surface unexplained differences, tolerable thresholds, and follow-up pressure.</div>
+      <div class="card"><strong>Tax Deduction Substantiation Review</strong>Separates disallowed items, supported deductions, unsupported exposure, taxable income after review, and educational tax-effect triage.</div>
+      <div class="card"><strong>RFBT Security Contracts Remedy Review</strong>Reviews collateral coverage, priority claims, remedy cost, deficiency, recovery ratio, and documentation strength.</div>
+      <div class="card"><strong>CPA Integrated Review Studio</strong>Scores mixed-review readiness across topic identification, computation, explanation, assumptions, and follow-up completion.</div>
+    </div>
+
+    <h2>Study And Practice</h2>
+    <ul>
+      <li>New original Study Hub topics live in <code>src/features/study/studyExpansion1340.ts</code>.</li>
+      <li>Each topic includes reviewer notes, worked examples, checkpoints, and guided quiz feedback.</li>
+      <li>Practice items push learners back to the closest lesson, workspace, or integrated review route after a miss.</li>
+    </ul>
+
+    <h2>Integration</h2>
+    <ul>
+      <li>Routes are registered in <code>src/App.tsx</code> and <code>src/utils/appCatalog.ts</code>.</li>
+      <li>Smart Solver mappings live in <code>src/features/smart/smartSolver.engine.ts</code>.</li>
+      <li>OCR routing lives in <code>src/features/scan-check/services/ocr/ocrRouting.ts</code>.</li>
+      <li>The v13.4 workpaper template lives in <code>src/features/workpapers/workpaperTemplates.ts</code>.</li>
+    </ul>
+
+    <h2>Educational Boundary</h2>
+    <p>Audit, tax, RFBT/law, governance, AIS, and integrated-review pages are educational reviewer support only. They are not official legal, tax, professional standards, audit engagement, or security guidance.</p>
+
+    <h2>Validation</h2>
+    <ol>
+      <li>Run <code>npm test</code>.</li>
+      <li>Run <code>npm run build</code>.</li>
+      <li>Run a bounded <code>npm run dev</code> smoke probe.</li>
+      <li>Verify the four new workspaces, Study Hub topics, quizzes, Smart Solver, OCR routing, and the v13.4 workpaper template.</li>
+    </ol>
+  </main>
+</body>
+</html>

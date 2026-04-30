@@ -5957,3 +5957,189 @@ export function computeIncidentResponseTriage({
                   : "Keep documentation complete and verify that the incident did not expose a broader control weakness.",
     };
 }
+
+export function computeAuditAnalyticalProcedureReview({
+    priorAmount,
+    currentAmount,
+    expectedAmount,
+    tolerableDifferencePercent,
+    inherentRiskRating,
+    explanationQuality,
+}: {
+    priorAmount: number;
+    currentAmount: number;
+    expectedAmount: number;
+    tolerableDifferencePercent: number;
+    inherentRiskRating: number;
+    explanationQuality: number;
+}) {
+    const actualChange = safeSubtract(currentAmount, priorAmount);
+    const actualChangePercent = priorAmount !== 0
+        ? safeMultiply(safeDivide(actualChange, Math.abs(priorAmount)), 100)
+        : 0;
+    const unexplainedDifference = Math.abs(safeSubtract(currentAmount, expectedAmount));
+    const tolerableDifference = Math.abs(
+        safeMultiply(expectedAmount, percentToDecimal(tolerableDifferencePercent))
+    );
+    const excessDifference = Math.max(safeSubtract(unexplainedDifference, tolerableDifference), 0);
+    const riskPressure = roundTo(
+        safeAdd(
+            safeAdd(safeDivide(excessDifference, Math.max(tolerableDifference, 1)), inherentRiskRating),
+            safeMultiply(Math.max(safeSubtract(5, explanationQuality), 0), 0.75)
+        ),
+        2
+    );
+
+    return {
+        actualChange,
+        actualChangePercent,
+        unexplainedDifference,
+        tolerableDifference,
+        excessDifference,
+        riskPressure,
+        reviewSignal:
+            excessDifference > 0
+                ? "The unexplained difference exceeds the entered tolerable difference. Corroborate explanations and design follow-up substantive procedures."
+                : inherentRiskRating >= 4 && explanationQuality < 3
+                  ? "The numeric difference is within tolerance, but high inherent risk and weak explanation quality still require follow-up."
+                  : "The analytical review appears directionally supportable under the entered tolerance, risk, and explanation-quality assumptions.",
+    };
+}
+
+export function computeTaxDeductionSubstantiationReview({
+    grossIncome,
+    claimedDeductions,
+    disallowedItems,
+    substantiationPercent,
+    taxRatePercent,
+}: {
+    grossIncome: number;
+    claimedDeductions: number;
+    disallowedItems: number;
+    substantiationPercent: number;
+    taxRatePercent: number;
+}) {
+    const potentiallyAllowableDeductions = Math.max(
+        safeSubtract(claimedDeductions, disallowedItems),
+        0
+    );
+    const substantiatedDeductions = safeMultiply(
+        potentiallyAllowableDeductions,
+        percentToDecimal(substantiationPercent)
+    );
+    const unsupportedDeductionExposure = Math.max(
+        safeSubtract(potentiallyAllowableDeductions, substantiatedDeductions),
+        0
+    );
+    const taxableIncomeAfterReview = Math.max(
+        safeSubtract(grossIncome, substantiatedDeductions),
+        0
+    );
+    const taxEffectOfUnsupportedItems = safeMultiply(
+        safeAdd(disallowedItems, unsupportedDeductionExposure),
+        percentToDecimal(taxRatePercent)
+    );
+
+    return {
+        potentiallyAllowableDeductions,
+        substantiatedDeductions,
+        unsupportedDeductionExposure,
+        taxableIncomeAfterReview,
+        taxEffectOfUnsupportedItems,
+        reviewSignal:
+            unsupportedDeductionExposure > 0 || disallowedItems > 0
+                ? "Some deductions are disallowed or unsupported under the entered assumptions. Separate tax-law eligibility from documentation support before computing final tax."
+                : "The entered deductions are fully supported under this educational review model.",
+    };
+}
+
+export function computeSecurityContractRemedyReview({
+    obligationAmount,
+    collateralFairValue,
+    priorityClaims,
+    documentationStrength,
+    defaultSeverity,
+    remedyCost,
+}: {
+    obligationAmount: number;
+    collateralFairValue: number;
+    priorityClaims: number;
+    documentationStrength: number;
+    defaultSeverity: number;
+    remedyCost: number;
+}) {
+    const netCollateralCoverage = Math.max(
+        safeSubtract(collateralFairValue, priorityClaims),
+        0
+    );
+    const netRecoveryAfterCost = Math.max(safeSubtract(netCollateralCoverage, remedyCost), 0);
+    const deficiency = Math.max(safeSubtract(obligationAmount, netRecoveryAfterCost), 0);
+    const recoveryRatio = obligationAmount > 0
+        ? safeMultiply(safeDivide(netRecoveryAfterCost, obligationAmount), 100)
+        : 0;
+    const remedyRiskScore = roundTo(
+        safeAdd(
+            safeAdd(defaultSeverity, Math.max(safeSubtract(5, documentationStrength), 0)),
+            safeMultiply(safeDivide(deficiency, Math.max(obligationAmount, 1)), 5)
+        ),
+        2
+    );
+
+    return {
+        netCollateralCoverage,
+        netRecoveryAfterCost,
+        deficiency,
+        recoveryRatio,
+        remedyRiskScore,
+        remedySignal:
+            deficiency > 0
+                ? "Collateral recovery does not fully cover the obligation under the entered facts. Review deficiency, priority, documentation, and remedy limits."
+                : documentationStrength < 3
+                  ? "Recovery appears sufficient numerically, but weak documentation can still affect enforcement and remedy choice."
+                  : "Collateral coverage appears directionally sufficient under the entered educational assumptions.",
+    };
+}
+
+export function computeIntegratedReviewReadiness({
+    topicIdentification,
+    computationAccuracy,
+    explanationQuality,
+    assumptionDiscipline,
+    followUpCompletion,
+}: {
+    topicIdentification: number;
+    computationAccuracy: number;
+    explanationQuality: number;
+    assumptionDiscipline: number;
+    followUpCompletion: number;
+}) {
+    const scores = [
+        { label: "Topic identification", value: topicIdentification },
+        { label: "Computation accuracy", value: computationAccuracy },
+        { label: "Explanation quality", value: explanationQuality },
+        { label: "Assumption discipline", value: assumptionDiscipline },
+        { label: "Follow-up completion", value: followUpCompletion },
+    ];
+    const readinessScore = roundTo(
+        safeDivide(scores.reduce((total, score) => safeAdd(total, score.value), 0), scores.length),
+        2
+    );
+    const weakestArea = scores.reduce((weakest, score) =>
+        score.value < weakest.value ? score : weakest
+    );
+
+    return {
+        readinessScore,
+        weakestArea: weakestArea.label,
+        readinessBand:
+            readinessScore >= 4.25
+                ? "Ready for mixed CPA-style practice"
+                : readinessScore >= 3.25
+                  ? "Ready for guided mixed review with targeted repair"
+                  : readinessScore >= 2.25
+                    ? "Needs topic-level repair before full mixed review"
+                    : "Return to foundational lesson and tool practice first",
+        reviewSignal:
+            `The weakest area is ${weakestArea.label.toLowerCase()}. Use the next attempt to repair that step before adding more topics.`,
+    };
+}

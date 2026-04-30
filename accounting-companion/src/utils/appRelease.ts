@@ -1,7 +1,23 @@
-export const APP_VERSION = "13.3.0";
+export const APP_VERSION = "13.4.0";
 export const APP_RELEASE_DATE = "2026-04-30";
 
 export const APP_RELEASE_HIGHLIGHTS = [
+    {
+        title: "AccCalc 13.4.0 closes weak category gaps",
+        body: "Audit analytical procedures, tax deduction substantiation, RFBT security-contract remedies, and CPA integrated review now have complete learn-practice-solve-review support.",
+    },
+    {
+        title: "Mixed review becomes a real study layer",
+        body: "The new CPA Integrated Review Studio scores topic identification, computation, explanation, assumptions, and follow-up so students can repair the weakest step before another mixed set.",
+    },
+    {
+        title: "Reviewer topics are better connected",
+        body: "New Study Hub lessons, quizzes, Smart Solver matches, OCR routing, related page links, and a v13.4 workpaper template keep the category-gap additions from becoming dead-end pages.",
+    },
+    {
+        title: "Audit, tax, and law stay educationally scoped",
+        body: "The 13.4 pages use explicit classroom-support language and professional-boundary notices where current standards, tax authority guidance, or legal advice would be required.",
+    },
     {
         title: "AccCalc 13.3.0 delivers a super-completion pass",
         body: "New AFAR, audit, tax, and AIS workspaces fill remaining high-value curriculum gaps while Study Hub adds more original reviewer and quiz coverage.",
@@ -61,6 +77,13 @@ export const APP_RELEASE_HIGHLIGHTS = [
 ] as const;
 
 export const APP_RELEASE_NOTES = [
+    "13.4.0: Added Audit Analytical Procedures Review for prior/current change, expectation variance, tolerable difference, excess difference, risk pressure, and follow-up signals.",
+    "13.4.0: Added Tax Deduction Substantiation Review for disallowed items, support percentage, substantiated deductions, unsupported exposure, taxable income after review, and tax-effect triage.",
+    "13.4.0: Added Security Contracts Remedy Review for obligation coverage, collateral priority, remedy cost, deficiency, recovery ratio, documentation strength, and classroom remedy signals.",
+    "13.4.0: Added CPA Integrated Review Studio for mixed-review readiness across topic identification, computation accuracy, explanation quality, assumption discipline, and follow-up completion.",
+    "13.4.0: Added original Study Hub lessons and guided quizzes for analytical procedures, deduction support, security contracts/remedies, and integrated route repair.",
+    "13.4.0: Added a v13.4 Category Gap and Mixed Review workpaper template for recording weak category, lesson, quiz, workspace, result, limitation, and next repair action.",
+    "13.4.0: Wired the new routes into app catalog/search, Smart Solver, Scan & Check OCR routing, Study Hub links, related page menus, workpapers, and regression tests.",
     "13.3.0: Added Installment Sales Gross Profit Review for gross profit rate, realized gross profit, deferred gross profit, and repossession recovery signals.",
     "13.3.0: Added Going Concern Review Workspace for adverse conditions, management plans, evidence support, residual doubt, and completion-stage audit response.",
     "13.3.0: Added Tax Remedy Timeline Review for educational deadline pressure, evidence completeness, materiality, and procedural-complexity triage.",

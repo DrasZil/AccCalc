@@ -147,6 +147,10 @@ import {
     computeGoingConcernReview,
     computeTaxRemedyTimelineReview,
     computeIncidentResponseTriage,
+    computeAuditAnalyticalProcedureReview,
+    computeTaxDeductionSubstantiationReview,
+    computeSecurityContractRemedyReview,
+    computeIntegratedReviewReadiness,
 } from "../src/utils/calculatorMath.js";
 import {
     budgetVarianceAnalysisSolveDefinition,
@@ -2639,6 +2643,140 @@ runTest("v13.3 super-completion workspaces compute and integrate across discover
     assert.ok(getStudyTopic("tax-remedies-and-deadline-triage"));
     assert.ok(getStudyTopic("ais-incident-response-and-it-audit"));
     assert.ok(getStudyTopic("integrated-cpa-case-method"));
+});
+
+runTest("v13.4 category-gap closure and integrated review stay wired", () => {
+    const analytical = computeAuditAnalyticalProcedureReview({
+        priorAmount: 1200000,
+        currentAmount: 1540000,
+        expectedAmount: 1440000,
+        tolerableDifferencePercent: 5,
+        inherentRiskRating: 4,
+        explanationQuality: 2,
+    });
+    assertClose(analytical.actualChange, 340000);
+    assertClose(analytical.actualChangePercent, 28.333333333333332);
+    assertClose(analytical.tolerableDifference, 72000);
+    assertClose(analytical.excessDifference, 28000);
+    assertClose(analytical.riskPressure, 6.64);
+
+    const deduction = computeTaxDeductionSubstantiationReview({
+        grossIncome: 2200000,
+        claimedDeductions: 850000,
+        disallowedItems: 120000,
+        substantiationPercent: 80,
+        taxRatePercent: 25,
+    });
+    assertClose(deduction.potentiallyAllowableDeductions, 730000);
+    assertClose(deduction.substantiatedDeductions, 584000);
+    assertClose(deduction.unsupportedDeductionExposure, 146000);
+    assertClose(deduction.taxableIncomeAfterReview, 1616000);
+    assertClose(deduction.taxEffectOfUnsupportedItems, 66500);
+
+    const security = computeSecurityContractRemedyReview({
+        obligationAmount: 900000,
+        collateralFairValue: 760000,
+        priorityClaims: 90000,
+        documentationStrength: 3,
+        defaultSeverity: 4,
+        remedyCost: 50000,
+    });
+    assertClose(security.netCollateralCoverage, 670000);
+    assertClose(security.netRecoveryAfterCost, 620000);
+    assertClose(security.deficiency, 280000);
+    assertClose(security.recoveryRatio, 68.88888888888889);
+    assertClose(security.remedyRiskScore, 7.56);
+
+    const integrated = computeIntegratedReviewReadiness({
+        topicIdentification: 3.5,
+        computationAccuracy: 3,
+        explanationQuality: 3,
+        assumptionDiscipline: 2.5,
+        followUpCompletion: 2,
+    });
+    assertClose(integrated.readinessScore, 2.8);
+    assert.equal(integrated.weakestArea, "Follow-up completion");
+
+    assert.equal(
+        searchAppRoutes("analytical procedures unexplained difference")[0]?.path,
+        "/audit/analytical-procedures-review"
+    );
+    assert.equal(
+        searchAppRoutes("deduction substantiation unsupported deduction")[0]?.path,
+        "/tax/deduction-substantiation-review"
+    );
+    assert.equal(
+        searchAppRoutes("security contract collateral deficiency remedy")[0]?.path,
+        "/rfbt/security-contracts-remedy-review"
+    );
+    assert.equal(
+        searchAppRoutes("cpa integrated review topic identification route repair")[0]?.path,
+        "/strategic/cpa-integrated-review-studio"
+    );
+
+    assert.equal(
+        analyzeSmartInput(
+            { ...INITIAL_FIELDS },
+            "audit analytical procedures unexplained difference expected amount"
+        ).best?.route,
+        "/audit/analytical-procedures-review"
+    );
+    assert.equal(
+        analyzeSmartInput(
+            { ...INITIAL_FIELDS },
+            "tax deduction substantiation unsupported items and documentation support"
+        ).best?.route,
+        "/tax/deduction-substantiation-review"
+    );
+    assert.equal(
+        analyzeSmartInput(
+            { ...INITIAL_FIELDS },
+            "security contract collateral deficiency priority claims remedy"
+        ).best?.route,
+        "/rfbt/security-contracts-remedy-review"
+    );
+    assert.equal(
+        analyzeSmartInput(
+            { ...INITIAL_FIELDS },
+            "CPA integrated review topic identification computation explanation follow-up"
+        ).best?.route,
+        "/strategic/cpa-integrated-review-studio"
+    );
+
+    assert.equal(
+        recommendScanRoutes(
+            "analytical procedures expected amount unexplained difference",
+            "word-problem"
+        )[0]?.path,
+        "/audit/analytical-procedures-review"
+    );
+    assert.equal(
+        recommendScanRoutes(
+            "deduction substantiation disallowed items unsupported documentation",
+            "notes-reference"
+        )[0]?.path,
+        "/tax/deduction-substantiation-review"
+    );
+    assert.equal(
+        recommendScanRoutes(
+            "security contract collateral priority deficiency remedy",
+            "notes-reference"
+        )[0]?.path,
+        "/rfbt/security-contracts-remedy-review"
+    );
+    assert.equal(
+        recommendScanRoutes(
+            "integrated review topic identification computation explanation follow-up",
+            "word-problem"
+        )[0]?.path,
+        "/strategic/cpa-integrated-review-studio"
+    );
+
+    assert.ok(getWorkpaperTemplate("v13-4-category-gap-and-mixed-review"));
+    assert.ok(getStudyTopic("audit-analytical-procedures-and-follow-up"));
+    assert.ok(getStudyTopic("tax-deductions-substantiation-and-support"));
+    assert.ok(getStudyTopic("rfbt-security-contracts-and-remedies"));
+    assert.ok(getStudyTopic("integrated-review-readiness-and-route-repair"));
 });
 
 runTest("v10.1 expanded completion discovery reaches new calculator and workpaper coverage", () => {

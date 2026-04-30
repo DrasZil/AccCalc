@@ -2852,6 +2852,23 @@ import {
         ],
     },
     {
+        id: "analytical-procedures-review",
+        name: "Analytical Procedures Review",
+        route: "/audit/analytical-procedures-review",
+        description:
+        "Best when the prompt asks about audit analytical procedures, expected amounts, unexplained fluctuations, tolerable differences, or follow-up procedure design.",
+        required: [],
+        aliases: ["analytical procedures", "audit analytics", "unexplained fluctuation"],
+        keywords: [
+        /analytical procedures/i,
+        /audit analytics/i,
+        /expected amount/i,
+        /unexplained difference/i,
+        /unexpected fluctuation/i,
+        /tolerable difference/i,
+        ],
+    },
+    {
         id: "tax-remedy-timeline-review",
         name: "Tax Remedy Timeline Review",
         route: "/tax/tax-remedy-timeline-review",
@@ -2866,6 +2883,23 @@ import {
         /assessment/i,
         /deadline/i,
         /taxpayer remed/i,
+        ],
+    },
+    {
+        id: "deduction-substantiation-review",
+        name: "Deduction Substantiation Review",
+        route: "/tax/deduction-substantiation-review",
+        description:
+        "Best when the prompt asks about claimed deductions, disallowed items, substantiation, documentation support, or taxable income after deduction review.",
+        required: [],
+        aliases: ["deduction substantiation", "tax deductions", "allowable deductions"],
+        keywords: [
+        /deductions?/i,
+        /substantiation/i,
+        /disallowed items?/i,
+        /allowable deductions?/i,
+        /deductible expenses?/i,
+        /documentation support/i,
         ],
     },
     {
@@ -2884,6 +2918,41 @@ import {
         /integrity/i,
         /availability/i,
         /containment/i,
+        ],
+    },
+    {
+        id: "security-contracts-remedy-review",
+        name: "Security Contracts Remedy Review",
+        route: "/rfbt/security-contracts-remedy-review",
+        description:
+        "Best when the prompt asks about secured credit, collateral coverage, priority claims, deficiency, documentation, default, or remedy choice.",
+        required: [],
+        aliases: ["security contracts", "credit transactions", "collateral remedy"],
+        keywords: [
+        /security contracts?/i,
+        /credit transactions?/i,
+        /collateral/i,
+        /deficiency/i,
+        /priority claims?/i,
+        /remedy/i,
+        /pledge|mortgage|guaranty/i,
+        ],
+    },
+    {
+        id: "cpa-integrated-review-studio",
+        name: "CPA Integrated Review Studio",
+        route: "/strategic/cpa-integrated-review-studio",
+        description:
+        "Best when the user wants mixed-review routing, CPA-style case repair, topic identification practice, or readiness scoring after a mixed set.",
+        required: [],
+        aliases: ["cpa mixed review", "integrated review", "case routing"],
+        keywords: [
+        /integrated review/i,
+        /mixed review/i,
+        /cpa review/i,
+        /case routing/i,
+        /topic identification/i,
+        /mixed practice/i,
         ],
     },
     {
