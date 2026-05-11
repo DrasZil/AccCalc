@@ -2,6 +2,7 @@ type AnalyticsEventParams = Record<string, string | number | boolean | null | un
 
 declare global {
     interface Window {
+        __ACCCALC_GA4_INLINE_LOADED__?: boolean;
         dataLayer?: unknown[];
         gtag?: (
             command: "js" | "config" | "event",
@@ -17,6 +18,7 @@ const MEASUREMENT_ID =
     import.meta.env.VITE_GA_MEASUREMENT_ID?.trim() || DEFAULT_MEASUREMENT_ID;
 let initialized = false;
 let lastPagePath = "";
+let skippedInlineInitialPageView = false;
 
 function canUseAnalytics() {
     return typeof window !== "undefined" && typeof document !== "undefined" && MEASUREMENT_ID;
@@ -47,6 +49,11 @@ export function initializeAnalytics() {
             window.dataLayer?.push(arguments);
         };
 
+    if (window.__ACCCALC_GA4_INLINE_LOADED__) {
+        initialized = true;
+        return;
+    }
+
     if (!document.getElementById(GA_SCRIPT_ID)) {
         const script = document.createElement("script");
         script.id = GA_SCRIPT_ID;
@@ -72,6 +79,12 @@ export function trackPageView(
     initializeAnalytics();
 
     const pagePath = resolvePagePath(path);
+    if (window.__ACCCALC_GA4_INLINE_LOADED__ && !skippedInlineInitialPageView) {
+        skippedInlineInitialPageView = true;
+        lastPagePath = pagePath;
+        return;
+    }
+
     if (pagePath === lastPagePath) return;
     lastPagePath = pagePath;
 
