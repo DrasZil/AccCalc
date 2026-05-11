@@ -15,6 +15,7 @@ import { useNetworkStatus } from "../utils/networkStatus";
 import { useOfflineBundleStatus } from "../utils/offlineStatus";
 import { getSuggestedRoutes, searchAppRoutes, type AppSearchResult } from "../utils/appSearch";
 import { emitOnboardingAction } from "../features/onboarding/onboardingEvents";
+import { trackEvent } from "../utils/analytics";
 
 type FeatureSearchProps = {
     variant?: "header" | "hero";
@@ -103,12 +104,25 @@ export default function FeatureSearch({
             currentPath: location.pathname,
         });
         if (!availability.canOpen) {
+            trackEvent("search_result_blocked", {
+                search_query: query.trim(),
+                result_path: result.path,
+                result_label: result.label,
+                reason: availability.label,
+            });
             setOpen(true);
             setActiveIndex(
                 suggestions.findIndex((entry) => entry.path === result.path)
             );
             return;
         }
+
+        trackEvent("search_result_selected", {
+            search_query: query.trim(),
+            result_path: result.path,
+            result_label: result.label,
+            result_category: result.category,
+        });
 
         startTransition(() => {
             navigate(result.path);

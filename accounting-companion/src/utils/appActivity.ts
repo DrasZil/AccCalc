@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { APP_NAV_GROUPS, APP_ROUTE_META, type RouteMeta } from "./appCatalog";
+import { trackCalculatorUsage } from "./analytics";
 
 export type ActivityKind = "visit" | "smart" | "calculator" | "system";
 
@@ -241,6 +242,12 @@ export function recordToolVisit(
 
 export function saveToolRecord(record: Omit<SavedToolRecord, "id" | "at" | "category">) {
     const meta = resolveMeta(record.path);
+    trackCalculatorUsage(record.path.replace(/^\/+/u, "").replaceAll("/", "_"), {
+        calculator_label: record.title || meta?.label,
+        route_path: record.path,
+        route_category: meta?.category,
+        has_result: Boolean(record.result),
+    });
     updateAppActivity((current) => ({
         ...current,
         savedRecords: [

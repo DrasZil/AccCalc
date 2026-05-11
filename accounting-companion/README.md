@@ -162,6 +162,60 @@ npm install
 npm run dev
 ```
 
+## Google Analytics 4
+
+AccCalc uses the official GA4 `gtag.js` loader from `src/utils/analytics.ts`. The app is a Vite + React single-page app that uses `HashRouter`, so page views are tracked from React Router route changes instead of relying on the browser's initial HTML load. This avoids duplicate page views while still tracking each `#/route` screen.
+
+The production default Measurement ID is already set to AccCalc's GA4 stream:
+
+```bash
+G-RECVGTF5J1
+```
+
+You can override it with a Vite environment variable when needed:
+
+```bash
+VITE_GA_MEASUREMENT_ID=G-RECVGTF5J1
+```
+
+For local testing, copy `.env.example` to `.env.local`. For Render static hosting, the built-in default works without extra configuration; if you ever use a different GA4 stream, add `VITE_GA_MEASUREMENT_ID` in the site's Environment tab, then redeploy so Vite can bake the value into the production build.
+
+Tracked automatically:
+
+- GA4 `page_view` on every hash-route change, with route category and subtopic from `src/utils/appCatalog.ts`
+- `feature_used` when a non-settings route opens
+- `calculator_used` when AccCalc saves a calculator or Smart Solver result
+- `button_click` for shared actions such as pinning, sharing, Smart Solver route opens, Scan & Check route opens, and Workpaper smart actions
+- `search_result_selected`, `scan_images_added`, `study_quiz_completed`, and `workpaper_template_opened` for high-signal app workflows
+
+Use the helper functions for future events:
+
+```ts
+import {
+  trackButtonClick,
+  trackCalculatorUsage,
+  trackEvent,
+} from "./utils/analytics";
+
+trackCalculatorUsage("drug_dosage_calculator");
+trackButtonClick("download_pdf");
+trackEvent("feature_used", {
+  feature_name: "review_mode",
+});
+```
+
+GA4 beginner setup:
+
+1. Go to [analytics.google.com](https://analytics.google.com/) and create or sign in to a Google Analytics account.
+2. Create a GA4 property for AccCalc.
+3. Add a Web data stream for the deployed AccCalc Render URL.
+4. Copy the Measurement ID from the stream details. It starts with `G-`.
+5. Confirm the ID is `G-RECVGTF5J1`. It is already the default in `src/utils/analytics.ts`; optionally place it in `.env.local` or Render as `VITE_GA_MEASUREMENT_ID`.
+6. Redeploy the Render static site with the normal build command, `npm run build`, and publish directory, `dist`.
+7. Open the deployed app, navigate between a few tools, use search, run Smart Solver or the basic calculator, then check Reports > Realtime in GA4.
+
+To debug missing analytics, confirm the production build was redeployed after setting the env var, disable ad blockers for the test browser, inspect the Network tab for `gtag/js?id=G-...`, and use GA4 Realtime or DebugView. If the env var is blank, all analytics helpers become safe no-ops and the app still builds normally.
+
 ## Common Development Commands
 
 ```bash

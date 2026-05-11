@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ShellIcon } from "../features/layout/ShellChrome";
+import { trackButtonClick, trackEvent } from "../utils/analytics";
 import { shareApp, type ShareAppOutcome } from "../utils/shareApp";
 
 type ShareAppButtonProps = {
@@ -58,11 +59,19 @@ export default function ShareAppButton({
                   : label;
 
     async function handleShare() {
+        trackButtonClick("share_app", {
+            button_label: label,
+            share_variant: variant,
+        });
         const result = await shareApp({
             title,
             text: shareText,
         });
 
+        trackEvent("share_app_result", {
+            result,
+            share_variant: variant,
+        });
         setStatus(result);
         onResult?.(result);
     }

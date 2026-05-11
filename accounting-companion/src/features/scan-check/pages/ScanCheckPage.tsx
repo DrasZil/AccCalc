@@ -12,6 +12,7 @@ import RelatedLinksPanel from "../../../components/RelatedLinksPanel";
 import { buildChartHighlights } from "../../../utils/charts/chartHighlights";
 import { buildComparisonNarrative } from "../../../utils/charts/chartNarratives";
 import { getRouteMeta } from "../../../utils/appCatalog";
+import { trackButtonClick, trackEvent } from "../../../utils/analytics";
 import { useAppNotifications } from "../../layout/AppNotifications";
 import ScanActionBar from "../components/ScanActionBar";
 import ScanCameraCapture from "../components/ScanCameraCapture";
@@ -233,6 +234,9 @@ export default function ScanCheckPage() {
     async function handleAddFiles(files: File[]) {
         const result = await queue.addFiles(files);
         if (result.added > 0) {
+            trackEvent("scan_images_added", {
+                image_count: result.added,
+            });
             setStatusMessage(`${result.added} image${result.added === 1 ? "" : "s"} added. AccCalc is processing them now.`);
             showToast({
                 title: `${result.added} image${result.added === 1 ? "" : "s"} added`,
@@ -263,6 +267,9 @@ export default function ScanCheckPage() {
 
     function sendTextToSmartSolver(text: string) {
         if (text.trim() === "") return;
+        trackButtonClick("scan_send_to_smart_solver", {
+            text_length: text.trim().length,
+        });
         navigate("/smart/solver", { state: { from: "scan-check", query: text } });
     }
 
@@ -293,15 +300,30 @@ export default function ScanCheckPage() {
         }
 
         if (accountingSession) {
+            trackButtonClick("scan_open_primary_route", {
+                route_path: accountingSession.routeHint,
+                route_label: getRouteLabel(accountingSession.routeHint),
+                source: "accounting_session",
+            });
             openProcessCostingWorkspace();
             return;
         }
         if (primaryRouteHint === "/basic") {
+            trackButtonClick("scan_open_primary_route", {
+                route_path: primaryRouteHint,
+                route_label: getRouteLabel(primaryRouteHint),
+                source: "basic_expression",
+            });
             navigate(primaryRouteHint, {
                 state: { from: "scan-check", expression: primaryItem?.editableText ?? "" },
             });
             return;
         }
+        trackButtonClick("scan_open_primary_route", {
+            route_path: primaryRouteHint,
+            route_label: getRouteLabel(primaryRouteHint),
+            source: "ocr_route_hint",
+        });
         navigate(primaryRouteHint, {
             state: {
                 from: "scan-check",

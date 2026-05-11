@@ -20,6 +20,7 @@ import {
     getRouteMeta,
 } from "../../utils/appCatalog";
 import { recordToolVisit, saveToolRecord } from "../../utils/appActivity";
+import { trackButtonClick, trackEvent } from "../../utils/analytics";
 import { updateAppSettings, useAppSettings } from "../../utils/appSettings";
 import { useNetworkStatus } from "../../utils/networkStatus";
 import { useOfflineBundleStatus } from "../../utils/offlineStatus";
@@ -573,6 +574,12 @@ export default function SmartSolverPage() {
         }
 
         if (smartInput.trim() !== "") {
+            trackEvent("smart_solver_values_applied", {
+                detected_value_count: extractedCount,
+                detected_currency: analysis.detectedCurrency,
+                suggested_calculator: selectedCalculator?.name,
+                suggested_route: selectedCalculator?.route,
+            });
             saveToolRecord({
                 title: "Smart Solver Prompt",
                 path: "/smart/solver",
@@ -649,6 +656,11 @@ export default function SmartSolverPage() {
         recordToolVisit(selectedCalculator.route, {
             summary: `Opened from Smart Solver using the prompt: ${smartInput.trim() || "No prompt text saved."}`,
             kind: "smart",
+        });
+        trackButtonClick("smart_solver_open_calculator", {
+            route_path: selectedCalculator.route,
+            calculator_name: selectedCalculator.name,
+            confidence_score: selectedCalculator.score,
         });
 
         navigate(selectedCalculator.route, {

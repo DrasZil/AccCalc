@@ -1,9 +1,10 @@
-import { Suspense, lazy, type ReactNode } from "react";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { Suspense, lazy, useEffect, type ReactNode } from "react";
+import { HashRouter, Route, Routes, useLocation } from "react-router-dom";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 import AppLayout from "./features/layout/AppLayout";
 import { AppNotificationProvider } from "./features/layout/AppNotifications";
+import { trackEvent, trackPageView } from "./utils/analytics";
 import { getRouteMeta } from "./utils/appCatalog";
 import { useNetworkStatus } from "./utils/networkStatus";
 import { useOfflineBundleStatus } from "./utils/offlineStatus";
@@ -695,6 +696,30 @@ function RouteShell({
     );
 }
 
+function AnalyticsRouteTracker() {
+    const location = useLocation();
+
+    useEffect(() => {
+        const routePath = `${location.pathname}${location.search}`;
+        const routeMeta = getRouteMeta(location.pathname);
+        trackPageView(routePath, routeMeta ? `${routeMeta.label} | AccCalc` : document.title, {
+            route_path: routeMeta?.path ?? routePath,
+            route_category: routeMeta?.category,
+            route_subtopic: routeMeta?.subtopic,
+        });
+        if (routeMeta && routeMeta.path !== "/" && !routeMeta.path.startsWith("/settings")) {
+            trackEvent("feature_used", {
+                feature_name: routeMeta.path.replace(/^\/+/u, "").replaceAll("/", "_"),
+                feature_label: routeMeta.label,
+                feature_category: routeMeta.category,
+                feature_subtopic: routeMeta.subtopic,
+            });
+        }
+    }, [location.pathname, location.search]);
+
+    return null;
+}
+
 export default function App() {
     const renderRoute = (path: string, element: ReactNode) => (
         <RouteShell routePath={path}>{element}</RouteShell>
@@ -703,6 +728,7 @@ export default function App() {
     return (
         <AppErrorBoundary>
             <HashRouter>
+                <AnalyticsRouteTracker />
                 <Routes>
                     <Route
                         path="/"

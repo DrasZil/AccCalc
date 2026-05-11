@@ -13,6 +13,7 @@ import DisclosurePanel from "../../components/DisclosurePanel";
 import InlineNotice from "../../components/InlineNotice";
 import RelatedLinksPanel from "../../components/RelatedLinksPanel";
 import SectionCard from "../../components/SectionCard";
+import { trackButtonClick, trackEvent } from "../../utils/analytics";
 import { APP_VERSION } from "../../utils/appRelease";
 import { useAppNotifications } from "../layout/AppNotifications";
 import {
@@ -610,6 +611,10 @@ export default function WorkpaperStudioPage() {
 
     function openTemplateWorkbook(template: (typeof WORKPAPER_TEMPLATES)[number]) {
         const workbook = template.buildWorkbook();
+        trackEvent("workpaper_template_opened", {
+            template_id: template.id,
+            template_title: template.title,
+        });
         saveWorkbookSnapshot(workbook);
         startTransition(() => setSelectedWorkbookId(workbook.id));
         setActivePanel("none");
@@ -1009,6 +1014,10 @@ export default function WorkpaperStudioPage() {
 
     function applySmartAction(action: WorkpaperSmartActionKey) {
         if (!activeSheet || !draftWorkbook) return;
+        trackButtonClick("workpaper_smart_action", {
+            action,
+            workbook_id: draftWorkbook.id,
+        });
         mutateWorkbook((current) => {
             const sheet = current.sheets[current.activeSheetId];
             if (!sheet) return current;

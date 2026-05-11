@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { readIndexedValue, writeIndexedValue } from "../services/storage/indexedKeyValue";
 import { getRouteMeta } from "./appCatalog.js";
+import { trackEvent } from "./analytics";
 
 export type StudyTopicRecord = {
     id: string;
@@ -368,6 +369,17 @@ export function recordStudyQuizAttempt(
     topic: { id: string; path: string; title: string },
     payload: { score: number; totalQuestions: number }
 ) {
+    trackEvent("study_quiz_completed", {
+        topic_id: topic.id,
+        topic_title: topic.title,
+        topic_path: topic.path,
+        score: payload.score,
+        total_questions: payload.totalQuestions,
+        score_percent:
+            payload.totalQuestions > 0
+                ? Math.round((payload.score / payload.totalQuestions) * 100)
+                : 0,
+    });
     updateStudyProgress((current) => {
         const existing = current.quizzes[topic.id];
 

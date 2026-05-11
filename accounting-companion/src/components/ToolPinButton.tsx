@@ -1,4 +1,5 @@
 import { togglePinnedPath, useAppActivity } from "../utils/appActivity";
+import { trackButtonClick } from "../utils/analytics";
 
 type ToolPinButtonProps = {
     path: string;
@@ -34,12 +35,19 @@ export default function ToolPinButton({
 }: ToolPinButtonProps) {
     const activity = useAppActivity();
     const isPinned = activity.pinnedPaths.includes(path);
+    const handleClick = () => {
+        trackButtonClick(isPinned ? "unpin_tool" : "pin_tool", {
+            route_path: path,
+            route_label: label,
+        });
+        togglePinnedPath(path);
+    };
 
     if (variant === "icon") {
         return (
             <button
                 type="button"
-                onClick={() => togglePinnedPath(path)}
+                onClick={handleClick}
                 aria-pressed={isPinned}
                 aria-label={isPinned ? `Unpin ${label}` : `Pin ${label}`}
                 title={isPinned ? `Unpin ${label}` : `Pin ${label}`}
@@ -59,7 +67,7 @@ export default function ToolPinButton({
     return (
         <button
             type="button"
-            onClick={() => togglePinnedPath(path)}
+            onClick={handleClick}
             aria-pressed={isPinned}
             aria-label={isPinned ? `Unpin ${label}` : `Pin ${label}`}
             title={isPinned ? `Unpin ${label}` : `Pin ${label}`}
